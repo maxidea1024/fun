@@ -31,7 +31,7 @@ class Application : public fun::ServerApplication {
   fun::Server server;
 }
 
-int main(int argc, char* argv) {
+int main(int argc, char* argv[]) {
   Application app;
   if (!app.Initialize(argc, argv)) {
     return -1;
