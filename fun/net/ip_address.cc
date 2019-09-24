@@ -1,4 +1,4 @@
-﻿#include "fun/net/ip_address.h"
+#include "fun/net/ip_address.h"
 
 namespace fun {
 namespace net {
