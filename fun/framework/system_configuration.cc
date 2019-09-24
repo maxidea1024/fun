@@ -1,8 +1,8 @@
 ﻿#include "fun/framework/system_configuration.h"
 
+#include "fun/base/date_time.h"
 #include "fun/base/environment.h"
 #include "fun/base/path.h"
-#include "fun/base/date_time.h"
 
 //#include "fun/base/date_time_formatter.h"
 //#include "fun/base/date_time_format.h"
@@ -19,23 +19,23 @@
 namespace fun {
 namespace framework {
 
-const String SystemConfiguration::OSNAME         = "system.os_name";
-const String SystemConfiguration::OSVERSION      = "system.os_version";
+const String SystemConfiguration::OSNAME = "system.os_name";
+const String SystemConfiguration::OSVERSION = "system.os_version";
 const String SystemConfiguration::OSARCHITECTURE = "system.os_architecture";
-const String SystemConfiguration::NODENAME       = "system.node_name";
-const String SystemConfiguration::NODEID         = "system.node_id";
-const String SystemConfiguration::CURRENTDIR     = "system.current_dir";
-const String SystemConfiguration::HOMEDIR        = "system.home_dir";
-const String SystemConfiguration::CONFIGHOMEDIR  = "system.config_home_dir";
-const String SystemConfiguration::CACHEHOMEDIR   = "system.cache_home_dir";
-const String SystemConfiguration::DATAHOMEDIR    = "system.data_home_dir";
-const String SystemConfiguration::TEMPDIR        = "system.temp_dir";
-const String SystemConfiguration::CONFIGDIR      = "system.config_dir";
-const String SystemConfiguration::DATETIME       = "system.datetime";
+const String SystemConfiguration::NODENAME = "system.node_name";
+const String SystemConfiguration::NODEID = "system.node_id";
+const String SystemConfiguration::CURRENTDIR = "system.current_dir";
+const String SystemConfiguration::HOMEDIR = "system.home_dir";
+const String SystemConfiguration::CONFIGHOMEDIR = "system.config_home_dir";
+const String SystemConfiguration::CACHEHOMEDIR = "system.cache_home_dir";
+const String SystemConfiguration::DATAHOMEDIR = "system.data_home_dir";
+const String SystemConfiguration::TEMPDIR = "system.temp_dir";
+const String SystemConfiguration::CONFIGDIR = "system.config_dir";
+const String SystemConfiguration::DATETIME = "system.datetime";
 #if FUN_PLATFORM != FUN_PLATFORM_VXWORKS
-const String SystemConfiguration::PID            = "system.pid";
+const String SystemConfiguration::PID = "system.pid";
 #endif
-const String SystemConfiguration::ENV            = "system.env.";
+const String SystemConfiguration::ENV = "system.env.";
 
 SystemConfiguration::SystemConfiguration() {}
 
@@ -55,8 +55,8 @@ bool SystemConfiguration::GetRaw(const String& key, String& value) const {
       fun::Environment::NodeId id;
       fun::Environment::GetNodeId(id);
       char result[13];
-      std::sprintf(result, "%02x%02x%02x%02x%02x%02x",
-                            id[0], id[1], id[2], id[3], id[4], id[5]);
+      std::sprintf(result, "%02x%02x%02x%02x%02x%02x", id[0], id[1], id[2],
+                   id[3], id[4], id[5]);
       value = result;
     } catch (...) {
       value = "000000000000";
@@ -76,9 +76,10 @@ bool SystemConfiguration::GetRaw(const String& key, String& value) const {
   } else if (icompare(key, CONFIGDIR) == 0) {
     value = Path::GetConfig();
   } else if (icompare(key, DATETIME) == 0) {
-    //TODO
+    // TODO
     fun_check(0);
-    //value = fun::DateTimeFormatter::Format(fun::DateTime(), fun::DateTimeFormat::ISO8601_FORMAT);
+    // value = fun::DateTimeFormatter::Format(fun::DateTime(),
+    // fun::DateTimeFormat::ISO8601_FORMAT);
   }
 #if FUN_PLATFORM != FUN_PLATFORM_VXWORKS
   else if (icompare(key, PID) == 0) {
@@ -86,7 +87,7 @@ bool SystemConfiguration::GetRaw(const String& key, String& value) const {
     value = String::FromNumber(fun::Process::CurrentPid());
   }
 #endif
-  //else if (key.compare(0, ENV.Len(), ENV) == 0) {
+  // else if (key.compare(0, ENV.Len(), ENV) == 0) {
   else if (key.StartsWith(ENV)) {
     // system.env.[env_var_name]
     return GetEnv(key.Mid(ENV.Len()), value);
@@ -142,5 +143,5 @@ bool SystemConfiguration::GetEnv(const String& name, String& value) {
   return false;
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

@@ -1,10 +1,10 @@
-﻿//TODO 클래스명을 좀더 의미 있게 변경해주는게 좋을듯...
+﻿// TODO 클래스명을 좀더 의미 있게 변경해주는게 좋을듯...
 
 #pragma once
 
+#include "fun/base/container/array.h"
 #include "fun/framework/framework.h"
 #include "fun/framework/option.h"
-#include "fun/base/container/array.h"
 
 namespace fun {
 namespace framework {
@@ -27,7 +27,7 @@ class FUN_FRAMEWORK_API OptionSet {
   ~OptionSet();
 
   /** Assignment operator. */
-  OptionSet& operator = (const OptionSet& options);
+  OptionSet& operator=(const OptionSet& options);
 
   /** Adds an option to the collection. */
   void AddOption(const Option& option);
@@ -68,5 +68,5 @@ class FUN_FRAMEWORK_API OptionSet {
   OptionList options_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

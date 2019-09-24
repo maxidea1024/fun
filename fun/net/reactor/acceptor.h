@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
-#include "fun/net/reactor/channel.h"
 #include "fun/base/function.h"
 #include "fun/net/inet_address.h"
+#include "fun/net/net.h"
+#include "fun/net/reactor/channel.h"
 
 namespace fun {
 namespace net {
@@ -17,7 +17,7 @@ class InetAddress;
  */
 class Acceptor : Noncopyable {
  public:
-  typedef Function<void (int sock_fd, const InetAddress&)> NewConnectionCallback;
+  typedef Function<void(int sock_fd, const InetAddress&)> NewConnectionCallback;
 
   /**
    * Acceptor를 여러개 설치할 경우에는 reuse_port를 true로 해주어야함.
@@ -30,9 +30,7 @@ class Acceptor : Noncopyable {
     new_connection_cb_ = cb;
   }
 
-  bool IsListening() const {
-    return listenning_;
-  }
+  bool IsListening() const { return listenning_; }
 
   void Listen();
 
@@ -47,6 +45,6 @@ class Acceptor : Noncopyable {
   int idle_fd_;
 };
 
-} // namespace reactor
-} // namespace net
-} // namespace fun
+}  // namespace reactor
+}  // namespace net
+}  // namespace fun

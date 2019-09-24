@@ -1,24 +1,19 @@
 ﻿#include "fun/framework/option_processor.h"
-#include "fun/framework/option_set.h"
 #include "fun/framework/option.h"
 #include "fun/framework/option_exception.h"
+#include "fun/framework/option_set.h"
 
 namespace fun {
 namespace framework {
 
 OptionProcessor::OptionProcessor(const OptionSet& options)
-  : options_(options),
-    unix_style_(true),
-    ignore_(false) {}
+    : options_(options), unix_style_(true), ignore_(false) {}
 
 OptionProcessor::~OptionProcessor() {}
 
-void OptionProcessor::SetUnixStyle(bool flag) {
-  unix_style_ = flag;
-}
+void OptionProcessor::SetUnixStyle(bool flag) { unix_style_ = flag; }
 
-bool OptionProcessor::Process(const String& argument,
-                              String& option_name,
+bool OptionProcessor::Process(const String& argument, String& option_name,
                               String& option_arg) {
   option_name.Clear();
   option_arg.Clear();
@@ -38,7 +33,8 @@ bool OptionProcessor::Process(const String& argument,
 
 void OptionProcessor::CheckRequired() const {
   for (OptionSet::Iterator it = options_.begin(); it != options_.end(); ++it) {
-    if (it->IsRequired() && specified_options_.find(it->GetFullName()) == specified_options_.end()) {
+    if (it->IsRequired() && specified_options_.find(it->GetFullName()) ==
+                                specified_options_.end()) {
       throw MissingOptionException(it->GetFullName());
     }
   }
@@ -46,14 +42,14 @@ void OptionProcessor::CheckRequired() const {
   if (!specified_options_.IsEmpty()) {
     String option_arg;
     const Option& option = options_.GetOption(specified_options_, false);
-    option.Process(specified_options_, option_arg); // will throw MissingArgumentException
+    option.Process(specified_options_,
+                   option_arg);  // will throw MissingArgumentException
   }
 }
 
-bool OptionProcessor::ProcessUnix(const String& argument,
-                                  String& option_name,
+bool OptionProcessor::ProcessUnix(const String& argument, String& option_name,
                                   String& option_arg) {
-  String::const_iterator it  = argument.begin();
+  String::const_iterator it = argument.begin();
   String::const_iterator end = argument.end();
   if (it != end) {
     if (*it == '-') {
@@ -65,7 +61,8 @@ bool OptionProcessor::ProcessUnix(const String& argument,
             ignore_ = true;
             return true;
           } else {
-            return ProcessCommon(String(it, end), false, option_name, option_arg);
+            return ProcessCommon(String(it, end), false, option_name,
+                                 option_arg);
           }
         } else {
           return ProcessCommon(String(it, end), true, option_name, option_arg);
@@ -76,10 +73,9 @@ bool OptionProcessor::ProcessUnix(const String& argument,
   return false;
 }
 
-bool OptionProcessor::ProcessDefault( const String& argument,
-                                      String& option_name,
-                                      String& option_arg) {
-  String::const_iterator it  = argument.begin();
+bool OptionProcessor::ProcessDefault(const String& argument,
+                                     String& option_name, String& option_arg) {
+  String::const_iterator it = argument.begin();
   String::const_iterator end = argument.end();
   if (it != end) {
     if (*it == '/') {
@@ -90,10 +86,8 @@ bool OptionProcessor::ProcessDefault( const String& argument,
   return false;
 }
 
-bool OptionProcessor::ProcessCommon(const String& option_str,
-                                    bool is_short,
-                                    String& option_name,
-                                    String& option_arg) {
+bool OptionProcessor::ProcessCommon(const String& option_str, bool is_short,
+                                    String& option_name, String& option_arg) {
   if (!specified_options_.IsEmpty()) {
     const Option& option = options_.GetOption(specified_options_, false);
     String option_with_arg(specified_options_);
@@ -119,13 +113,17 @@ bool OptionProcessor::ProcessCommon(const String& option_str,
     }
   }
 
-  if (specified_options_.find(option.GetFullName()) != specified_options_.end() && !option.IsRepeatable()) {
+  if (specified_options_.find(option.GetFullName()) !=
+          specified_options_.end() &&
+      !option.IsRepeatable()) {
     throw DuplicateOptionException(option.GetFullName());
   }
 
   specified_options_.insert(option.GetFullName());
 
-  if (option.IsArgumentRequired() && ((!is_short && option_str.find_first_of(":=") == String::npos) || (is_short && option_str.Len() == option.GetShortName().Len()))) {
+  if (option.IsArgumentRequired() &&
+      ((!is_short && option_str.find_first_of(":=") == String::npos) ||
+       (is_short && option_str.Len() == option.GetShortName().Len()))) {
     specified_options_ = option.GetFullName();
     return true;
   }
@@ -136,5 +134,5 @@ bool OptionProcessor::ProcessCommon(const String& option_str,
   return true;
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

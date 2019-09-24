@@ -10,7 +10,7 @@ class TimeZoneImpl {
  public:
   struct Data {
     String abbreviation;
-    int64 at_msecs_since_epoch; // 1970-1-1 0:00:00
+    int64 at_msecs_since_epoch;  // 1970-1-1 0:00:00
     int32 offset_from_utc;
     int32 standard_time_offset;
     int32 daylight_time_offset;
@@ -23,8 +23,8 @@ class TimeZoneImpl {
 
   virtual TimeZoneImpl* Clone() const;
 
-  bool operator == (const TimeZoneImpl& rhs) const;
-  bool operator != (const TimeZoneImpl& rhs) const;
+  bool operator==(const TimeZoneImpl& rhs) const;
+  bool operator!=(const TimeZoneImpl& rhs) const;
 
   bool IsValid() const;
 
@@ -64,9 +64,15 @@ class TimeZoneImpl {
   virtual Array<String> AvailableTimeZoneIds(int32 utc_offset) const;
 
   static inline int64 MaxMSecs() { return std::numeric_limits<int64>::max(); }
-  static inline int64 MinMSecs() { return std::numeric_limits<int64>::min() + 1; }
-  static inline int64 InvalidMSecs() { return std::numeric_limits<int64>::min(); }
-  static inline int64 InvalidSeconds() { return std::numeric_limits<int32>::min(); }
+  static inline int64 MinMSecs() {
+    return std::numeric_limits<int64>::min() + 1;
+  }
+  static inline int64 InvalidMSecs() {
+    return std::numeric_limits<int64>::min();
+  }
+  static inline int64 InvalidSeconds() {
+    return std::numeric_limits<int32>::min();
+  }
   static Data InvalidData();
   static TimeZone::OffsetData InvalidOffsetData();
   static TimeZone::OffsetData ToOffsetData(const Data& data);
@@ -75,8 +81,8 @@ class TimeZoneImpl {
 
   static String IanaIdToWindowsId(const String& iana_id);
   static String WindowsIdToDefaultIanaId(const String& windows_id);
-  static String WindowsIdToDefaultIanaId( const String& windows_id,
-                                          Locale::Country country);
+  static String WindowsIdToDefaultIanaId(const String& windows_id,
+                                         Locale::Country country);
   static Array<String> WindowsIdToIanaIds(const String& windows_id);
   static Array<String> WindowsIdToIanaIds(const String& windows_id,
                                           Locale::Country country);
@@ -85,7 +91,6 @@ class TimeZoneImpl {
   String id_;
 };
 
-
 class UtcTimeZoneImpl : public TimeZoneImpl {
  public:
   using Super = TimeZoneImpl;
@@ -93,16 +98,13 @@ class UtcTimeZoneImpl : public TimeZoneImpl {
   UtcTimeZoneImpl();
   UtcTimeZoneImpl(const String& iana_id);
   UtcTimeZoneImpl(int32 offset_seconds);
-  UtcTimeZoneImpl(const String& iana_id,
-                  int32 offset_seconds,
-                  const String& name,
-                  const String& abbreviation,
-                  Locale::Country country,
-                  const String& comment);
+  UtcTimeZoneImpl(const String& iana_id, int32 offset_seconds,
+                  const String& name, const String& abbreviation,
+                  Locale::Country country, const String& comment);
   UtcTimeZoneImpl(const UtcTimeZoneImpl& rhs);
   ~UtcTimeZoneImpl();
 
-  //super에서는 TimeZoneImpl* 타입으로 처리하는데 말이지?
+  // super에서는 TimeZoneImpl* 타입으로 처리하는데 말이지?
   UtcTimeZoneImpl* Clone() const override;
 
   Data GetData(int64 for_msecs_since_epoch) const override;
@@ -126,11 +128,8 @@ class UtcTimeZoneImpl : public TimeZoneImpl {
 
  private:
   void Init(const String& zone_id);
-  void Init(const String& zone_id,
-            int32 offset_seconds,
-            const String& name,
-            const String& abbreviation,
-            Locale::Country country,
+  void Init(const String& zone_id, int32 offset_seconds, const String& name,
+            const String& abbreviation, Locale::Country country,
             const String& comment);
 
   String name_;
@@ -139,7 +138,6 @@ class UtcTimeZoneImpl : public TimeZoneImpl {
   Locale::Country country_;
   int32 offset_from_utc_;
 };
-
 
 #if FUN_WITH_ICU
 
@@ -152,7 +150,7 @@ class IcuTimeZonePrivate : public TimeZoneImpl {
   IcuTimeZonePrivate(const IcuTimeZonePrivate& rhs);
   ~IcuTimeZonePrivate();
 
-  //super에서는 TimeZoneImpl* 타입으로 처리하는데 말이지?
+  // super에서는 TimeZoneImpl* 타입으로 처리하는데 말이지?
   IcuTimeZonePrivate* Clone() const override;
 
   String GetDisplayName(TimeZone::TimeType time_type,
@@ -185,13 +183,11 @@ class IcuTimeZonePrivate : public TimeZoneImpl {
   UCalendar* ucal_;
 };
 
-#endif //FUN_WITH_ICU
-
+#endif  // FUN_WITH_ICU
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
 
-class WinTimeZoneImpl : public TimeZoneImpl
-{
+class WinTimeZoneImpl : public TimeZoneImpl {
  public:
   using Super = TimeZoneImpl;
 
@@ -203,9 +199,7 @@ class WinTimeZoneImpl : public TimeZoneImpl
     SYSTEMTIME daylight_time_rule;
 
     WinTransitionRule()
-      : start_year(0),
-        standard_time_bias(0),
-        daylight_time_bias(0) {
+        : start_year(0), standard_time_bias(0), daylight_time_bias(0) {
       UnsafeMemory::Memzero(&standard_time_rule, sizeof(standard_time_rule));
       UnsafeMemory::Memzero(&daylight_time_rule, sizeof(daylight_time_rule));
     }
@@ -216,7 +210,7 @@ class WinTimeZoneImpl : public TimeZoneImpl
   WinTimeZoneImpl(const WinTimeZoneImpl& rhs);
   ~WinTimeZoneImpl();
 
-  //super에서는 TimeZoneImpl* 타입으로 처리하는데 말이지?
+  // super에서는 TimeZoneImpl* 타입으로 처리하는데 말이지?
   WinTimeZoneImpl* Clone() const override;
 
   String GetComment() const override;
@@ -259,8 +253,7 @@ class WinTimeZoneImpl : public TimeZoneImpl
   Array<WinTransitionRule> trans_rules_;
 };
 
-#endif // FUN_PLATFORM_WINDOWS_FAMILY
-
+#endif  // FUN_PLATFORM_WINDOWS_FAMILY
 
 struct TzTransitionTime {
   int64 at_msecs_since_epoch;
@@ -272,17 +265,15 @@ struct TzTransitionRule {
   int32 dst_offset;
   uint8 abbreviation_index;
 
-  bool operator == (const TzTransitionRule& other) const {
-    return  std_offset == other.std_offset &&
-            dst_offset == other.dst_offset &&
-            abbreviation_index == other.abbreviation_index;
+  bool operator==(const TzTransitionRule& other) const {
+    return std_offset == other.std_offset && dst_offset == other.dst_offset &&
+           abbreviation_index == other.abbreviation_index;
   }
 
-  bool operator != (const TzTransitionRule& other) const {
+  bool operator!=(const TzTransitionRule& other) const {
     return !(*this == other);
   }
 };
-
 
 #if FUN_PLATFORM_UNIX_FAMILY
 
@@ -330,8 +321,7 @@ class UnixTimeZoneImpl : public TimeZoneImpl {
   String posix_rule_;
 };
 
-#endif // FUN_PLATFORM_UNIX_FAMILY
-
+#endif  // FUN_PLATFORM_UNIX_FAMILY
 
 #if FUN_PLATFORM == FUN_PLATFORM_MAC
 
@@ -374,8 +364,7 @@ class MacTimeZoneImpl : public TimeZoneImpl {
   NSTimeZone* ns_time_zone_;
 };
 
-#endif // FUN_PLATFORM_MAC
-
+#endif  // FUN_PLATFORM_MAC
 
 #if FUN_PLATFORM == FUN_PLATFORM_ANDROID
 
@@ -416,6 +405,6 @@ class AndroidTimeZoneImpl : public TimeZoneImpl {
   JNIObjectImpl android_time_zone_;
 };
 
-#endif // FUN_PLATFORM_ANDROID
+#endif  // FUN_PLATFORM_ANDROID
 
-} // namespace fun
+}  // namespace fun

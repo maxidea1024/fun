@@ -1,10 +1,10 @@
 ﻿#pragma once
 
+#include <ctime>  // std::time_t
 #include "fun/base/base.h"
-#include "fun/base/ftl/functional.h" // HashOf
-#include <ctime> // std::time_t
+#include "fun/base/ftl/functional.h"  // HashOf
 
-//TODO hash...
+// TODO hash...
 
 namespace fun {
 
@@ -69,8 +69,8 @@ class FUN_BASE_API Timestamp {
    */
   ~Timestamp();
 
-  Timestamp& operator = (const Timestamp& other);
-  Timestamp& operator = (TimeVal tv);
+  Timestamp& operator=(const Timestamp& other);
+  Timestamp& operator=(TimeVal tv);
 
   void Swap(Timestamp& other);
 
@@ -78,22 +78,22 @@ class FUN_BASE_API Timestamp {
 
   static Timestamp Now();
 
-  bool operator == (const Timestamp& other) const;
-  bool operator != (const Timestamp& other) const;
-  bool operator >  (const Timestamp& other) const;
-  bool operator >= (const Timestamp& other) const;
-  bool operator <  (const Timestamp& other) const;
-  bool operator <= (const Timestamp& other) const;
+  bool operator==(const Timestamp& other) const;
+  bool operator!=(const Timestamp& other) const;
+  bool operator>(const Timestamp& other) const;
+  bool operator>=(const Timestamp& other) const;
+  bool operator<(const Timestamp& other) const;
+  bool operator<=(const Timestamp& other) const;
 
-  Timestamp  operator +  (TimeDiff d) const;
-  Timestamp  operator +  (const Timespan& span) const;
-  Timestamp  operator -  (TimeDiff d) const;
-  Timestamp  operator -  (const Timespan& span) const;
-  TimeDiff   operator -  (const Timestamp& ts) const;
-  Timestamp& operator += (TimeDiff d);
-  Timestamp& operator += (const Timespan& span);
-  Timestamp& operator -= (TimeDiff d);
-  Timestamp& operator -= (const Timespan& span);
+  Timestamp operator+(TimeDiff d) const;
+  Timestamp operator+(const Timespan& span) const;
+  Timestamp operator-(TimeDiff d) const;
+  Timestamp operator-(const Timespan& span) const;
+  TimeDiff operator-(const Timestamp& ts) const;
+  Timestamp& operator+=(TimeDiff d);
+  Timestamp& operator+=(const Timespan& span);
+  Timestamp& operator-=(TimeDiff d);
+  Timestamp& operator-=(const Timespan& span);
 
   /**
    * Returns the timestamp expressed in time_t.
@@ -158,9 +158,7 @@ class FUN_BASE_API Timestamp {
   void ToFileTimeNP(uint32& file_time_lo, uint32& file_time_hi) const;
 #endif
 
-  FUN_ALWAYS_INLINE friend void Swap(Timestamp& x, Timestamp& y) {
-    x.Swap(y);
-  }
+  FUN_ALWAYS_INLINE friend void Swap(Timestamp& x, Timestamp& y) { x.Swap(y); }
 
   FUN_ALWAYS_INLINE friend uint32 HashOf(const Timestamp& v) {
     return HashOf(v.value_);
@@ -170,34 +168,29 @@ class FUN_BASE_API Timestamp {
   TimeVal value_;
 };
 
-
 //
 // inlines
 //
 
 FUN_ALWAYS_INLINE Timestamp::Timestamp() : value_(0) {}
 
-FUN_ALWAYS_INLINE Timestamp::Timestamp(ForceInit_TAG) {
-  Update();
-}
+FUN_ALWAYS_INLINE Timestamp::Timestamp(ForceInit_TAG) { Update(); }
 
-FUN_ALWAYS_INLINE Timestamp Timestamp::Now() {
-  return Timestamp(ForceInit);
-}
+FUN_ALWAYS_INLINE Timestamp Timestamp::Now() { return Timestamp(ForceInit); }
 
 FUN_ALWAYS_INLINE Timestamp::Timestamp(TimeVal tv) : value_(tv) {}
 
 FUN_ALWAYS_INLINE Timestamp::Timestamp(const Timestamp& rhs)
-  : value_(rhs.value_) {}
+    : value_(rhs.value_) {}
 
 FUN_ALWAYS_INLINE Timestamp::~Timestamp() {}
 
-FUN_ALWAYS_INLINE Timestamp& Timestamp::operator = (const Timestamp& rhs) {
+FUN_ALWAYS_INLINE Timestamp& Timestamp::operator=(const Timestamp& rhs) {
   value_ = rhs.value_;
   return *this;
 }
 
-FUN_ALWAYS_INLINE Timestamp& Timestamp::operator = (TimeVal tv) {
+FUN_ALWAYS_INLINE Timestamp& Timestamp::operator=(TimeVal tv) {
   value_ = tv;
   return *this;
 }
@@ -206,47 +199,48 @@ FUN_ALWAYS_INLINE void Timestamp::Swap(Timestamp& other) {
   fun::Swap(value_, other.value_);
 }
 
-FUN_ALWAYS_INLINE bool Timestamp::operator == (const Timestamp& ts) const {
+FUN_ALWAYS_INLINE bool Timestamp::operator==(const Timestamp& ts) const {
   return value_ == ts.value_;
 }
 
-FUN_ALWAYS_INLINE bool Timestamp::operator != (const Timestamp& ts) const {
+FUN_ALWAYS_INLINE bool Timestamp::operator!=(const Timestamp& ts) const {
   return value_ != ts.value_;
 }
 
-FUN_ALWAYS_INLINE bool Timestamp::operator >  (const Timestamp& ts) const {
+FUN_ALWAYS_INLINE bool Timestamp::operator>(const Timestamp& ts) const {
   return value_ > ts.value_;
 }
-FUN_ALWAYS_INLINE bool Timestamp::operator >= (const Timestamp& ts) const {
+FUN_ALWAYS_INLINE bool Timestamp::operator>=(const Timestamp& ts) const {
   return value_ >= ts.value_;
 }
 
-FUN_ALWAYS_INLINE bool Timestamp::operator <  (const Timestamp& ts) const {
+FUN_ALWAYS_INLINE bool Timestamp::operator<(const Timestamp& ts) const {
   return value_ < ts.value_;
 }
 
-FUN_ALWAYS_INLINE bool Timestamp::operator <= (const Timestamp& ts) const {
+FUN_ALWAYS_INLINE bool Timestamp::operator<=(const Timestamp& ts) const {
   return value_ <= ts.value_;
 }
 
-FUN_ALWAYS_INLINE Timestamp Timestamp::operator + (Timestamp::TimeDiff d) const {
+FUN_ALWAYS_INLINE Timestamp Timestamp::operator+(Timestamp::TimeDiff d) const {
   return Timestamp(value_ + d);
 }
 
-FUN_ALWAYS_INLINE Timestamp Timestamp::operator - (Timestamp::TimeDiff d) const {
+FUN_ALWAYS_INLINE Timestamp Timestamp::operator-(Timestamp::TimeDiff d) const {
   return Timestamp(value_ - d);
 }
 
-FUN_ALWAYS_INLINE Timestamp::TimeDiff Timestamp::operator - (const Timestamp& ts) const {
+FUN_ALWAYS_INLINE Timestamp::TimeDiff Timestamp::operator-(
+    const Timestamp& ts) const {
   return value_ - ts.value_;
 }
 
-FUN_ALWAYS_INLINE Timestamp& Timestamp::operator += (Timestamp::TimeDiff d) {
+FUN_ALWAYS_INLINE Timestamp& Timestamp::operator+=(Timestamp::TimeDiff d) {
   value_ += d;
   return *this;
 }
 
-FUN_ALWAYS_INLINE Timestamp& Timestamp::operator -= (Timestamp::TimeDiff d) {
+FUN_ALWAYS_INLINE Timestamp& Timestamp::operator-=(Timestamp::TimeDiff d) {
   value_ -= d;
   return *this;
 }
@@ -256,7 +250,7 @@ FUN_ALWAYS_INLINE std::time_t Timestamp::EpochTime() const {
 }
 
 FUN_ALWAYS_INLINE Timestamp::UtcTimeVal Timestamp::UtcTime() const {
-  return value_*10 + (TimeDiff(0x01b21dd2) << 32) + 0x13814000;
+  return value_ * 10 + (TimeDiff(0x01b21dd2) << 32) + 0x13814000;
 }
 
 FUN_ALWAYS_INLINE Timestamp::TimeVal Timestamp::EpochMicroseconds() const {
@@ -268,18 +262,17 @@ FUN_ALWAYS_INLINE Timestamp::TimeDiff Timestamp::Elapsed() const {
   return now - *this;
 }
 
-FUN_ALWAYS_INLINE bool Timestamp::IsElapsed(Timestamp::TimeDiff interval) const {
+FUN_ALWAYS_INLINE bool Timestamp::IsElapsed(
+    Timestamp::TimeDiff interval) const {
   Timestamp now(ForceInit);
   TimeDiff span = now - *this;
   return span >= interval;
 }
 
 FUN_ALWAYS_INLINE Timestamp::TimeDiff Timestamp::Resolution() {
-  return 1000000; // 10^6
+  return 1000000;  // 10^6
 }
 
-FUN_ALWAYS_INLINE Timestamp::TimeVal Timestamp::Raw() const {
-  return value_;
-}
+FUN_ALWAYS_INLINE Timestamp::TimeVal Timestamp::Raw() const { return value_; }
 
-} // namespace fun
+}  // namespace fun

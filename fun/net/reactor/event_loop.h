@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
+#include "fun/base/container/array.h"
 #include "fun/base/shared_ptr.h"
 #include "fun/base/timestamp.h"
-#include "fun/base/container/array.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -13,30 +13,26 @@ namespace net {
  */
 class EventLoop : Noncopyable {
  public:
-  typedef Function<void ()> Functor;
+  typedef Function<void()> Functor;
 
   EventLoop();
   ~EventLoop();
 
   /**
    * Loops forever.
-   * 
+   *
    * Must be called in the same thread as creation of the object.
    */
   void Loop();
 
   // TODO 타임아웃을 주고, Polling 형태로 동작할 수 있도록 할수 있어야함.
-  //int Pool(int timeout_msecs);
+  // int Pool(int timeout_msecs);
 
   void Quit();
 
-  Timestamp PollReturnTime() const {
-    return poll_return_time_;
-  }
+  Timestamp PollReturnTime() const { return poll_return_time_; }
 
-  int64 Iteration() const {
-    return iteration_;
-  }
+  int64 Iteration() const { return iteration_; }
 
   void RunInLoop(const Functor& f);
   void QueueInLoop(const Functor& f);
@@ -46,7 +42,6 @@ class EventLoop : Noncopyable {
 
   int32 GetEnqueuedCount() const;
 
-
   //
   // Timer
   //
@@ -55,7 +50,6 @@ class EventLoop : Noncopyable {
   TimerId ScheduleAfter(double delay, const TimerCallback& callback);
   TimerId ScheduleEvery(double interval, const TimerCallback& callback);
   void CancelSchedule(TimerId timer_id);
-
 
   void WakeUp();
   void UpdateChannel(Channel* channel);
@@ -68,26 +62,20 @@ class EventLoop : Noncopyable {
     }
   }
 
-  bool IsInLoopThread() const {
-    return tid_ == Thread::CurrentTid();
-  }
+  bool IsInLoopThread() const { return tid_ == Thread::CurrentTid(); }
 
-  bool EventHandling() const {
-    return events_handling_;
-  }
+  bool EventHandling() const { return events_handling_; }
 
-
-  //TODO tag or context
-
+  // TODO tag or context
 
   static EventLoop* GetEventLoopOfCurrentThread();
 
  private:
   void AbortNotInLoopThread();
-  void HandleRead(); // for wakeup
+  void HandleRead();  // for wakeup
   void ProcessPendingFunctors();
 
-  void PrintActiveChannels() const; // for debugging
+  void PrintActiveChannels() const;  // for debugging
 
   typedef Array<Channel*> ChannelList;
 
@@ -112,5 +100,5 @@ class EventLoop : Noncopyable {
   Array<Functor> pending_functors_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -1,19 +1,20 @@
 ﻿#include "fun/framework/option_set.h"
-#include "fun/framework/option_exception.h"
 #include "fun/base/exception.h"
+#include "fun/framework/option_exception.h"
 
 namespace fun {
 namespace framework {
 
 OptionSet::OptionSet() {}
 
-OptionSet::OptionSet(const OptionSet& options)
-  : options_(options.options_) {}
+OptionSet::OptionSet(const OptionSet& options) : options_(options.options_) {}
 
 OptionSet::~OptionSet() {}
 
-OptionSet& OptionSet::operator = (const OptionSet& options) {
-  if (FUN_LIKELY(&options != this)) { //TODO 어짜피 내부에서 체크하니 두번 체크하는 꼴일듯...
+OptionSet& OptionSet::operator=(const OptionSet& options) {
+  if (FUN_LIKELY(
+          &options !=
+          this)) {  // TODO 어짜피 내부에서 체크하니 두번 체크하는 꼴일듯...
     options_ = options.options_;
   }
 
@@ -78,13 +79,9 @@ const Option& OptionSet::GetOption(const String& name, bool match_short) const {
   }
 }
 
-OptionSet::Iterator OptionSet::begin() const {
-  return options_.begin();
-}
+OptionSet::Iterator OptionSet::begin() const { return options_.begin(); }
 
-OptionSet::Iterator OptionSet::end() const {
-  return options_.end();
-}
+OptionSet::Iterator OptionSet::end() const { return options_.end(); }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

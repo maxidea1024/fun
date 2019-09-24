@@ -13,5 +13,5 @@ class VerifySsl {
   bool verify;
 };
 
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

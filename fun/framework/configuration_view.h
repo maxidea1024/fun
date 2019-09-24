@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
 #include "fun/framework/configuration_base.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -33,8 +33,8 @@ namespace framework {
  * still works as expected given a ConfigurationView.
  */
 class FUN_FRAMEWORK_API ConfigurationView : public ConfigurationBase {
-  //TODO
-  //FUN_DECLARE_RTCLASS(ConfigurationView, ConfigurationBase)
+  // TODO
+  // FUN_DECLARE_RTCLASS(ConfigurationView, ConfigurationBase)
 
  public:
   /**
@@ -57,5 +57,5 @@ class FUN_FRAMEWORK_API ConfigurationView : public ConfigurationBase {
   ConfigurationBase::Ptr config_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

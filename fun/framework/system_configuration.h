@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
 #include "fun/framework/configuration_base.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -15,16 +15,20 @@ namespace framework {
  *   - system.os_version     : the operating system version
  *   - system.os_architecture: the operating system architecture
  *   - system.node_name      : the node (or host) name
- *   - system.node_Id        : system ID, based on the Ethernet address (Format "xxxxxxxxxxxx")
- *                             of the first Ethernet adapter found on the system.
+ *   - system.node_Id        : system ID, based on the Ethernet address (Format
+ * "xxxxxxxxxxxx") of the first Ethernet adapter found on the system.
  *   - system.current_dir    : the current working directory
  *   - system.home_dir       : the user's home directory
- *   - system.config_home_dir: the base directory relative to which user specific configuration files should be stored
- *   - system.cache_home_dir : the base directory relative to which user specific non-essential data files should be stored
- *   - system.data_home_dir  : the base directory relative to which user specific data files should be stored
+ *   - system.config_home_dir: the base directory relative to which user
+ * specific configuration files should be stored
+ *   - system.cache_home_dir : the base directory relative to which user
+ * specific non-essential data files should be stored
+ *   - system.data_home_dir  : the base directory relative to which user
+ * specific data files should be stored
  *   - system.temp_dir       : the system's temporary directory
  *   - system.config_dir     : the system's configuration directory
- *   - system.datetime       : the current UTC date and time, formatted in ISO 8601 Format.
+ *   - system.datetime       : the current UTC date and time, formatted in ISO
+ * 8601 Format.
  *   - system.pid            : the current process ID.
  *   - system.env.<NAME>     : the environment variable with the given <NAME>.
  *
@@ -38,8 +42,8 @@ namespace framework {
  * in a NotImplementedException being thrown.
  */
 class FUN_FRAMEWORK_API SystemConfiguration : public ConfigurationBase {
-  //TODO
-  //FUN_DECLARE_RTCLASS(SystemConfiguration, ConfigurationBase)
+  // TODO
+  // FUN_DECLARE_RTCLASS(SystemConfiguration, ConfigurationBase)
 
  public:
   SystemConfiguration();
@@ -76,5 +80,5 @@ class FUN_FRAMEWORK_API SystemConfiguration : public ConfigurationBase {
   static const String ENV;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

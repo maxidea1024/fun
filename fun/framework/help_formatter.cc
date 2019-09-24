@@ -1,6 +1,6 @@
 ﻿#include "fun/framework/help_formatter.h"
-#include "fun/framework/option_set.h"
 #include "fun/framework/option.h"
+#include "fun/framework/option_set.h"
 
 namespace fun {
 namespace framework {
@@ -9,10 +9,7 @@ const int32 HelpFormatter::TAB_WIDTH = 4;
 const int32 HelpFormatter::LINE_WIDTH = 78;
 
 HelpFormatter::HelpFormatter(const OptionSet& options)
-  : options_(options),
-    width_(LINE_WIDTH),
-    indent_(0),
-    unix_style_(true) {
+    : options_(options), width_(LINE_WIDTH), indent_(0), unix_style_(true) {
 #if !FUN_PLATFORM_UNIX_FAMILY
   unix_style_ = false;
 #endif
@@ -21,21 +18,13 @@ HelpFormatter::HelpFormatter(const OptionSet& options)
 
 HelpFormatter::~HelpFormatter() {}
 
-void HelpFormatter::SetCommand(const String& command) {
-  command_ = command;
-}
+void HelpFormatter::SetCommand(const String& command) { command_ = command; }
 
-void HelpFormatter::SetUsage(const String& usage) {
-  usage_ = usage;
-}
+void HelpFormatter::SetUsage(const String& usage) { usage_ = usage; }
 
-void HelpFormatter::SetHeader(const String& header) {
-  header_ = header;
-}
+void HelpFormatter::SetHeader(const String& header) { header_ = header; }
 
-void HelpFormatter::SetFooter(const String& footer) {
-  footer_ = footer;
-}
+void HelpFormatter::SetFooter(const String& footer) { footer_ = footer; }
 
 void HelpFormatter::Format(std::ostream& ostr) const {
   ostr << "usage: " << command_.c_str();
@@ -71,13 +60,9 @@ void HelpFormatter::SetIndent(int32 indent) {
   indent_ = indent;
 }
 
-void HelpFormatter::SetAutoIndent() {
-  indent_ = CalcIndent();
-}
+void HelpFormatter::SetAutoIndent() { indent_ = CalcIndent(); }
 
-void HelpFormatter::SetUnixStyle(bool flag) {
-  unix_style_ = flag;
-}
+void HelpFormatter::SetUnixStyle(bool flag) { unix_style_ = flag; }
 
 int32 HelpFormatter::CalcIndent() const {
   int32 indent = 0;
@@ -99,7 +84,8 @@ int32 HelpFormatter::CalcIndent() const {
     if (full_len > 0) {
       n += full_len + GetLongPrefix().Len();
       if (it->TakesArgument()) {
-        n += 1 + it->GetArgumentName().Len() + (it->IsArgumentRequired() ? 0 : 2);
+        n += 1 + it->GetArgumentName().Len() +
+             (it->IsArgumentRequired() ? 0 : 2);
       }
     }
     n += 2;
@@ -127,9 +113,8 @@ void HelpFormatter::FormatOptions(std::ostream& ostr) const {
   }
 }
 
-void HelpFormatter::FormatOption( std::ostream& ostr,
-                                  const Option& option,
-                                  int32 width) const {
+void HelpFormatter::FormatOption(std::ostream& ostr, const Option& option,
+                                 int32 width) const {
   int32 short_len = option.GetShortName().Len();
   int32 full_len = option.GetFullName().Len();
 
@@ -181,17 +166,13 @@ void HelpFormatter::FormatOption( std::ostream& ostr,
   }
 }
 
-void HelpFormatter::FormatText( std::ostream& ostr,
-                                const String& text,
-                                int32 indent) const
-{
+void HelpFormatter::FormatText(std::ostream& ostr, const String& text,
+                               int32 indent) const {
   FormatText(ostr, text, indent, indent);
 }
 
-void HelpFormatter::FormatText( std::ostream& ostr,
-                                const String& text,
-                                int32 indent,
-                                int32 first_indent) const {
+void HelpFormatter::FormatText(std::ostream& ostr, const String& text,
+                               int32 indent, int32 first_indent) const {
   int32 pos = first_indent;
   int32 max_word_len = width_ - indent;
   String word;
@@ -235,10 +216,8 @@ void HelpFormatter::FormatText( std::ostream& ostr,
   ClearWord(ostr, pos, word, indent);
 }
 
-void HelpFormatter::FormatWord( std::ostream& ostr,
-                                int32& pos,
-                                const String& word,
-                                int32 indent) const {
+void HelpFormatter::FormatWord(std::ostream& ostr, int32& pos,
+                               const String& word, int32 indent) const {
   if (pos + word.Len() > width_) {
     ostr << '\n';
     pos = 0;
@@ -251,9 +230,7 @@ void HelpFormatter::FormatWord( std::ostream& ostr,
   pos += word.Len();
 }
 
-void HelpFormatter::ClearWord(std::ostream& ostr,
-                              int32& pos,
-                              String& word,
+void HelpFormatter::ClearWord(std::ostream& ostr, int32& pos, String& word,
                               int32 indent) const {
   FormatWord(ostr, pos, word, indent);
 
@@ -276,5 +253,5 @@ String HelpFormatter::GetLongPrefix() const {
 #endif
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

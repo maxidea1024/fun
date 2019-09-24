@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
-#include "fun/framework/configuration_base.h"
 #include "fun/base/path.h"
+#include "fun/framework/configuration_base.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -73,5 +73,5 @@ class FUN_FRAMEWORK_API FilesystemConfiguration : public ConfigurationBase {
   Path path_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

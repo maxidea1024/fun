@@ -29,5 +29,5 @@ class FUN_FRAMEWORK_API LoggingSubsystem : public Subsystem {
   ~LoggingSubsystem();
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

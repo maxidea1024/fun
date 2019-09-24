@@ -1,9 +1,9 @@
 ﻿#include "fun/base/file.h"
-#include "fun/base/path.h"
 #include "fun/base/directory_iterator.h"
 #include "fun/base/exception.h"
-#include "fun/base/string/string.h"
+#include "fun/base/path.h"
 #include "fun/base/str.h"
+#include "fun/base/string/string.h"
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
 #if defined(_WIN32_WCE)
@@ -17,110 +17,76 @@
 #include "fun/base/file_unix.cc"
 #endif
 
-#include "fun/base/thread.h" // Thread::Sleep()
+#include "fun/base/thread.h"  // Thread::Sleep()
 
 namespace fun {
 
 File::File() {}
 
-File::File(const String& path)
-  : FileImpl(path) {
+File::File(const String& path) : FileImpl(path) {
   fun_check(CStringTraitsA::Strlen(path.ConstData()) == path.Len());
 }
 
-File::File(const char* path)
-  : FileImpl(String(path)) {
-}
+File::File(const char* path) : FileImpl(String(path)) {}
 
-File::File(const Path& path)
-  : FileImpl(path.ToString()) {
-}
+File::File(const Path& path) : FileImpl(path.ToString()) {}
 
-File::File(const File& file)
-  : FileImpl(file.GetPathImpl()) {
-}
+File::File(const File& file) : FileImpl(file.GetPathImpl()) {}
 
-File::~File() {
-}
+File::~File() {}
 
-File& File::operator = (const File& file) {
+File& File::operator=(const File& file) {
   SetPathImpl(file.GetPathImpl());
   return *this;
 }
 
-File& File::operator = (const String& path) {
+File& File::operator=(const String& path) {
   fun_check(CStringTraitsA::Strlen(path.ConstData()) == path.Len());
   SetPathImpl(path);
   return *this;
 }
 
-File& File::operator = (const char* path) {
+File& File::operator=(const char* path) {
   fun_check_ptr(path);
   SetPathImpl(path);
   return *this;
 }
 
-File& File::operator = (const Path& path) {
+File& File::operator=(const Path& path) {
   SetPathImpl(path.ToString());
   return *this;
 }
 
-void File::Swap(File& file) {
-  SwapImpl(file);
-}
+void File::Swap(File& file) { SwapImpl(file); }
 
-bool File::Exists() const {
-  return ExistsImpl();
-}
+bool File::Exists() const { return ExistsImpl(); }
 
-bool File::CanRead() const {
-  return CanReadImpl();
-}
+bool File::CanRead() const { return CanReadImpl(); }
 
-bool File::CanWrite() const {
-  return CanWriteImpl();
-}
+bool File::CanWrite() const { return CanWriteImpl(); }
 
-bool File::CanExecute() const {
-  return CanExecuteImpl();
-}
+bool File::CanExecute() const { return CanExecuteImpl(); }
 
-bool File::IsFile() const {
-  return IsFileImpl();
-}
+bool File::IsFile() const { return IsFileImpl(); }
 
-bool File::IsDirectory() const {
-  return IsDirectoryImpl();
-}
+bool File::IsDirectory() const { return IsDirectoryImpl(); }
 
-bool File::IsLink() const {
-  return IsLinkImpl();
-}
+bool File::IsLink() const { return IsLinkImpl(); }
 
-bool File::IsDevice() const {
-  return IsDeviceImpl();
-}
+bool File::IsDevice() const { return IsDeviceImpl(); }
 
-bool File::IsHidden() const {
-  return IsHiddenImpl();
-}
+bool File::IsHidden() const { return IsHiddenImpl(); }
 
-Timestamp File::GetCreated() const {
-  return GetCreatedImpl();
-}
+Timestamp File::GetCreated() const { return GetCreatedImpl(); }
 
-Timestamp File::GetLastModified() const {
-  return GetLastModifiedImpl();
-}
+Timestamp File::GetLastModified() const { return GetLastModifiedImpl(); }
 
 File& File::SetLastModified(const Timestamp& ts) {
   SetLastModifiedImpl(ts);
   return *this;
 }
 
-File::FileSize File::GetSize() const {
-  return GetSizeImpl();
-}
+File::FileSize File::GetSize() const { return GetSizeImpl(); }
 
 File& File::SetSize(FileSizeImpl size) {
   SetSizeImpl(size);
@@ -208,8 +174,8 @@ void File::Remove(bool recursive) {
     //
     // An alternate strategy would be moving files to a different directory
     // first (on the same drive, but outside the deleted tree), and marking
-    // them as hidden, before deleting them, but this could lead to other issues.
-    // So we simply retry after some time until we succeed, or give up.
+    // them as hidden, before deleting them, but this could lead to other
+    // issues. So we simply retry after some time until we succeed, or give up.
 
     int retry = 8;
     long sleep = 10;
@@ -230,13 +196,9 @@ void File::Remove(bool recursive) {
   }
 }
 
-bool File::CreateFile() {
-  return CreateFileImpl();
-}
+bool File::CreateFile() { return CreateFileImpl(); }
 
-bool File::CreateDirectory() {
-  return CreateDirectoryImpl();
-}
+bool File::CreateDirectory() { return CreateDirectoryImpl(); }
 
 void File::CreateDirectories() {
   if (!Exists()) {
@@ -264,17 +226,11 @@ void File::List(Array<String>& files) const {
   }
 }
 
-File::FileSize File::TotalSpace() const {
-  return TotalSpaceImpl();
-}
+File::FileSize File::TotalSpace() const { return TotalSpaceImpl(); }
 
-File::FileSize File::UsableSpace() const {
-  return UsableSpaceImpl();
-}
+File::FileSize File::UsableSpace() const { return UsableSpaceImpl(); }
 
-File::FileSize File::FreeSpace() const {
-  return FreeSpaceImpl();
-}
+File::FileSize File::FreeSpace() const { return FreeSpaceImpl(); }
 
 void File::List(Array<File>& files) const {
   files.Clear();
@@ -286,8 +242,6 @@ void File::List(Array<File>& files) const {
   }
 }
 
-void File::HandleLastError(const String& path) {
-  HandleLastErrorImpl(path);
-}
+void File::HandleLastError(const String& path) { HandleLastErrorImpl(path); }
 
-} // namespace fun
+}  // namespace fun

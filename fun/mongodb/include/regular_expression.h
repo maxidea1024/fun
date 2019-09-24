@@ -15,12 +15,12 @@ class FUN_MONGODB_API RegularExpression {
   RegularExpression() : pattern_(), options_() {}
 
   RegularExpression(const String& pattern, const String& options)
-    : pattern_(pattern), options_(options) {}
+      : pattern_(pattern), options_(options) {}
 
   virtual ~RegularExpression() {}
 
   SharedPtr<RegularExpression> CreateRegularExpression() const {
-    //TODO Apply options
+    // TODO Apply options
     // i: case insensitive
     // m: multiline matching
     // x: verbose mode
@@ -29,19 +29,11 @@ class FUN_MONGODB_API RegularExpression {
     // u: unicode
   }
 
-  const String& GetPattern() const {
-    return pattern_;
-  }
-  void SetPattern(const String& pattern) {
-    pattern_ = pattern;
-  }
+  const String& GetPattern() const { return pattern_; }
+  void SetPattern(const String& pattern) { pattern_ = pattern; }
 
-  const String& GetOptions() const {
-    return options_;
-  }
-  void SetPattern(const String& options) {
-    options_ = options;
-  }
+  const String& GetOptions() const { return options_; }
+  void SetPattern(const String& options) { options_ = options; }
 
  private:
   String pattern_;
@@ -53,13 +45,14 @@ struct ElementTraits<RegularExpressionPtr> {
   enum { TypeId = 0xB };
 
   static String ToString(const RegularExpressionPtr& value, int32 indent = 0) {
-    //TODO
+    // TODO
     return "RE: not implemented yet";
   }
 };
 
 template <>
-inline void BsonReader::Read<RegularExpressionPtr>(RegularExpressionPtr& out_value) {
+inline void BsonReader::Read<RegularExpressionPtr>(
+    RegularExpressionPtr& out_value) {
   String pattern = ReadCString();
   String options = ReadCString();
 
@@ -67,10 +60,11 @@ inline void BsonReader::Read<RegularExpressionPtr>(RegularExpressionPtr& out_val
 }
 
 template <>
-inline void BsonWriter::Write<RegularExpressionPtr>(RegularExpressionPtr& value) {
+inline void BsonWriter::Write<RegularExpressionPtr>(
+    RegularExpressionPtr& value) {
   WriteCString(value->GetPattern());
   WriteCString(value->GetOptions());
 }
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

@@ -19,7 +19,7 @@ SelfPipe::SelfPipe() : fd_(INVALID_SOCKET) {
   inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   inaddr.sin_port = 0;
   if (bind(fd_, (struct sockaddr*)&inaddr, sizeof(inaddr)) == SOCKET_ERROR) {
-    //TODO
+    // TODO
     //__TACOPIE_THROW(error, "fail bind()");
   }
 
@@ -27,39 +27,31 @@ SelfPipe::SelfPipe() : fd_(INVALID_SOCKET) {
   addr_len = sizeof(addr_);
   UnsafeMemory::Memset(&addr_, 0, sizeof(addr_));
   if (getsockname(fd_, &addr_, &addr_len) == SOCKET_ERROR) {
-    //TODO
+    // TODO
     //__TACOPIE_THROW(error, "fail getsockname()");
   }
 
   //! connect read fd to the server
   if (connect(fd_, &addr_, addr_len) == SOCKET_ERROR) {
-    //TODO
+    // TODO
     //__TACOPIE_THROW(error, "fail connect()");
   }
 }
 
-SelfPipe::~SelfPipe() {
-  closesocket(fd_);
-}
+SelfPipe::~SelfPipe() { closesocket(fd_); }
 
-SOCKET SelfPipe::GetReadFD() const {
-  return fd_;
-}
+SOCKET SelfPipe::GetReadFD() const { return fd_; }
 
-SOCKET SelfPipe::GetWriteFD() const {
-  return fd_;
-}
+SOCKET SelfPipe::GetWriteFD() const { return fd_; }
 
-void SelfPipe::Notify() {
-  sendto(fd_, "a", 1, 0, &addr_, addr_len);
-}
+void SelfPipe::Notify() { sendto(fd_, "a", 1, 0, &addr_, addr_len); }
 
 void SelfPipe::ClearBuffer() {
   char buf[1024];
   recvfrom(fd_, buf, 1024, 0, &addr_, &addr_len);
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun
 
-#endif // FUN_PLATFORM_WINDOWS_FAMILY
+#endif  // FUN_PLATFORM_WINDOWS_FAMILY

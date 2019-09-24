@@ -14,16 +14,20 @@ class FUN_NETSOCKET_API ServerSocket : public Socket {
   ServerSocket(uint16 port, int32 backlog = 64);
   virtual ~ServerSocket();
 
-  ServerSocket& operator = (const Socket& socket);
+  ServerSocket& operator=(const Socket& socket);
 
   virtual void Bind(const InetAddress& addr, bool reuse_addr = false);
   virtual void Bind(const InetAddress& addr, bool reuse_addr, bool reuse_port);
   virtual void Bind(uint16 port, bool reuse_addr = false);
   virtual void Bind(uint16 port, bool reuse_addr, bool reuse_port);
-  virtual void Bind6(const InetAddress& addr, bool reuse_addr = false, bool ipv6_only = false);
-  virtual void Bind6(const InetAddress& addr, bool reuse_addr, bool reuse_port, bool ipv6_only);
-  virtual void Bind6(uint16 port, bool reuse_addr = false, bool ipv6_only = false);
-  virtual void Bind6(uint16 port, bool reuse_addr, bool reuse_port, bool ipv6_only);
+  virtual void Bind6(const InetAddress& addr, bool reuse_addr = false,
+                     bool ipv6_only = false);
+  virtual void Bind6(const InetAddress& addr, bool reuse_addr, bool reuse_port,
+                     bool ipv6_only);
+  virtual void Bind6(uint16 port, bool reuse_addr = false,
+                     bool ipv6_only = false);
+  virtual void Bind6(uint16 port, bool reuse_addr, bool reuse_port,
+                     bool ipv6_only);
   virtual void Listen(int32 backlog = 64);
   virtual StreamSocket AcceptConnection(InetAddress& addr);
   virtual StreamSocket AcceptConnection();
@@ -32,4 +36,4 @@ class FUN_NETSOCKET_API ServerSocket : public Socket {
   ServerSocket(SocketImpl* impl, bool);
 };
 
-} // namespace fun
+}  // namespace fun

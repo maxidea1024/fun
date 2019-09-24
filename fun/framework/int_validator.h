@@ -38,5 +38,5 @@ class FUN_FRAMEWORK_API IntValidator : public OptionValidator {
   int32 max_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

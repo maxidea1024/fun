@@ -1,8 +1,8 @@
 ﻿#pragma once
 
+#include "fun/json/features.h"
 #include "fun/json/json.h"
 #include "fun/json/value.h"
-#include "fun/json/features.h"
 
 namespace fun {
 namespace json {
@@ -33,15 +33,14 @@ class FUN_JSON_API Reader {
   /**
    * Parse json string.
    */
-  bool Parse(const String& document, JValue& root, bool collect_comments = true);
+  bool Parse(const String& document, JValue& root,
+             bool collect_comments = true);
 
   /**
    * Parse json string.
    */
-  bool Parse( const char* begin,
-              const char* end,
-              JValue& root,
-              bool collect_comments = true);
+  bool Parse(const char* begin, const char* end, JValue& root,
+             bool collect_comments = true);
 
   /**
    * Returns a user friendly string that list errors in the parsed document.
@@ -61,7 +60,8 @@ class FUN_JSON_API Reader {
   /**
    * Add a semantic error message with extra context.
    */
-  bool PushError(const JValue& value, const String& message, const JValue& extra);
+  bool PushError(const JValue& value, const String& message,
+                 const JValue& extra);
 
   /**
    * Return whether there are any errors.
@@ -121,24 +121,18 @@ class FUN_JSON_API Reader {
   bool DecodeString(Token& token, String& decoded);
   bool DecodeDouble(Token& token);
   bool DecodeDouble(Token& token, JValue& decoded);
-  bool DecodeUnicodeCodePoint(Token& token,
-                              Location& cur,
-                              Location end,
+  bool DecodeUnicodeCodePoint(Token& token, Location& cur, Location end,
                               uint32& unicode);
-  bool DecodeUnicodeEscapeSequence( Token& token,
-                                    Location& cur,
-                                    Location end,
-                                    uint32& unicode);
+  bool DecodeUnicodeEscapeSequence(Token& token, Location& cur, Location end,
+                                   uint32& unicode);
   bool AddError(const String& message, Token& token, Location extra = nullptr);
   bool RecoverFromError(TokenType skip_until_token);
-  bool AddErrorAndRecover(const String& message,
-                          Token& token,
+  bool AddErrorAndRecover(const String& message, Token& token,
                           TokenType skip_until_token);
-  //void SkipUntilSpace();
+  // void SkipUntilSpace();
   JValue& CurrentValue();
   char GetNextChar();
-  void GetLocationLineAndColumn(Location location,
-                                int32& line,
+  void GetLocationLineAndColumn(Location location, int32& line,
                                 int32& column) const;
   String GetLocationLineAndColumn(Location location) const;
   void AddComment(Location begin, Location end, CommentPlacement placement);
@@ -153,9 +147,9 @@ class FUN_JSON_API Reader {
   JValue* last_value_;
   String comments_before_;
   Features features_;
-  //TODO features쪽으로 옮겨주는게 좋을까??
+  // TODO features쪽으로 옮겨주는게 좋을까??
   bool collect_comments_;
 };
 
-} // namespace json
-} // namespace fun
+}  // namespace json
+}  // namespace fun

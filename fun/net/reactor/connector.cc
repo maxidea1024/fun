@@ -6,11 +6,11 @@ namespace net {
 const int Connector::kMaxRetryDelayMs;
 
 Connector::Connector(EventLoop* loop, const InetAddress& server_addr)
-  : loop_(loop),
-    server_addr_(server_addr),
-    connect_(false),
-    state_(kDisconnected),
-    retry_delay_msecs_(kInitRetryDelayMs) {
+    : loop_(loop),
+      server_addr_(server_addr),
+      connect_(false),
+      state_(kDisconnected),
+      retry_delay_msecs_(kInitRetryDelayMs) {
   LOG_DEBUG << "ctor[" << this << "]";
 }
 
@@ -21,7 +21,8 @@ Connector::~Connector() {
 
 void Connector::Start() {
   connect_ = true;
-  loop_->RunInLoop(boost::bind(&Connector::StartInLoop, this)); // FIXME: unsafe
+  loop_->RunInLoop(
+      boost::bind(&Connector::StartInLoop, this));  // FIXME: unsafe
 }
 
 void Connector::StartInLoop() {
@@ -36,7 +37,8 @@ void Connector::StartInLoop() {
 
 void Connector::Stop() {
   connect_ = false;
-  loop_->QueueInLoop(boost::bind(&Connector::StopInLoop, this)); // FIXME: unsafe
+  loop_->QueueInLoop(
+      boost::bind(&Connector::StopInLoop, this));  // FIXME: unsafe
   // FIXME: cancel timer
 }
 
@@ -81,7 +83,8 @@ void Connector::Connect() {
       break;
 
     default:
-      LOG_SYSERR << "Unexpected error in Connector::StartInLoop " << saved_errno;
+      LOG_SYSERR << "Unexpected error in Connector::StartInLoop "
+                 << saved_errno;
       sockets::close(sock_fd);
       // connectErrorCallback_();
       break;
@@ -101,8 +104,10 @@ void Connector::Connecting(int sock_fd) {
 
   fun_check(channel_ == nullptr);
   channel_.Reset(new Channel(loop_, sock_fd));
-  channel_->SetWriteCallback(boost::bind(&Connector::HandleWrite, this)); // FIXME: unsafe
-  channel_->SetErrorCallback(boost::bind(&Connector::HandleError, this)); // FIXME: unsafe
+  channel_->SetWriteCallback(
+      boost::bind(&Connector::HandleWrite, this));  // FIXME: unsafe
+  channel_->SetErrorCallback(
+      boost::bind(&Connector::HandleError, this));  // FIXME: unsafe
 
   // channel_->Tie(SharedFromThis()); is not working,
   // as channel_ is not managed by shared_ptr
@@ -114,13 +119,12 @@ int Connector::RemoveAndResetChannel() {
   channel_->Remove();
   int sock_fd = channel_->fd();
   // Can't Reset channel_ here, because we are inside Channel::handleEvent
-  loop_->QueueInLoop(boost::bind(&Connector::ResetChannel, this)); // FIXME: unsafe
+  loop_->QueueInLoop(
+      boost::bind(&Connector::ResetChannel, this));  // FIXME: unsafe
   return sock_fd;
 }
 
-void Connector::ResetChannel() {
-  channel_.Reset();
-}
+void Connector::ResetChannel() { channel_.Reset(); }
 
 void Connector::HandleWrite() {
   LOG_TRACE << "Connector::HandleWrite " << state_;
@@ -129,8 +133,8 @@ void Connector::HandleWrite() {
     int sock_fd = RemoveAndResetChannel();
     int err = sockets::GetSocketError(sock_fd);
     if (err) {
-      LOG_WARN << "Connector::HandleWrite - SO_ERROR = "
-               << err << " " << strerror_tl(err);
+      LOG_WARN << "Connector::HandleWrite - SO_ERROR = " << err << " "
+               << strerror_tl(err);
 
       Retry(sock_fd);
     } else if (sockets::IsSelfConnect(sock_fd)) {
@@ -169,16 +173,19 @@ void Connector::Retry(int sock_fd) {
 
   // Reconnect...
   if (connect_) {
-    LOG_INFO << "Connector::Retry - Retry connecting to " << server_addr_.ToIpPort()
-             << " in " << retry_delay_msecs_ << " milliseconds. ";
+    LOG_INFO << "Connector::Retry - Retry connecting to "
+             << server_addr_.ToIpPort() << " in " << retry_delay_msecs_
+             << " milliseconds. ";
 
-    loop_->ScheduleAfter(retry_delay_msecs_ / 1000.0,
-                    boost::bind(&Connector::StartInLoop, SharedFromThis()));
-    retry_delay_msecs_ = MathBase::Min(retry_delay_msecs_ * 2, kMaxRetryDelayMs);
+    loop_->ScheduleAfter(
+        retry_delay_msecs_ / 1000.0,
+        boost::bind(&Connector::StartInLoop, SharedFromThis()));
+    retry_delay_msecs_ =
+        MathBase::Min(retry_delay_msecs_ * 2, kMaxRetryDelayMs);
   } else {
     LOG_DEBUG << "do not connect";
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

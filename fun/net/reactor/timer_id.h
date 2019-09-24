@@ -15,11 +15,10 @@ class TimerId {
  public:
   TimerId() : timer_(nullptr), sequence_(0) {}
 
-  TimerId(Timer* timer, int64 sequence)
-    : timer_(timer), sequence_(sequence) {}
+  TimerId(Timer* timer, int64 sequence) : timer_(timer), sequence_(sequence) {}
 
   TimerId(const TimerId&) = default;
-  TimerId& operator = (const TimerId&) = default;
+  TimerId& operator=(const TimerId&) = default;
   ~TimerId() = default;
 
  private:
@@ -29,6 +28,6 @@ class TimerId {
   int64 sequence_;
 };
 
-} // namespace reactor
-} // namespace net
-} // namespace fun
+}  // namespace reactor
+}  // namespace net
+}  // namespace fun

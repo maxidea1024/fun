@@ -1,6 +1,6 @@
 ﻿#include "fun/base/timed_notification_queue.h"
-#include "fun/base/notification.h"
 #include <limits>
+#include "fun/base/notification.h"
 
 namespace fun {
 
@@ -16,8 +16,8 @@ TimedNotificationQueue::~TimedNotificationQueue() {
   }
 }
 
-void TimedNotificationQueue::Enqueue(
-    Notification::Ptr noti, const Timestamp& timestamp) {
+void TimedNotificationQueue::Enqueue(Notification::Ptr noti,
+                                     const Timestamp& timestamp) {
   fun_check_ptr(noti);
 
   Timestamp now(Timestamp::Now());
@@ -30,8 +30,8 @@ void TimedNotificationQueue::Enqueue(
   noti_available_.Set();
 }
 
-void TimedNotificationQueue::Enqueue(
-    Notification::Ptr noti, const Clock& clock) {
+void TimedNotificationQueue::Enqueue(Notification::Ptr noti,
+                                     const Clock& clock) {
   fun_check_ptr(noti);
 
   FastMutex::ScopedLock guard(mutex_);
@@ -85,11 +85,11 @@ Notification* TimedNotificationQueue::WaitDequeue(int32 milliseconds) {
       Clock::DiffType sleep = it->first - now;
       if (sleep <= 0) {
         return DequeueOne(it).AddRef();
-      } else if (sleep <= 1000*Clock::DiffType(milliseconds)) {
+      } else if (sleep <= 1000 * Clock::DiffType(milliseconds)) {
         if (!Wait(sleep)) {
           return DequeueOne(it).AddRef();
         } else {
-          milliseconds -= static_cast<int32>((now.Elapsed() + 999)/1000);
+          milliseconds -= static_cast<int32>((now.Elapsed() + 999) / 1000);
           continue;
         }
       }
@@ -100,7 +100,7 @@ Notification* TimedNotificationQueue::WaitDequeue(int32 milliseconds) {
     if (milliseconds > 0) {
       Clock now(Clock::Now());
       noti_available_.TryWait(milliseconds);
-      milliseconds -= static_cast<int32>((now.Elapsed() + 999)/1000);
+      milliseconds -= static_cast<int32>((now.Elapsed() + 999) / 1000);
     } else {
       return 0;
     }
@@ -110,11 +110,13 @@ Notification* TimedNotificationQueue::WaitDequeue(int32 milliseconds) {
 }
 
 bool TimedNotificationQueue::Wait(Clock::DiffType interval) {
-  const Clock::DiffType MAX_SLEEP = 8*60*60*Clock::DiffType(1000000); // sleep at most 8 hours at a time
+  const Clock::DiffType MAX_SLEEP =
+      8 * 60 * 60 *
+      Clock::DiffType(1000000);  // sleep at most 8 hours at a time
   while (interval > 0) {
     Clock now(Clock::Now());
     Clock::DiffType sleep = interval <= MAX_SLEEP ? interval : MAX_SLEEP;
-    if (noti_available_.TryWait(static_cast<int32>((sleep + 999)/1000))) {
+    if (noti_available_.TryWait(static_cast<int32>((sleep + 999) / 1000))) {
       return true;
     }
     interval -= now.Elapsed();
@@ -144,4 +146,4 @@ Notification::Ptr TimedNotificationQueue::DequeueOne(NfQueue::iterator& it) {
   return noti;
 }
 
-} // namespace fun
+}  // namespace fun

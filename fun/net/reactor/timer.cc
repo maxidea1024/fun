@@ -5,5 +5,5 @@ namespace net {
 
 AtomicInt64 Timer::s_created_count_;
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

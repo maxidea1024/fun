@@ -7,7 +7,7 @@ namespace net {
 
 /**
  * Used to force poll to wake up
- * 
+ *
  * simply make poll watch for read events on one side of the pipe and
  * write to the other side
  */
@@ -17,7 +17,7 @@ class SelfPipe {
   ~SelfPipe();
 
   SelfPipe(const SelfPipe&) = delete;
-  SelfPipe& operator = (const SelfPipe&) = delete;
+  SelfPipe& operator=(const SelfPipe&) = delete;
 
   /**
    * the read fd of the pipe
@@ -55,5 +55,5 @@ class SelfPipe {
 #endif
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

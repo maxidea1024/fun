@@ -1,11 +1,11 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/session.h"
-#include "fun/base/date_time.h"
 #include "fun/Timespan.h"
+#include "fun/base/date_time.h"
 #include "fun/base/dynamic/var.h"
 #include "fun/base/shared_ptr.h"
+#include "fun/sql/session.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -20,8 +20,7 @@ class FUN_SQL_API ArchiveStrategy {
   /**
    * Creates archive strategy.
    */
-  ArchiveStrategy(const String& connector,
-                  const String& connect,
+  ArchiveStrategy(const String& connector, const String& connect,
                   const String& source,
                   const String& destination = DEFAULT_ARCHIVE_DESTINATION);
 
@@ -87,7 +86,7 @@ class FUN_SQL_API ArchiveStrategy {
  private:
   ArchiveStrategy() = delete;
   ArchiveStrategy(const ArchiveStrategy&) = delete;
-  ArchiveStrategy& operator = (const ArchiveStrategy&) = delete;
+  ArchiveStrategy& operator=(const ArchiveStrategy&) = delete;
 
   String connector_;
   String connect_;
@@ -99,14 +98,11 @@ class FUN_SQL_API ArchiveStrategy {
   String destination_;
 };
 
-
 //
 // inlines
 //
 
-inline const String& ArchiveStrategy::GetSource() const {
-  return source_;
-}
+inline const String& ArchiveStrategy::GetSource() const { return source_; }
 
 inline void ArchiveStrategy::SetSource(const String& source) {
   source_ = source;
@@ -120,9 +116,7 @@ inline const String& ArchiveStrategy::GetDestination() const {
   return destination_;
 }
 
-inline Session& ArchiveStrategy::GetSession() {
-  return *session_;
-}
+inline Session& ArchiveStrategy::GetSession() { return *session_; }
 
 inline void ArchiveStrategy::SetCopyStatement() {
   copy_statement_ = new Statement(*session_);
@@ -148,7 +142,6 @@ inline Statement& ArchiveStrategy::GetCountStatement() {
   return *count_statement_;
 }
 
-
 //
 // ArchiveByAgeStrategy
 //
@@ -158,10 +151,10 @@ inline Statement& ArchiveStrategy::GetCountStatement() {
  */
 class FUN_SQL_API ArchiveByAgeStrategy : public ArchiveStrategy {
  public:
-  ArchiveByAgeStrategy( const String& connector,
-                        const String& connect,
-                        const String& source_table,
-                        const String& destination_table = DEFAULT_ARCHIVE_DESTINATION);
+  ArchiveByAgeStrategy(
+      const String& connector, const String& connect,
+      const String& source_table,
+      const String& destination_table = DEFAULT_ARCHIVE_DESTINATION);
 
   ~ArchiveByAgeStrategy();
 
@@ -188,9 +181,8 @@ class FUN_SQL_API ArchiveByAgeStrategy : public ArchiveStrategy {
  public:
   ArchiveByAgeStrategy() = delete;
   ArchiveByAgeStrategy(const ArchiveByAgeStrategy&) = delete;
-  ArchiveByAgeStrategy& operator = (const ArchiveByAgeStrategy&) = delete;
+  ArchiveByAgeStrategy& operator=(const ArchiveByAgeStrategy&) = delete;
 };
-
 
 //
 // inlines
@@ -200,5 +192,5 @@ inline const String& ArchiveByAgeStrategy::GetThreshold() const {
   return age_string_;
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

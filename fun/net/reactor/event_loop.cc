@@ -3,21 +3,21 @@
 namespace fun {
 namespace net {
 
-//TLS variable
+// TLS variable
 thread_local static EventLoop* loop_in_this_thread_ = nullptr;
 
 EventLoop::EventLoop()
-  : looping_(false),
-    quit_(false),
-    events_handling_(false),
-    calling_pending_functors_(false),
-    iteration_(0),
-    tid_(Thread::CurrentTid()),
-    poller_(Poller::Create(this)),
-    timer_queue_(new TimerQueue(this)),
-    wakeup_fd_(CreateEventfd()),
-    wakeup_channel_(new Channel(this, wakeup_fd_)),
-    current_active_channel_(nullptr) {
+    : looping_(false),
+      quit_(false),
+      events_handling_(false),
+      calling_pending_functors_(false),
+      iteration_(0),
+      tid_(Thread::CurrentTid()),
+      poller_(Poller::Create(this)),
+      timer_queue_(new TimerQueue(this)),
+      wakeup_fd_(CreateEventfd()),
+      wakeup_channel_(new Channel(this, wakeup_fd_)),
+      current_active_channel_(nullptr) {
   if (loop_in_this_thread_) {
     // event loop 객체는 thread당 하나만 있어야함.
     // 예외를 던지던지 panic.
@@ -44,7 +44,7 @@ void EventLoop::Loop() {
   quit_ = false;
 
   while (!quit_) {
-    active_channels_.Reset(); // clear but keep capacity
+    active_channels_.Reset();  // clear but keep capacity
 
     poller_return_time_ = poller_->Poll(kPollTimeMs, &active_channels_);
     iteration_++;
@@ -63,8 +63,7 @@ void EventLoop::Loop() {
   looping_ = false;
 }
 
-
-//TODO 상황별 검토를 좀 해봐야할듯함...
+// TODO 상황별 검토를 좀 해봐야할듯함...
 
 #if 0
 
@@ -151,7 +150,7 @@ int32 EventLoop::GetEnqueuedCount() const {
 }
 
 TimerId EventLoop::ExpireAt(const Timestamp& time,
-                              const TimerCallback& callback) {
+                            const TimerCallback& callback) {
   return timer_queue_->AddTimer(callback, time, 0.0);
 }
 
@@ -160,14 +159,14 @@ TimerId EventLoop::ExpireAfter(double delay, const TimerCallback& callback) {
   return ExpireAt(time, callback);
 }
 
-TimerId EventLoop::ExpireRepeatedly( double interval,
-                                  const TimerCallback& callback) {
+TimerId EventLoop::ExpireRepeatedly(double interval,
+                                    const TimerCallback& callback) {
   Timestamp time(AddTime(Timestamp::Now(), interval));
   return timer_queue_->AddTimer(callback, time, interval);
 }
 
 TimerId EventLoop::ExpireAt(const Timestamp& time,
-                              const TimerCallback&& callback) {
+                            const TimerCallback&& callback) {
   return timer_queue_->AddTimer(MoveTemp(callback), time, 0.0);
 }
 
@@ -176,8 +175,8 @@ TimerId EventLoop::ExpireAfter(double delay, const TimerCallback&& callback) {
   return ExpireAt(time, MoveTemp(callback));
 }
 
-TimerId EventLoop::ExpireRepeatedly( double interval,
-                                  const TimerCallback&& callback) {
+TimerId EventLoop::ExpireRepeatedly(double interval,
+                                    const TimerCallback&& callback) {
   Timestamp time(AddTime(Timestamp::Now(), interval));
   return timer_queue_->AddTimer(MoveTemp(callback), time, interval);
 }
@@ -212,7 +211,7 @@ void EventLoop::RemoveChannel(Channel* channel) {
   AssertInLoopThread();
 
   if (events_handling_) {
-    //TODO
+    // TODO
   }
 
   poller_->RemoveChannel(channel);
@@ -233,7 +232,7 @@ EventLoop* EventLoop::GetEventLoopOfCurrentThread() {
 void EventLoop::AbortNotInLoopThread() {
   LOG_FATAL << "EventLoop::abortNotInLoopThread - EventLoop " << this
             << " was created in tid = " << tid_
-            << ", current thread id = " <<  Thread::CurrentTid();
+            << ", current thread id = " << Thread::CurrentTid();
 }
 
 void EventLoop::ProcessPendingFunctors() {
@@ -261,5 +260,5 @@ void EventLoop::PrintActiveChannels() const {
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

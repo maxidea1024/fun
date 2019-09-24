@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
 #include <ostream>
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -112,23 +112,27 @@ class FUN_FRAMEWORK_API HelpFormatter {
   void FormatOptions(std::ostream& ostr) const;
 
   /** Formats an option, using the platform-specific prefixes. */
-  void FormatOption(std::ostream& ostr, const Option& option, int32 width) const;
+  void FormatOption(std::ostream& ostr, const Option& option,
+                    int32 width) const;
 
   /** Formats the given text. */
   void FormatText(std::ostream& ostr, const String& text, int32 indent) const;
 
   /** Formats the given text. */
-  void FormatText(std::ostream& ostr, const String& text, int32 indent, int32 first_indent) const;
+  void FormatText(std::ostream& ostr, const String& text, int32 indent,
+                  int32 first_indent) const;
 
   /** Formats the given word. */
-  void FormatWord(std::ostream& ostr, int32& pos, const String& word, int32 indent) const;
+  void FormatWord(std::ostream& ostr, int32& pos, const String& word,
+                  int32 indent) const;
 
   /** Formats and then clears the given word. */
-  void ClearWord(std::ostream& ostr, int32& pos, String& word, int32 indent) const;
+  void ClearWord(std::ostream& ostr, int32& pos, String& word,
+                 int32 indent) const;
 
  public:
   HelpFormatter(const HelpFormatter&) = delete;
-  HelpFormatter& operator = (const HelpFormatter&) = delete;
+  HelpFormatter& operator=(const HelpFormatter&) = delete;
 
  private:
   const OptionSet& options_;
@@ -144,18 +148,13 @@ class FUN_FRAMEWORK_API HelpFormatter {
   static const int32 LINE_WIDTH;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE int32 HelpFormatter::GetWidth() const {
-  return width_;
-}
+FUN_ALWAYS_INLINE int32 HelpFormatter::GetWidth() const { return width_; }
 
-FUN_ALWAYS_INLINE int32 HelpFormatter::GetIndent() const {
-  return indent_;
-}
+FUN_ALWAYS_INLINE int32 HelpFormatter::GetIndent() const { return indent_; }
 
 FUN_ALWAYS_INLINE const String& HelpFormatter::GetCommand() const {
   return command_;
@@ -177,5 +176,5 @@ FUN_ALWAYS_INLINE bool HelpFormatter::IsUnixStyle() const {
   return unix_style_;
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

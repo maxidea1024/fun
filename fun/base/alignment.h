@@ -38,4 +38,4 @@ inline static T AlignArbitrary(const T ptr, const uint32 alignment) {
   return (T)((((uintptr_t)ptr + alignment - 1) / alignment) * alignment);
 }
 
-} // namespace fun
+}  // namespace fun

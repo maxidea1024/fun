@@ -46,5 +46,5 @@ inline void BsonWriter::Write<JavascriptCodePtr>(JavascriptCodePtr& value) {
   BsonWriter(writer_).Write(value->GetCode());
 }
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

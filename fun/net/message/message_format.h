@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/message/message.h"
 #include "fun/base/ftl/type_traits.h"
+#include "fun/net/message/message.h"
 
 namespace fun {
 namespace net {
@@ -16,20 +16,34 @@ enum class WireType {
   Last = 6,
 };
 
-FUN_ALWAYS_INLINE TextStream& operator << (TextStream& stream, const WireType value) {
+FUN_ALWAYS_INLINE TextStream& operator<<(TextStream& stream,
+                                         const WireType value) {
   switch (value) {
-    case WireType::Varint: stream << StringLiteral("Varint"); break;
-    case WireType::Fixed8: stream << StringLiteral("Fixed8"); break;
-    case WireType::Fixed16: stream << StringLiteral("Fixed16"); break;
-    case WireType::Fixed32: stream << StringLiteral("Fixed32"); break;
-    case WireType::Fixed64: stream << StringLiteral("Fixed64"); break;
-    case WireType::LengthPrefixed: stream << StringLiteral("LengthPrefixed"); break;
-    case WireType::Last: stream << StringLiteral("Last"); break;
+    case WireType::Varint:
+      stream << StringLiteral("Varint");
+      break;
+    case WireType::Fixed8:
+      stream << StringLiteral("Fixed8");
+      break;
+    case WireType::Fixed16:
+      stream << StringLiteral("Fixed16");
+      break;
+    case WireType::Fixed32:
+      stream << StringLiteral("Fixed32");
+      break;
+    case WireType::Fixed64:
+      stream << StringLiteral("Fixed64");
+      break;
+    case WireType::LengthPrefixed:
+      stream << StringLiteral("LengthPrefixed");
+      break;
+    case WireType::Last:
+      stream << StringLiteral("Last");
+      break;
   }
   stream << StringLiteral("<unknown>");
   return stream;
 }
-
 
 class MessageFormat {
  public:
@@ -151,7 +165,10 @@ class MessageFormat {
   // 실제로 serializing은 WriteFixed32로 할것인데, WriteFixed32에서
   // endian issue를 핸들링 하니까..
   static uint32 EncodeFloat(const float value) {
-    union { float f; uint32 i; };
+    union {
+      float f;
+      uint32 i;
+    };
     f = value;
     return i;
   }
@@ -160,7 +177,10 @@ class MessageFormat {
   // 실제로 serializing은 ReadFixed32로 할것인데, ReadFixed32에서
   // endian issue를 핸들링 하니까..
   static float DecodeFloat(const uint32 value) {
-    union { float f; uint32 i; };
+    union {
+      float f;
+      uint32 i;
+    };
     i = value;
     return f;
   }
@@ -169,7 +189,10 @@ class MessageFormat {
   // 실제로 serializing은 WriteFixed64로 할것인데, WriteFixed64에서
   // endian issue를 핸들링 하니까..
   static uint64 EncodeDouble(const double value) {
-    union { double d; uint64 i; };
+    union {
+      double d;
+      uint64 i;
+    };
     d = value;
     return i;
   }
@@ -178,11 +201,13 @@ class MessageFormat {
   // 실제로 serializing은 ReadFixed64로 할것인데, ReadFixed64에서
   // endian issue를 핸들링 하니까..
   static double DecodeDouble(const uint64 value) {
-    union { double d; uint64 i; };
+    union {
+      double d;
+      uint64 i;
+    };
     i = value;
     return d;
   }
-
 
   //
   // zig-zag encoding/decoding for signed varints
@@ -230,7 +255,6 @@ class MessageFormat {
   static int64 ZigZagDecode64(const uint64 value) {
     return (value >> 1) ^ -static_cast<int64>(value & 1);
   }
-
 
   static int32 GetByteLength_LengthPrefixed(const int32 length) {
     return GetByteLength_Counter(length) + length;
@@ -336,7 +360,6 @@ class MessageFormat {
     return GetByteLength_Varint64(encoded_value);
   }
 
-
   static void WriteCounter(IMessageOut& output, const int32 value) {
     WriteOptimalInt32(output, value);
   }
@@ -349,7 +372,6 @@ class MessageFormat {
   static int32 GetByteLength_Counter(const int32 value) {
     return GetByteLength_OptimalInt32(value);
   }
-
 
   static void WriteCounter64(IMessageOut& output, const int64 value) {
     WriteOptimalInt64(output, value);
@@ -364,7 +386,6 @@ class MessageFormat {
     return GetByteLength_OptimalInt64(value);
   }
 
-
   static void WriteBytes(IMessageOut& output, const void* Data, int32 length) {
     WriteCounter(output, length);
     output.WriteRawBytes(Data, length);
@@ -378,7 +399,7 @@ class MessageFormat {
     int32 length;
     FUN_DO_CHECKED(ReadCounter(input, length));
 
-    //TODO Error handling....
+    // TODO Error handling....
     if (length < 0 || length > input.MessageMaxLength()) {
       //예외를 throw하는게 바람직할듯 싶은데??
       return false;
@@ -388,13 +409,13 @@ class MessageFormat {
 
     if (readable_length >= length) {
       out_value.ResizeUninitialized(length);
-      UnsafeMemory::Memcpy(out_value.MutableData(), input.ReadablePtr(), length);
+      UnsafeMemory::Memcpy(out_value.MutableData(), input.ReadablePtr(),
+                           length);
       input.SkipRead(length);
       return true;
     }
     return false;
   }
-
 
   static void WriteString(IMessageOut& output, const String& value) {
     const ByteArray Utf8 = value.ToUtf8();
@@ -409,7 +430,8 @@ class MessageFormat {
 
     const int32 readable_length = input.ReadableLength();
     if (readable_length >= length) {
-      out_value = String((const char*)input.ReadablePtr(), length); // assume UTF8 string
+      out_value = String((const char*)input.ReadablePtr(),
+                         length);  // assume UTF8 string
       input.SkipRead(length);
       return true;
     }
@@ -418,20 +440,22 @@ class MessageFormat {
   }
 
   static int32 GetByteLength_String(const String& value) {
-    //TODO CString에 LengthAsUtf8() 함수를 하나 추가해주는게 바람직해보임.
+    // TODO CString에 LengthAsUtf8() 함수를 하나 추가해주는게 바람직해보임.
     return GetByteLength_LengthPrefixed(value.ToUtf8().Len());
   }
 
   // Generated struct.
 
-  FUN_ALWAYS_INLINE static void WriteStruct(IMessageOut& output, const GeneratedStruct& value) {
+  FUN_ALWAYS_INLINE static void WriteStruct(IMessageOut& output,
+                                            const GeneratedStruct& value) {
     const int32 struct_length = value.GetByteLength();
     WriteCounter(output, struct_length);
     value.Write(output);
   }
 
   template <typename GeneratedStructTy>
-  FUN_ALWAYS_INLINE static bool ReadStruct(IMessageIn& input, GeneratedStructTy& out_value) {
+  FUN_ALWAYS_INLINE static bool ReadStruct(IMessageIn& input,
+                                           GeneratedStructTy& out_value) {
     ScopedMessageInRecursionGuard recursion_guard(input);
     ScopedMessageInViewGuard view_guard(input);
 
@@ -450,47 +474,44 @@ class MessageFormat {
   }
 };
 
-
-
 // note:
-// enum은 type constraint을 별도로 주어야 컴파일러가 각 enum타입별로 다르게 취급함.
+// enum은 type constraint을 별도로 주어야 컴파일러가 각 enum타입별로 다르게
+// 취급함.
 // https://stackoverflow.com/questions/12726954/how-can-i-partially-specialize-a-class-template-for-all-enums
 
 template <typename T, typename = void>
 struct MessageFieldTypeTraits {
-  //@note THasMessageFieldTypeTraits에서 사용자 타입을 취급하는 방법이 정의 되어 있는지 여부를,
-  //CppValueType이 void(기본형)인지 여부로 판단 하도록 되어 있으므로, 기본은 void로 해두어야함!
+  //@note THasMessageFieldTypeTraits에서 사용자 타입을 취급하는 방법이 정의 되어
+  //있는지 여부를, CppValueType이 void(기본형)인지 여부로 판단 하도록 되어
+  // 있으므로, 기본은 void로 해두어야함!
 
-  //typedef InCppType CppValueType;
+  // typedef InCppType CppValueType;
   typedef void CppValueType;
 
   static void Write(IMessageOut& output, const T& value) {
-    //TODO error handling.
+    // TODO error handling.
     fun_check(!"todo exception handling.");
   }
 
   static bool Read(IMessageIn& input, T& out_value) {
-    //TODO error handling.
+    // TODO error handling.
     fun_check(!"todo exception handling.");
     return false;
   }
 
   static int32 GetByteLength(const T& value) {
-    //TODO error handling.
+    // TODO error handling.
     fun_check(!"todo exception handling.");
     return -1;
   }
 
-  static String ToString(const T& value) {
-    return fun::ToString(value);
-  }
+  static String ToString(const T& value) { return fun::ToString(value); }
 };
-
 
 template <typename T>
 struct HasMessageFieldTypeTraits
-  : BoolConstant<!IsSame<typename MessageFieldTypeTraits<T>::CppValueType, void>::value> {
-};
+    : BoolConstant<!IsSame<typename MessageFieldTypeTraits<T>::CppValueType,
+                           void>::value> {};
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

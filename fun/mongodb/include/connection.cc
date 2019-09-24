@@ -12,10 +12,8 @@ Connection::SocketFactory::SocketFactory() {}
 Connection::SocketFactory::~SocketFactory() {}
 
 StreamSocket Connection::SocketFactory::CreateSocket(
-                const String& host,
-                int32 port,
-                const Timespan& connect_timeout,
-                bool secure) {
+    const String& host, int32 port, const Timespan& connect_timeout,
+    bool secure) {
   if (!secure) {
     InetAddress address(host, port);
     StreamSocket socket;
@@ -27,52 +25,51 @@ StreamSocket Connection::SocketFactory::CreateSocket(
     }
     return socket;
   } else {
-    throw NotImplementedException("Default socket_factory implementation does not support SecureStreamSocket");
+    throw NotImplementedException(
+        "Default socket_factory implementation does not support "
+        "SecureStreamSocket");
   }
 }
-
 
 //
 // Connection
 //
 
-Connection::Connection()
-  : address_(), socket_() {}
+Connection::Connection() : address_(), socket_() {}
 
 Connection::Connection(const String& host_and_port)
-  : address_(host_and_port), socket_() {
+    : address_(host_and_port), socket_() {
   Connect();
 }
 
 Connection::Connection(const String& uri, SocketFactory& socket_factory)
-  : address_(), socket_() {
+    : address_(), socket_() {
   Connect(uri, socket_factory);
 }
 
 Connection::Connection(const String& host, int32 port)
-  : address_(host, port), socket_() {
+    : address_(host, port), socket_() {
   Connect();
 }
 
 Connection::Connection(const InetAddress& address)
-  : address_(address), socket_() {
+    : address_(address), socket_() {
   Connect();
 }
 
 Connection::Connection(const StreamSocket& socket)
-  : address_(socket.PeerAddress()), socket_(socket) {
+    : address_(socket.PeerAddress()), socket_(socket) {
   Connect();
 }
 
 Connection::~Connection() {
   try {
     Disconnect();
-  } catch (...) {}
+  } catch (...) {
+  }
 }
 
-const InetAddress Connection::GetAddress() const {
-  return address_;
-}
+const InetAddress Connection::GetAddress() const { return address_; }
 
 void Connection::Connect(const String& host_and_port) {
   address_ = InetAddress(host_and_port);
@@ -99,7 +96,7 @@ void Connection::Connect(const String& uri_str, SocketFactory& socket_factory) {
     db_name = db_name.Substring(1);
   }
   if (db_name.IsEmpty()) {
-    db_name = "admin"; //기본 db이름이 "admin"인가??
+    db_name = "admin";  //기본 db이름이 "admin"인가??
   }
 
   bool with_ssl = false;
@@ -107,13 +104,13 @@ void Connection::Connect(const String& uri_str, SocketFactory& socket_factory) {
   Timespan socket_timeout;
   String auth_mechanism = Database::AUTH_SCRAM_SHA1;
 
-  //TODO parse query parameters
-  //TODO parse query parameters
-  //TODO parse query parameters
-  //TODO parse query parameters
-  //TODO parse query parameters
-  //TODO parse query parameters
-  //TODO parse query parameters
+  // TODO parse query parameters
+  // TODO parse query parameters
+  // TODO parse query parameters
+  // TODO parse query parameters
+  // TODO parse query parameters
+  // TODO parse query parameters
+  // TODO parse query parameters
 
   Connect(socket_factory.CreateSocket(host, port, connect_timeout, with_ssl));
 
@@ -135,7 +132,9 @@ void Connection::Connect(const String& uri_str, SocketFactory& socket_factory) {
 
     Database db(db_name);
     if (!db.Authenticate(*this, user_name, password, auth_mechanism)) {
-      throw NoPermissionException(String::Format("access to MongoDB database %s denied for user %s", *db_name, user_name));
+      throw NoPermissionException(
+          String::Format("access to MongoDB database %s denied for user %s",
+                         *db_name, user_name));
     }
   }
 }
@@ -158,21 +157,17 @@ void Connection::Connect(const StreamSocket& socket) {
   Connect();
 }
 
-void Connection::Connect() {
-  socket_.Connect(address_);
-}
+void Connection::Connect() { socket_.Connect(address_); }
 
-void Connection::Disconnect() {
-  socket_.Close();
-}
+void Connection::Disconnect() { socket_.Close(); }
 
 void Connection::Call(Request& request) {
-  //TODO
+  // TODO
 }
 
 void Connection::Call(Request& request, Response& response) {
-  //TODO
+  // TODO
 }
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

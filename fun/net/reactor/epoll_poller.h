@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/reactor/poller.h"
 #include "fun/base/container/array.h"
+#include "fun/net/reactor/poller.h"
 
 struct epoll_event;
 
@@ -37,5 +37,5 @@ class EPollPoller : Poller {
   EventList events_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -29,13 +29,13 @@ namespace json {
 */
 
 Schema::Schema() {
-  //TODO
+  // TODO
 }
 
 bool Schema::ValidateJson(const JValue& json) const {
-  //TODO
+  // TODO
   return false;
 }
 
-} // namespace json
-} // namespace fun
+}  // namespace json
+}  // namespace fun

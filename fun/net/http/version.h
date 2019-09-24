@@ -12,15 +12,20 @@ enum class Version {
   V20,
 };
 
-} // namespace http
+}  // namespace http
 
 inline String ToString(const http::Version value) {
   switch (value) {
-    case http::Version::None: return StringLiteral("None");
-    case http::Version::V10: return StringLiteral("1.0");
-    case http::Version::V11: return StringLiteral("1.1");
-    case http::Version::V20: return StringLiteral("2.0");
-    default: return StringLiteral("Unknown");
+    case http::Version::None:
+      return StringLiteral("None");
+    case http::Version::V10:
+      return StringLiteral("1.0");
+    case http::Version::V11:
+      return StringLiteral("1.1");
+    case http::Version::V20:
+      return StringLiteral("2.0");
+    default:
+      return StringLiteral("Unknown");
   }
 }
 
@@ -41,5 +46,5 @@ inline bool FromString(const UNICHAR* str, http::Version& out_value) {
   }
 }
 
-} // namespace http
-} // namespace fun
+}  // namespace fun
+}  // namespace fun

@@ -4,12 +4,12 @@
 
 namespace fun {
 
-//TODO
-//DEFINE_LOG_CATEGORY(LogInteractiveProcess);
+// TODO
+// DEFINE_LOG_CATEGORY(LogInteractiveProcess);
 
 static inline bool CreatePipeWrite(void*& read_pipe, void*& write_pipe) {
 #if FUN_PLATFORM_WINDOWS_FAMILY
-  SECURITY_ATTRIBUTES Attr = { sizeof(SECURITY_ATTRIBUTES), nullptr, true };
+  SECURITY_ATTRIBUTES Attr = {sizeof(SECURITY_ATTRIBUTES), nullptr, true};
 
   if (!::CreatePipe(&read_pipe, &write_pipe, &Attr, 0)) {
     return false;
@@ -22,28 +22,26 @@ static inline bool CreatePipeWrite(void*& read_pipe, void*& write_pipe) {
   return true;
 #else
   return CPlatformProcess::CreatePipe(read_pipe, write_pipe);
-#endif //FUN_PLATFORM_WINDOWS_FAMILY
+#endif  // FUN_PLATFORM_WINDOWS_FAMILY
 }
 
-InteractiveProcess::InteractiveProcess( const String& url,
-                                        const String& params,
-                                        bool hidden,
-                                        bool long_time)
-  : cancelling_(false),
-    hidden_(hidden),
-    kill_tree_(false),
-    url_(url),
-    params_(params),
-    read_pipe_parent_(nullptr),
-    write_pipe_parent_(nullptr),
-    read_pipe_child_(nullptr),
-    write_pipe_child_(nullptr),
-    thread_(nullptr),
-    return_code_(0),
-    start_time_(DateTime::Null),
-    end_time_(DateTime::Null) {
+InteractiveProcess::InteractiveProcess(const String& url, const String& params,
+                                       bool hidden, bool long_time)
+    : cancelling_(false),
+      hidden_(hidden),
+      kill_tree_(false),
+      url_(url),
+      params_(params),
+      read_pipe_parent_(nullptr),
+      write_pipe_parent_(nullptr),
+      read_pipe_child_(nullptr),
+      write_pipe_child_(nullptr),
+      thread_(nullptr),
+      return_code_(0),
+      start_time_(DateTime::Null),
+      end_time_(DateTime::Null) {
   if (long_time == true) {
-    sleep_time_ = 0.0010f; // 10 milliseconds sleep
+    sleep_time_ = 0.0010f;  // 10 milliseconds sleep
   } else {
     sleep_time_ = 0.f;
   }
@@ -67,40 +65,49 @@ Timespan InteractiveProcess::GetDuration() const {
 
 bool InteractiveProcess::Launch() {
   if (IsRunning() == true) {
-    //fun_log(LogInteractiveProcess, Warning, TEXT("The process is already running"));
+    // fun_log(LogInteractiveProcess, Warning, TEXT("The process is already
+    // running"));
     return false;
   }
 
   // For reading from child process
-  if (CPlatformProcess::CreatePipe(read_pipe_parent_, write_pipe_child_) == false) {
-    //fun_log(LogInteractiveProcess, Error, TEXT("Failed to create pipes for parent process"));
+  if (CPlatformProcess::CreatePipe(read_pipe_parent_, write_pipe_child_) ==
+      false) {
+    // fun_log(LogInteractiveProcess, Error, TEXT("Failed to create pipes for
+    // parent process"));
     return false;
   }
 
   // For writing to child process
   if (CreatePipeWrite(read_pipe_child_, write_pipe_parent_) == false) {
-    //fun_log(LogInteractiveProcess, Error, TEXT("Failed to create pipes for parent process"));
+    // fun_log(LogInteractiveProcess, Error, TEXT("Failed to create pipes for
+    // parent process"));
     return false;
   }
 
-  ProcessHandle = CPlatformProcess::CreateNewProcess(*url_, *params_, false, hidden_, hidden_, nullptr, 0, nullptr, write_pipe_child_, read_pipe_child_);
+  ProcessHandle = CPlatformProcess::CreateNewProcess(
+      *url_, *params_, false, hidden_, hidden_, nullptr, 0, nullptr,
+      write_pipe_child_, read_pipe_child_);
   if (ProcessHandle.IsValid() == false) {
-    //fun_log(LogInteractiveProcess, Error, TEXT("Failed to create process"));
+    // fun_log(LogInteractiveProcess, Error, TEXT("Failed to create process"));
     return false;
   }
 
   // Creating name for the process
   static uint32 TempInteractiveProcessIndex = 0;
-  thread_name_ = String::Format(TEXT("InteractiveProcess %d"), TempInteractiveProcessIndex);
+  thread_name_ = String::Format(TEXT("InteractiveProcess %d"),
+                                TempInteractiveProcessIndex);
   TempInteractiveProcessIndex++;
 
   thread_ = RunnableThread::Create(this, *thread_name_);
   if (thread_ == nullptr) {
-    //fun_log(LogInteractiveProcess, Error, TEXT("Failed to create process thread!"));
+    // fun_log(LogInteractiveProcess, Error, TEXT("Failed to create process
+    // thread!"));
     return false;
   }
 
-  //fun_log(LogInteractiveProcess, Info, TEXT("Process creation succesfull %s"), *thread_name_);
+  // fun_log(LogInteractiveProcess, Info, TEXT("Process creation succesfull
+  // %s"), *thread_name_);
   return true;
 }
 
@@ -112,7 +119,8 @@ void InteractiveProcess::ProcessOutput(const String& output) {
     // Don't accept if it is just an empty string
     if (log_lines[i].IsEmpty() == false) {
       output_delegate_.ExecuteIfBound(log_lines[i]);
-      //fun_log(LogInteractiveProcess, Info, TEXT("Child Process -> %s"), *log_lines[i]);
+      // fun_log(LogInteractiveProcess, Info, TEXT("Child Process -> %s"),
+      // *log_lines[i]);
     }
   }
 }
@@ -124,12 +132,13 @@ void InteractiveProcess::SendMessageToProcessif() {
   }
 
   if (write_pipe_parent_ == nullptr) {
-    //fun_log(LogInteractiveProcess, Warning, TEXT("write_pipe is not valid"));
+    // fun_log(LogInteractiveProcess, Warning, TEXT("write_pipe is not valid"));
     return;
   }
 
   if (ProcessHandle.IsValid() == false) {
-    //fun_log(LogInteractiveProcess, Warning, TEXT("Process handle is not valid"));
+    // fun_log(LogInteractiveProcess, Warning, TEXT("Process handle is not
+    // valid"));
     return;
   }
 
@@ -139,13 +148,16 @@ void InteractiveProcess::SendMessageToProcessif() {
 
   CPlatformProcess::WritePipe(write_pipe_parent_, message, &written_message);
 
-  //fun_log(LogInteractiveProcess, Info, TEXT("Parent Process -> Original message: %s, Written message: %s"), *message, *written_message);
+  // fun_log(LogInteractiveProcess, Info, TEXT("Parent Process -> Original
+  // message: %s, Written message: %s"), *message, *written_message);
 
   if (written_message.Len() == 0) {
-    //fun_log(LogInteractiveProcess, Error, TEXT("Writing message through pipe failed"));
+    // fun_log(LogInteractiveProcess, Error, TEXT("Writing message through pipe
+    // failed"));
     return;
   } else if (message.Len() > written_message.Len()) {
-    //fun_log(LogInteractiveProcess, Error, TEXT("Writing some part of the message through pipe failed"));
+    // fun_log(LogInteractiveProcess, Error, TEXT("Writing some part of the
+    // message through pipe failed"));
     return;
   }
 }
@@ -172,8 +184,9 @@ void InteractiveProcess::Run() {
         CPlatformProcess::TerminateProcess(ProcessHandle, kill_tree_);
         CanceledDelegate.ExecuteIfBound();
 
-        //TODO
-        //fun_log(LogInteractiveProcess, Info, TEXT("The process is being canceled"));
+        // TODO
+        // fun_log(LogInteractiveProcess, Info, TEXT("The process is being
+        // canceled"));
         return;
       }
     } while (CPlatformProcess::IsProcessRunning(ProcessHandle) == true);
@@ -186,7 +199,8 @@ void InteractiveProcess::Run() {
   read_pipe_child_ = write_pipe_parent_ = nullptr;
 
   // get completion status
-  if (CPlatformProcess::GetProcessReturnCode(ProcessHandle, &return_code_) == false) {
+  if (CPlatformProcess::GetProcessReturnCode(ProcessHandle, &return_code_) ==
+      false) {
     return_code_ = -1;
   }
 
@@ -195,6 +209,6 @@ void InteractiveProcess::Run() {
   CompletedDelegate.ExecuteIfBound(return_code_, cancelling_);
 }
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_INTERACTIVE_PROCESS
+#endif  // FUN_WITH_INTERACTIVE_PROCESS

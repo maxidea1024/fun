@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/runnable_adapter.h"
-#include "fun/base/thread_pool.h"
 #include "fun/base/event.h"
 #include "fun/base/mutex.h"
+#include "fun/base/runnable_adapter.h"
+#include "fun/base/thread_pool.h"
 
 namespace fun {
 
@@ -60,11 +60,11 @@ class Activity : public Runnable {
    * Creates the activity. Call start() to start it.
    */
   Activity(C* owner, Callback method)
-    : owner_(owner),
-      runnable_(*owner, method),
-      stopped_(true),
-      running_(false),
-      done_(EventResetType::Manual) {
+      : owner_(owner),
+        runnable_(*owner, method),
+        stopped_(true),
+        running_(false),
+        done_(EventResetType::Manual) {
     fun_check_ptr(owner_);
   }
 
@@ -82,15 +82,13 @@ class Activity : public Runnable {
 
   Activity() = delete;
   Activity(const Activity&) = delete;
-  Activity& operator = (const Activity&) = delete;
+  Activity& operator=(const Activity&) = delete;
 
   /**
    * Starts the activity by acquiring a
    * thread for it from the default thread pool.
    */
-  void Start() {
-    Start(ThreadPool::DefaultPool());
-  }
+  void Start() { Start(ThreadPool::DefaultPool()); }
 
   void Start(ThreadPool& pool) {
     ScopedLock<FastMutex> guard(mutex_);
@@ -140,16 +138,12 @@ class Activity : public Runnable {
   /**
    * Returns true if the activity has been requested to stop.
    */
-  bool IsStopped() const {
-    return stopped_;
-  }
+  bool IsStopped() const { return stopped_; }
 
   /**
    * Returns true if the activity is running.
    */
-  bool IsRunning() const {
-    return running_;
-  }
+  bool IsRunning() const { return running_; }
 
  protected:
   // Runnable interface
@@ -176,4 +170,4 @@ class Activity : public Runnable {
   FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

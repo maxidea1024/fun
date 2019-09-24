@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/mongodb/request.h"
 #include "fun/mongodb/document.h"
+#include "fun/mongodb/request.h"
 
 namespace fun {
 namespace mongodb {
@@ -25,60 +25,44 @@ class FUN_MONGODB_API QueryRequest : public Request {
 
  public:
   QueryRequest(const String& collection_name, Flags flags = QUERY_DEFAULT)
-    : Request(MessageHeader::OP_QUERY),
-      flags_(flags),
-      full_collection_name_(collection_name),
-      number_to_skip_(0),
-      number_to_return_(0),
-      selector_(),
-      return_field_selector_() {}
+      : Request(MessageHeader::OP_QUERY),
+        flags_(flags),
+        full_collection_name_(collection_name),
+        number_to_skip_(0),
+        number_to_return_(0),
+        selector_(),
+        return_field_selector_() {}
 
-  //virtual ~QueryRequest() {}
+  // virtual ~QueryRequest() {}
 
-  Flags GetFlags() const {
-    return flags_;
-  }
-  void SetFlags(Flags flags) {
-    flags_ = flags;
-  }
+  Flags GetFlags() const { return flags_; }
+  void SetFlags(Flags flags) { flags_ = flags; }
 
-  const String& GetFullCollectionName() const {
-    return full_collection_name_;
-  }
+  const String& GetFullCollectionName() const { return full_collection_name_; }
 
-  int32 GetSkip() const {
-    return number_to_skip_;
-  }
-  void SetSkip(int32 N) {
-    number_to_skip_ = N;
-  }
+  int32 GetSkip() const { return number_to_skip_; }
+  void SetSkip(int32 N) { number_to_skip_ = N; }
 
-  int32 GetLimit() const {
-    return number_to_return_;
-  }
-  void SetLimit(int32 N) {
-    number_to_return_ = N;
-  }
+  int32 GetLimit() const { return number_to_return_; }
+  void SetLimit(int32 N) { number_to_return_ = N; }
 
-  Document& GetSelector() {
-    return selector_;
-  }
+  Document& GetSelector() { return selector_; }
 
-  Document& GetReturnFieldSelector() {
-    return return_field_selector_;
-  }
+  Document& GetReturnFieldSelector() { return return_field_selector_; }
 
  protected:
   void BuildRequest(MessageOut& wirter) {
-    //struct OP_QUERY {
+    // struct OP_QUERY {
     //  MsgHeader header;                 // standard message header
-    //  int32     flags;                  // bit vector of query options.  See below for details.
-    //  cstring   fullCollectionName ;    // "dbname.collectionname"
-    //  int32     numberToSkip;           // number of documents to skip
-    //  int32     numberToReturn;         // number of documents to return
+    //  int32     flags;                  // bit vector of query options.  See
+    //  below for details. cstring   fullCollectionName ;    //
+    //  "dbname.collectionname" int32     numberToSkip;           // number of
+    //  documents to skip int32     numberToReturn;         // number of
+    //  documents to return
     //                    //  in the first OP_REPLY batch
-    //  document  query;                  // query object.  See below for details.
-    //  [ document  returnFieldsSelector; ] // Optional. Selector indicating the fields
+    //  document  query;                  // query object.  See below for
+    //  details. [ document  returnFieldsSelector; ] // Optional. Selector
+    //  indicating the fields
     //                    //  to return.  See below for details.
     //}
 
@@ -101,5 +85,5 @@ class FUN_MONGODB_API QueryRequest : public Request {
   Document return_field_selector_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

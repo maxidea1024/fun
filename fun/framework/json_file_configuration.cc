@@ -3,27 +3,22 @@
 #ifndef FUN_NO_JSONCONFIGURATION
 
 #include "fun/base/file_stream.h"
+#include "fun/base/number_parser.h"
+#include "fun/base/regex.h"
 #include "fun/json/parser.h"
 #include "fun/json/query.h"
-#include "fun/base/regex.h"
-#include "fun/base/number_parser.h"
 
 namespace fun {
 namespace framework {
 
-JsonFileConfiguration::JsonFileConfiguration()
-  : object_(new JSON::Object()) {}
+JsonFileConfiguration::JsonFileConfiguration() : object_(new JSON::Object()) {}
 
-JsonFileConfiguration::JsonFileConfiguration(const String& path) {
-  Load(path);
-}
+JsonFileConfiguration::JsonFileConfiguration(const String& path) { Load(path); }
 
-JsonFileConfiguration::JsonFileConfiguration(std::istream& istr) {
-  Load(istr);
-}
+JsonFileConfiguration::JsonFileConfiguration(std::istream& istr) { Load(istr); }
 
 JsonFileConfiguration::JsonFileConfiguration(const JSON::Object::Ptr& object)
-  : object_(object) {}
+    : object_(object) {}
 
 JsonFileConfiguration::~JsonFileConfiguration() {}
 
@@ -47,17 +42,18 @@ void JsonFileConfiguration::LoadEmpty(const String& root) {
   object_->Set(root, root_object);
 }
 
-bool JsonFileConfiguration::GetRaw(const String & key, String & value) const {
+bool JsonFileConfiguration::GetRaw(const String& key, String& value) const {
   JSON::Query query(object_);
   fun::dynamicAny result = query.Find(key);
-  if (! result.IsEmpty()) {
+  if (!result.IsEmpty()) {
     value = result.convert<String>();
     return true;
   }
   return false;
 }
 
-void JsonFileConfiguration::GetIndexes(String& name, std::vector<int>& indexes) {
+void JsonFileConfiguration::GetIndexes(String& name,
+                                       std::vector<int>& indexes) {
   indexes.clear();
 
   Regex::MatchVec matches;
@@ -78,7 +74,8 @@ void JsonFileConfiguration::GetIndexes(String& name, std::vector<int>& indexes) 
   }
 }
 
-JSON::Object::Ptr JsonFileConfiguration::FindStart(const String& key, String& last_part) {
+JSON::Object::Ptr JsonFileConfiguration::FindStart(const String& key,
+                                                   String& last_part) {
   JSON::Object::Ptr current_object = object_;
 
   StringTokenizer tokenizer(key, ".");
@@ -91,16 +88,17 @@ JSON::Object::Ptr JsonFileConfiguration::FindStart(const String& key, String& la
 
     DynamicAny result = current_object->get(name);
 
-    if (result.IsEmpty()) { // Not found
-      if (indexes.IsEmpty()) { // We want an object, create it
+    if (result.IsEmpty()) {     // Not found
+      if (indexes.IsEmpty()) {  // We want an object, create it
         JSON::Object::Ptr new_object = new JSON::Object();
         current_object->Set(name, new_object);
         current_object = new_object;
-      } else { // We need an array
+      } else {  // We need an array
         JSON::Array::Ptr newArray;
         JSON::Array::Ptr parentArray;
         JSON::Array::Ptr topArray;
-        for (std::vector<int>::iterator it = indexes.begin(); it != indexes.end(); ++it) {
+        for (std::vector<int>::iterator it = indexes.begin();
+             it != indexes.end(); ++it) {
           newArray = new JSON::Array();
           if (topArray.isNull()) {
             topArray = newArray;
@@ -110,7 +108,7 @@ JSON::Object::Ptr JsonFileConfiguration::FindStart(const String& key, String& la
             parentArray->Add(newArray);
           }
 
-          for(int j = 0; j <= *it - 1; ++j) {
+          for (int j = 0; j <= *it - 1; ++j) {
             fun::dynamicAny nullValue;
             newArray->Add(nullValue);
           }
@@ -122,8 +120,8 @@ JSON::Object::Ptr JsonFileConfiguration::FindStart(const String& key, String& la
         current_object = new JSON::Object();
         newArray->Add(current_object);
       }
-    } else { // We have a value
-      if (indexes.IsEmpty()) { // We want an object
+    } else {                    // We have a value
+      if (indexes.IsEmpty()) {  // We want an object
         if (result.type() == typeid(JSON::Object::Ptr)) {
           current_object = result.extract<JSON::Object::Ptr>();
         } else {
@@ -133,7 +131,8 @@ JSON::Object::Ptr JsonFileConfiguration::FindStart(const String& key, String& la
         if (result.type() == typeid(JSON::Array::Ptr)) {
           JSON::Array::Ptr arr = result.extract<JSON::Array::Ptr>();
 
-          for(std::vector<int>::iterator it = indexes.begin(); it != indexes.end() - 1; ++it) {
+          for (std::vector<int>::iterator it = indexes.begin();
+               it != indexes.end() - 1; ++it) {
             JSON::Array::Ptr currentArray = arr;
             arr = arr->GetArray(*it);
             if (arr.isNull()) {
@@ -143,11 +142,11 @@ JSON::Object::Ptr JsonFileConfiguration::FindStart(const String& key, String& la
           }
 
           result = arr->get(*indexes.rbegin());
-          if (result.IsEmpty()) { // Index doesn't exist
+          if (result.IsEmpty()) {  // Index doesn't exist
             JSON::Object::Ptr new_object = new JSON::Object();
             arr->Add(new_object);
             current_object = new_object;
-          } else { // Index is available
+          } else {  // Index is available
             if (result.type() == typeid(JSON::Object::Ptr)) {
               current_object = result.extract<JSON::Object::Ptr>();
             } else {
@@ -164,8 +163,8 @@ JSON::Object::Ptr JsonFileConfiguration::FindStart(const String& key, String& la
   return current_object;
 }
 
-void JsonFileConfiguration::SetValue(   const String& key,
-                                        const fun::dynamicAny& value) {
+void JsonFileConfiguration::SetValue(const String& key,
+                                     const fun::dynamicAny& value) {
   String sValue;
 
   value.convert<String>(sValue);
@@ -181,19 +180,20 @@ void JsonFileConfiguration::SetValue(   const String& key,
   std::vector<int> indexes;
   GetIndexes(last_part, indexes);
 
-  if (indexes.IsEmpty()) { // No Array
+  if (indexes.IsEmpty()) {  // No Array
     parent_object->Set(last_part, value);
   } else {
     DynamicAny result = parent_object->get(last_part);
-    if ( result.IsEmpty() ) {
+    if (result.IsEmpty()) {
       result = JSON::Array::Ptr(new JSON::Array());
       parent_object->Set(last_part, result);
-    } else if ( result.type() != typeid(JSON::Array::Ptr) ) {
+    } else if (result.type() != typeid(JSON::Array::Ptr)) {
       throw SyntaxException("Expected a JSON array");
     }
 
     JSON::Array::Ptr arr = result.extract<JSON::Array::Ptr>();
-    for(std::vector<int>::iterator it = indexes.begin(); it != indexes.end() - 1; ++it) {
+    for (std::vector<int>::iterator it = indexes.begin();
+         it != indexes.end() - 1; ++it) {
       JSON::Array::Ptr next_array = arr->GetArray(*it);
       if (next_array.isNull()) {
         for (int i = static_cast<int>(arr->size()); i <= *it; ++i) {
@@ -242,7 +242,8 @@ void JsonFileConfiguration::Enumerate(const String& key, Keys& range) const {
   }
 }
 
-void JsonFileConfiguration::Save(std::ostream& ostr, unsigned int indent) const {
+void JsonFileConfiguration::Save(std::ostream& ostr,
+                                 unsigned int indent) const {
   object_->stringify(ostr, indent);
 }
 
@@ -252,13 +253,14 @@ void JsonFileConfiguration::RemoveRaw(const String& key) {
   std::vector<int> indexes;
   GetIndexes(last_part, indexes);
 
-  if (indexes.IsEmpty()) { // No Array
+  if (indexes.IsEmpty()) {  // No Array
     parent_object->Remove(last_part);
   } else {
     DynamicAny result = parent_object->get(last_part);
     if (!result.IsEmpty() && result.type() == typeid(JSON::Array::Ptr)) {
       JSON::Array::Ptr arr = result.extract<JSON::Array::Ptr>();
-      for(std::vector<int>::iterator it = indexes.begin(); it != indexes.end() - 1; ++it) {
+      for (std::vector<int>::iterator it = indexes.begin();
+           it != indexes.end() - 1; ++it) {
         arr = arr->GetArray(*it);
       }
       arr->Remove(indexes.back());
@@ -266,7 +268,7 @@ void JsonFileConfiguration::RemoveRaw(const String& key) {
   }
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun
 
-#endif // FUN_NO_JSONCONFIGURATION
+#endif  // FUN_NO_JSONCONFIGURATION

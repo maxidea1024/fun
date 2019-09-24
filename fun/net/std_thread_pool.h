@@ -1,4 +1,4 @@
-﻿//TODO 제거 대상..
+﻿// TODO 제거 대상..
 
 #pragma once
 
@@ -18,14 +18,14 @@ class StdThreadPool {
   ~StdThreadPool();
 
   StdThreadPool(const StdThreadPool&) = delete;
-  StdThreadPool& operator = (const StdThreadPool&) = delete;
+  StdThreadPool& operator=(const StdThreadPool&) = delete;
 
  public:
-  typedef Function<void ()> Task;
+  typedef Function<void()> Task;
 
   void AddTask(const Task& task);
   void AddTask(const Task& task, const String& tag);
-  StdThreadPool& operator << (const Task& task);
+  StdThreadPool& operator<<(const Task& task);
 
   void Stop();
 
@@ -43,4 +43,4 @@ class StdThreadPool {
   std::condition_variable task_cv_;
 };
 
-} // namespace fun
+}  // namespace fun

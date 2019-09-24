@@ -10,21 +10,20 @@ namespace fun {
  * Wraps a freestanding function or static member function
  * for use as a Delegate.
  */
-template <typename ArgsType, bool with_sender = true, bool sender_is_const = true>
+template <typename ArgsType, bool with_sender = true,
+          bool sender_is_const = true>
 class FunctionDelegate : public DelegateBase<ArgsType> {
  public:
   typedef void (*NotifyFunction)(const void*, ArgsType&);
 
-  FunctionDelegate(NotifyFunction function)
-    : function_(function) {}
+  FunctionDelegate(NotifyFunction function) : function_(function) {}
 
   FunctionDelegate(const FunctionDelegate& delegate)
-    : DelegateBase<ArgsType>(delegate),
-      function_(delegate.function_) {}
+      : DelegateBase<ArgsType>(delegate), function_(delegate.function_) {}
 
   ~FunctionDelegate() {}
 
-  FunctionDelegate& operator = (const FunctionDelegate& delegate) {
+  FunctionDelegate& operator=(const FunctionDelegate& delegate) {
     if (FUN_LIKELY(&delegate != this)) {
       this->function_ = delegate.function_;
     }
@@ -42,13 +41,12 @@ class FunctionDelegate : public DelegateBase<ArgsType> {
   }
 
   bool Equals(const DelegateBase<ArgsType>& other) const {
-    const FunctionDelegate* other_delegate = dynamic_cast<const FunctionDelegate*>(other.Unwrap());
+    const FunctionDelegate* other_delegate =
+        dynamic_cast<const FunctionDelegate*>(other.Unwrap());
     return other_delegate && function_ == other_delegate->function_;
   }
 
-  DelegateBase<ArgsType>* Clone() const {
-    return new FunctionDelegate(*this);
-  }
+  DelegateBase<ArgsType>* Clone() const { return new FunctionDelegate(*this); }
 
   void Disable() {
     Mutex::ScopedLock guard(mutex_);
@@ -63,22 +61,19 @@ class FunctionDelegate : public DelegateBase<ArgsType> {
   FunctionDelegate() = delete;
 };
 
-
 template <typename ArgsType>
-class FunctionDelegate<ArgsType, true, false> : public DelegateBase<ArgsType>
-{
+class FunctionDelegate<ArgsType, true, false> : public DelegateBase<ArgsType> {
  public:
   typedef void (*NotifyFunction)(void*, ArgsType&);
 
-  FunctionDelegate(NotifyFunction function)
-    : function_(function) {}
+  FunctionDelegate(NotifyFunction function) : function_(function) {}
 
   FunctionDelegate(const FunctionDelegate& delegate)
-    : DelegateBase<ArgsType>(delegate), function_(delegate.function_) {}
+      : DelegateBase<ArgsType>(delegate), function_(delegate.function_) {}
 
   ~FunctionDelegate() {}
 
-  FunctionDelegate& operator = (const FunctionDelegate& delegate) {
+  FunctionDelegate& operator=(const FunctionDelegate& delegate) {
     if (FUN_LIKELY(&delegate != this)) {
       this->function_ = delegate.function_;
     }
@@ -96,13 +91,12 @@ class FunctionDelegate<ArgsType, true, false> : public DelegateBase<ArgsType>
   }
 
   bool Equals(const DelegateBase<ArgsType>& other) const {
-    const FunctionDelegate* other_delegate = dynamic_cast<const FunctionDelegate*>(other.Unwrap());
+    const FunctionDelegate* other_delegate =
+        dynamic_cast<const FunctionDelegate*>(other.Unwrap());
     return other_delegate && function_ == other_delegate->function_;
   }
 
-  DelegateBase<ArgsType>* Clone() const {
-    return new FunctionDelegate(*this);
-  }
+  DelegateBase<ArgsType>* Clone() const { return new FunctionDelegate(*this); }
 
   void Disable() {
     Mutex::ScopedLock guard(mutex_);
@@ -117,21 +111,20 @@ class FunctionDelegate<ArgsType, true, false> : public DelegateBase<ArgsType>
   FunctionDelegate() = delete;
 };
 
-
 template <typename ArgsType, bool sender_is_const>
-class FunctionDelegate<ArgsType, false, sender_is_const> : public DelegateBase<ArgsType> {
+class FunctionDelegate<ArgsType, false, sender_is_const>
+    : public DelegateBase<ArgsType> {
  public:
   typedef void (*NotifyFunction)(ArgsType&);
 
-  FunctionDelegate(NotifyFunction function)
-    : function_(function) {}
+  FunctionDelegate(NotifyFunction function) : function_(function) {}
 
   FunctionDelegate(const FunctionDelegate& delegate)
-    : DelegateBase<ArgsType>(delegate), function_(delegate.function_) {}
+      : DelegateBase<ArgsType>(delegate), function_(delegate.function_) {}
 
   ~FunctionDelegate() {}
 
-  FunctionDelegate& operator = (const FunctionDelegate& delegate) {
+  FunctionDelegate& operator=(const FunctionDelegate& delegate) {
     if (FUN_LIKELY(&delegate != this)) {
       this->function_ = delegate.function_;
     }
@@ -149,13 +142,12 @@ class FunctionDelegate<ArgsType, false, sender_is_const> : public DelegateBase<A
   }
 
   bool Equals(const DelegateBase<ArgsType>& other) const {
-    const FunctionDelegate* other_delegate = dynamic_cast<const FunctionDelegate*>(other.Unwrap());
+    const FunctionDelegate* other_delegate =
+        dynamic_cast<const FunctionDelegate*>(other.Unwrap());
     return other_delegate && function_ == other_delegate->function_;
   }
 
-  DelegateBase<ArgsType>* Clone() const {
-    return new FunctionDelegate(*this);
-  }
+  DelegateBase<ArgsType>* Clone() const { return new FunctionDelegate(*this); }
 
   void Disable() {
     Mutex::ScopedLock guard(mutex_);
@@ -170,25 +162,23 @@ class FunctionDelegate<ArgsType, false, sender_is_const> : public DelegateBase<A
   FunctionDelegate() = delete;
 };
 
-
 /**
  * Wraps a freestanding function or static member function
  * for use as a Delegate.
  */
 template <>
 class FunctionDelegate<void, true, true> : public DelegateBase<void> {
-public:
+ public:
   typedef void (*NotifyFunction)(const void*);
 
-  FunctionDelegate(NotifyFunction function)
-    : function_(function) {}
+  FunctionDelegate(NotifyFunction function) : function_(function) {}
 
   FunctionDelegate(const FunctionDelegate& delegate)
-    : DelegateBase<void>(delegate), function_(delegate.function_) {}
+      : DelegateBase<void>(delegate), function_(delegate.function_) {}
 
   ~FunctionDelegate() {}
 
-  FunctionDelegate& operator = (const FunctionDelegate& delegate) {
+  FunctionDelegate& operator=(const FunctionDelegate& delegate) {
     if (FUN_LIKELY(&delegate != this)) {
       this->function_ = delegate.function_;
     }
@@ -206,13 +196,12 @@ public:
   }
 
   bool Equals(const DelegateBase<void>& other) const {
-    const FunctionDelegate* other_delegate = dynamic_cast<const FunctionDelegate*>(other.Unwrap());
+    const FunctionDelegate* other_delegate =
+        dynamic_cast<const FunctionDelegate*>(other.Unwrap());
     return other_delegate && function_ == other_delegate->function_;
   }
 
-  DelegateBase<void>* Clone() const {
-    return new FunctionDelegate(*this);
-  }
+  DelegateBase<void>* Clone() const { return new FunctionDelegate(*this); }
 
   void Disable() {
     Mutex::ScopedLock guard(mutex_);
@@ -227,21 +216,19 @@ public:
   FunctionDelegate() = delete;
 };
 
-
 template <>
 class FunctionDelegate<void, true, false> : public DelegateBase<void> {
  public:
   typedef void (*NotifyFunction)(void*);
 
-  FunctionDelegate(NotifyFunction function)
-    : function_(function) {}
+  FunctionDelegate(NotifyFunction function) : function_(function) {}
 
   FunctionDelegate(const FunctionDelegate& delegate)
-    : DelegateBase<void>(delegate), function_(delegate.function_) {}
+      : DelegateBase<void>(delegate), function_(delegate.function_) {}
 
   ~FunctionDelegate() {}
 
-  FunctionDelegate& operator = (const FunctionDelegate& delegate) {
+  FunctionDelegate& operator=(const FunctionDelegate& delegate) {
     if (FUN_LIKELY(&delegate != this)) {
       this->function_ = delegate.function_;
     }
@@ -259,13 +246,12 @@ class FunctionDelegate<void, true, false> : public DelegateBase<void> {
   }
 
   bool Equals(const DelegateBase<void>& other) const {
-    const FunctionDelegate* other_delegate = dynamic_cast<const FunctionDelegate*>(other.Unwrap());
+    const FunctionDelegate* other_delegate =
+        dynamic_cast<const FunctionDelegate*>(other.Unwrap());
     return other_delegate && function_ == other_delegate->function_;
   }
 
-  DelegateBase<void>* Clone() const {
-    return new FunctionDelegate(*this);
-  }
+  DelegateBase<void>* Clone() const { return new FunctionDelegate(*this); }
 
   void Disable() {
     Mutex::ScopedLock guard(mutex_);
@@ -280,21 +266,20 @@ class FunctionDelegate<void, true, false> : public DelegateBase<void> {
   FunctionDelegate() = delete;
 };
 
-
 template <bool sender_is_const>
-class FunctionDelegate<void, false, sender_is_const> : public DelegateBase<void> {
+class FunctionDelegate<void, false, sender_is_const>
+    : public DelegateBase<void> {
  public:
   typedef void (*NotifyFunction)();
 
-  FunctionDelegate(NotifyFunction function)
-    : function_(function) {}
+  FunctionDelegate(NotifyFunction function) : function_(function) {}
 
   FunctionDelegate(const FunctionDelegate& delegate)
-    : DelegateBase<void>(delegate), function_(delegate.function_) {}
+      : DelegateBase<void>(delegate), function_(delegate.function_) {}
 
   ~FunctionDelegate() {}
 
-  FunctionDelegate& operator = (const FunctionDelegate& delegate) {
+  FunctionDelegate& operator=(const FunctionDelegate& delegate) {
     if (FUN_LIKELY(&delegate != this)) {
       this->function_ = delegate.function_;
     }
@@ -312,13 +297,12 @@ class FunctionDelegate<void, false, sender_is_const> : public DelegateBase<void>
   }
 
   bool Equals(const DelegateBase<void>& other) const {
-    const FunctionDelegate* other_delegate = dynamic_cast<const FunctionDelegate*>(other.Unwrap());
+    const FunctionDelegate* other_delegate =
+        dynamic_cast<const FunctionDelegate*>(other.Unwrap());
     return other_delegate && function_ == other_delegate->function_;
   }
 
-  DelegateBase<void>* Clone() const {
-    return new FunctionDelegate(*this);
-  }
+  DelegateBase<void>* Clone() const { return new FunctionDelegate(*this); }
 
   void Disable() {
     Mutex::ScopedLock guard(mutex_);
@@ -333,4 +317,4 @@ class FunctionDelegate<void, false, sender_is_const> : public DelegateBase<void>
   FunctionDelegate() = delete;
 };
 
-} // namespace fun
+}  // namespace fun

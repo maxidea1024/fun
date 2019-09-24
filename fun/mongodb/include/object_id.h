@@ -40,7 +40,7 @@ class FUN_MONGODB_API ObjectId {
     bytes[1] = id_[2];
     bytes[2] = id_[1];
     bytes[3] = id_[0];
-    //TODO
+    // TODO
     return DateTime::FromUtcEpoch(time_t)time);
   }
 
@@ -53,9 +53,7 @@ class FUN_MONGODB_API ObjectId {
   }
 
  private:
-  ObjectId() {
-    UnsafeMemory::Memset(id_, 0x00, sizeof(id_));
-  }
+  ObjectId() { UnsafeMemory::Memset(id_, 0x00, sizeof(id_)); }
 
   static int32 FromHex(char c) {
     if ('0' <= c && c <= '9') {
@@ -70,7 +68,7 @@ class FUN_MONGODB_API ObjectId {
   }
 
   static char FromHex(const char* c) {
-    return (char)((FromHex(c[0]) << 4 ) | FromHex(c[1]));
+    return (char)((FromHex(c[0]) << 4) | FromHex(c[1]));
   }
 
   uint8 id_[12];
@@ -80,12 +78,12 @@ class FUN_MONGODB_API ObjectId {
   friend class Document;
 };
 
-
 template <>
 struct ElementTraits<ObjectIdPtr> {
   enum { TypeId = 0x7 };
 
-  static String ToString(const ObjectIdPtr& id, int32 indent = 0, const String& fmt = "%02x") {
+  static String ToString(const ObjectIdPtr& id, int32 indent = 0,
+                         const String& fmt = "%02x") {
     return id->ToString(fmt);
   }
 };
@@ -100,5 +98,5 @@ inline void BsonWriter::Write<ObjectIdPtr>(ObjectIdPtr& value) {
   writer_.WriteRawBytes((const char*)value.id_, 12);
 }
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

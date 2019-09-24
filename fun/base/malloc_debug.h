@@ -10,7 +10,7 @@ namespace fun {
  */
 class MemoryAllocatorDebug : public MemoryAllocator {
   // Tags.
-  enum { MEM_PRE_TAG  = 0xF0ED1CEE };
+  enum { MEM_PRE_TAG = 0xF0ED1CEE };
   enum { MEM_POST_TAG = 0xDEADF00F };
   enum { MEM_TAG = 0xFE };
   enum { MEM_WIPE_TAG = 0xCD };
@@ -43,30 +43,34 @@ class MemoryAllocatorDebug : public MemoryAllocator {
   /** Total size of allocation overhead */
   size_t total_waste_size_;
 
-  static const uint32 ALLOCATOR_OVERHEAD = sizeof(MemDebug) + sizeof(MemDebug*) + sizeof(int32) + ALLOCATION_ALIGNMENT + sizeof(int32);
+  static const uint32 ALLOCATOR_OVERHEAD = sizeof(MemDebug) +
+                                           sizeof(MemDebug*) + sizeof(int32) +
+                                           ALLOCATION_ALIGNMENT + sizeof(int32);
 
  public:
   MemoryAllocatorDebug()
-    : g_first_debug(nullptr),
-      total_allocation_size_(0),
-      total_waste_size_(0) {}
-
+      : g_first_debug(nullptr),
+        total_allocation_size_(0),
+        total_waste_size_(0) {}
 
   //
   // MemoryAllocator interface
   //
 
   void* Malloc(size_t size, uint32 alignment) override {
-    fun_check_msg(alignment == DEFAULT_ALIGNMENT, "alignment currently unsupported in this allocator");
+    fun_check_msg(alignment == DEFAULT_ALIGNMENT,
+                  "alignment currently unsupported in this allocator");
     MemDebug* ptr = (MemDebug*)malloc(ALLOCATOR_OVERHEAD + size);
     fun_check_ptr(ptr);
-    uint8* aligned_ptr = Align((uint8*)ptr + sizeof(MemDebug) + sizeof(MemDebug*) + sizeof(int32), ALLOCATION_ALIGNMENT);
+    uint8* aligned_ptr = Align(
+        (uint8*)ptr + sizeof(MemDebug) + sizeof(MemDebug*) + sizeof(int32),
+        ALLOCATION_ALIGNMENT);
     ptr->ref_count = 1;
 
     ptr->size = size;
     ptr->next = g_first_debug;
     ptr->prev_link = &g_first_debug;
-    ptr->pre_tag = (int32*) (aligned_ptr - sizeof(int32));
+    ptr->pre_tag = (int32*)(aligned_ptr - sizeof(int32));
     *ptr->pre_tag = MEM_PRE_TAG;
     *((MemDebug**)(aligned_ptr - sizeof(int32) - sizeof(MemDebug*))) = ptr;
     *(int32*)(aligned_ptr + size) = MEM_POST_TAG;
@@ -78,16 +82,20 @@ class MemoryAllocatorDebug : public MemoryAllocator {
     g_first_debug = ptr;
     total_allocation_size_ += size;
     total_waste_size_ += ALLOCATOR_OVERHEAD;
-    fun_check(!(intptr_t(aligned_ptr) & ((intptr_t)0xF))); // must be 16 bytes aligned.
+    fun_check(!(intptr_t(aligned_ptr) &
+                ((intptr_t)0xF)));  // must be 16 bytes aligned.
     return aligned_ptr;
   }
 
-  void* Realloc(void* reported_ptr, size_t new_size, uint32 alignment) override {
+  void* Realloc(void* reported_ptr, size_t new_size,
+                uint32 alignment) override {
     if (reported_ptr && new_size > 0) {
-      MemDebug* ptr = *((MemDebug**)((uint8*)reported_ptr - sizeof(int32) - sizeof(MemDebug*)));
+      MemDebug* ptr = *((MemDebug**)((uint8*)reported_ptr - sizeof(int32) -
+                                     sizeof(MemDebug*)));
       fun_check(GIsCriticalError || (ptr->ref_count == 1));
       void* result = Malloc(new_size, alignment);
-      UnsafeMemory::Memcpy(result, reported_ptr, MathBase::Min<size_t>(ptr->size, new_size));
+      UnsafeMemory::Memcpy(result, reported_ptr,
+                           MathBase::Min<size_t>(ptr->size, new_size));
       Free(reported_ptr);
       return result;
     } else if (reported_ptr == nullptr) {
@@ -103,11 +111,13 @@ class MemoryAllocatorDebug : public MemoryAllocator {
       return;
     }
 
-    MemDebug* ptr = *((MemDebug**)((uint8*)reported_ptr - sizeof(int32) - sizeof(MemDebug*)));
+    MemDebug* ptr = *(
+        (MemDebug**)((uint8*)reported_ptr - sizeof(int32) - sizeof(MemDebug*)));
 
     fun_check(GIsCriticalError || ptr->ref_count == 1);
     fun_check(GIsCriticalError || *ptr->pre_tag == MEM_PRE_TAG);
-    fun_check(GIsCriticalError || *(int32*)((uint8*)reported_ptr + ptr->size) == MEM_POST_TAG);
+    fun_check(GIsCriticalError ||
+              *(int32*)((uint8*)reported_ptr + ptr->size) == MEM_POST_TAG);
 
     total_allocation_size_ -= ptr->size;
     total_waste_size_ -= ALLOCATOR_OVERHEAD;
@@ -126,11 +136,13 @@ class MemoryAllocatorDebug : public MemoryAllocator {
     free(ptr);
   }
 
-  bool GetAllocationSize(void* reported_ptr, size_t& out_allocation_size) override {
+  bool GetAllocationSize(void* reported_ptr,
+                         size_t& out_allocation_size) override {
     if (reported_ptr == nullptr) {
       out_allocation_size = 0;
     } else {
-      const MemDebug* ptr = *((MemDebug**)((uint8*)reported_ptr - sizeof(int32) - sizeof(MemDebug*)));
+      const MemDebug* ptr = *((MemDebug**)((uint8*)reported_ptr -
+                                           sizeof(int32) - sizeof(MemDebug*)));
       out_allocation_size = ptr->size;
     }
 
@@ -172,9 +184,11 @@ class MemoryAllocatorDebug : public MemoryAllocator {
     return true;
   }
 
-  bool Exec(RuntimeEnv* env, const char* cmd, Printer& out) override { return false; }
+  bool Exec(RuntimeEnv* env, const char* cmd, Printer& out) override {
+    return false;
+  }
 
   const char* GetDescriptiveName() override { return "Debug"; }
 };
 
-} // namespace fun
+}  // namespace fun

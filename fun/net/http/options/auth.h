@@ -9,14 +9,11 @@ class Auth {
  public:
   template <typename UserType, typename PassType>
   Auth(UserType&& user_name, PassType&& password)
-    : user_name_{FORWARD(user_name)}
-    , password_{FORWARD(password)}
-    , auth_string_{user_name_ + ":" + password_} {
-  }
+      : user_name_{FORWARD(user_name)},
+        password_{FORWARD(password)},
+        auth_string_{user_name_ + ":" + password_} {}
 
-  const char* GetAuthString() const noexcept {
-    return auth_string_.c_str();
-  }
+  const char* GetAuthString() const noexcept { return auth_string_.c_str(); }
 
  private:
   /** Username for authentication */
@@ -29,5 +26,5 @@ class Auth {
   String auth_string_;
 };
 
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

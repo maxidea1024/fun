@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
-#include "fun/framework/configuration_base.h"
 #include "fun/base/string/string.h"
 #include "fun/base/windows_less.h"
+#include "fun/framework/configuration_base.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -20,9 +20,10 @@ class FUN_FRAMEWORK_API WinRegistryConfiguration : public ConfigurationBase {
   /**
    * Creates the WinRegistryConfiguration.
    * The root_path must start with one of the root key names
-   * like HKEY_CLASSES_ROOT, e.g. HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services.
-   * All further keys are relative to the root path and can be
-   * dot separated, e.g. the path MyService.ServiceName will be converted to
+   * like HKEY_CLASSES_ROOT, e.g.
+   * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services. All further keys are
+   * relative to the root path and can be dot separated, e.g. the path
+   * MyService.ServiceName will be converted to
    * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MyService\ServiceName.
    * The extra_sam parameter will be passed along to WinRegistryKey, to control
    * registry virtualization for example.
@@ -55,5 +56,5 @@ class FUN_FRAMEWORK_API WinRegistryConfiguration : public ConfigurationBase {
   REGSAM extra_sam_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

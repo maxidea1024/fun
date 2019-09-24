@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
 #include "fun/base/async_result.h"
-#include "fun/base/runnable.h"
+#include "fun/base/base.h"
 #include "fun/base/exception.h"
 #include "fun/base/ref_counted.h"
+#include "fun/base/runnable.h"
 
 namespace fun {
 
@@ -26,19 +26,15 @@ class AsyncRunnable : public AsyncRunnableBase {
   typedef ResultType (OwnerType::*Callback)(const ArgsType&);
   typedef AsyncResult<ResultType> AsyncResultType;
 
-  AsyncRunnable(OwnerType* owner,
-                Callback method,
-                const ArgsType& arg,
+  AsyncRunnable(OwnerType* owner, Callback method, const ArgsType& arg,
                 const AsyncResultType& result)
-    : owner_(owner),
-      method_(method),
-      arg_(arg),
-      result_(result) {
+      : owner_(owner), method_(method), arg_(arg), result_(result) {
     fun_check_ptr(owner_);
   }
 
   void Run() override {
-    AsyncRunnableBase::Ptr guard(this, false); // Auto release. (참조를 획득하지 않고, 해제만 해줌)
+    AsyncRunnableBase::Ptr guard(
+        this, false);  // Auto release. (참조를 획득하지 않고, 해제만 해줌)
     try {
       result_.SetData(new ResultType((owner_->*method_)(arg_)));
     } catch (Exception& e) {
@@ -69,14 +65,9 @@ class AsyncRunnable<void, ArgsType, OwnerType> : public AsyncRunnableBase {
   typedef void (OwnerType::*Callback)(const ArgsType&);
   typedef AsyncResult<void> AsyncResultType;
 
-  AsyncRunnable(OwnerType* owner,
-                Callback method,
-                const ArgsType& arg,
+  AsyncRunnable(OwnerType* owner, Callback method, const ArgsType& arg,
                 const AsyncResultType& result)
-    : owner_(owner),
-      method_(method),
-      arg_(arg),
-      result_(result) {
+      : owner_(owner), method_(method), arg_(arg), result_(result) {
     fun_check_ptr(owner_);
   }
 
@@ -112,10 +103,9 @@ class AsyncRunnable<ResultType, void, OwnerType> : public AsyncRunnableBase {
   typedef ResultType (OwnerType::*Callback)();
   typedef AsyncResult<ResultType> AsyncResultType;
 
-  AsyncRunnable(OwnerType* owner, Callback method, const AsyncResultType& result)
-    : owner_(owner),
-      method_(method),
-      result_(result) {
+  AsyncRunnable(OwnerType* owner, Callback method,
+                const AsyncResultType& result)
+      : owner_(owner), method_(method), result_(result) {
     fun_check_ptr(owner_);
   }
 
@@ -150,10 +140,9 @@ class AsyncRunnable<void, void, OwnerType> : public AsyncRunnableBase {
   typedef void (OwnerType::*Callback)();
   typedef AsyncResult<void> AsyncResultType;
 
-  AsyncRunnable(OwnerType* owner, Callback method, const AsyncResultType& result)
-    : owner_(owner),
-      method_(method),
-      result_(result) {
+  AsyncRunnable(OwnerType* owner, Callback method,
+                const AsyncResultType& result)
+      : owner_(owner), method_(method), result_(result) {
     fun_check_ptr(owner_);
   }
 
@@ -178,4 +167,4 @@ class AsyncRunnable<void, void, OwnerType> : public AsyncRunnableBase {
   AsyncResultType result_;
 };
 
-} // namespace fun
+}  // namespace fun

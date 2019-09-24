@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
-#include "fun/base/windows_less.h"
 #include "fun/base/container/array.h"
+#include "fun/base/windows_less.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -37,18 +37,19 @@ class FUN_FRAMEWORK_API WinRegistryKey {
    * Creates the WinRegistryKey.
    *
    * The key must start with one of the root key names
-   * like HKEY_CLASSES_ROOT, e.g. HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services.
+   * like HKEY_CLASSES_ROOT, e.g.
+   * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services.
    *
    * If read_only is true, then only read access to the registry
    * is available and any attempt to write to the registry will
    * result in an exception.
    *
-   * extra_sam is used to pass extra flags (in addition to KEY_READ and KEY_WRITE)
-   * to the samDesired argument of RegOpenKeyEx() or RegCreateKeyEx().
+   * extra_sam is used to pass extra flags (in addition to KEY_READ and
+   * KEY_WRITE) to the samDesired argument of RegOpenKeyEx() or
+   * RegCreateKeyEx().
    */
-  WinRegistryKey( const String& key,
-                  bool read_only = false,
-                  REGSAM extra_sam = 0);
+  WinRegistryKey(const String& key, bool read_only = false,
+                 REGSAM extra_sam = 0);
 
   /**
    * Creates the WinRegistryKey.
@@ -57,13 +58,12 @@ class FUN_FRAMEWORK_API WinRegistryKey {
    * is available and any attempt to write to the registry will
    * result in an exception.
    *
-   * extra_sam is used to pass extra flags (in addition to KEY_READ and KEY_WRITE)
-   * to the samDesired argument of RegOpenKeyEx() or RegCreateKeyEx().
+   * extra_sam is used to pass extra flags (in addition to KEY_READ and
+   * KEY_WRITE) to the samDesired argument of RegOpenKeyEx() or
+   * RegCreateKeyEx().
    */
-  WinRegistryKey( HKEY hroot_key,
-                  const String& sub_key,
-                  bool read_only = false,
-                  REGSAM extra_sam = 0);
+  WinRegistryKey(HKEY hroot_key, const String& sub_key, bool read_only = false,
+                 REGSAM extra_sam = 0);
 
   /**
    * Destroys the WinRegistryKey.
@@ -73,7 +73,7 @@ class FUN_FRAMEWORK_API WinRegistryKey {
   // Disable default constructor and copy.
   WinRegistryKey() = delete;
   WinRegistryKey(const WinRegistryKey&) = delete;
-  WinRegistryKey& operator = (const WinRegistryKey&) = delete;
+  WinRegistryKey& operator=(const WinRegistryKey&) = delete;
 
   /**
    * Sets the string value (REG_SZ) with the given name.
@@ -205,14 +205,11 @@ class FUN_FRAMEWORK_API WinRegistryKey {
   REGSAM extra_sam_;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE bool WinRegistryKey::IsReadOnly() const {
-  return read_only_;
-}
+FUN_ALWAYS_INLINE bool WinRegistryKey::IsReadOnly() const { return read_only_; }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

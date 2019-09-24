@@ -1,9 +1,9 @@
 #pragma once
 
+#include "fun/net/host_entry.h"
+#include "fun/net/ip_address.h"
 #include "fun/net/net.h"
 #include "fun/net/socket_defs.h"
-#include "fun/net/ip_address.h"
-#include "fun/net/host_entry.h"
 
 namespace fun {
 namespace net {
@@ -50,13 +50,14 @@ class FUN_NET_API Dns {
    *
    * Throws an IoException in case of any other error.
    */
-  static HostEntry HostByName(const String& HotName, uint32 int_flags =
+  static HostEntry HostByName(const String& HotName,
+                              uint32 int_flags =
 #ifdef FUN_PLATFORM_HAVE_ADDRINFO
-      DNS_HINT_AI_CANONNAME | DNS_HINT_AI_ADDRCONFIG
+                                  DNS_HINT_AI_CANONNAME | DNS_HINT_AI_ADDRCONFIG
 #else
-      DNS_HINT_NONE
+                                  DNS_HINT_NONE
 #endif
-    );
+  );
 
   /**
    * Returns a HostEntry object containing the DNS information
@@ -70,13 +71,15 @@ class FUN_NET_API Dns {
    *
    * Throws an IoException in case of any other error.
    */
-  static HostEntry HostByAddress(const IpAddress& address, uint32 int_flags =
+  static HostEntry HostByAddress(const IpAddress& address,
+                                 uint32 int_flags =
 #ifdef FUN_PLATFORM_HAVE_ADDRINFO
-      DNS_HINT_AI_CANONNAME | DNS_HINT_AI_ADDRCONFIG
+                                     DNS_HINT_AI_CANONNAME |
+                                     DNS_HINT_AI_ADDRCONFIG
 #else
-      DNS_HINT_NONE
+                                     DNS_HINT_NONE
 #endif
-    );
+  );
 
   /**
    * Returns a HostEntry object containing the DNS information
@@ -138,5 +141,5 @@ class FUN_NET_API Dns {
   static void AddrInfoError(int32 code, const String& arg);
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -5,7 +5,8 @@
 
 namespace fun {
 
-#if FUN_PLATFORM_SUPPORTS_TBB && FUN_TBB_ALLOCATOR_ALLOWED // Only use for supported platforms
+#if FUN_PLATFORM_SUPPORTS_TBB && \
+    FUN_TBB_ALLOCATOR_ALLOWED  // Only use for supported platforms
 
 /**
  * TBB 64-bit scalable memory allocator.
@@ -21,7 +22,8 @@ class MemoryAllocatorTBB : public MemoryAllocator {
   void* Malloc(size_t size, uint32 alignment) override;
   void* Realloc(void* ptr, size_t new_size, uint32 alignment) override;
   void Free(void* ptr) override;
-  bool GetAllocationSize(void* reported_ptr, size_t& out_allocation_size) override;
+  bool GetAllocationSize(void* reported_ptr,
+                         size_t& out_allocation_size) override;
   bool IsInternallyThreadSafe() const override { return true; }
   const char* GetDescriptiveName() override { return "TBB"; }
 
@@ -36,6 +38,6 @@ class MemoryAllocatorTBB : public MemoryAllocator {
   double mem_time_;
 };
 
-#endif //FUN_PLATFORM_SUPPORTS_TBB && FUN_TBB_ALLOCATOR_ALLOWED
+#endif  // FUN_PLATFORM_SUPPORTS_TBB && FUN_TBB_ALLOCATOR_ALLOWED
 
-} // namespace fun
+}  // namespace fun

@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
-#include "fun/base/shared_ptr.h"
-#include "fun/base/function.h"
 #include "fun/base/container/map.h"
+#include "fun/base/function.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -18,23 +18,19 @@ TODO
 */
 class TcpServer : Noncopyable {
  public:
-  typedef Function<void (EventLoop*)> ThreadInitCallback;
+  typedef Function<void(EventLoop*)> ThreadInitCallback;
 
   enum Option {
     kNoReusePort,
     kReusePort,
   };
 
-  TcpServer(EventLoop* loop,
-            const InetAddress& listen_addr,
-            const string& name,
+  TcpServer(EventLoop* loop, const InetAddress& listen_addr, const string& name,
             Option option = kNoReusePort);
 
   ~TcpServer();
 
-  EventLoop* GetLoop() const {
-    return loop_;
-  }
+  EventLoop* GetLoop() const { return loop_; }
 
   void SetThreadCount(int32 thread_count);
 
@@ -42,9 +38,7 @@ class TcpServer : Noncopyable {
     thread_init_cb_ = cb;
   }
 
-  SharedPtr<EventLoopThreadPool> GetThreadPool() {
-    return thread_pool_;
-  }
+  SharedPtr<EventLoopThreadPool> GetThreadPool() { return thread_pool_; }
 
   void Start();
 
@@ -52,9 +46,7 @@ class TcpServer : Noncopyable {
     connection_cb_ = cb;
   }
 
-  void SetMessageCallback(const MessageCallback& cb) {
-    message_cb_ = cb;
-  }
+  void SetMessageCallback(const MessageCallback& cb) { message_cb_ = cb; }
 
   void SetWriteCompleteCallback(const WriteCompleteCallback& cb) {
     write_complete_cb_ = cb;
@@ -65,7 +57,7 @@ class TcpServer : Noncopyable {
   void RemoveConnection(const TcpConnectionPtr& conn);
   void RemoveConnectionInLoop(const TcpConnectionPtr& conn);
 
-  typedef Map<String,TcpConnectionPtr> ConnectionMap;
+  typedef Map<String, TcpConnectionPtr> ConnectionMap;
 
   EventLoop* loop_;
   SharedPtr<Acceptor> acceptor_;
@@ -79,6 +71,6 @@ class TcpServer : Noncopyable {
   ConnectionMap connections_;
 };
 
-} // namespace reactor
-} // namespace net
-} // namespace fun
+}  // namespace reactor
+}  // namespace net
+}  // namespace fun

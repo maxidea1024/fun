@@ -17,16 +17,13 @@ class MethodNotification : public Notification {
 
 class StopNotification : public Notification {};
 
-} // namespace
-
+}  // namespace
 
 //
 // AsyncDispatcher
 //
 
-AsyncDispatcher::AsyncDispatcher() {
-  thread_.Start(*this);
-}
+AsyncDispatcher::AsyncDispatcher() { thread_.Start(*this); }
 
 AsyncDispatcher::AsyncDispatcher(Thread::Priority priority) {
   thread_.SetPriority(priority);
@@ -46,21 +43,20 @@ void AsyncDispatcher::Start(AsyncRunnableBase::Ptr runnable) {
   queue_.Enqueue(new MethodNotification(runnable));
 }
 
-void AsyncDispatcher::Cancel() {
-  queue_.Clear();
-}
+void AsyncDispatcher::Cancel() { queue_.Clear(); }
 
 void AsyncDispatcher::Run() {
-  //TODO dynamic_cast 제거??
+  // TODO dynamic_cast 제거??
 
   Notification::Ptr noti = queue_.WaitDequeue();
   while (noti && !dynamic_cast<StopNotification*>(noti.Get())) {
-    MethodNotification* method_noti = dynamic_cast<MethodNotification*>(noti.Get());
+    MethodNotification* method_noti =
+        dynamic_cast<MethodNotification*>(noti.Get());
     fun_check_ptr(method_noti);
 
     AsyncRunnableBase::Ptr runnable = method_noti->GetRunnable();
-    //TODO 레퍼런스 관리 체계 점검.
-    runnable->AddRef(); // Run() will release
+    // TODO 레퍼런스 관리 체계 점검.
+    runnable->AddRef();  // Run() will release
     runnable->Run();
     runnable = nullptr;
     noti = queue_.WaitDequeue();
@@ -74,4 +70,4 @@ void AsyncDispatcher::Stop() {
   thread_.Join();
 }
 
-} // namespace fun
+}  // namespace fun

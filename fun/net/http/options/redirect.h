@@ -2,27 +2,17 @@
 
 #include "fun/http/http.h"
 
-
 namespace fun {
 namespace http {
 
+class Redirect {
+ public:
+  Redirect() : redirect(true) {}
 
-class Redirect
-{
-public:
-  Redirect()
-    : redirect(true)
-  {
-  }
+  Redirect(bool redirect) : redirect(redirect) {}
 
-	Redirect(bool redirect)
-    : redirect(redirect)
-  {
-  }
-
-	bool redirect;
+  bool redirect;
 };
 
-
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

@@ -31,9 +31,9 @@ class FUN_FRAMEWORK_API RegexValidator : public OptionValidator {
  private:
   RegexValidator();
 
-  //TODO Regex 객체로 가지고 있는 형태가 좋을듯도...
+  // TODO Regex 객체로 가지고 있는 형태가 좋을듯도...
   String regex_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

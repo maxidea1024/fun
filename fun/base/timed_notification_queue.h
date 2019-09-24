@@ -1,20 +1,20 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
-#include "fun/base/notification.h"
-#include "fun/base/mutex.h"
-#include "fun/base/event.h"
-#include "fun/base/timestamp.h"
-#include "fun/base/clock.h"
 #include <map>
+#include "fun/base/base.h"
+#include "fun/base/clock.h"
+#include "fun/base/event.h"
+#include "fun/base/mutex.h"
+#include "fun/base/notification.h"
+#include "fun/base/timestamp.h"
 
 namespace fun {
 
 /**
- * A TimedNotificationQueue object provides a way to implement timed, asynchronous
- * notifications. This is especially useful for sending notifications
- * from one thread to another, for example from a background thread to
- * the main (user interface) thread.
+ * A TimedNotificationQueue object provides a way to implement timed,
+ * asynchronous notifications. This is especially useful for sending
+ * notifications from one thread to another, for example from a background
+ * thread to the main (user interface) thread.
  *
  * The TimedNotificationQueue is quite similar to the NotificationQueue class.
  * The only difference to NotificationQueue is that each Notification is tagged
@@ -137,4 +137,4 @@ class FUN_BASE_API TimedNotificationQueue {
   mutable FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

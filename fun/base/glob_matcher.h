@@ -1,10 +1,10 @@
-﻿//NOTE 주석 중간에 /* 이 있어서 javadoc스타일로하면 문제가 생김..
+﻿// NOTE 주석 중간에 /* 이 있어서 javadoc스타일로하면 문제가 생김..
 
 #pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/string/string.h"
 #include "fun/base/container/set.h"
+#include "fun/base/string/string.h"
 
 namespace fun {
 
@@ -36,11 +36,12 @@ class FUN_BASE_API GlobMatcher {
    * Flags that modify the matching behavior.
    */
   enum Options {
-    GLOB_DEFAULT         = 0x00, /// default behavior
-    GLOB_DOT_SPECIAL     = 0x01, /// '*' and '?' do not match '.' at beginning of subject
-    GLOB_FOLLOW_SYMLINKS = 0x02, /// follow symbolic links
-    GLOB_CASELESS        = 0x04, /// ignore case when comparing characters
-    GLOB_DIRS_ONLY       = 0x80  /// only glob for directories (for internal use only)
+    GLOB_DEFAULT = 0x00,  /// default behavior
+    GLOB_DOT_SPECIAL =
+        0x01,  /// '*' and '?' do not match '.' at beginning of subject
+    GLOB_FOLLOW_SYMLINKS = 0x02,  /// follow symbolic links
+    GLOB_CASELESS = 0x04,         /// ignore case when comparing characters
+    GLOB_DIRS_ONLY = 0x80  /// only glob for directories (for internal use only)
   };
 
   /// Creates the GlobMatcher, using the given pattern. The pattern
@@ -72,7 +73,8 @@ class FUN_BASE_API GlobMatcher {
   ///
   /// Directories that for whatever reason cannot be traversed are
   /// ignored.
-  static void Glob(const String& path_pattern, Set<String>& files, int options = 0);
+  static void Glob(const String& path_pattern, Set<String>& files,
+                   int options = 0);
 
   /// Creates a set of files that match the given path_pattern.
   ///
@@ -87,7 +89,8 @@ class FUN_BASE_API GlobMatcher {
   ///
   /// Directories that for whatever reason cannot be traversed are
   /// ignored.
-  static void Glob(const char* path_pattern, Set<String>& files, int options = 0);
+  static void Glob(const char* path_pattern, Set<String>& files,
+                   int options = 0);
 
   /// Creates a set of files that match the given path_pattern.
   ///
@@ -99,9 +102,11 @@ class FUN_BASE_API GlobMatcher {
   ///
   /// Directories that for whatever reason cannot be traversed are
   /// ignored.
-  static void Glob(const Path& path_pattern, Set<String>& files, int options = 0);
+  static void Glob(const Path& path_pattern, Set<String>& files,
+                   int options = 0);
 
-  /// Creates a set of files that match the given path_pattern, starting from base_path.
+  /// Creates a set of files that match the given path_pattern, starting from
+  /// base_path.
   ///
   /// The pattern may contain wildcard expressions even in intermediate
   /// directory names (e.g. /usr/include/*/*.h).
@@ -111,34 +116,25 @@ class FUN_BASE_API GlobMatcher {
   ///
   /// Directories that for whatever reason cannot be traversed are
   /// ignored.
-  static void Glob( const Path& path_pattern,
-                    const Path& base_path,
-                    Set<String>& files,
-                    int options = 0);
+  static void Glob(const Path& path_pattern, const Path& base_path,
+                   Set<String>& files, int options = 0);
 
   GlobMatcher() = delete;
   GlobMatcher(const GlobMatcher&) = delete;
-  GlobMatcher& operator = (const GlobMatcher&) = delete;
+  GlobMatcher& operator=(const GlobMatcher&) = delete;
 
  protected:
-  bool Match( TextIterator& itp,
-              const TextIterator& endp,
-              TextIterator& its,
-              const TextIterator& ends);
+  bool Match(TextIterator& itp, const TextIterator& endp, TextIterator& its,
+             const TextIterator& ends);
 
-  bool MatchAfterAsterisk(TextIterator itp,
-                          const TextIterator& endp,
-                          TextIterator its,
-                          const TextIterator& ends);
+  bool MatchAfterAsterisk(TextIterator itp, const TextIterator& endp,
+                          TextIterator its, const TextIterator& ends);
 
   bool MatchSet(TextIterator& itp, const TextIterator& endp, int c);
 
-  static void Collect(const Path& path_pattern,
-                      const Path& base,
-                      const Path& current,
-                      const String& pattern,
-                      Set<String>& files,
-                      int options);
+  static void Collect(const Path& path_pattern, const Path& base,
+                      const Path& current, const String& pattern,
+                      Set<String>& files, int options);
 
   static bool IsDirectory(const Path& path, bool follow_symlink);
 
@@ -147,4 +143,4 @@ class FUN_BASE_API GlobMatcher {
   int options_;
 };
 
-} // namespace fun
+}  // namespace fun

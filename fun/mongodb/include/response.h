@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/mongodb/message.h"
 #include "fun/mongodb/document.h"
+#include "fun/mongodb/message.h"
 
 namespace fun {
 namespace mongodb {
@@ -19,17 +19,15 @@ class FUN_MONGODB_API Response : public Message {
   };
 
   Response()
-    : Message(MessageHeader::OP_REPLY),
-      response_flags_(0),
-      cursor_id_(0),
-      starting_from_(0),
-      number_of_returned_(0) {}
+      : Message(MessageHeader::OP_REPLY),
+        response_flags_(0),
+        cursor_id_(0),
+        starting_from_(0),
+        number_of_returned_(0) {}
 
-  //virtual ~Response() {}
+  // virtual ~Response() {}
 
-  int64 GetCursorId() const {
-    return cursor_id_;
-  }
+  int64 GetCursorId() const { return cursor_id_; }
 
   void Reset() {
     response_flags_ = 0;
@@ -39,29 +37,19 @@ class FUN_MONGODB_API Response : public Message {
     documents_.Clear();
   }
 
-  int32 Count() const {
-    return documents_.Count();
-  }
+  int32 Count() const { return documents_.Count(); }
 
-  fun::Array<Document>& GetDocuments() {
-    return documents_;
-  }
+  fun::Array<Document>& GetDocuments() { return documents_; }
 
-  explicit operator bool() const {
-    return not documents_.IsEmpty();
-  }
+  explicit operator bool() const { return not documents_.IsEmpty(); }
 
-  bool IsEmpty() const {
-    return documents_.IsEmpty();
-  }
+  bool IsEmpty() const { return documents_.IsEmpty(); }
 
-  bool HasDocuments() const {
-    return not documents_.IsEmpty();
-  }
+  bool HasDocuments() const { return not documents_.IsEmpty(); }
 
-  //TODO CMessageIn으로 처리하는게 바람직하지 않을런지??
+  // TODO CMessageIn으로 처리하는게 바람직하지 않을런지??
   void Read(std::istream& is) {
-    //struct {
+    // struct {
     //  MsgHeader header;         // standard message header
     //  int32     responseFlags;  // bit vector - see details below
     //  int64     cursorID;       // cursor id if client needs to do get more's
@@ -70,7 +58,7 @@ class FUN_MONGODB_API Response : public Message {
     //  document* documents;      // documents
     //}
 
-    //TODO
+    // TODO
     fun_check(0);
 
     /*
@@ -99,5 +87,5 @@ class FUN_MONGODB_API Response : public Message {
   fun::Array<Document> documents_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

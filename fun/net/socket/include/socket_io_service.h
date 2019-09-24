@@ -1,13 +1,12 @@
-﻿//TODO 없애는게 좋을듯함...
+﻿// TODO 없애는게 좋을듯함...
 
 #pragma once
 
-
-#include "socket.h"
 #include "Net/Core/StdThreadPool.h"
+#include "socket.h"
 
-#include <condition_variable> //차후에 대체품을 작성해야함.
-#include <mutex> //차후에 대체품을 작성해야함.
+#include <condition_variable>  //차후에 대체품을 작성해야함.
+#include <mutex>               //차후에 대체품을 작성해야함.
 
 namespace fun {
 
@@ -20,19 +19,20 @@ class SocketIoService : public Runnable {
 
   // disable copy constructor and assignment operator.
   SocketIoService(const SocketIoService&) = delete;
-  SocketIoService& operator = (const SocketIoService&) = delete;
+  SocketIoService& operator=(const SocketIoService&) = delete;
 
   static SharedPtr<SocketIoService>& GetDefaultIoService();
   static void SetDefaultIoService(const SharedPtr<SocketIoService>& io_service);
 
  private:
-  //TODO singleton으로 숨기는게 좋을듯...
+  // TODO singleton으로 숨기는게 좋을듯...
   static SharedPtr<SocketIoService> default_io_service_;
 
  public:
-  typedef Function<void (SOCKET)> Callback;
+  typedef Function<void(SOCKET)> Callback;
 
-  void Associate(const Socket& socket, const Callback& read_cb = nullptr, const Callback& write_cb = nullptr);
+  void Associate(const Socket& socket, const Callback& read_cb = nullptr,
+                 const Callback& write_cb = nullptr);
   void SetReadCallback(const Socket& socket, const Callback& read_cb);
   void SetWriteCallback(const Socket& socket, const Callback& write_cb);
   void Unassociate(const Socket& socket, bool wait_for_removal);
@@ -42,10 +42,10 @@ class SocketIoService : public Runnable {
  private:
   struct AssociatedSocket {
     AssociatedSocket()
-      : read_cb(nullptr),
-        write_cb(nullptr),
-        is_executing_read_cb(false),
-        is_executing_write_cb(false) {}
+        : read_cb(nullptr),
+          write_cb(nullptr),
+          is_executing_read_cb(false),
+          is_executing_write_cb(false) {}
 
     /** Read event 감지시 호출되는 콜백함수. */
     Callback read_cb;
@@ -95,4 +95,4 @@ class SocketIoService : public Runnable {
   SelfPipe* notifier_;
 };
 
-} // namespace fun
+}  // namespace fun

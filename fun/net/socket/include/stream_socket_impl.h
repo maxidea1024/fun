@@ -35,5 +35,5 @@ class FUN_NETSOCKET_API StreamSocketImpl : public SocketImpl {
   virtual ~StreamSocketImpl();
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -7,14 +7,14 @@
 namespace fun {
 namespace net {
 
-SelectPoller::SelectPoller(EventLoop* loop)
-  : Poller(loop) {}
+SelectPoller::SelectPoller(EventLoop* loop) : Poller(loop) {}
 
 SelectPoller::~SelectPoller() {}
 
-Timestamp SelectPoller::Poll(int32 timeout_msecs, ChannelList* active_channels) {
+Timestamp SelectPoller::Poll(int32 timeout_msecs,
+                             ChannelList* active_channels) {
   fun_check_ptr(active_channels);
-  //TODO
+  // TODO
   /*
   int32 n = poll(&poll_fds_[0], poll_fds_.Count(), timeout_msecs);
   int32 saved_errno = errno;
@@ -110,5 +110,5 @@ void SelectPoller::FillActiveChannels(int32 event_count,
   */
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

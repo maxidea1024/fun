@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/memory_base.h"
 #include "fun/base/container/ansi_allocator.h"
+#include "fun/base/memory_base.h"
 
 #if FUN_MALLOC_LEAKDETECTION
 
@@ -13,16 +13,14 @@ namespace fun {
  */
 class MemoryAllocatorLeakDetection {
   struct CallstackTrack {
-    CallstackTrack() {
-      UnsafeMemory::Memzero(this, sizeof(CallstackTrack));
-    }
+    CallstackTrack() { UnsafeMemory::Memzero(this, sizeof(CallstackTrack)); }
     static const int32 CALLSTACK_DEPTH = 32;
     uint64 callstack[CALLSTACK_DEPTH];
     uint32 frame_number;
     uint32 size;
     uint32 count;
 
-    bool operator == (const CallstackTrack& other) const {
+    bool operator==(const CallstackTrack& other) const {
       bool equal = true;
       for (int32 i = 0; i < CALLSTACK_DEPTH; ++i) {
         if (callstack[i] != other.callstack[i]) {
@@ -33,7 +31,7 @@ class MemoryAllocatorLeakDetection {
       return equal;
     }
 
-    bool operator != (const CallstackTrack& other) const {
+    bool operator!=(const CallstackTrack& other) const {
       return !(*this == other);
     }
   };
@@ -76,7 +74,6 @@ class MemoryAllocatorLeakDetection {
   /** Removes allocated pointer from list */
   void Free(void* ptr);
 };
-
 
 /**
  * A verifying proxy malloc that takes a malloc to be used and tracks
@@ -121,9 +118,7 @@ class MemoryAllocatorLeakDetectionProxy : public MemoryAllocator {
     inner_malloc_->DumpAllocatorStats(out);
   }
 
-  bool ValidateHeap() override {
-    return inner_malloc_->ValidateHeap();
-  }
+  bool ValidateHeap() override { return inner_malloc_->ValidateHeap(); }
 
   bool Exec(RuntimeEnv* env, const UNICHAR* cmd, Printer& out) override {
     verify_.Exec(env, cmd, out);
@@ -138,9 +133,7 @@ class MemoryAllocatorLeakDetectionProxy : public MemoryAllocator {
     return inner_malloc_->QuantizeSize(count, alignment);
   }
 
-  void Trim() override {
-    return inner_malloc_->Trim();
-  }
+  void Trim() override { return inner_malloc_->Trim(); }
 
   void SetupTlsCachesOnCurrentThread() override {
     return inner_malloc_->SetupTlsCachesOnCurrentThread();
@@ -164,6 +157,6 @@ class MemoryAllocatorLeakDetectionProxy : public MemoryAllocator {
   FastMutex allocated_pointers_mutex_;
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif //FUN_MALLOC_LEAKDETECTION
+#endif  // FUN_MALLOC_LEAKDETECTION

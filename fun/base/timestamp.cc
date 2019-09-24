@@ -1,8 +1,8 @@
-﻿//TODO WINCE 지원은 제거하도록 하자.
+﻿// TODO WINCE 지원은 제거하도록 하자.
 
 #include "fun/base/timestamp.h"
-#include "fun/base/timespan.h"
 #include "fun/base/exception.h"
+#include "fun/base/timespan.h"
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
 #include "fun/base/windows_less.h"
@@ -26,23 +26,25 @@
 #endif
 
 #ifndef FUN_HAVE_CLOCK_GETTIME
-  #if (defined(_POSIX_TIMERS) && defined(CLOCK_REALTIME)) || FUN_PLATFORM_VXWORKS || defined(__QNX__)
-    #ifndef __APPLE__ // See GitHub issue #1453 - not available before Mac OS 10.12/iOS 10
-      #define FUN_HAVE_CLOCK_GETTIME
-    #endif
-  #endif
+#if (defined(_POSIX_TIMERS) && defined(CLOCK_REALTIME)) || \
+    FUN_PLATFORM_VXWORKS || defined(__QNX__)
+#ifndef __APPLE__  // See GitHub issue #1453 - not available before Mac
+                   // OS 10.12/iOS 10
+#define FUN_HAVE_CLOCK_GETTIME
+#endif
+#endif
 #endif
 
-
-//TODO WINCE는 지원 계획이 없으므로, 제거하는게 좋을듯...
+// TODO WINCE는 지원 계획이 없으므로, 제거하는게 좋을듯...
 #if defined(_WIN32_WCE) && defined(FUN_WINCE_TIMESTAMP_HACK)
 
 //
-// See <http://community.opennetcf.com/articles/cf/archive/2007/11/20/getting-a-millisecond-Resolution-datetime-under-windows-ce.aspx>
+// See
+// <http://community.opennetcf.com/articles/cf/archive/2007/11/20/getting-a-millisecond-Resolution-datetime-under-windows-ce.aspx>
 // for an explanation of the following code.
 //
-// In short: Windows CE system time in most cases only has a Resolution of one second.
-// But we want millisecond Resolution.
+// In short: Windows CE system time in most cases only has a Resolution of one
+// second. But we want millisecond Resolution.
 //
 
 namespace {
@@ -79,16 +81,18 @@ class TickOffset {
       if (s != s2) {
         remaining--;
         // store the offset from zero
-        sum += (st2.wMilliseconds > 500) ? (st2.wMilliseconds - 1000) : st2.wMilliseconds;
+        sum += (st2.wMilliseconds > 500) ? (st2.wMilliseconds - 1000)
+                                         : st2.wMilliseconds;
         s = st2.wSecond;
       }
     }
 
-    // adjust the offset by the average deviation from zero (round to the integer farthest from zero)
+    // adjust the offset by the average deviation from zero (round to the
+    // integer farthest from zero)
     if (sum < 0) {
-      offset_ += (int) std::floor(sum / (float)seconds);
+      offset_ += (int)std::floor(sum / (float)seconds);
     } else {
-      offset_ += (int) std::ceil(sum / (float)seconds);
+      offset_ += (int)std::ceil(sum / (float)seconds);
     }
   }
 
@@ -111,22 +115,22 @@ class TickOffset {
   WORD offset_;
 };
 
-
 static TickOffset offset;
 
 void GetSystemTimeAsFileTimeWithMillisecondResolution(FILETIME* ft) {
   offset.SystemTimeAsFileTime(ft);
 }
 
-} // namespace
+}  // namespace
 
-
-#endif // defined(_WIN32_WCE) && defined(FUN_WINCE_TIMESTAMP_HACK)
+#endif  // defined(_WIN32_WCE) && defined(FUN_WINCE_TIMESTAMP_HACK)
 
 namespace fun {
 
-const Timestamp::TimeVal Timestamp::TIMEVAL_MIN = std::numeric_limits<Timestamp::TimeVal>::min();
-const Timestamp::TimeVal Timestamp::TIMEVAL_MAX = std::numeric_limits<Timestamp::TimeVal>::max();
+const Timestamp::TimeVal Timestamp::TIMEVAL_MIN =
+    std::numeric_limits<Timestamp::TimeVal>::min();
+const Timestamp::TimeVal Timestamp::TIMEVAL_MAX =
+    std::numeric_limits<Timestamp::TimeVal>::max();
 
 Timestamp Timestamp::FromEpochTime(std::time_t t) {
   return Timestamp(TimeVal(t) * Resolution());
@@ -148,15 +152,16 @@ void Timestamp::Update() {
   GetSystemTimeAsFileTime(&ft);
 #endif
 
-  ULARGE_INTEGER epoch; // UNIX epoch (1970-01-01 00:00:00) expressed in Windows NT FILETIME
-  epoch.LowPart  = 0xD53E8000;
+  ULARGE_INTEGER epoch;  // UNIX epoch (1970-01-01 00:00:00) expressed in
+                         // Windows NT FILETIME
+  epoch.LowPart = 0xD53E8000;
   epoch.HighPart = 0x019DB1DE;
 
   ULARGE_INTEGER ts;
-  ts.LowPart  = ft.dwLowDateTime;
+  ts.LowPart = ft.dwLowDateTime;
   ts.HighPart = ft.dwHighDateTime;
   ts.QuadPart -= epoch.QuadPart;
-  value_ = ts.QuadPart/10;
+  value_ = ts.QuadPart / 10;
 
 #elif defined(FUN_HAVE_CLOCK_GETTIME)
 
@@ -164,7 +169,7 @@ void Timestamp::Update() {
   if (clock_gettime(CLOCK_REALTIME, &ts)) {
     throw SystemException("cannot get time of day");
   }
-  value_ = TimeVal(ts.tv_sec)*Resolution() + ts.tv_nsec/1000;
+  value_ = TimeVal(ts.tv_sec) * Resolution() + ts.tv_nsec / 1000;
 
 #else
 
@@ -172,54 +177,58 @@ void Timestamp::Update() {
   if (gettimeofday(&tv, NULL)) {
     throw SystemException("cannot get time of day");
   }
-  value_ = TimeVal(tv.tv_sec)*Resolution() + tv.tv_usec;
+  value_ = TimeVal(tv.tv_sec) * Resolution() + tv.tv_usec;
 
 #endif
 }
 
-Timestamp Timestamp::operator + (const Timespan& span) const {
+Timestamp Timestamp::operator+(const Timespan& span) const {
   return *this + span.TotalMicroseconds();
 }
 
-Timestamp Timestamp::operator - (const Timespan& span) const {
+Timestamp Timestamp::operator-(const Timespan& span) const {
   return *this - span.TotalMicroseconds();
 }
 
-Timestamp& Timestamp::operator += (const Timespan& span) {
+Timestamp& Timestamp::operator+=(const Timespan& span) {
   return *this += span.TotalMicroseconds();
 }
 
-Timestamp& Timestamp::operator -= (const Timespan& span) {
+Timestamp& Timestamp::operator-=(const Timespan& span) {
   return *this -= span.TotalMicroseconds();
 }
 
 #if defined(_WIN32)
 
-Timestamp Timestamp::FromFileTimeNP(uint32 file_time_low, uint32 file_time_high) {
-  ULARGE_INTEGER epoch; // UNIX epoch (1970-01-01 00:00:00) expressed in Windows NT FILETIME
-  epoch.LowPart  = 0xD53E8000;
+Timestamp Timestamp::FromFileTimeNP(uint32 file_time_low,
+                                    uint32 file_time_high) {
+  ULARGE_INTEGER epoch;  // UNIX epoch (1970-01-01 00:00:00) expressed in
+                         // Windows NT FILETIME
+  epoch.LowPart = 0xD53E8000;
   epoch.HighPart = 0x019DB1DE;
 
   ULARGE_INTEGER ts;
-  ts.LowPart  = file_time_low;
+  ts.LowPart = file_time_low;
   ts.HighPart = file_time_high;
   ts.QuadPart -= epoch.QuadPart;
 
-  return Timestamp(ts.QuadPart/10);
+  return Timestamp(ts.QuadPart / 10);
 }
 
-void Timestamp::ToFileTimeNP(uint32& file_time_low, uint32& file_time_high) const {
-  ULARGE_INTEGER epoch; // UNIX epoch (1970-01-01 00:00:00) expressed in Windows NT FILETIME
-  epoch.LowPart  = 0xD53E8000;
+void Timestamp::ToFileTimeNP(uint32& file_time_low,
+                             uint32& file_time_high) const {
+  ULARGE_INTEGER epoch;  // UNIX epoch (1970-01-01 00:00:00) expressed in
+                         // Windows NT FILETIME
+  epoch.LowPart = 0xD53E8000;
   epoch.HighPart = 0x019DB1DE;
 
   ULARGE_INTEGER ts;
-  ts.QuadPart  = value_*10;
+  ts.QuadPart = value_ * 10;
   ts.QuadPart += epoch.QuadPart;
-  file_time_low  = ts.LowPart;
+  file_time_low = ts.LowPart;
   file_time_high = ts.HighPart;
 }
 
-#endif //(_WIN32)
+#endif  //(_WIN32)
 
-} // namespace fun
+}  // namespace fun

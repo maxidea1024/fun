@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/reactor/poller.h"
 #include "fun/base/container/array.h"
+#include "fun/net/reactor/poller.h"
 
 struct pollfd;
 
@@ -29,5 +29,5 @@ class PollPoller : public Poller {
   PollFdList poll_fds_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

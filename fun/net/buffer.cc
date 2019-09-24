@@ -9,7 +9,7 @@ const size_t Buffer::INITIAL_BUFFER_SIZE = 1024;
 // linux 전용.
 // windows에서는 어떤식으로 처리해야할까??
 ssize_t Buffer::ReadFd(int fd, int* saved_errno) {
-  char extra_buf[65536]; // 64k씩이나....???
+  char extra_buf[65536];  // 64k씩이나....???
   struct iovec vec[2];
   const size_t writable_len = GetWritableLength();
   vec[0].iov_base = begin() + writer_index_;
@@ -30,5 +30,5 @@ ssize_t Buffer::ReadFd(int fd, int* saved_errno) {
   return n;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

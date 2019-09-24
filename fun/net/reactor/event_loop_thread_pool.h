@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
 #include "fun/base/container/array.h"
-#include "fun/base/string/string.h"
 #include "fun/base/function.h"
+#include "fun/base/string/string.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -13,7 +13,7 @@ namespace net {
  */
 class EventLoopThreadPool : Noncopyable {
  public:
-  typedef Function<void (EventLoop*)> ThreadInitCallback;
+  typedef Function<void(EventLoop*)> ThreadInitCallback;
 
   /**
    * EventLoopThreadPool 객체를 초기화합니다.
@@ -64,5 +64,5 @@ class EventLoopThreadPool : Noncopyable {
   Array<EventLoop*> loops_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

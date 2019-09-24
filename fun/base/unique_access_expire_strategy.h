@@ -1,34 +1,32 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/key_value_args.h"
-#include "fun/base/valid_args.h"
-#include "fun/base/strategy_base.h"
 #include "fun/base/debug.h"
-#include "fun/base/timestamp.h"
-#include "fun/base/timespan.h"
 #include "fun/base/event_args.h"
+#include "fun/base/key_value_args.h"
+#include "fun/base/strategy_base.h"
+#include "fun/base/timespan.h"
+#include "fun/base/timestamp.h"
 #include "fun/base/unique_expire_strategy.h"
+#include "fun/base/valid_args.h"
 
-#include <set>
 #include <map>
+#include <set>
 
 namespace fun {
 
 /**
- * An UniqueExpireStrategy implements time based expiration of cache entries. In contrast
- * to ExpireStrategy which only allows to set a per cache expiration value, it allows to define
- * expiration per CacheEntry.
- * Each ValueType object must thus offer the following method:
+ * An UniqueExpireStrategy implements time based expiration of cache entries. In
+ * contrast to ExpireStrategy which only allows to set a per cache expiration
+ * value, it allows to define expiration per CacheEntry. Each ValueType object
+ * must thus offer the following method:
  *
  *    const Timestamp& GetTimeout() const;
  *
- * which returns the timespan for how long an object will be valid without being accessed.
+ * which returns the timespan for how long an object will be valid without being
+ * accessed.
  */
-template <
-  typename KeyType,
-  typename ValueType
->
+template <typename KeyType, typename ValueType>
 class UniqueAccessExpireStrategy : public StrategyBase<KeyType, ValueType> {
  public:
   typedef std::pair<KeyType, Timespan> KeyExpire;
@@ -45,14 +43,16 @@ class UniqueAccessExpireStrategy : public StrategyBase<KeyType, ValueType> {
   UniqueAccessExpireStrategy() {}
   ~UniqueAccessExpireStrategy() {}
 
-  void OnAdd(const void*, const KeyValueArgs <KeyType, ValueType>& args) {
+  void OnAdd(const void*, const KeyValueArgs<KeyType, ValueType>& args) {
     // the expire value defines how many millisecs in the future the
     // value will expire, even insert negative values!
     Timestamp expire;
     expire += args.Value().GetTimeout().TotalMicroseconds();
 
-    IndexIterator it = key_index_.insert(std::make_pair(expire, std::make_pair(args.Key(), args.Value().GetTimeout())));
-    std::pair<Iterator, bool> stat = keys_.insert(std::make_pair(args.Key(), it));
+    IndexIterator it = key_index_.insert(std::make_pair(
+        expire, std::make_pair(args.Key(), args.Value().GetTimeout())));
+    std::pair<Iterator, bool> stat =
+        keys_.insert(std::make_pair(args.Key(), it));
     if (!stat.second) {
       key_index_.erase(stat.first->second);
       stat.first->second = it;
@@ -95,7 +95,7 @@ class UniqueAccessExpireStrategy : public StrategyBase<KeyType, ValueType> {
       if (it->second->first <= now) {
         args.Invalidate();
       }
-    } else { //not found: probably removed by OnReplace
+    } else {  // not found: probably removed by OnReplace
       args.Invalidate();
     }
   }
@@ -113,10 +113,11 @@ class UniqueAccessExpireStrategy : public StrategyBase<KeyType, ValueType> {
   }
 
  protected:
-  /** For faster replacement of keys, the iterator points to the key_index_ map */
+  /** For faster replacement of keys, the iterator points to the key_index_ map
+   */
   Keys keys_;
   /** Maps time to key value */
   TimeIndex key_index_;
 };
 
-} // namespace fun
+}  // namespace fun

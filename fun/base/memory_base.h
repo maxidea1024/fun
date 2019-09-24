@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
 #include "fun/base/atomic_counter.h"
+#include "fun/base/base.h"
 
 namespace fun {
 
@@ -33,11 +33,11 @@ class FUN_BASE_API UseSystemMemoryAllocatorForNew {
   void operator delete[](void* ptr);
 };
 
-
 class FUN_BASE_API MemoryAllocator : public UseSystemMemoryAllocatorForNew {
  public:
   virtual void* Malloc(size_t count, uint32 alignment = DEFAULT_ALIGNMENT) = 0;
-  virtual void* Realloc(void* ptr, size_t new_count, uint32 alignment = DEFAULT_ALIGNMENT) = 0;
+  virtual void* Realloc(void* ptr, size_t new_count,
+                        uint32 alignment = DEFAULT_ALIGNMENT) = 0;
   virtual void Free(void* ptr) = 0;
   virtual size_t QuantizeSize(size_t count, uint32 alignment) { return count; }
 
@@ -51,7 +51,7 @@ class FUN_BASE_API MemoryAllocator : public UseSystemMemoryAllocatorForNew {
 
   virtual const char* GetAllocatorName() const { return "MemoryAllocator"; }
 
-  //TODO Stats
+  // TODO Stats
 
   static MemoryAllocator* GetGlobalMalloc();
   static MemoryAllocator** GetFixedMallocLocationPtr();
@@ -62,4 +62,4 @@ class FUN_BASE_API MemoryAllocator : public UseSystemMemoryAllocatorForNew {
   static AtomicCounter32 total_realloc_calls_;
 };
 
-} // namespace fun
+}  // namespace fun

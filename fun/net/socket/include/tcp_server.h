@@ -7,29 +7,31 @@ namespace fun {
 namespace net {
 
 /**
-*/
+ */
 class FUN_NETSOCKET_API TcpServer {
  public:
-  typedef Function<bool (const SharedPtr<TcpClient>&)> NewConnectionCallback;
+  typedef Function<bool(const SharedPtr<TcpClient>&)> NewConnectionCallback;
 
   TcpServer();
   ~TcpServer();
 
   TcpServer(const TcpServer&) = delete;
-  TcpServer& operator = (const TcpServer&) = delete;
+  TcpServer& operator=(const TcpServer&) = delete;
 
-  bool operator == (const TcpServer& rhs) const;
-  bool operator != (const TcpServer& rhs) const;
+  bool operator==(const TcpServer& rhs) const;
+  bool operator!=(const TcpServer& rhs) const;
 
   /**
    * Start the tcp_server at the given host and port.
    */
-  void Start(const String& addr, uint32 port, const NewConnectionCallback& cb = nullptr);
+  void Start(const String& addr, uint32 port,
+             const NewConnectionCallback& cb = nullptr);
 
   /**
    * Disconnect the tcp_server if it was currently running.
    */
-  void Stop(bool wait_for_removal = false, bool recursive_wait_for_removal = true);
+  void Stop(bool wait_for_removal = false,
+            bool recursive_wait_for_removal = true);
 
   /**
    * Returns whether the server is currently running or not
@@ -45,7 +47,7 @@ class FUN_NETSOCKET_API TcpServer {
    */
   void OnClientDisconnected(const SharedPtr<TcpClient>& client);
 
-  //TODO 외부에서 락을 할 수 있어야할듯 싶은데??
+  // TODO 외부에서 락을 할 수 있어야할듯 싶은데??
   const Array<SharedPtr<TcpClient>>& GetClients() const;
 
  private:
@@ -68,5 +70,5 @@ class FUN_NETSOCKET_API TcpServer {
   NewConnectionCallback new_connection_cb_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

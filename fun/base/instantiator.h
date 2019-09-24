@@ -1,4 +1,4 @@
-﻿//RTT 체계에 통합하던지... 다듬어서 쓰던지...
+﻿// RTT 체계에 통합하던지... 다듬어서 쓰던지...
 
 #pragma once
 
@@ -17,11 +17,10 @@ class InstantiatorBase {
   virtual ~InstantiatorBase() {}
 
   InstantiatorBase(const InstantiatorBase&) = delete;
-  InstantiatorBase& operator = (const InstantiatorBase&) = delete;
+  InstantiatorBase& operator=(const InstantiatorBase&) = delete;
 
   virtual Base* CreateInstance() const = 0;
 };
-
 
 /**
  * A template class for the easy instantiation of
@@ -37,9 +36,7 @@ class Instantiator : public InstantiatorBase<Base> {
   Instantiator() {}
   virtual ~Instantiator() {}
 
-  Base* CreateInstance() const override {
-    return new C;
-  }
+  Base* CreateInstance() const override { return new C; }
 };
 
-} // namespace fun
+}  // namespace fun

@@ -1,26 +1,24 @@
 ﻿#include "fun/base/uuid_generator.h"
 #include "fun/base/singleton.h"
 
-//TODO 왜 개별적으로 포함해주어야... platform_win32.h에서 빠진듯...
+// TODO 왜 개별적으로 포함해주어야... platform_win32.h에서 빠진듯...
 #if FUN_PLATFORM_WINDOWS_FAMILY
-#include "fun/base/windows_less.h"
 #include <combaseapi.h>
+#include "fun/base/windows_less.h"
 #endif
 
 #include "fun/base/singleton.h"
 
 namespace fun {
 
-UuidGenerator::UuidGenerator()
-  : ticks_(0),
-    have_node_(false) {
+UuidGenerator::UuidGenerator() : ticks_(0), have_node_(false) {
   UnsafeMemory::Memzero(node_, sizeof(node_));
 }
 
 UuidGenerator::~UuidGenerator() {}
 
 Uuid UuidGenerator::NewUuid() {
-//TODO 눈에 읽힐 정도로 변화가 없어서, 일단은 윈도우즈에서 지원하는것을 사용함.
+// TODO 눈에 읽힐 정도로 변화가 없어서, 일단은 윈도우즈에서 지원하는것을 사용함.
 #if 0
   //TODO Environment::GetNodeId로 대체해야함.
   ScopedLock<FastMutex> guard(mutex_); //fixme: lock된 상태에서 GetTimestamp() 함수가 대기를 할수도 있으므로, 불필요한 stall이 발생할 수 있을듯 싶음.
@@ -68,8 +66,7 @@ Uuid UuidGenerator::NewUuidFromName(const Uuid& ns_id, const String& name) {
   return NewUuidFromName(ns_id, name, hasher);
 }
 
-Uuid UuidGenerator::NewUuidFromName(const Uuid& ns_id,
-                                    const String& name,
+Uuid UuidGenerator::NewUuidFromName(const Uuid& ns_id, const String& name,
                                     CryptographicHash& hasher) {
   UuidVersion version = UuidVersion::NameBased;
   if (hasher.GetAlgorithm() == CryptographicHash::SHA1) {
@@ -79,8 +76,7 @@ Uuid UuidGenerator::NewUuidFromName(const Uuid& ns_id,
   return NewUuidFromName(ns_id, name, hasher, version);
 }
 
-Uuid UuidGenerator::NewUuidFromName(const Uuid& ns_id,
-                                    const String& name,
+Uuid UuidGenerator::NewUuidFromName(const Uuid& ns_id, const String& name,
                                     CryptographicHash& hasher,
                                     UuidVersion version) {
   Uuid net_ns_id = ns_id;
@@ -88,7 +84,8 @@ Uuid UuidGenerator::NewUuidFromName(const Uuid& ns_id,
   hasher.Reset();
   hasher.AddData(&net_ns_id.u.time_low, sizeof(net_ns_id.u.time_low));
   hasher.AddData(&net_ns_id.u.time_mid, sizeof(net_ns_id.u.time_mid));
-  hasher.AddData(&net_ns_id.u.time_hi_and_version, sizeof(net_ns_id.u.time_hi_and_version));
+  hasher.AddData(&net_ns_id.u.time_hi_and_version,
+                 sizeof(net_ns_id.u.time_hi_and_version));
   hasher.AddData(&net_ns_id.u.clock_seq, sizeof(net_ns_id.u.clock_seq));
   hasher.AddData(&net_ns_id.u.node[0], sizeof(net_ns_id.u.node));
   hasher.AddData(name);
@@ -110,31 +107,34 @@ Uuid UuidGenerator::NewSecuredRandomUuid() {
 }
 
 Uuid UuidGenerator::NewRandomUuid() {
-  //TODO 현재 문제가 있는지 체크중이라 금지시킴.
-  //ScopedLock<FastMutex> guard(mutex_); //random_ context를 보호하기 위해서 lock을 사용해야함.
+  // TODO 현재 문제가 있는지 체크중이라 금지시킴.
+  // ScopedLock<FastMutex> guard(mutex_); //random_ context를 보호하기 위해서
+  // lock을 사용해야함.
   //
-  //union {
+  // union {
   //  struct { uint32 a, b, c, d; };
   //  uint8 buffer[16];
   //} blk;
   //
-  //blk.a = random_.GetUnsignedInt();
-  //blk.b = random_.GetUnsignedInt();
-  //blk.c = random_.GetUnsignedInt();
-  //blk.d = random_.GetUnsignedInt();
+  // blk.a = random_.GetUnsignedInt();
+  // blk.b = random_.GetUnsignedInt();
+  // blk.c = random_.GetUnsignedInt();
+  // blk.d = random_.GetUnsignedInt();
   //
-  //return Uuid(blk.buffer, UuidVersion::random_);
+  // return Uuid(blk.buffer, UuidVersion::random_);
   return NewUuid();
 }
 
-//NOTE 정밀도는 1000000임. 윈도우 클럭의 해상도는 10000000이므로 나누기 10을 해야함.
+// NOTE 정밀도는 1000000임. 윈도우 클럭의 해상도는 10000000이므로 나누기 10을
+// 해야함.
 static int64 GetTicks() {
-  //TODO SystemTime::Cycles()로 대체해도 될듯한데...
+  // TODO SystemTime::Cycles()로 대체해도 될듯한데...
 #if FUN_PLATFORM_WINDOWS_FAMILY
   FILETIME ft;
   GetSystemTimeAsFileTime(&ft);
 
-  ULARGE_INTEGER epoch; // UNIX epoch (1970-01-01 00:00:00) expressed in Windows NT FILETIME
+  ULARGE_INTEGER epoch;  // UNIX epoch (1970-01-01 00:00:00) expressed in
+                         // Windows NT FILETIME
   epoch.LowPart = 0xD53E8000;
   epoch.HighPart = 0x019DB1DE;
 
@@ -144,7 +144,7 @@ static int64 GetTicks() {
   ts.QuadPart -= epoch.QuadPart;
   return ts.QuadPart / 10;
 #else
-  //TODO
+  // TODO
   fun_check(0);
 #endif
 }
@@ -176,4 +176,4 @@ UuidGenerator& UuidGenerator::DefaultGenerator() {
   return *sh.Get();
 }
 
-} // namespace fun
+}  // namespace fun

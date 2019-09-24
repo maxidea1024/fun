@@ -5,37 +5,38 @@ namespace fun {
 namespace net {
 
 MessageOut::MessageOut(int32 initial_capacity)
-  : maximum_message_length_(MessageFormatConfig::message_max_length),
-    written_length_(0),
-    locked_ptr_(nullptr),
-    locked_length_(-1) {
-  min_capacity_ = initial_capacity > 0 ? initial_capacity : MessageFormatConfig::MessageMinLength;
+    : maximum_message_length_(MessageFormatConfig::message_max_length),
+      written_length_(0),
+      locked_ptr_(nullptr),
+      locked_length_(-1) {
+  min_capacity_ = initial_capacity > 0 ? initial_capacity
+                                       : MessageFormatConfig::MessageMinLength;
 
   if (min_capacity_ > maximum_message_length_) {
-    throw InvalidArgumentException("Minimum buffer size can not exceed maximum_message_length_.");
+    throw InvalidArgumentException(
+        "Minimum buffer size can not exceed maximum_message_length_.");
   }
 }
 
 MessageOut::MessageOut(ByteArray data)
-  : maximum_message_length_(MessageFormatConfig::message_max_length),
-    locked_ptr_(nullptr),
-    locked_length_(-1),
-    sharable_buffer_(data),
-    written_length_(data.Len()),
-    min_capacity_(data.Len()) {
-}
+    : maximum_message_length_(MessageFormatConfig::message_max_length),
+      locked_ptr_(nullptr),
+      locked_length_(-1),
+      sharable_buffer_(data),
+      written_length_(data.Len()),
+      min_capacity_(data.Len()) {}
 
 MessageOut::MessageOut(const MessageOut& rhs)
-  : maximum_message_length_(rhs.maximum_message_length_)
-  , written_length_(rhs.written_length_)
-  , locked_ptr_(nullptr)
-  , locked_length_(-1)
-  , sharable_buffer_(rhs.sharable_buffer_)
-  , min_capacity_(rhs.min_capacity_) {
+    : maximum_message_length_(rhs.maximum_message_length_),
+      written_length_(rhs.written_length_),
+      locked_ptr_(nullptr),
+      locked_length_(-1),
+      sharable_buffer_(rhs.sharable_buffer_),
+      min_capacity_(rhs.min_capacity_) {
   rhs.EnsureNotLocked();
 }
 
-MessageOut& MessageOut::operator = (const MessageOut& rhs) {
+MessageOut& MessageOut::operator=(const MessageOut& rhs) {
   if (FUN_LIKELY(&rhs != this)) {
     rhs.EnsureNotLocked();
 
@@ -61,7 +62,6 @@ void MessageOut::SetMessageMaxLength(int32 maximum_length) {
     written_length_ = maximum_message_length_;
   }
 }
-
 
 //
 // Fixed
@@ -94,7 +94,6 @@ void MessageOut::WriteFixed64(uint64 value) {
     Advance(8);
   }
 }
-
 
 //
 // Varint
@@ -136,10 +135,8 @@ void MessageOut::WriteRawBytes(const void* data, int32 length) {
 }
 
 void MessageOut::RemoveRange(int32 index, int32 length_to_remove) {
-  if (   index < 0
-      || index > written_length_
-      || length_to_remove < 0
-      || (index + length_to_remove) > written_length_) {
+  if (index < 0 || index > written_length_ || length_to_remove < 0 ||
+      (index + length_to_remove) > written_length_) {
     throw IndexOutOfBoundsException();
   }
 
@@ -152,7 +149,8 @@ uint8* MessageOut::RequireWritableSpace(int32 length) {
 
   if (required_buffer_length > sharable_buffer_.Len()) {
     if (required_buffer_length > maximum_message_length_) {
-      throw MessageFormatException::MessageOutLengthLimited(required_buffer_length, maximum_message_length_);
+      throw MessageFormatException::MessageOutLengthLimited(
+          required_buffer_length, maximum_message_length_);
     } else {
       int32 need_more_length = required_buffer_length - sharable_buffer_.Len();
       if (need_more_length < min_capacity_) {
@@ -175,12 +173,12 @@ void MessageOut::Advance(int32 length) {
 }
 
 void MessageOut::AddWrittenBytes(int32 length) {
-  throw MessageFormatException::Misuse(StringLiteral("the AddWrittenBytes function can only be called from MessageByteCounter."));
+  throw MessageFormatException::Misuse(
+      StringLiteral("the AddWrittenBytes function can only be called from "
+                    "MessageByteCounter."));
 }
 
-MessageIn MessageOut::ToMessageIn() const {
-  return MessageIn(*this);
-}
+MessageIn MessageOut::ToMessageIn() const { return MessageIn(*this); }
 
 MessageIn MessageOut::ToMessageIn(int32 offset, int32 length) const {
   return MessageIn(*this, offset, length);
@@ -188,21 +186,22 @@ MessageIn MessageOut::ToMessageIn(int32 offset, int32 length) const {
 
 ByteArray MessageOut::ToBytesCopy() const {
   ByteArray ret = sharable_buffer_;
-  ret.Truncate(GetLength()); // copy or ref
+  ret.Truncate(GetLength());  // copy or ref
   return ret;
 }
 
 ByteArray MessageOut::ToBytesCopy(int32 offset, int32 length) const {
-  if (offset < 0 || offset > written_length_ || length < 0 || (offset + length) > written_length_) {
+  if (offset < 0 || offset > written_length_ || length < 0 ||
+      (offset + length) > written_length_) {
     throw IndexOutOfBoundsException();
   }
 
   if (offset == 0) {
     ByteArray ret = sharable_buffer_;
-    ret.Truncate(length); // copy or ref
+    ret.Truncate(length);  // copy or ref
     return ret;
   } else {
-    return sharable_buffer_.Mid(offset, length); // copy
+    return sharable_buffer_.Mid(offset, length);  // copy
   }
 }
 
@@ -211,7 +210,8 @@ ByteArray MessageOut::ToBytesRaw() const {
 }
 
 ByteArray MessageOut::ToBytesRaw(int32 offset, int32 length) const {
-  if (offset < 0 || offset > written_length_ || length < 0 || (offset + length) > written_length_) {
+  if (offset < 0 || offset > written_length_ || length < 0 ||
+      (offset + length) > written_length_) {
     throw IndexOutOfBoundsException();
   }
 
@@ -223,7 +223,8 @@ ByteArrayView MessageOut::ToBytesView() const {
 }
 
 ByteArrayView MessageOut::ToBytesView(int32 offset, int32 length) const {
-  if (offset < 0 || offset > written_length_ || length < 0 || (offset + length) > written_length_) {
+  if (offset < 0 || offset > written_length_ || length < 0 ||
+      (offset + length) > written_length_) {
     throw IndexOutOfBoundsException();
   }
 
@@ -277,9 +278,7 @@ void MessageOut::Unlock(int32 length, bool trimming) {
   }
 }
 
-bool MessageOut::IsLocked() const {
-  return !!locked_ptr_;
-}
+bool MessageOut::IsLocked() const { return !!locked_ptr_; }
 
 void MessageOut::EnsureNotLocked() const {
   if (locked_ptr_) {
@@ -299,9 +298,7 @@ void MessageOut::Detach() {
   sharable_buffer_.Detach();
 }
 
-bool MessageOut::IsDetached() const {
-  return sharable_buffer_.IsDetached();
-}
+bool MessageOut::IsDetached() const { return sharable_buffer_.IsDetached(); }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

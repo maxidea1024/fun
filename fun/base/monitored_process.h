@@ -6,7 +6,7 @@
 #include "fun/base/runnable.h"
 #include "fun/base/thread.h"
 
-#define FUN_WITH_MONITORED_PROCESS  0
+#define FUN_WITH_MONITORED_PROCESS 0
 
 #if FUN_WITH_MONITORED_PROCESS
 
@@ -20,22 +20,20 @@ namespace fun {
 FUN_DECLARE_DELEGATE_PARAMS1(OnMonitoredProcessCompleted, int32)
 
 /**
- * Declares a delegate that is executed when a monitored process produces output.
+ * Declares a delegate that is executed when a monitored process produces
+ * output.
  *
  * The first parameter is the produced output.
  */
 FUN_DECLARE_DELEGATE_PARAMS1(OnMonitoredProcessOutput, String)
-
 
 /**
  * Implements an external process that can be monitored.
  */
 class MonitoredProcess : public Runnable {
  public:
-  MonitoredProcess( const String& url,
-                    const String& params,
-                    bool hidden,
-                    bool create_pipes = true);
+  MonitoredProcess(const String& url, const String& params, bool hidden,
+                   bool create_pipes = true);
   ~MonitoredProcess();
 
   void Cancel(bool kill_tree = false) {
@@ -49,25 +47,15 @@ class MonitoredProcess : public Runnable {
 
   bool Launch();
 
-  void SetSleepInterval(float interval) {
-    sleep_interval_ = interval;
-  }
+  void SetSleepInterval(float interval) { sleep_interval_ = interval; }
 
-  SimpleDelegate& OnCanceled() {
-    return canceled_event_;
-  }
+  SimpleDelegate& OnCanceled() { return canceled_event_; }
 
-  OnMonitoredProcessCompleted& OnCompleted() {
-    return completed_event_;
-  }
+  OnMonitoredProcessCompleted& OnCompleted() { return completed_event_; }
 
-  OnMonitoredProcessOutput& OnOutput() {
-    return output_event_;
-  }
+  OnMonitoredProcessOutput& OnOutput() { return output_event_; }
 
-  int32 GetReturnCode() const {
-    return return_code_;
-  }
+  int32 GetReturnCode() const { return return_code_; }
 
  public:
   // Runnable interface.
@@ -101,10 +89,11 @@ class MonitoredProcess : public Runnable {
   /** Holds a delegate that is executed when a monitored process completed. */
   OnMonitoredProcessCompleted completed_event_;
 
-  /** Holds a delegate that is executed when a monitored process produces output. */
+  /** Holds a delegate that is executed when a monitored process produces
+   * output. */
   OnMonitoredProcessOutput output_event_;
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_MONITORED_PROCESS
+#endif  // FUN_WITH_MONITORED_PROCESS

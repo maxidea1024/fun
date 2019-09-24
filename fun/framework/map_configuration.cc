@@ -3,7 +3,7 @@
 namespace fun {
 namespace framework {
 
-//FUN_IMPLEMENT_RTCLASS(MapConfiguration)
+// FUN_IMPLEMENT_RTCLASS(MapConfiguration)
 
 MapConfiguration::MapConfiguration() {}
 
@@ -13,9 +13,7 @@ void MapConfiguration::CopyTo(ConfigurationBase& config) {
   }
 }
 
-void MapConfiguration::Clear() {
-  map_.Clear();
-}
+void MapConfiguration::Clear() { map_.Clear(); }
 
 bool MapConfiguration::GetRaw(const String& key, String& out_value) const {
   return map_.TryGetValue(key, out_value);
@@ -25,7 +23,8 @@ void MapConfiguration::SetRaw(const String& key, const String& value) {
   map_.Add(key, value);
 }
 
-void MapConfiguration::Enumerate(const String& key, Array<String>& out_keys) const {
+void MapConfiguration::Enumerate(const String& key,
+                                 Array<String>& out_keys) const {
   Set<String> key_set;
   String prefix = key;
   if (!prefix.IsEmpty()) {
@@ -36,7 +35,8 @@ void MapConfiguration::Enumerate(const String& key, Array<String>& out_keys) con
   for (const auto& pair : map_) {
     if (pair.key.StartsWith(prefix)) {
       String sub_key;
-      int32 pos = pair.key.IndexOf('.', CaseSensitivity::CaseSensitive, prefix_len);
+      int32 pos =
+          pair.key.IndexOf('.', CaseSensitivity::CaseSensitive, prefix_len);
       if (pos == INVALID_INDEX) {
         sub_key = pair.key.Mid(prefix_len);
       } else {
@@ -66,5 +66,5 @@ void MapConfiguration::RemoveRaw(const String& key) {
   }
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

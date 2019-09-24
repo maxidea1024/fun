@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/mongodb/request.h"
 #include "fun/mongodb/document.h"
+#include "fun/mongodb/request.h"
 
 namespace fun {
 namespace mongodb {
@@ -20,41 +20,33 @@ class FUN_MONGODB_API DeleteRequest : public Request {
 
  public:
   DeleteRequest(const String& collection_name, Flags flags = DELETE_DEFAULT)
-    : Request(MessageHeader::OP_DELETE),
-      flags_(flags),
-      full_collection_name_(collection_name) {
-  }
+      : Request(MessageHeader::OP_DELETE),
+        flags_(flags),
+        full_collection_name_(collection_name) {}
 
   DeleteRequest(const String& collection_name, bool just_one)
-    : Request(MessageHeader::OP_DELETE),
-      flags_(just_one ? DELETE_SINGLE_REMOVE : DELETE_DEFAULT),
-      full_collection_name_(collection_name) {
-  }
+      : Request(MessageHeader::OP_DELETE),
+        flags_(just_one ? DELETE_SINGLE_REMOVE : DELETE_DEFAULT),
+        full_collection_name_(collection_name) {}
 
-  //virtual ~DeleteRequest() {}
+  // virtual ~DeleteRequest() {}
 
-  Flags GetFlags() const {
-    return flags_;
-  }
+  Flags GetFlags() const { return flags_; }
 
-  void SetFlags(Flags flags) {
-    flags_ = flags;
-  }
+  void SetFlags(Flags flags) { flags_ = flags; }
 
-  Document& GetSelector() {
-    return selector_;
-  }
+  Document& GetSelector() { return selector_; }
 
  protected:
   void BuildRequest(MessageOut& wirter) {
-    //struct {
+    // struct {
     //  MsgHeader header;             // standard message header
     //  int32     ZERO;               // 0 - reserved for future use
     //  cstring   fullCollectionName; // "dbname.collectionname"
     //  int32     flags;              // bit vector - see below for details.
     //  document  selector;           // query object.  See below for details.
     //}
-    LiteFormat::Write(wirter, (int32)0); // 0 - reserved for future use
+    LiteFormat::Write(wirter, (int32)0);  // 0 - reserved for future use
     BsonWriter(wirter).WriteCString(full_collection_name_));
     LiteFormat::Write(wirter, (int32)flags_));
     selector_.Write(wirter);
@@ -66,5 +58,5 @@ class FUN_MONGODB_API DeleteRequest : public Request {
   Document selector_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

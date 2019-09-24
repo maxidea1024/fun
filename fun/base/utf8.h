@@ -20,15 +20,22 @@ namespace fun {
  */
 class FUN_BASE_API Utf8 {
  public:
-  static int32 icompare(const String& str, int32 pos, int32 len, String::ConstIterator it2, String::ConstIterator end2);
+  static int32 icompare(const String& str, int32 pos, int32 len,
+                        String::ConstIterator it2, String::ConstIterator end2);
   static int32 icompare(const String& str1, const String& str2);
-  static int32 icompare(const String& str1, int32 len1, const String& str2, int32 len2);
+  static int32 icompare(const String& str1, int32 len1, const String& str2,
+                        int32 len2);
   static int32 icompare(const String& str1, int32 len, const String& str2);
-  static int32 icompare(const String& str1, int32 pos, int32 len, const String& str2);
-  static int32 icompare(const String& str1, int32 pos1, int32 len1, const String& str2, int32 pos2, int32 len2);
-  static int32 icompare(const String& str1, int32 pos1, int32 len, const String& str2, int32 pos2);
-  static int32 icompare(const String& str, int32 pos, int32 len, const String::CharType* ptr);
-  static int32 icompare(const String& str, int32 pos, const String::CharType* ptr);
+  static int32 icompare(const String& str1, int32 pos, int32 len,
+                        const String& str2);
+  static int32 icompare(const String& str1, int32 pos1, int32 len1,
+                        const String& str2, int32 pos2, int32 len2);
+  static int32 icompare(const String& str1, int32 pos1, int32 len,
+                        const String& str2, int32 pos2);
+  static int32 icompare(const String& str, int32 pos, int32 len,
+                        const String::CharType* ptr);
+  static int32 icompare(const String& str, int32 pos,
+                        const String::CharType* ptr);
   static int32 icompare(const String& str, const String::CharType* ptr);
 
   static String ToUpper(const String& str);
@@ -56,9 +63,9 @@ class FUN_BASE_API Utf8 {
    * If strict_json is true, \a and \v will be escaped to \\u0007 and \\u000B
    * instead of \\a and \\v for strict JSON conformance.
    */
-  static String Escape( const String::ConstIterator& begin,
-                        const String::ConstIterator& end,
-                        bool strict_json = false);
+  static String Escape(const String::ConstIterator& begin,
+                       const String::ConstIterator& end,
+                       bool strict_json = false);
 
   /**
    * Creates an Utf8 String from a String that contains escaped characters.
@@ -68,8 +75,8 @@ class FUN_BASE_API Utf8 {
   /**
    * Creates an Utf8 String from a String that contains escaped characters.
    */
-  static String Unescape( const String::ConstIterator& begin,
-                          const String::ConstIterator& end);
+  static String Unescape(const String::ConstIterator& begin,
+                         const String::ConstIterator& end);
 };
 
-} // namespace fun
+}  // namespace fun

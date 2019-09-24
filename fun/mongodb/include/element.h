@@ -16,9 +16,7 @@ class FUN_MONGODB_API Element {
   explicit Element(const String& name) : name_(name) {}
   virtual ~Element() {}
 
-  const String& GetName() const {
-    return name_;
-  }
+  const String& GetName() const { return name_; }
 
   virtual String ToString(int32 indent = 0) const = 0;
   virtual int32 GetType() const = 0;
@@ -32,15 +30,11 @@ class FUN_MONGODB_API Element {
   String name_;
 };
 
-
-//TODO Collection 타입을 뭘로 하는게 제일 적절할지??
+// TODO Collection 타입을 뭘로 하는게 제일 적절할지??
 typedef fun::Array<ElementPtr> ElementSet;
 
-
 template <typename T>
-struct ElementTraits {
-};
-
+struct ElementTraits {};
 
 //
 // double
@@ -51,10 +45,9 @@ struct ElementTraits<double> {
   enum { TypeId = 0x1 };
 
   static String ToString(double value, int32 indent = 0) {
-    //TODO
+    // TODO
   }
 };
-
 
 //
 // String
@@ -76,7 +69,8 @@ template <>
 inline void BsonReader::Read<String>(String& out_value) {
   int32 len;
   LiteFormat::Read(reader_, len);
-  reader_.ReadRawBytes(out_value.MutableData(len-1), len-1); // without null-terminator
+  reader_.ReadRawBytes(out_value.MutableData(len - 1),
+                       len - 1);  // without null-terminator
 }
 
 template <>
@@ -85,7 +79,6 @@ inline void BsonWriter::Write<String>(String& value) {
   LiteFormat::Write(writer_, len);
   WriteCString(value);
 }
-
 
 //
 // bool
@@ -112,7 +105,6 @@ inline void BsonWriter::Write<String>(bool value) {
   LiteFormat::Write(writer_, uint8(value ? 1 : 0));
 }
 
-
 //
 // int32
 //
@@ -122,11 +114,9 @@ struct ElementTraits<int32> {
   enum { TypeId = 0x9 };
 
   static String ToString(int32 value, int32 indent = 0) {
-    //TODO
+    // TODO
   }
 };
-
-
 
 //
 // DateTime
@@ -137,7 +127,7 @@ struct ElementTraits<DateTime> {
   enum { TypeId = 0x8 };
 
   static String ToString(const DateTime& value, int32 indent = 0) {
-    //TODO
+    // TODO
   }
 };
 
@@ -145,14 +135,13 @@ template <>
 inline void BsonReader::Read<DateTime>(DateTime& out_value) {
   int64 value;
   LiteFormat::Read(reader_, value);
-  //TODO
+  // TODO
 }
 
 template <>
 inline void BsonWriter::Write<DateTime>(const DateTime& value) {
   LiteFormat::Write(writer_, int64(value.ToEpochMicroseconds() / 1000));
 }
-
 
 //
 // NullValue
@@ -179,7 +168,6 @@ inline void BsonWriter::Write<DateTime>(const NullValue& value) {
   // EMPTY...
 }
 
-
 //
 // BsonTimestamp
 //
@@ -194,20 +182,19 @@ struct ElementTraits<DateTime> {
   enum { TypeId = 0x11 };
 
   static String ToString(const BsonTimestamp& value, int32 indent = 0) {
-    //TODO
+    // TODO
   }
 };
 
 template <>
 inline void BsonReader::Read<BsonTimestamp>(BsonTimestamp& out_value) {
-  //TODO
+  // TODO
 }
 
 template <>
 inline void BsonWriter::Write<BsonTimestamp>(const BsonTimestamp& value) {
-  //TODO
+  // TODO
 }
-
 
 //
 // int64
@@ -218,10 +205,9 @@ struct ElementTraits<int32> {
   enum { TypeId = 0x12 };
 
   static String ToString(int64 value, int32 indent = 0) {
-    //TODO
+    // TODO
   }
 };
-
 
 //
 // ConcreteElement
@@ -231,35 +217,25 @@ template <typename T>
 class ConcreteElement : public Element {
  public:
   ConcreteElement(const String& Name, const T& Initial)
-    : Element(name),
-      value_(initial) {
-  }
+      : Element(name), value_(initial) {}
 
   virtual ~ConcreteElement() {}
 
-  const T& GetValue() const {
-    return value_;
-  }
+  const T& GetValue() const { return value_; }
 
   String ToString(int32 indent = 0) const {
     return ElementTraits<T>::ToString(value_, index);
   }
 
-  int32 GetType() const {
-    return ElementTraits<T>::TypeId;
-  }
+  int32 GetType() const { return ElementTraits<T>::TypeId; }
 
-  void Read(MessageIn& reader) {
-    BsonReader(reader).Read(value_);
-  }
+  void Read(MessageIn& reader) { BsonReader(reader).Read(value_); }
 
-  void Write(MessageOut& wirter) {
-    BsonWriter(wirter).Write(value_);
-  }
+  void Write(MessageOut& wirter) { BsonWriter(wirter).Write(value_); }
 
  private:
   T value_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

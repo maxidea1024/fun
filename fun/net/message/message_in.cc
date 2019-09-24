@@ -5,23 +5,23 @@ namespace fun {
 namespace net {
 
 MessageIn::MessageIn()
-  : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
-  , recursion_depth_(0),
-    message_max_length_(MessageFormatConfig::message_max_length),
-    original_buffer_(nullptr),
-    original_buffer_end_(nullptr),
-    buffer_start_(nullptr),
-    buffer_end_(nullptr),
-    buffer_(nullptr),
-    exceptions_enabled_(false) {
-}
+    : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
+      ,
+      recursion_depth_(0),
+      message_max_length_(MessageFormatConfig::message_max_length),
+      original_buffer_(nullptr),
+      original_buffer_end_(nullptr),
+      buffer_start_(nullptr),
+      buffer_end_(nullptr),
+      buffer_(nullptr),
+      exceptions_enabled_(false) {}
 
 MessageIn::MessageIn(const MessageOut& source)
-  : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
-    recursion_depth_(0),
-    message_max_length_(MessageFormatConfig::message_max_length),
-    sharable_buffer_(source.sharable_buffer_), // share
-    exceptions_enabled_(false) {
+    : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
+      recursion_depth_(0),
+      message_max_length_(MessageFormatConfig::message_max_length),
+      sharable_buffer_(source.sharable_buffer_),  // share
+      exceptions_enabled_(false) {
   //내부에서 버퍼의 길이로 범위를 체크하는데, 이게 문제가 될 수 있음.
   //왜냐면 MessageOut의 SharableBuffer의 길이는 실제
   //데이터 길이가 아니라 버퍼의 길이이므로, 별도로 처리해야함.
@@ -29,11 +29,11 @@ MessageIn::MessageIn(const MessageOut& source)
 }
 
 MessageIn::MessageIn(const MessageOut& source, int32 offset, int32 length)
-  : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
-    recursion_depth_(0),
-    message_max_length_(MessageFormatConfig::message_max_length),
-    sharable_buffer_(source.sharable_buffer_), // share
-    exceptions_enabled_(false) {
+    : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
+      recursion_depth_(0),
+      message_max_length_(MessageFormatConfig::message_max_length),
+      sharable_buffer_(source.sharable_buffer_),  // share
+      exceptions_enabled_(false) {
   //내부에서 버퍼의 길이로 범위를 체크하는데, 이게 문제가 될 수 있음.
   //왜냐면 MessageOut의 SharableBuffer의 길이는 실제
   //데이터 길이가 아니라 버퍼의 길이이므로, 별도로 처리해야함.
@@ -41,11 +41,12 @@ MessageIn::MessageIn(const MessageOut& source, int32 offset, int32 length)
 }
 
 MessageIn::MessageIn(const MessageIn& source, bool with_source_position)
-  : recursion_limit_(source.recursion_limit_),
-   , recursion_depth_(source.recursion_depth_),
-    message_max_length_(source.message_max_length_),
-    sharable_buffer_(source.sharable_buffer_), // share
-    exceptions_enabled_(false) {
+    : recursion_limit_(source.recursion_limit_),
+      ,
+      recursion_depth_(source.recursion_depth_),
+      message_max_length_(source.message_max_length_),
+      sharable_buffer_(source.sharable_buffer_),  // share
+      exceptions_enabled_(false) {
   const int32 source_offset = source.GetMasterViewOffset();
   const int32 source_length = source.GetMasterViewLength();
   SetupMasterView(source_offset, source_length);
@@ -58,34 +59,34 @@ MessageIn::MessageIn(const MessageIn& source, bool with_source_position)
 }
 
 MessageIn::MessageIn(const MessageIn& source, int32 offset, int32 length)
-  : recursion_limit_(source.recursion_limit_),
-    recursion_depth_(source.recursion_depth_),
-    message_max_length_(source.message_max_length_),
-    sharable_buffer_(source.sharable_buffer_), // share
-    exceptions_enabled_(false) {
+    : recursion_limit_(source.recursion_limit_),
+      recursion_depth_(source.recursion_depth_),
+      message_max_length_(source.message_max_length_),
+      sharable_buffer_(source.sharable_buffer_),  // share
+      exceptions_enabled_(false) {
   const int32 absolute_offset = source.GetMasterViewOffset() + offset;
   SetupMasterView(absolute_offset, length);
 }
 
 MessageIn::MessageIn(const ByteArray& source)
-  : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
-    recursion_depth_(0),
-    message_max_length_(MessageFormatConfig::message_max_length_),
-    sharable_buffer_(source), // share
-    exceptions_enabled_(false) {
+    : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
+      recursion_depth_(0),
+      message_max_length_(MessageFormatConfig::message_max_length_),
+      sharable_buffer_(source),  // share
+      exceptions_enabled_(false) {
   SetupMasterView();
 }
 
 MessageIn::MessageIn(const ByteArray& source, int32 offset, int32 length)
-  : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
-    recursion_depth_(0),
-    message_max_length_(MessageFormatConfig::MessageMaxLength),
-    sharable_buffer_(source), // share
-    exceptions_enabled_(false) {
+    : recursion_limit_(MessageFormatConfig::DefaultRecursionLimit),
+      recursion_depth_(0),
+      message_max_length_(MessageFormatConfig::MessageMaxLength),
+      sharable_buffer_(source),  // share
+      exceptions_enabled_(false) {
   SetupMasterView(offset, length);
 }
 
-MessageIn& MessageIn::operator = (const MessageIn& rhs) {
+MessageIn& MessageIn::operator=(const MessageIn& rhs) {
   if (FUN_LIKELY(&rhs != this)) {
     recursion_limit_ = rhs.recursion_limit_;
     recursion_depth_ = rhs.recursion_depth_;
@@ -116,10 +117,13 @@ void MessageIn::SetupMasterView() {
     original_buffer_ = (const uint8*)sharable_buffer_.ConstData();
     original_buffer_end_ = original_buffer_ + sharable_buffer_.Len();
 
-    fun_check((intptr_t)original_buffer_ >= (intptr_t)sharable_buffer_.cbegin());
+    fun_check((intptr_t)original_buffer_ >=
+              (intptr_t)sharable_buffer_.cbegin());
     fun_check((intptr_t)original_buffer_ <= (intptr_t)sharable_buffer_.cend());
-    fun_check((intptr_t)original_buffer_end_ >= (intptr_t)sharable_buffer_.cbegin());
-    fun_check((intptr_t)original_buffer_end_ <= (intptr_t)sharable_buffer_.cend());
+    fun_check((intptr_t)original_buffer_end_ >=
+              (intptr_t)sharable_buffer_.cbegin());
+    fun_check((intptr_t)original_buffer_end_ <=
+              (intptr_t)sharable_buffer_.cend());
   }
 
   buffer_start_ = original_buffer_;
@@ -129,8 +133,7 @@ void MessageIn::SetupMasterView() {
 }
 
 void MessageIn::SetupMasterView(int32 master_view_offset,
-                                int32 master_view_length,
-                                int32 source_length) {
+                                int32 master_view_length, int32 source_length) {
   if (master_view_offset < 0) {
     throw InvalidArgumentException();
   }
@@ -152,13 +155,17 @@ void MessageIn::SetupMasterView(int32 master_view_offset,
     original_buffer_ = nullptr;
     original_buffer_end_ = nullptr;
   } else {
-    original_buffer_ = (const uint8*)sharable_buffer_.ConstData() + master_view_offset;
+    original_buffer_ =
+        (const uint8*)sharable_buffer_.ConstData() + master_view_offset;
     original_buffer_end_ = original_buffer_ + master_view_length;
 
-    fun_check((intptr_t)original_buffer_ >= (intptr_t)sharable_buffer_.cbegin());
+    fun_check((intptr_t)original_buffer_ >=
+              (intptr_t)sharable_buffer_.cbegin());
     fun_check((intptr_t)original_buffer_ <= (intptr_t)sharable_buffer_.cend());
-    fun_check((intptr_t)original_buffer_end_ >= (intptr_t)sharable_buffer_.cbegin());
-    fun_check((intptr_t)original_buffer_end_ <= (intptr_t)sharable_buffer_.cend());
+    fun_check((intptr_t)original_buffer_end_ >=
+              (intptr_t)sharable_buffer_.cbegin());
+    fun_check((intptr_t)original_buffer_end_ <=
+              (intptr_t)sharable_buffer_.cend());
   }
 
   buffer_start_ = original_buffer_;
@@ -184,7 +191,8 @@ void MessageIn::Seek(int32 new_position) {
 
   if (new_ptr < buffer_start_ || new_ptr > buffer_end_) {
     if (exceptions_enabled_) {
-      throw IndexOutOfBoundsException(StringLiteral("position must be located between view.offset and view.end"));
+      throw IndexOutOfBoundsException(StringLiteral(
+          "position must be located between view.offset and view.end"));
     } else {
       return;
     }
@@ -263,9 +271,7 @@ bool MessageIn::Advance(int32 amount) {
   return true;
 }
 
-bool MessageIn::SkipRead(int32 amount) {
-  return Advance(amount);
-}
+bool MessageIn::SkipRead(int32 amount) { return Advance(amount); }
 
 int32 MessageIn::TryReadRawBytes(void* dst, int32 length) {
   if (length < 0) {
@@ -287,7 +293,6 @@ int32 MessageIn::TryReadRawBytes(void* dst, int32 length) {
   }
   return length;
 }
-
 
 //
 // Fixed
@@ -317,11 +322,11 @@ bool MessageIn::ReadFixed16(uint16& out_value) {
     out_value = (static_cast<uint32>(buffer_[0])) |
                 (static_cast<uint32>(buffer_[1]) << 8);
 #else
-  #if FUN_REQUIRES_ALIGNED_ACCESS
+#if FUN_REQUIRES_ALIGNED_ACCESS
     UnsafeMemory::Memcpy(&out_value, buffer_, sizeof(out_value));
-  #else
+#else
     out_value = *((uint16*)buffer_);
-  #endif
+#endif
 #endif
     Advance(sizeof(out_value));
     return true;
@@ -344,11 +349,11 @@ bool MessageIn::ReadFixed32(uint32& out_value) {
                 (static_cast<uint32>(buffer_[2]) << 16) |
                 (static_cast<uint32>(buffer_[3]) << 24);
 #else
-  #if FUN_REQUIRES_ALIGNED_ACCESS
+#if FUN_REQUIRES_ALIGNED_ACCESS
     UnsafeMemory::Memcpy(&out_value, buffer_, sizeof(out_value));
-  #else
+#else
     out_value = *((const uint32*)buffer_);
-  #endif
+#endif
 #endif
     Advance(sizeof(out_value));
     return true;
@@ -366,23 +371,23 @@ bool MessageIn::ReadFixed64(uint64& out_value) {
 
   if (readable_length >= sizeof(out_value)) {
 #if FUN_ARCH_BIG_ENDIAN
-    const uint32 part0 =  (static_cast<uint32>(buffer_[0])) |
-                          (static_cast<uint32>(buffer_[1]) << 8) |
-                          (static_cast<uint32>(buffer_[2]) << 16) |
-                          (static_cast<uint32>(buffer_[3]) << 24);
+    const uint32 part0 = (static_cast<uint32>(buffer_[0])) |
+                         (static_cast<uint32>(buffer_[1]) << 8) |
+                         (static_cast<uint32>(buffer_[2]) << 16) |
+                         (static_cast<uint32>(buffer_[3]) << 24);
 
-    const uint32 part1 =  (static_cast<uint32>(buffer_[4])) |
-                          (static_cast<uint32>(buffer_[5]) << 8) |
-                          (static_cast<uint32>(buffer_[6]) << 16) |
-                          (static_cast<uint32>(buffer_[7]) << 24);
+    const uint32 part1 = (static_cast<uint32>(buffer_[4])) |
+                         (static_cast<uint32>(buffer_[5]) << 8) |
+                         (static_cast<uint32>(buffer_[6]) << 16) |
+                         (static_cast<uint32>(buffer_[7]) << 24);
 
     out_value = static_cast<uint64>(part0) | (static_cast<uint64>(part1) << 32);
 #else
-  #if FUN_REQUIRES_ALIGNED_ACCESS
+#if FUN_REQUIRES_ALIGNED_ACCESS
     UnsafeMemory::Memcpy(&out_value, buffer_, sizeof(out_value));
-  #else
+#else
     out_value = *((uint64*)buffer_);
-  #endif
+#endif
 #endif
     Advance(sizeof(out_value));
     return true;
@@ -394,7 +399,6 @@ bool MessageIn::ReadFixed64(uint64& out_value) {
     }
   }
 }
-
 
 //
 // Varint
@@ -451,7 +455,6 @@ bool MessageIn::ReadVarint64(uint64& out_value) {
     return ReadVarint64Fallback(out_value);
   }
 }
-
 
 //
 // Varint fallback
@@ -545,27 +548,35 @@ bool MessageIn::ReadVarint64Fallback(uint64& out_value) {
   }
 }
 
-const uint8* MessageIn::ReadVarint8FromBuffer(const uint8* buffer_, uint8& out_value) {
+const uint8* MessageIn::ReadVarint8FromBuffer(const uint8* buffer_,
+                                              uint8& out_value) {
   // fast path:  we have enough bytes left in the buffer to guarantee that
   // this read won't cross the end, so we can skip the checks.
   const uint8* ptr = buffer_;
   uint8 byte;
   uint8 result;
 
-  byte = *ptr++; result = byte; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result = byte;
+  if (!(byte & 0x80)) goto Done;
   result -= 0x80;
 
-  byte = *ptr++; result += byte << 7; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result += byte << 7;
+  if (!(byte & 0x80)) goto Done;
   //"result -= 0x80 << 7;" is irrevelant.
 
   // if the input is larger than 8 bits, we still need to read it all
   // and discard the high-order bits.
-  const int32 lookahead_length = MessageFormat::MaxVarint64Length - MessageFormat::MaxVarint8Length;
+  const int32 lookahead_length =
+      MessageFormat::MaxVarint64Length - MessageFormat::MaxVarint8Length;
   for (int32 i = 0; i < lookahead_length; ++i) {
-    byte = *ptr++; if (!(byte & 0x80)) goto Done;
+    byte = *ptr++;
+    if (!(byte & 0x80)) goto Done;
   }
 
-  // we have overrun the maximum size of a varint (10 bytes).  assume the data is corrupt.
+  // we have overrun the maximum size of a varint (10 bytes).  assume the data
+  // is corrupt.
   return nullptr;
 
 Done:
@@ -573,7 +584,8 @@ Done:
   return ptr;
 }
 
-const uint8* MessageIn::ReadVarint16FromBuffer(const uint8* buffer, uint16& out_value) {
+const uint8* MessageIn::ReadVarint16FromBuffer(const uint8* buffer,
+                                               uint16& out_value) {
   // fast path:  we have enough bytes left in the buffer to guarantee that
   // this read won't cross the end, so we can skip the checks.
   const uint8* ptr = buffer;
@@ -581,18 +593,25 @@ const uint8* MessageIn::ReadVarint16FromBuffer(const uint8* buffer, uint16& out_
   uint16 byte;
   uint16 result;
 
-  byte = *ptr++; result = byte; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result = byte;
+  if (!(byte & 0x80)) goto Done;
   result -= 0x80;
 
-  byte = *ptr++; result += byte <<  7; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result += byte << 7;
+  if (!(byte & 0x80)) goto Done;
   result -= 0x80 << 7;
 
-  byte = *ptr++; result += byte << 14; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result += byte << 14;
+  if (!(byte & 0x80)) goto Done;
   //"result -= 0x80 << 14;" is irrevelant.
 
   // if the input is larger than 16 bits, we still need to read it all
   // and discard the high-order bits.
-  const int32 lookahead_length = MessageFormat::MaxVarint64Length - MessageFormat::MaxVarint16Length;
+  const int32 lookahead_length =
+      MessageFormat::MaxVarint64Length - MessageFormat::MaxVarint16Length;
   for (int32 i = 0; i < lookahead_length; ++i) {
     byte = *ptr++;
     if (!(byte & 0x80)) {
@@ -600,7 +619,8 @@ const uint8* MessageIn::ReadVarint16FromBuffer(const uint8* buffer, uint16& out_
     }
   }
 
-  // we have overrun the maximum size of a varint (10 bytes).  assume the data is corrupt.
+  // we have overrun the maximum size of a varint (10 bytes).  assume the data
+  // is corrupt.
   return nullptr;
 
 Done:
@@ -608,7 +628,8 @@ Done:
   return ptr;
 }
 
-const uint8* MessageIn::ReadVarint32FromBuffer(const uint8* buffer, uint32& out_value) {
+const uint8* MessageIn::ReadVarint32FromBuffer(const uint8* buffer,
+                                               uint32& out_value) {
   // fast path: we have enough bytes left in the buffer to guarantee that
   // this read won't cross the end, so we can skip the checks.
   const uint8* ptr = buffer;
@@ -616,24 +637,35 @@ const uint8* MessageIn::ReadVarint32FromBuffer(const uint8* buffer, uint32& out_
   uint32 byte;
   uint32 result;
 
-  byte = *ptr++; result = byte; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result = byte;
+  if (!(byte & 0x80)) goto Done;
   result -= 0x80;
 
-  byte = *ptr++; result += byte <<  7; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result += byte << 7;
+  if (!(byte & 0x80)) goto Done;
   result -= 0x80 << 7;
 
-  byte = *ptr++; result += byte << 14; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result += byte << 14;
+  if (!(byte & 0x80)) goto Done;
   result -= 0x80 << 14;
 
-  byte = *ptr++; result += byte << 21; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result += byte << 21;
+  if (!(byte & 0x80)) goto Done;
   result -= 0x80 << 21;
 
-  byte = *ptr++; result += byte << 28; if (!(byte & 0x80)) goto Done;
+  byte = *ptr++;
+  result += byte << 28;
+  if (!(byte & 0x80)) goto Done;
   // "result -= 0x80 << 28" is irrevelant.
 
   // if the input is larger than 32 bits, we still need to read it all
   // and discard the high-order bits.
-  const int32 lookahead_length = MessageFormat::MaxVarint64Length - MessageFormat::MaxVarint32Length;
+  const int32 lookahead_length =
+      MessageFormat::MaxVarint64Length - MessageFormat::MaxVarint32Length;
   for (int32 i = 0; i < lookahead_length; ++i) {
     byte = *ptr++;
     if (!(byte & 0x80)) {
@@ -641,7 +673,8 @@ const uint8* MessageIn::ReadVarint32FromBuffer(const uint8* buffer, uint32& out_
     }
   }
 
-  // we have overrun the maximum size of a varint (10 bytes).  assume the data is corrupt.
+  // we have overrun the maximum size of a varint (10 bytes).  assume the data
+  // is corrupt.
   return nullptr;
 
 Done:
@@ -649,7 +682,8 @@ Done:
   return ptr;
 }
 
-const uint8* MessageIn::ReadVarint64FromBuffer(const uint8* buffer, uint64& out_value) {
+const uint8* MessageIn::ReadVarint64FromBuffer(const uint8* buffer,
+                                               uint64& out_value) {
   // fast path: we have enough bytes left in the buffer to guarantee that
   // this read won't cross the end, so we can skip the checks.
 
@@ -660,41 +694,64 @@ const uint8* MessageIn::ReadVarint64FromBuffer(const uint8* buffer, uint64& out_
   // splitting into 32-bit pieces gives better performance on 32-bit processors.
   uint32 part0 = 0, part1 = 0, part2 = 0;
 
-  byte = *ptr++; part0 = byte; if (!(byte & 0x80)) goto Done; // 1
+  byte = *ptr++;
+  part0 = byte;
+  if (!(byte & 0x80)) goto Done;  // 1
   part0 -= 0x80;
 
-  byte = *ptr++; part0 += byte << 7; if (!(byte & 0x80)) goto Done; // 2
+  byte = *ptr++;
+  part0 += byte << 7;
+  if (!(byte & 0x80)) goto Done;  // 2
   part0 -= 0x80 << 7;
 
-  byte = *ptr++; part0 += byte << 14; if (!(byte & 0x80)) goto Done; // 3
+  byte = *ptr++;
+  part0 += byte << 14;
+  if (!(byte & 0x80)) goto Done;  // 3
   part0 -= 0x80 << 14;
 
-  byte = *ptr++; part0 += byte << 21; if (!(byte & 0x80)) goto Done; // 4
+  byte = *ptr++;
+  part0 += byte << 21;
+  if (!(byte & 0x80)) goto Done;  // 4
   part0 -= 0x80 << 21;
 
-  byte = *ptr++; part1 = byte; if (!(byte & 0x80)) goto Done; // 5
+  byte = *ptr++;
+  part1 = byte;
+  if (!(byte & 0x80)) goto Done;  // 5
   part1 -= 0x80;
 
-  byte = *ptr++; part1 += byte << 7; if (!(byte & 0x80)) goto Done; // 6
+  byte = *ptr++;
+  part1 += byte << 7;
+  if (!(byte & 0x80)) goto Done;  // 6
   part1 -= 0x80 << 7;
 
-  byte = *ptr++; part1 += byte << 14; if (!(byte & 0x80)) goto Done; // 7
+  byte = *ptr++;
+  part1 += byte << 14;
+  if (!(byte & 0x80)) goto Done;  // 7
   part1 -= 0x80 << 14;
 
-  byte = *ptr++; part1 += byte << 21; if (!(byte & 0x80)) goto Done; // 8
+  byte = *ptr++;
+  part1 += byte << 21;
+  if (!(byte & 0x80)) goto Done;  // 8
   part1 -= 0x80 << 21;
 
-  byte = *ptr++; part2 = byte; if (!(byte & 0x80)) goto Done; // 9
+  byte = *ptr++;
+  part2 = byte;
+  if (!(byte & 0x80)) goto Done;  // 9
   part2 -= 0x80;
 
-  byte = *ptr++; part2 += byte << 7; if (!(byte & 0x80)) goto Done; // 10 - worst case!
+  byte = *ptr++;
+  part2 += byte << 7;
+  if (!(byte & 0x80)) goto Done;  // 10 - worst case!
   // "part2 -= 0x80 << 7" is irrelevant because (0x80 << 7) << 56 is 0.
 
-  // we have overrun the maximum size of a varint (10 bytes).  the data must be corrupt.
+  // we have overrun the maximum size of a varint (10 bytes).  the data must be
+  // corrupt.
   return nullptr;
 
 Done:
-  out_value = (static_cast<uint64>(part0)) | (static_cast<uint64>(part1) << 28) | (static_cast<uint64>(part2) << 56);
+  out_value = (static_cast<uint64>(part0)) |
+              (static_cast<uint64>(part1) << 28) |
+              (static_cast<uint64>(part2) << 56);
   return ptr;
 }
 
@@ -725,12 +782,11 @@ bool MessageIn::ReadVarint32Slow(uint32& out_value) {
   return false;
 }
 
-
 // Read one byte at a time. I think I could stream here, but ...
 // Do not support streaming for simplicity!
 // If the MSB is 1, continue looping the dome.
-// not read indefinitely but only up to 10 bytes, the maximum number of bytes of a 64-bit varint,
-// If you try to read more then throw an exception.
+// not read indefinitely but only up to 10 bytes, the maximum number of bytes of
+// a 64-bit varint, If you try to read more then throw an exception.
 bool MessageIn::ReadVarint64Slow(uint64& out_value) {
   uint64 result = 0;
 
@@ -739,8 +795,8 @@ bool MessageIn::ReadVarint64Slow(uint64& out_value) {
   uint8 byte;
 
   do {
-    // If the maximum number of bytes of a 64-bit varint is exceeded, the base-128 encoding is incorrect
-    // Failed because the data is broken.
+    // If the maximum number of bytes of a 64-bit varint is exceeded, the
+    // base-128 encoding is incorrect Failed because the data is broken.
     if (buffer_ == buffer_end_ || length == MessageFormat::MaxVarint64Length) {
       if (exceptions_enabled_) {
         throw MessageFormatException::MalformedVarint();
@@ -756,13 +812,11 @@ bool MessageIn::ReadVarint64Slow(uint64& out_value) {
     shift += 7;
 
     length++;
-  }
-  while (byte & 0x80);
+  } while (byte & 0x80);
 
   out_value = result;
   return true;
 }
-
 
 //
 // Limitation
@@ -793,7 +847,8 @@ MessageInView MessageIn::PushView() {
 }
 
 void MessageIn::PopView(const MessageInView& previous_view) {
-  if (previous_view.offset < original_buffer_ || previous_view.end < buffer_end_) {
+  if (previous_view.offset < original_buffer_ ||
+      previous_view.end < buffer_end_) {
     throw IndexOutOfBoundsException();
   }
 
@@ -831,12 +886,10 @@ void MessageIn::Detach() {
   }
 }
 
-bool MessageIn::IsDetached() const {
-  return sharable_buffer_.IsDetached();
-}
+bool MessageIn::IsDetached() const { return sharable_buffer_.IsDetached(); }
 
 void MessageIn::CheckConsistency() const {
-  //TODO
+  // TODO
 }
 
 void MessageIn::EnsureAtOrigin() {
@@ -845,5 +898,5 @@ void MessageIn::EnsureAtOrigin() {
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

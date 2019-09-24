@@ -8,28 +8,28 @@ const String Database::AUTH_SCRAM_SHA1("SCRAM-SHA-1");
 
 namespace {
 
-TMap<String,String> ParseKeyValueList(const String& str) {
-  TMap<String,String> kvs;
+TMap<String, String> ParseKeyValueList(const String& str) {
+  TMap<String, String> kvs;
   const char* it = str.cbegin();
   const char* end = str.cend();
   while (it != end) {
     String key;
     String val;
     while (it != end && *it != '=') key += *it++;
-    if (it != end) ++ it;
+    if (it != end) ++it;
     while (it != end && *it != ',') key += *it++;
-    if (it != end) ++ it;
+    if (it != end) ++it;
     kvs.Add(key, val);
   }
   return kvs;
 }
 
 String DecodeBase64(const String& Base64) {
-  //TODO
+  // TODO
 }
 
 String EncodeBase64(const String& Data) {
-  //TODO
+  // TODO
 }
 
 String DigestToBinaryString(Digester& digester) {
@@ -62,17 +62,14 @@ String CreateNonce() {
   return DigestToHexString(md5);
 }
 
-} // namespace
+}  // namespace
 
-Database::Database(const String& name)
-  : db_name_(name) {}
+Database::Database(const String& name) : db_name_(name) {}
 
 Database::~Database() {}
 
-bool Database::Authenticate(Connection& conn,
-                            const String& user_name,
-                            const String& password,
-                            const String& method) {
+bool Database::Authenticate(Connection& conn, const String& user_name,
+                            const String& password, const String& method) {
   if (user_name.IsEmpty()) {
     throw InvalidArgumentException("empty username");
   }
@@ -89,8 +86,7 @@ bool Database::Authenticate(Connection& conn,
   }
 }
 
-bool Database::AuthCR(Connection& conn,
-                      const String& user_name,
+bool Database::AuthCR(Connection& conn, const String& user_name,
                       const String& password) {
   String nonce;
   QueryRequestPtr command(CreateCommand());
@@ -103,7 +99,7 @@ bool Database::AuthCR(Connection& conn,
     if (doc->GetInteger("ok") != 1) {
       return false;
     }
-    nonce = doc->Get<String>("nonce","");
+    nonce = doc->Get<String>("nonce", "");
     if (nonce.IsEmpty()) {
       throw ProtocolException("no nonce received");
     }
@@ -120,10 +116,10 @@ bool Database::AuthCR(Connection& conn,
 
   command = CreateCommand();
   command->GetSelector()
-    .Add<int32>("authenticate", 1)
-    .Add<String>("user", user_name)
-    .Add<String>("nonce", nonce)
-    .Add<String>("key", key);
+      .Add<int32>("authenticate", 1)
+      .Add<String>("user", user_name)
+      .Add<String>("nonce", nonce)
+      .Add<String>("key", key);
   conn.Call(*command, response);
   if (response.GetDocuments().Count() > 0) {
     DocumentPtr doc(response.GetDocuments()[0]);
@@ -133,18 +129,18 @@ bool Database::AuthCR(Connection& conn,
   }
 }
 
-bool Database::AuthSCRAM( Connection& conn,
-                          const String& user_name,
-                          const String& password) {
+bool Database::AuthSCRAM(Connection& conn, const String& user_name,
+                         const String& password) {
   String client_nonce(CreateNone());
   String client_first_msg = String::Format("n=%s,r=%s", *user_name, *password);
 
   CCommandPtr command(CreateCommand());
   command->GetSelector()
-    .Add<int32>("saslStart", 1)
-    .Add<String>("mechanism", AUTH_SCRAM_SHA1)
-    .Add<BinaryPtr>("payload", new Binary(String::Format("n,,%s", *client_first_msg)))
-    .Add<bool>("authAuthorize", true);
+      .Add<int32>("saslStart", 1)
+      .Add<String>("mechanism", AUTH_SCRAM_SHA1)
+      .Add<BinaryPtr>("payload",
+                      new Binary(String::Format("n,,%s", *client_first_msg)))
+      .Add<bool>("authAuthorize", true);
   Response response;
   conn.Call(*command, response);
 
@@ -177,7 +173,8 @@ bool Database::AuthSCRAM( Connection& conn,
   String salted_password = DigestToBinaryString(pbkdf2);
 
   String client_final_no_proof = String::Format("c=binws,r=%s", *server_nonce);
-  String auth_message = String::Format("%s,%s,%s", *client_first_msg, *server_first_msg, *client_final_no_proof);
+  String auth_message = String::Format(
+      "%s,%s,%s", *client_first_msg, *server_first_msg, *client_final_no_proof);
 
   HMACDigester<SHA1Digester> hmac_key(salted_password);
   hmac_key.Update(String("Client key"));
@@ -196,13 +193,14 @@ bool Database::AuthSCRAM( Connection& conn,
     client_proof[i] ^= client_signature[i];
   }
 
-  String client_final = String::Format("%s,p=%s", *client_final_no_proof, *EncodeBase64(client_proof));
+  String client_final = String::Format("%s,p=%s", *client_final_no_proof,
+                                       *EncodeBase64(client_proof));
 
   command = CreateCommand();
   command->GetSelector()
-    .Add<int32>("saslContinue", 1)
-    .Add<int32>("conversationId", conversation_id)
-    .Add<BinaryPtr>("payload", new Binary(client_final));
+      .Add<int32>("saslContinue", 1)
+      .Add<int32>("conversationId", conversation_id)
+      .Add<BinaryPtr>("payload", new Binary(client_final));
 
   String server_send_msg;
   conn.Call(*command, response);
@@ -235,9 +233,9 @@ bool Database::AuthSCRAM( Connection& conn,
 
   command = CreateCommand();
   command->GetSelector()
-    .Add<int32>("saslContinue", 1)
-    .Add<int32>("conversationId", conversation_id)
-    .Add<BinaryPtr>("payload", new Binary);
+      .Add<int32>("saslContinue", 1)
+      .Add<int32>("conversationId", conversation_id)
+      .Add<BinaryPtr>("payload", new Binary);
   conn.Call(*command, response);
   if (response.GetDocuments().Count() > 0) {
     DocumentPtr doc(response.GetDocuments()[0]);
@@ -259,21 +257,17 @@ int64 Database::Count(Connection& conn, const String& collection_name) const {
   return -1;
 }
 
-QueryRequestPtr Database::CreateCountRequest(const String& collection_name) const {
+QueryRequestPtr Database::CreateCountRequest(
+    const String& collection_name) const {
   QueryRequestPtr request(CreateQueryRequest("$cmd"));
   request->Limit(1);
   request->GetSelector().Add("count", collection_name);
   return request;
 }
 
-DocumentPtr EnsureIndex(Connection& conn,
-                        const String& collection,
-                        const String& index_name,
-                        DocumentPtr keys,
-                        bool unique,
-                        bool background,
-                        int32 version,
-                        int32 ttl) {
+DocumentPtr EnsureIndex(Connection& conn, const String& collection,
+                        const String& index_name, DocumentPtr keys, bool unique,
+                        bool background, int32 version, int32 ttl) {
   DocumentPtr index(new Document());
   index->Add("ns", db_name_ + "." + collection);
   index->Add("name", index_name);
@@ -326,5 +320,5 @@ String Database::GetLastError(Connection& conn) const {
   return "";
 }
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

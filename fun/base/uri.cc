@@ -1,4 +1,4 @@
-﻿//TODO path 구분시 path 앞의 '/' 문자가 생략되는 부분 확인해야함.
+﻿// TODO path 구분시 path 앞의 '/' 문자가 생략되는 부분 확인해야함.
 
 #include "fun/base/uri.h"
 #include "fun/base/exception.h"
@@ -54,17 +54,12 @@ const String Uri::ILLEGAL = "%<>{}|\\\"^`";
 
 Uri::Uri() : port_(0) {}
 
-Uri::Uri(const String& uri) : port_(0) {
-  Parse(uri);
-}
+Uri::Uri(const String& uri) : port_(0) { Parse(uri); }
 
-Uri::Uri(const char* uri) : port_(0) {
-  Parse(String(uri));
-}
+Uri::Uri(const char* uri) : port_(0) { Parse(String(uri)); }
 
 Uri::Uri(const String& scheme, const String& path_etc)
-  : scheme_(scheme),
-    port_(0) {
+    : scheme_(scheme), port_(0) {
   scheme_.MakeLower();
 
   port_ = GetWellKnownPort();
@@ -75,7 +70,7 @@ Uri::Uri(const String& scheme, const String& path_etc)
 }
 
 Uri::Uri(const String& scheme, const String& authority, const String& path_etc)
-  : scheme_(scheme) {
+    : scheme_(scheme) {
   scheme_.MakeLower();
 
   const char* b = authority.cbegin();
@@ -87,13 +82,9 @@ Uri::Uri(const String& scheme, const String& authority, const String& path_etc)
   ParsePathEtc(b, e);
 }
 
-Uri::Uri( const String& scheme,
-          const String& authority,
-          const String& path,
-          const String& query)
-  : scheme_(scheme),
-    path_(path),
-    query_(query) {
+Uri::Uri(const String& scheme, const String& authority, const String& path,
+         const String& query)
+    : scheme_(scheme), path_(path), query_(query) {
   scheme_.MakeLower();
 
   const char* b = authority.cbegin();
@@ -101,15 +92,9 @@ Uri::Uri( const String& scheme,
   ParseAuthority(b, e);
 }
 
-Uri::Uri( const String& scheme,
-          const String& authority,
-          const String& path,
-          const String& query,
-          const String& fragment)
-  : scheme_(scheme),
-    path_(path),
-    query_(query),
-    fragment_(fragment) {
+Uri::Uri(const String& scheme, const String& authority, const String& path,
+         const String& query, const String& fragment)
+    : scheme_(scheme), path_(path), query_(query), fragment_(fragment) {
   scheme_.MakeLower();
 
   const char* b = authority.cbegin();
@@ -118,38 +103,35 @@ Uri::Uri( const String& scheme,
 }
 
 Uri::Uri(const Uri& other)
-  : scheme_(other.scheme_),
-    user_info_(other.user_info_),
-    host_(other.host_),
-    port_(other.port_),
-    path_(other.path_),
-    query_(other.query_),
-    fragment_(other.fragment_) {
-}
+    : scheme_(other.scheme_),
+      user_info_(other.user_info_),
+      host_(other.host_),
+      port_(other.port_),
+      path_(other.path_),
+      query_(other.query_),
+      fragment_(other.fragment_) {}
 
 Uri::Uri(Uri&& other)
-  : scheme_(MoveTemp(other.scheme_)),
-    user_info_(MoveTemp(other.user_info_)),
-    host_(MoveTemp(other.host_)),
-    port_(MoveTemp(other.port_)),
-    path_(MoveTemp(other.path_)),
-    query_(MoveTemp(other.query_)),
-    fragment_(MoveTemp(other.fragment_)) {
-}
+    : scheme_(MoveTemp(other.scheme_)),
+      user_info_(MoveTemp(other.user_info_)),
+      host_(MoveTemp(other.host_)),
+      port_(MoveTemp(other.port_)),
+      path_(MoveTemp(other.path_)),
+      query_(MoveTemp(other.query_)),
+      fragment_(MoveTemp(other.fragment_)) {}
 
 Uri::Uri(const Uri& base_uri, const String& relative_uri)
-  : scheme_(base_uri.scheme_),
-    user_info_(base_uri.user_info_),
-    host_(base_uri.host_),
-    port_(base_uri.port_),
-    path_(base_uri.path_),
-    query_(base_uri.query_),
-    fragment_(base_uri.fragment_) {
+    : scheme_(base_uri.scheme_),
+      user_info_(base_uri.user_info_),
+      host_(base_uri.host_),
+      port_(base_uri.port_),
+      path_(base_uri.path_),
+      query_(base_uri.query_),
+      fragment_(base_uri.fragment_) {
   Resolve(relative_uri);
 }
 
-Uri::Uri(const Path& path)
-  : scheme_("file"), port_(0) {
+Uri::Uri(const Path& path) : scheme_("file"), port_(0) {
   Path absolute_path(path);
   absolute_path.MakeAbsolute();
   path_ = absolute_path.ToString(Path::PATH_UNIX);
@@ -157,7 +139,7 @@ Uri::Uri(const Path& path)
 
 Uri::~Uri() {}
 
-Uri& Uri::operator = (const Uri& other) {
+Uri& Uri::operator=(const Uri& other) {
   if (FUN_LIKELY(&other != this)) {
     scheme_ = other.scheme_;
     user_info_ = other.user_info_;
@@ -170,7 +152,7 @@ Uri& Uri::operator = (const Uri& other) {
   return *this;
 }
 
-Uri& Uri::operator = (Uri&& other) {
+Uri& Uri::operator=(Uri&& other) {
   if (FUN_LIKELY(&other != this)) {
     scheme_ = MoveTemp(other.scheme_);
     user_info_ = MoveTemp(other.user_info_);
@@ -183,13 +165,13 @@ Uri& Uri::operator = (Uri&& other) {
   return *this;
 }
 
-Uri& Uri::operator = (const String& uri) {
+Uri& Uri::operator=(const String& uri) {
   Clear();
   Parse(uri);
   return *this;
 }
 
-Uri& Uri::operator = (const char* uri) {
+Uri& Uri::operator=(const char* uri) {
   Clear();
   Parse(String(uri));
   return *this;
@@ -220,7 +202,7 @@ String Uri::ToString() const {
   if (IsRelative()) {
     uri = Encode(path_, RESERVED_PATH);
   } else {
-    uri = scheme_; // http, https
+    uri = scheme_;  // http, https
     uri << ':';
 
     const String auth = GetAuthority();
@@ -267,13 +249,9 @@ void Uri::SetUserInfo(const String& user_info) {
   user_info_ = Decode(user_info);
 }
 
-void Uri::SetHost(const String& host) {
-  host_ = host;
-}
+void Uri::SetHost(const String& host) { host_ = host; }
 
-int32 Uri::GetPort() const {
-  return port_ == 0 ? GetWellKnownPort() : port_;
-}
+int32 Uri::GetPort() const { return port_ == 0 ? GetWellKnownPort() : port_; }
 
 void Uri::SetPort(int32 port) {
   fun_check(port >= 0 && port <= 65535);
@@ -319,9 +297,7 @@ void Uri::SetPath(const String& path) {
   path_ = Decode(path);
 }
 
-void Uri::SetRawQuery(const String& query) {
-  query_ = query;
-}
+void Uri::SetRawQuery(const String& query) { query_ = query; }
 
 void Uri::SetQuery(const String& query) {
   query_.Clear();
@@ -337,9 +313,10 @@ void Uri::AddQueryParameter(const String& param, const String& value) {
     query_ << '&';
   }
 
-  //FIXME 이게 왜 안되는걸까?
-  // -> 연산자 정의시 const 한정자를 붙인게 있고 아닌게 있어서 컴파일 오류가 있었음.
-  //query_ += Encode(param, reserved) + '=' + Encode(value, reserved);
+  // FIXME 이게 왜 안되는걸까?
+  // -> 연산자 정의시 const 한정자를 붙인게 있고 아닌게 있어서 컴파일 오류가
+  // 있었음.
+  // query_ += Encode(param, reserved) + '=' + Encode(value, reserved);
 
   query_ << Encode(param, reserved);
   query_ << '=';
@@ -433,8 +410,7 @@ String Uri::GetPathEtc() const {
   return path_etc;
 }
 
-String Uri::GetPathAndQuery() const
-{
+String Uri::GetPathAndQuery() const {
   String path_and_query;
   path_and_query = Encode(path_, RESERVED_PATH);
 
@@ -489,53 +465,36 @@ void Uri::Resolve(const Uri& relative_uri) {
   fragment_ = relative_uri.fragment_;
 }
 
-bool Uri::IsRelative() const {
-  return scheme_.IsEmpty();
-}
+bool Uri::IsRelative() const { return scheme_.IsEmpty(); }
 
-bool Uri::IsAbsolute() const {
-  return !scheme_.IsEmpty();
-}
+bool Uri::IsAbsolute() const { return !scheme_.IsEmpty(); }
 
 bool Uri::IsEmpty() const {
-  return  scheme_.IsEmpty() &&
-          host_.IsEmpty() &&
-          path_.IsEmpty() &&
-          query_.IsEmpty() &&
-          fragment_.IsEmpty();
+  return scheme_.IsEmpty() && host_.IsEmpty() && path_.IsEmpty() &&
+         query_.IsEmpty() && fragment_.IsEmpty();
 }
 
-bool Uri::operator == (const Uri& other) const {
-  return Equals(other);
-}
+bool Uri::operator==(const Uri& other) const { return Equals(other); }
 
-bool Uri::operator == (const String& uri) const {
+bool Uri::operator==(const String& uri) const {
   Uri parsed_uri(uri);
   return Equals(parsed_uri);
 }
 
-bool Uri::operator != (const Uri& other) const {
-  return !Equals(other);
-}
+bool Uri::operator!=(const Uri& other) const { return !Equals(other); }
 
-bool Uri::operator != (const String& uri) const {
+bool Uri::operator!=(const String& uri) const {
   Uri parsed_uri(uri);
   return !Equals(parsed_uri);
 }
 
 bool Uri::Equals(const Uri& other) const {
-  return  scheme_ == other.scheme_ &&
-          user_info_ == other.user_info_ &&
-          host_ == other.host_ &&
-          port_ == other.port_ &&
-          path_ == other.path_ &&
-          query_ == other.query_ &&
-          fragment_ == other.fragment_;
+  return scheme_ == other.scheme_ && user_info_ == other.user_info_ &&
+         host_ == other.host_ && port_ == other.port_ && path_ == other.path_ &&
+         query_ == other.query_ && fragment_ == other.fragment_;
 }
 
-void Uri::Normalize() {
-  RemoveDotSegments(!IsRelative());
-}
+void Uri::Normalize() { RemoveDotSegments(!IsRelative()); }
 
 void Uri::RemoveDotSegments(bool remove_leading) {
   if (path_.IsEmpty()) {
@@ -599,13 +558,12 @@ String Uri::Encode(const String& str, const String& reserved) {
   for (; cur != end; ++cur) {
     const int32 c = *cur;
 
-    if ((c >= 'a' && c <= 'z') ||
-        (c >= 'A' && c <= 'Z') ||
-        (c >= '0' && c <= '9') ||
-        c == '-' || c == '_' ||
-        c == '.' || c == '~') {
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' ||
+        c == '~') {
       encoded_str << char(c);
-    } else if (c <= 0x20 || c >= 0x7F || ILLEGAL.Contains(char(c)) || reserved.Contains(char(c))) {
+    } else if (c <= 0x20 || c >= 0x7F || ILLEGAL.Contains(char(c)) ||
+               reserved.Contains(char(c))) {
       encoded_str << '%';
       encoded_str << String::Format("%02X", (uint32)(uint8)c);
     } else {
@@ -634,12 +592,17 @@ String Uri::Decode(const String& str, bool plus_as_space) {
       c = ' ';
     } else if (c == '%') {
       if (cur == end) {
-        throw UriSyntaxException(AsciiString("uri encoding: no hex digit following percent sign"), str);
+        throw UriSyntaxException(
+            AsciiString("uri encoding: no hex digit following percent sign"),
+            str);
       }
 
       const int32 hi = *cur++;
       if (cur == end) {
-        throw UriSyntaxException(AsciiString("uri encoding: two hex digits must follow percent sign"), str);
+        throw UriSyntaxException(
+            AsciiString(
+                "uri encoding: two hex digits must follow percent sign"),
+            str);
       }
 
       const int32 lo = *cur++;
@@ -670,9 +633,7 @@ String Uri::Decode(const String& str, bool plus_as_space) {
   return decoded_str;
 }
 
-bool Uri::IsWellKnownPort() const {
-  return port_ == GetWellKnownPort();
-}
+bool Uri::IsWellKnownPort() const { return port_ == GetWellKnownPort(); }
 
 int32 Uri::GetWellKnownPort() const {
   if (scheme_ == "ftp") {
@@ -711,14 +672,17 @@ void Uri::Parse(const String& uri) {
 
   if (*cur != '/' && *cur != '.' && *cur != '?' && *cur != '#') {
     String scheme;
-    while (cur != end && *cur != ':' && *cur != '?' && *cur != '#' && *cur != '/') {
+    while (cur != end && *cur != ':' && *cur != '?' && *cur != '#' &&
+           *cur != '/') {
       scheme << *cur++;
     }
 
     if (cur != end && *cur == ':') {
       ++cur;
       if (cur == end) {
-        throw UriSyntaxException(AsciiString("uri scheme must be followed by authority or path"), uri);
+        throw UriSyntaxException(
+            AsciiString("uri scheme must be followed by authority or path"),
+            uri);
       }
 
       SetScheme(scheme);
@@ -798,7 +762,8 @@ void Uri::ParseHostAndPort(const char*& cur, const char* end) {
       if (ok && port_no > 0 && port_no < 65536) {
         port_ = port_no;
       } else {
-        throw UriSyntaxException(AsciiString("bad or invalid port number"), port_str);
+        throw UriSyntaxException(AsciiString("bad or invalid port number"),
+                                 port_str);
       }
     } else {
       port_ = GetWellKnownPort();
@@ -871,7 +836,8 @@ void Uri::MergePath(const String& path) {
   }
   GetPathSegments(path, segments);
 
-  add_leading_slash = add_leading_slash || (!path.IsEmpty() && path.First() == '/');
+  add_leading_slash =
+      add_leading_slash || (!path.IsEmpty() && path.First() == '/');
   const bool has_trailing_slash = (!path.IsEmpty() && path.Last() == '/');
   bool add_trailing_slash = false;
   for (const auto& segment : segments) {
@@ -888,10 +854,12 @@ void Uri::MergePath(const String& path) {
     }
   }
 
-  BuildPath(normalized_segments, add_leading_slash, has_trailing_slash || add_trailing_slash);
+  BuildPath(normalized_segments, add_leading_slash,
+            has_trailing_slash || add_trailing_slash);
 }
 
-void Uri::BuildPath(const Array<String>& segments, bool leading_slash, bool trailing_slash) {
+void Uri::BuildPath(const Array<String>& segments, bool leading_slash,
+                    bool trailing_slash) {
   path_.Clear();
 
   bool first = true;
@@ -915,4 +883,4 @@ void Uri::BuildPath(const Array<String>& segments, bool leading_slash, bool trai
   }
 }
 
-} // namespace fun
+}  // namespace fun

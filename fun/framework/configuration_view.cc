@@ -3,16 +3,16 @@
 namespace fun {
 namespace framework {
 
-//FUN_IMPLEMENT_RTCLASS(ConfigurationView)
+// FUN_IMPLEMENT_RTCLASS(ConfigurationView)
 
-ConfigurationView::ConfigurationView( const String& prefix,
-                                      ConfigurationBase::Ptr config)
-  : prefix_(prefix), config_(config) {}
+ConfigurationView::ConfigurationView(const String& prefix,
+                                     ConfigurationBase::Ptr config)
+    : prefix_(prefix), config_(config) {}
 
 bool ConfigurationView::GetRaw(const String& key, String& out_value) const {
   const String translated_key = TranslateKey(key);
-  return  config_->GetRaw(translated_key, out_value) ||
-          config_->GetRaw(key, out_value);
+  return config_->GetRaw(translated_key, out_value) ||
+         config_->GetRaw(key, out_value);
 }
 
 void ConfigurationView::SetRaw(const String& key, const String& value) {
@@ -40,5 +40,5 @@ String ConfigurationView::TranslateKey(const String& key) const {
   return result;
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

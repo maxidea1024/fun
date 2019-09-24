@@ -9,7 +9,7 @@ class SocketImpl;
  * Socket is the common base class for
  * StreamSocket, ServerSocket, CDatagramSocket and other
  * socket classes.
- * 
+ *
  * it provides operations common to all socket types.
  */
 class FUN_NETSOCKET_API Socket {
@@ -17,11 +17,7 @@ class FUN_NETSOCKET_API Socket {
   /**
    * The mode argument to Poll() and Select().
    */
-  enum SelectMode {
-    SELECT_READ  = 1,
-    SELECT_WRITE = 2,
-    SELECT_ERROR = 4
-  };
+  enum SelectMode { SELECT_READ = 1, SELECT_WRITE = 2, SELECT_ERROR = 4 };
 
   typedef Array<Socket> SocketList;
 
@@ -45,7 +41,7 @@ class FUN_NETSOCKET_API Socket {
   attaches the SocketImpl from the other socket and
   increments the reference count of the SocketImpl.
   */
-  Socket& operator = (const Socket& rhs);
+  Socket& operator=(const Socket& rhs);
 
   /**
   Destroys the Socket and releases the
@@ -57,33 +53,33 @@ class FUN_NETSOCKET_API Socket {
   Returns true if both sockets share the same
   SocketImpl, false otherwise.
   */
-  bool operator == (const Socket& rhs) const;
+  bool operator==(const Socket& rhs) const;
 
   /**
   Returns false if both sockets share the same
   SocketImpl, true otherwise.
   */
-  bool operator != (const Socket& rhs) const;
+  bool operator!=(const Socket& rhs) const;
 
   /**
   Compares the SocketImpl pointers.
   */
-  bool operator <  (const Socket& rhs) const;
+  bool operator<(const Socket& rhs) const;
 
   /**
   Compares the SocketImpl pointers.
   */
-  bool operator <= (const Socket& rhs) const;
+  bool operator<=(const Socket& rhs) const;
 
   /**
   Compares the SocketImpl pointers.
   */
-  bool operator >  (const Socket& rhs) const;
+  bool operator>(const Socket& rhs) const;
 
   /**
   Compares the SocketImpl pointers.
   */
-  bool operator >= (const Socket& rhs) const;
+  bool operator>=(const Socket& rhs) const;
 
   /**
   Closes the socket.
@@ -120,10 +116,8 @@ class FUN_NETSOCKET_API Socket {
   In this case, the return value may be greater than the sum
   of all sockets in all list.
   */
-  static int32 Select(SocketList& read_list,
-                      SocketList& write_list,
-                      SocketList& error_list,
-                      const Timespan& timeout);
+  static int32 Select(SocketList& read_list, SocketList& write_list,
+                      SocketList& error_list, const Timespan& timeout);
 
   /**
   Determines the status of the socket, using a
@@ -374,7 +368,7 @@ class FUN_NETSOCKET_API Socket {
   /**
    * Creates the underlying system socket for the given
    * address family.
-   * 
+   *
    * Normally, this method should not be called directly, as
    * socket creation will be handled automatically. There are
    * a few situations where calling this method after creation
@@ -421,5 +415,5 @@ class FUN_NETSOCKET_API Socket {
   SocketImpl* impl_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

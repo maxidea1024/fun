@@ -31,31 +31,31 @@ class TFIFOBuffer : public Noncopyable {
   Creates the FIFOBuffer.
   */
   TFIFOBuffer(int32 buffer_length)
-    : internal_buffer_(buffer_length),
-      position_(0),
-      used_length_(0),
-      eof_(false),
-      error_(false) {}
+      : internal_buffer_(buffer_length),
+        position_(0),
+        used_length_(0),
+        eof_(false),
+        error_(false) {}
 
   /**
   Creates the FIFOBuffer.
   */
   TFIFOBuffer(T* buffer, int32 buffer_length)
-    : internal_buffer_(buffer, buffer_length),
-      position_(0),
-      used_length_(0),
-      eof_(false),
-      error_(false) {}
+      : internal_buffer_(buffer, buffer_length),
+        position_(0),
+        used_length_(0),
+        eof_(false),
+        error_(false) {}
 
   /**
   Creates the FIFOBuffer.
   */
   TFIFOBuffer(const T* InBuffer, int32 buffer_length)
-    : internal_buffer_(InBuffer, buffer_length),
-      position_(0),
-      used_length_(0),
-      eof_(false),
-      error_(false) {}
+      : internal_buffer_(InBuffer, buffer_length),
+        position_(0),
+        used_length_(0),
+        eof_(false),
+        error_(false) {}
 
   ~TFIFOBuffer() {}
 
@@ -72,7 +72,8 @@ class TFIFOBuffer : public Noncopyable {
     ScopedLock guard(mutex_);
 
     if (preserve_content && new_length < used_length_) {
-      throw InvalidAccessException(CStringLiteral("can not resize FIFO without data loss."));
+      throw InvalidAccessException(
+          CStringLiteral("can not resize FIFO without data loss."));
     }
 
     internal_buffer_.Resize(new_length, preserve_content);
@@ -108,7 +109,8 @@ class TFIFOBuffer : public Noncopyable {
       length = used_length_;
     }
 
-    UnsafeMemory::Memcpy(out_buffer, internal_buffer_.Begin() + position_, length * sizeof(T));
+    UnsafeMemory::Memcpy(out_buffer, internal_buffer_.Begin() + position_,
+                         length * sizeof(T));
 
     return length;
   }
@@ -121,7 +123,7 @@ class TFIFOBuffer : public Noncopyable {
    * supplied by the caller or is greater than length
    * of currently used data, the current FIFO used
    * data length is substituted for it.
-   * 
+   *
    * Returns the number of elements copied in the
    * supplied buffer.
    */
@@ -146,7 +148,7 @@ class TFIFOBuffer : public Noncopyable {
    * into the supplied buffer, which must be
    * preallocated to at least the length size
    * before calling this function.
-   * 
+   *
    * Returns the size of the copied data.
    */
   int32 Read(T* out_buffer, int32 length) {
@@ -177,7 +179,7 @@ class TFIFOBuffer : public Noncopyable {
    * into the supplied buffer.
    * Resizes the supplied buffer to the size of
    * data written to it.
-   * 
+   *
    * Returns the size of the copied data.
    */
   int32 Read(TBuffer<T>& out_buffer, int32 length = 0) const {
@@ -207,7 +209,7 @@ class TFIFOBuffer : public Noncopyable {
    * The length of data to be written is determined from the
    * length argument. Function does nothing and returns zero
    * if length argument is equal to zero.
-   * 
+   *
    * Returns the length of data written.
    */
   int32 Write(const T* data, int32 length) {
@@ -222,11 +224,13 @@ class TFIFOBuffer : public Noncopyable {
     }
 
     if (internal_buffer_.Count() - (position_ + used_length_) < length) {
-      UnsafeMemory::Memmove(internal_buffer_.Begin(), Begin(), used_length_ * sizeof(T));
+      UnsafeMemory::Memmove(internal_buffer_.Begin(), Begin(),
+                            used_length_ * sizeof(T));
       position_ = 0;
     }
 
-    const int32 available_before =  internal_buffer_.Count() - used_length_ - position_;
+    const int32 available_before =
+        internal_buffer_.Count() - used_length_ - position_;
     const int32 len = length > available_before ? available_before : length;
     UnsafeMemory::Memcpy(Begin() + used_length_, data, len * sizeof(T));
     used_length_ += len;
@@ -243,7 +247,7 @@ class TFIFOBuffer : public Noncopyable {
    * The length of data to be written is determined from the
    * length argument or buffer size (when length argument is
    * default zero or greater than buffer size).
-   * 
+   *
    * Returns the length of data written.
    */
   int32 Write(const TBuffer<T>& data, int32 length = 0) {
@@ -257,23 +261,17 @@ class TFIFOBuffer : public Noncopyable {
   /**
   Returns the size of the buffer.
   */
-  int32 Count() const {
-    return internal_buffer_.Count();
-  }
+  int32 Count() const { return internal_buffer_.Count(); }
 
   /**
   Returns the size of the used portion of the buffer.
   */
-  int32 Used() const {
-    return used_length_;
-  }
+  int32 Used() const { return used_length_; }
 
   /**
   Returns the size of the available portion of the buffer.
   */
-  int32 Available() const {
-    return Count() - used_length_;
-  }
+  int32 Available() const { return Count() - used_length_; }
 
   /**
   Drains length number of elements from the buffer.
@@ -332,7 +330,8 @@ class TFIFOBuffer : public Noncopyable {
     }
 
     if (internal_buffer_.Count() - (position_ + used_length_) < amount) {
-      UnsafeMemory::Memmove(internal_buffer_.Begin(), Begin(), used_length_ * sizeof(T));
+      UnsafeMemory::Memmove(internal_buffer_.Begin(), Begin(),
+                            used_length_ * sizeof(T));
       position_ = 0;
     }
 
@@ -348,7 +347,9 @@ class TFIFOBuffer : public Noncopyable {
       // Move the data to the start of the buffer so Begin() and Next()
       // always return consistent pointers with each other and allow writing
       // to the end of the buffer.
-      UnsafeMemory::Memmove(internal_buffer_.Begin(), internal_buffer_.Begin() + position_, used_length_ * sizeof(T));
+      UnsafeMemory::Memmove(internal_buffer_.Begin(),
+                            internal_buffer_.Begin() + position_,
+                            used_length_ * sizeof(T));
       position_ = 0;
     }
     return internal_buffer_.Begin();
@@ -367,11 +368,12 @@ class TFIFOBuffer : public Noncopyable {
    * Throws InvalidAccessException if index is larger than
    * the last valid (used) buffer position.
    */
-  T& operator [] (int32 index) {
+  T& operator[](int32 index) {
     ScopedLock guard(mutex_);
     if (index >= used_length_) {
-      //TODO format
-      //throw InvalidAccessException(format(CStringLiteral("index out of bounds: %z (max index allowed: %z)"), index, used_length_ - 1));
+      // TODO format
+      // throw InvalidAccessException(format(CStringLiteral("index out of
+      // bounds: %z (max index allowed: %z)"), index, used_length_ - 1));
       throw InvalidAccessException(CStringLiteral("index out of bounds"));
     }
 
@@ -383,11 +385,12 @@ class TFIFOBuffer : public Noncopyable {
   Throws InvalidAccessException if index is larger than
   the last valid (used) buffer position.
   */
-  const T& operator [] (int32 index) const {
+  const T& operator[](int32 index) const {
     ScopedLock guard(mutex_);
     if (index >= used_length_) {
-      //TODO format
-      //throw InvalidAccessException(format(CStringLiteral("index out of bounds: %z (max index allowed: %z)"), index, used_length_ - 1));
+      // TODO format
+      // throw InvalidAccessException(format(CStringLiteral("index out of
+      // bounds: %z (max index allowed: %z)"), index, used_length_ - 1));
       throw InvalidAccessException(CStringLiteral("index out of bounds"));
     }
 
@@ -397,9 +400,7 @@ class TFIFOBuffer : public Noncopyable {
   /**
   Returns const reference to the underlying buffer.
   */
-  const TBuffer<T>& Buffer() const {
-    return internal_buffer_;
-  }
+  const TBuffer<T>& Buffer() const { return internal_buffer_; }
 
   /**
   Sets the error flag on the buffer and empties it.
@@ -423,47 +424,31 @@ class TFIFOBuffer : public Noncopyable {
   Returns true if error flag is not set on the buffer,
   otherwise returns false.
   */
-  bool IsValid() const {
-    return !error_;
-  }
+  bool IsValid() const { return !error_; }
 
   void SetEOF(bool eof = true) {
     ScopedLock guard(mutex_);
     eof_ = eof;
   }
 
-  bool HasEOF() const {
-    return eof_;
-  }
+  bool HasEOF() const { return eof_; }
 
-  bool IsEOF() const {
-    return IsEmpty() && eof_;
-  }
+  bool IsEOF() const { return IsEmpty() && eof_; }
 
-  bool IsEmpty() const {
-    return 0 == used_length_;
-  }
+  bool IsEmpty() const { return 0 == used_length_; }
 
-  bool IsFull() const {
-    return Count() == used_length_;
-  }
+  bool IsFull() const { return Count() == used_length_; }
 
-  bool IsReadable() const {
-    return !IsEmpty() && IsValid();
-  }
+  bool IsReadable() const { return !IsEmpty() && IsValid(); }
 
-  bool IsWritable() const {
-    return !IsFull() && IsValid() && !eof_;
-  }
+  bool IsWritable() const { return !IsFull() && IsValid() && !eof_; }
 
-  Mutex& GetMutex() {
-    return mutex_;
-  }
+  Mutex& GetMutex() { return mutex_; }
 
  private:
   TFIFOBuffer();
   TFIFOBuffer(const TFIFOBuffer&);
-  TFIFOBuffer& operator = (const TFIFOBuffer&);
+  TFIFOBuffer& operator=(const TFIFOBuffer&);
 
  private:
   TBuffer<T> internal_buffer_;
@@ -479,4 +464,4 @@ class TFIFOBuffer : public Noncopyable {
  */
 typedef TFIFOBuffer<char> FIFOBuffer;
 
-} // namespace fun
+}  // namespace fun

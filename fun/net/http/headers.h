@@ -9,7 +9,7 @@ namespace fun {
 namespace http {
 
 struct HeadersKeyFuncs : BaseKeyFuncs<pair<String, String>, String, false> {
-  static inline const String& GetSetKey(const pair<String, String>& element)  {
+  static inline const String& GetSetKey(const pair<String, String>& element) {
     return element.key;
   }
 
@@ -24,5 +24,5 @@ struct HeadersKeyFuncs : BaseKeyFuncs<pair<String, String>, String, false> {
 
 typedef Map<String, String, DefaultSetAllocator, HeadersKeyFuncs> Headers;
 
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

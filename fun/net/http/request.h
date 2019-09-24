@@ -1,28 +1,22 @@
 ﻿#pragma once
 
-#include "fun/http/http.h"
 #include "fun/base/container/array.h"
+#include "fun/http/http.h"
 
 namespace fun {
 namespace http {
 
 class QueryParam {
-public:
+ public:
   String name;
   String value;
 
-public:
-  QueryParam()
-    : name()
-    , value() {
-  }
+ public:
+  QueryParam() : name(), value() {}
 
   QueryParam(const String& name, const String& value)
-    : name(name)
-    , value(value) {
-  }
+      : name(name), value(value) {}
 };
-
 
 class Request {
  public:
@@ -37,5 +31,5 @@ class Request {
   String content;
 };
 
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

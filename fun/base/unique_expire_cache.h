@@ -8,9 +8,9 @@ namespace fun {
 
 /**
  * An UniqueExpireCache caches entries for a given time amount. In contrast
- * to ExpireCache which only allows to set a per cache expiration value, it allows to define
- * expiration per CacheEntry.
- * Each TValue object must thus offer the following method:
+ * to ExpireCache which only allows to set a per cache expiration value, it
+ * allows to define expiration per CacheEntry. Each TValue object must thus
+ * offer the following method:
  *
  *    const Timestamp& GetExpiration() const;
  *
@@ -21,25 +21,26 @@ namespace fun {
  *
  * Be careful when using an UniqueExpireCache. A cache is often used
  * like cache.Has(x) followed by cache.Get x). Note that it could happen
- * that the "Has" call works, then the current execution thread gets descheduled, time passes,
- * the entry gets invalid, thus leading to an empty SharedPtr being returned
- * when "Get" is invoked.
+ * that the "Has" call works, then the current execution thread gets
+ * descheduled, time passes, the entry gets invalid, thus leading to an empty
+ * SharedPtr being returned when "Get" is invoked.
  */
 template <
-  typename KeyType,
-  typename ValueType,
-  typename MutexType = FastMutex,
-  typename EventMutexType = FastMutex,
-  >
-class UniqueAccessExpireCache : public CacheBase<KeyType, ValueType, UniqueExpireStrategy<KeyType, ValueType>, MutexType, EventMutexType> {
+    typename KeyType, typename ValueType, typename MutexType = FastMutex, typename EventMutexType = FastMutex, >
+class UniqueAccessExpireCache
+    : public CacheBase<KeyType, ValueType,
+                       UniqueExpireStrategy<KeyType, ValueType>, MutexType,
+                       EventMutexType> {
  public:
   UniqueAccessExpireCache()
-    : CacheBase<KeyType, ValueType, UniqueExpireStrategy<KeyType, ValueType>, MutexType, EventMutexType>(UniqueAccessExpireStategy<KeyType, ValueType>()) {}
+      : CacheBase<KeyType, ValueType, UniqueExpireStrategy<KeyType, ValueType>,
+                  MutexType, EventMutexType>(
+            UniqueAccessExpireStategy<KeyType, ValueType>()) {}
 
   ~UniqueAccessExpireCache() {}
 
   UniqueAccessExpireCache(const UniqueAccessExpireCache&) = delete;
-  UniqueAccessExpireCache& operator = (const UniqueAccessExpireCache&) = delete;
+  UniqueAccessExpireCache& operator=(const UniqueAccessExpireCache&) = delete;
 };
 
-} // namespace fun
+}  // namespace fun

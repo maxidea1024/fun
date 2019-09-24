@@ -4,9 +4,9 @@
 
 #ifndef FUN_NO_JSONCONFIGURATION
 
+#include <istream>
 #include "fun/framework/configuration_base.h"
 #include "fun/json/object.h"
-#include <istream>
 
 namespace fun {
 namespace framework {
@@ -44,10 +44,12 @@ class FUN_FRAMEWORK_API JsonFileConfiguration : public ConfigurationBase {
   /** Creates an empty configuration */
   JsonFileConfiguration();
 
-  /** Creates a configuration and loads the JSON structure from the given file */
+  /** Creates a configuration and loads the JSON structure from the given file
+   */
   JsonFileConfiguration(const String& path);
 
-  /** Creates a configuration and loads the JSON structure from the given stream */
+  /** Creates a configuration and loads the JSON structure from the given stream
+   */
   JsonFileConfiguration(std::istream& istr);
 
   /** Creates a configuration from the given JSON object */
@@ -62,7 +64,8 @@ class FUN_FRAMEWORK_API JsonFileConfiguration : public ConfigurationBase {
   /** Loads the configuration from the given stream */
   void Load(std::istream& istr);
 
-  /** Loads an empty object containing only a root object with the given name. */
+  /** Loads an empty object containing only a root object with the given name.
+   */
   void LoadEmpty(const String& root);
 
   /** Saves the configuration to the given stream */
@@ -87,7 +90,7 @@ class FUN_FRAMEWORK_API JsonFileConfiguration : public ConfigurationBase {
   JSON::Object::Ptr object_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun
 
-#endif // FUN_NO_JSONCONFIGURATION
+#endif  // FUN_NO_JSONCONFIGURATION

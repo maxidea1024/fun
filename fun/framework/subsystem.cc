@@ -17,9 +17,7 @@ void Subsystem::Reinitialize(Application& app) {
   Initialize(app);
 }
 
-void Subsystem::DefineOptions(OptionSet& options) {
-  FUN_UNUSED(options);
-}
+void Subsystem::DefineOptions(OptionSet& options) { FUN_UNUSED(options); }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

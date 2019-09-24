@@ -14,10 +14,9 @@ class TcpClient : Noncopyable {
  public:
   // TcpClient(EventLoop* loop);
   // TcpClient(EventLoop* loop, const String& host, uint16_t port);
-  TcpClient(EventLoop* loop,
-            const InetAddress& server_addr,
+  TcpClient(EventLoop* loop, const InetAddress& server_addr,
             const String& name);
-  ~TcpClient(); // force out-line dtor, for scoped_ptr members_.
+  ~TcpClient();  // force out-line dtor, for scoped_ptr members_.
 
   void Connect();
   void Disconnect();
@@ -28,21 +27,13 @@ class TcpClient : Noncopyable {
     return connection_;
   }
 
-  EventLoop* GetLoop() const {
-    return loop_;
-  }
+  EventLoop* GetLoop() const { return loop_; }
 
-  bool ShouldRetry() const {
-    return retry_;
-  }
+  bool ShouldRetry() const { return retry_; }
 
-  void EnableRetry() {
-    retry_ = true;
-  }
+  void EnableRetry() { retry_ = true; }
 
-  const String& GetName() const {
-    return name_;
-  }
+  const String& GetName() const { return name_; }
 
   /**
    * Set connection callback.
@@ -56,9 +47,7 @@ class TcpClient : Noncopyable {
    * Set message callback.
    * Not thread safe.
    */
-  void SetMessageCallback(const MessageCallback& cb) {
-    message_cb_ = cb;
-  }
+  void SetMessageCallback(const MessageCallback& cb) { message_cb_ = cb; }
 
   /**
    * Set write complete callback.
@@ -72,9 +61,7 @@ class TcpClient : Noncopyable {
     connection_cb_ = MoveTemp(cb);
   }
 
-  void SetMessageCallback(MessageCallback&& cb) {
-    message_cb_ = MoveTemp(cb);
-  }
+  void SetMessageCallback(MessageCallback&& cb) { message_cb_ = MoveTemp(cb); }
 
   void SetWriteCompleteCallback(WriteCompleteCallback&& cb) {
     write_complete_cb_ = MoveTemp(cb);
@@ -88,19 +75,19 @@ class TcpClient : Noncopyable {
   void RemoveConnection(const TcpConnectionPtr& conn);
 
   EventLoop* loop_;
-  ConnectorPtr connector_; // avoid revealing Connector
+  ConnectorPtr connector_;  // avoid revealing Connector
   const String name_;
   ConnectionCallback connection_cb_;
   MessageCallback message_cb_;
   WriteCompleteCallback write_complete_cb_;
-  bool retry_; // atomic
-  bool connect_; // atomic
+  bool retry_;    // atomic
+  bool connect_;  // atomic
   // always in loop thread
   int next_conn_id_;
   mutable MutexLock mutex_;
-  TcpConnectionPtr connection_; // @GuardedBy mutex_
+  TcpConnectionPtr connection_;  // @GuardedBy mutex_
 };
 
-} // namespace reactor
-} // namespace net
-} // namespace fun
+}  // namespace reactor
+}  // namespace net
+}  // namespace fun

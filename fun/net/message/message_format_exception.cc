@@ -17,7 +17,9 @@ MessageFormatException MessageFormatException::Misuse(const String& message) {
 }
 
 MessageFormatException MessageFormatException::MoreDataAvailable() {
-  return MessageFormatException("Completed reading a message while more data was available in the stream.");
+  return MessageFormatException(
+      "Completed reading a message while more data was available in the "
+      "stream.");
 }
 
 MessageFormatException MessageFormatException::TruncatedMessage() {
@@ -29,7 +31,9 @@ MessageFormatException MessageFormatException::TruncatedMessage() {
 }
 
 MessageFormatException MessageFormatException::NegativeSize() {
-  return MessageFormatException("Encountered an embedded string or message which claimed to have negative size.");
+  return MessageFormatException(
+      "Encountered an embedded string or message which claimed to have "
+      "negative size.");
 }
 
 MessageFormatException MessageFormatException::MalformedVarint() {
@@ -41,21 +45,28 @@ MessageFormatException MessageFormatException::InvalidTag() {
 }
 
 MessageFormatException MessageFormatException::InvalidFieldId(int32 field_id) {
-  return MessageFormatException(String::Format("Field-id `{0}` is an invalid value.  The field-id must be in the range of 1 to 2 ^ 32-1.", field_id));
+  return MessageFormatException(
+      String::Format("Field-id `{0}` is an invalid value.  The field-id must "
+                     "be in the range of 1 to 2 ^ 32-1.",
+                     field_id));
 }
 
-MessageFormatException MessageFormatException::MessageInLengthLimited(int32 length, int32 limit) {
-  //TODO ÀÎÀÚ·Î ³Ñ°Ü¹ÞÀº ÆÄ¶ó¸ÞÅÍµé Ãâ·Â.
+MessageFormatException MessageFormatException::MessageInLengthLimited(
+    int32 length, int32 limit) {
+  // TODO ï¿½ï¿½ï¿½Ú·ï¿½ ï¿½Ñ°Ü¹ï¿½ï¿½ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½Íµï¿½ ï¿½ï¿½ï¿½.
   return MessageFormatException(
       "message was too large.  May be malicious.  "
-      "Set IMessageIn.MaximumMessageLength property or MessageFormatConfig.message_max_length to increase the size limit.");
+      "Set IMessageIn.MaximumMessageLength property or "
+      "MessageFormatConfig.message_max_length to increase the size limit.");
 }
 
-MessageFormatException MessageFormatException::MessageOutLengthLimited(int32 length, int32 limit) {
-  //TODO ÀÎÀÚ·Î ³Ñ°Ü¹ÞÀº ÆÄ¶ó¸ÞÅÍµé Ãâ·Â.
+MessageFormatException MessageFormatException::MessageOutLengthLimited(
+    int32 length, int32 limit) {
+  // TODO ï¿½ï¿½ï¿½Ú·ï¿½ ï¿½Ñ°Ü¹ï¿½ï¿½ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½Íµï¿½ ï¿½ï¿½ï¿½.
   return MessageFormatException(
       "message was too large.  May be malicious.  "
-      "Set IMessageOut.MaximumMessageLength property or MessageFormatConfig.message_max_length to increase the size limit.");
+      "Set IMessageOut.MaximumMessageLength property or "
+      "MessageFormatConfig.message_max_length to increase the size limit.");
 }
 
 MessageFormatException MessageFormatException::RecursionLimitExceeded() {
@@ -65,12 +76,18 @@ MessageFormatException MessageFormatException::RecursionLimitExceeded() {
 }
 
 MessageFormatException MessageFormatException::UnderflowRecursionDepth() {
-  return MessageFormatException("Recursion depth is mismatched.  May be over call DecreaseRecursionDepth()");
+  return MessageFormatException(
+      "Recursion depth is mismatched.  May be over call "
+      "DecreaseRecursionDepth()");
 }
 
-MessageFormatException MessageFormatException::RequiredFieldIsMissing(const String& field_name, const String& struct_name) {
-  return MessageFormatException(String::Format("The `{0}` field was missing even though it was specified as a required field in structure `{1}`.", field_name, struct_name));
+MessageFormatException MessageFormatException::RequiredFieldIsMissing(
+    const String& field_name, const String& struct_name) {
+  return MessageFormatException(
+      String::Format("The `{0}` field was missing even though it was specified "
+                     "as a required field in structure `{1}`.",
+                     field_name, struct_name));
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

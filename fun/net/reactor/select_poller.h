@@ -1,10 +1,10 @@
 ﻿#pragma once
 
+#include "fun/base/container/array.h"
 #include "fun/net/net.h"
 #include "fun/net/reactor/poller.h"
-#include "fun/base/container/array.h"
 
-//TODO 주말내내 작업을 해보도록 하자.
+// TODO 주말내내 작업을 해보도록 하자.
 
 namespace fun {
 namespace net {
@@ -30,5 +30,5 @@ class SelectPoller : Poller {
   FdList fds_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

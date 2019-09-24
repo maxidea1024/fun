@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/message/message.h"
 #include "fun/net/message/i_message_out.h"
+#include "fun/net/message/message.h"
 #include "fun/net/message/message_format_config.h"
 
 namespace fun {
@@ -10,59 +10,40 @@ namespace net {
 class FUN_NET_API MessageByteCounter : public IMessageOut {
  public:
   MessageByteCounter()
-    : written_length_(0),
-      message_max_length_(MessageFormatConfig::MessageMaxLength) {
-  }
+      : written_length_(0),
+        message_max_length_(MessageFormatConfig::MessageMaxLength) {}
 
   // IMessageOut interface
  public:
-  bool CountingOnly() const override {
-    return true;
-  }
+  bool CountingOnly() const override { return true; }
 
-  const uint8* ConstData() const override {
-    return nullptr;
-  }
+  const uint8* ConstData() const override { return nullptr; }
 
-  uint8* MutableData() override {
-    return nullptr;
-  }
+  uint8* MutableData() override { return nullptr; }
 
-  int32 GetCapacity() const override {
-    return int32_MAX - 1;
-  }
+  int32 GetCapacity() const override { return int32_MAX - 1; }
 
   void SetCapacity(int32 new_capacity) override {
     // do nothing
   }
 
-  int32 MessageMaxLength() const override {
-    return message_max_length_;
-  }
+  int32 MessageMaxLength() const override { return message_max_length_; }
 
   void SetMessageMaxLength(int32 maximum_length) override {
     message_max_length_ = maximum_length;
   }
 
-  int32 Length() const override {
-    return written_length_;
-  }
+  int32 Length() const override { return written_length_; }
 
-  void SetLength(int32 new_length) override {
-    written_length_ = new_length;
-  }
+  void SetLength(int32 new_length) override { written_length_ = new_length; }
 
   void Trim() override {
     // do nothing
   }
 
-  bool IsTrimmed() const override {
-    return true;
-  }
+  bool IsTrimmed() const override { return true; }
 
-  void AddWrittenBytes(int32 Length) override {
-    written_length_ += Length;
-  }
+  void AddWrittenBytes(int32 Length) override { written_length_ += Length; }
 
   void RemoveRange(int32 index, int32 length_to_remove) override {
     written_length_ -= length_to_remove;
@@ -72,21 +53,13 @@ class FUN_NET_API MessageByteCounter : public IMessageOut {
     written_length_ += Length;
   }
 
-  void WriteFixed8(uint8 Value) override {
-    written_length_ += 1;
-  }
+  void WriteFixed8(uint8 Value) override { written_length_ += 1; }
 
-  void WriteFixed16(uint16 Value) override {
-    written_length_ += 2;
-  }
+  void WriteFixed16(uint16 Value) override { written_length_ += 2; }
 
-  void WriteFixed32(uint32 Value) override {
-    written_length_ += 4;
-  }
+  void WriteFixed32(uint32 Value) override { written_length_ += 4; }
 
-  void WriteFixed64(uint64 Value) override {
-    written_length_ += 8;
-  }
+  void WriteFixed64(uint64 Value) override { written_length_ += 8; }
 
   void WriteVarint8(uint8 Value) override {
     written_length_ += MessageFormat::GetByteLength_Varint8(Value);
@@ -121,5 +94,5 @@ class FUN_NET_API MessageByteCounter : public IMessageOut {
   int32 message_max_length_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

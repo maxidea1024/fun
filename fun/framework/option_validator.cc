@@ -11,5 +11,5 @@ OptionValidator::~OptionValidator() {
   // NOOP
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

@@ -1,4 +1,4 @@
-﻿//TODO Consistency 체킹 강화.
+﻿// TODO Consistency 체킹 강화.
 
 #include "epoll_poller.h"
 
@@ -15,20 +15,18 @@ namespace {
 const int kNew = -1;
 const int kAdded = 1;
 const int kDeleted = 2;
-}
+}  // namespace
 
 EPollPoller::EPollPoller(EventLoop* loop)
-  : Poller(loop),
-    epoll_fd_(epoll_create(EPOLL_CLOEXEC)),
-    events_(kInitEventListSize) {
+    : Poller(loop),
+      epoll_fd_(epoll_create(EPOLL_CLOEXEC)),
+      events_(kInitEventListSize) {
   if (epoll_fd_ < 0) {
     LOG_SYSFATAL << "EPollPoller::EPollPoller";
   }
 }
 
-EPollPoller::~EPollPoller() {
-  close(epoll_fd_);
-}
+EPollPoller::~EPollPoller() { close(epoll_fd_); }
 
 Timestamp EPollPoller::Poll(int32 timeout_msecs, ChannelList* active_channels) {
   fun_check_ptr(active_channels);
@@ -40,7 +38,7 @@ Timestamp EPollPoller::Poll(int32 timeout_msecs, ChannelList* active_channels) {
     FillActiveChannels(n, active_channels);
 
     if (n == events_.Count()) {
-      events_.Resize(events_.Count()*2);
+      events_.Resize(events_.Count() * 2);
     }
   } else if (n == 0) {
     // nothing happened.
@@ -48,7 +46,7 @@ Timestamp EPollPoller::Poll(int32 timeout_msecs, ChannelList* active_channels) {
     // error happens, log uncommon ones
     if (saved_errno != EINTR) {
       errno = saved_errno;
-      //error??
+      // error??
     }
   }
 
@@ -74,7 +72,7 @@ void EPollPoller::UpdateChannel(Channel* channel) {
   } else {
     // update existing one.
 
-    //int fd = channel->fd_;
+    // int fd = channel->fd_;
     if (channel->IsNoneEvent()) {
       Update(EPOLL_CTL_DEL, channel);
       channel->index_ = kDeleted;
@@ -98,11 +96,12 @@ void EPollPoller::RemoveChannel(Channel* channel) {
   channel->index_ = kNew;
 }
 
-void EPollPoller::FillActiveChannels( int32 event_count,
-                                      ChannelList* active_channels) const {
-  //poll 과는 달리 유저 포인터를 넘길 수 있으므로, map에서 찾는 수고를 덜수 있음.
+void EPollPoller::FillActiveChannels(int32 event_count,
+                                     ChannelList* active_channels) const {
+  // poll 과는 달리 유저 포인터를 넘길 수 있으므로, map에서 찾는 수고를 덜수
+  // 있음.
 
-  //for (int32 i = 0; i < poll_fds_.Count() && event_count > 0; ++i) {
+  // for (int32 i = 0; i < poll_fds_.Count() && event_count > 0; ++i) {
   //  const auto& pfd = poll_fds_[i];
   //
   //  if (pfd.revents > 0) { // 수신한 이벤트가 있는 경우만..
@@ -135,12 +134,15 @@ void EPollPoller::Update(int operation, Channel* channel) {
 
   int fd = channel->fd_;
   LOG_TRACE << "epoll_ctl op = " << OperationToString(operation)
-    << " fd = " << fd << " event = { " << channel->EventsToString() << " }";
+            << " fd = " << fd << " event = { " << channel->EventsToString()
+            << " }";
   if (epoll_ctl(epollfd_, operation, fd, &event) < 0) {
     if (operation == EPOLL_CTL_DEL) {
-      LOG_SYSERR << "epoll_ctl op =" << OperationToString(operation) << " fd =" << fd;
+      LOG_SYSERR << "epoll_ctl op =" << OperationToString(operation)
+                 << " fd =" << fd;
     } else {
-      LOG_SYSFATAL << "epoll_ctl op =" << OperationToString(operation) << " fd =" << fd;
+      LOG_SYSFATAL << "epoll_ctl op =" << OperationToString(operation)
+                   << " fd =" << fd;
     }
   }
 }
@@ -159,5 +161,5 @@ const char* EPollPoller::OperationToString(int op) {
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

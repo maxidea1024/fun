@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
 #include "fun/base/function.h"
 #include "fun/base/shared_ptr.h"
 #include "fun/base/timestamp.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -11,7 +11,7 @@ namespace reactor {
 
 /**
  * A selectable I/O channel.
- * 
+ *
  * This class doesn't own the file descriptor.
  * The file descriptor could be a socket,
  * an eventfd, a timerfd, or a signalfd
@@ -21,29 +21,21 @@ class Channel : Noncopyable {
   friend class EventLoop;
   friend class Poller;
 
-  typedef Function<void ()> EventCallback;
-  typedef Function<void (const Timestamp&)> ReadEventCallback;
+  typedef Function<void()> EventCallback;
+  typedef Function<void(const Timestamp&)> ReadEventCallback;
 
   Channel(EventLoop* loop, int fd);
   ~Channel();
 
   void HandleEvent(const Timestamp& received_time);
 
-  void SetReadCallback(const ReadEventCallback& cb) {
-    read_cb_ = cb;
-  }
+  void SetReadCallback(const ReadEventCallback& cb) { read_cb_ = cb; }
 
-  void SetWriteCallback(const EventCallback& cb) {
-    write_cb_ = cb;
-  }
+  void SetWriteCallback(const EventCallback& cb) { write_cb_ = cb; }
 
-  void SetCloseCallback(const EventCallback& cb) {
-    close_cb_ = cb;
-  }
+  void SetCloseCallback(const EventCallback& cb) { close_cb_ = cb; }
 
-  void SetErrorCallback(const EventCallback& cb) {
-    error_cb_ = cb;
-  }
+  void SetErrorCallback(const EventCallback& cb) { error_cb_ = cb; }
 
   // 레퍼런스 홀더...
   void Tie(SharedPtr<void>&);
@@ -82,22 +74,14 @@ class Channel : Noncopyable {
     Update();
   }
 
-  bool IsWriting() const {
-    return (events_ & kWriteEvent) != 0;
-  }
+  bool IsWriting() const { return (events_ & kWriteEvent) != 0; }
 
-  bool IsReading() const {
-    return (events_ & kReadEvent) != 0;
-  }
+  bool IsReading() const { return (events_ & kReadEvent) != 0; }
 
   // for Poller
-  int GetIndex() {
-    return index_;
-  }
+  int GetIndex() { return index_; }
 
-  void SetIndex(int index) {
-    index_ = index;
-  }
+  void SetIndex(int index) { index_ = index; }
 
   // for debug
   String ReventsToString() const;
@@ -122,8 +106,8 @@ class Channel : Noncopyable {
   EventLoop* loop_;
   const int fd_;
   int events_;
-  int revents_; // it's the received event types of epoll or poll
-  int index_; // used by Poller.
+  int revents_;  // it's the received event types of epoll or poll
+  int index_;    // used by Poller.
   bool log_hup_;
 
   WeakPtr<void> tie_;
@@ -136,6 +120,6 @@ class Channel : Noncopyable {
   EventCallback error_cb_;
 };
 
-} // namespace reactor
-} // namespace net
-} // namespace fun
+}  // namespace reactor
+}  // namespace net
+}  // namespace fun

@@ -4,9 +4,9 @@
 
 #if !defined(FUN_NO_INI_CONFIGURATION)
 
-#include "fun/framework/configuration_base.h"
-#include "fun/base/container/map.h"
 #include <istream>
+#include "fun/base/container/map.h"
+#include "fun/framework/configuration_base.h"
 
 namespace fun {
 namespace framework {
@@ -71,7 +71,7 @@ class FUN_FRAMEWORK_API IniFileConfiguration : public ConfigurationBase {
   void ParseLine(std::istream& istr);
 
   struct ICompare {
-    bool operator () (const String& s1, const String& s2) const;
+    bool operator()(const String& s1, const String& s2) const;
   };
   typedef std::map<String, String, ICompare> IStringMap;
 
@@ -79,7 +79,7 @@ class FUN_FRAMEWORK_API IniFileConfiguration : public ConfigurationBase {
   String section_key_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun
 
-#endif // !defined(FUN_NO_INI_CONFIGURATION)
+#endif  // !defined(FUN_NO_INI_CONFIGURATION)

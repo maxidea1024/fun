@@ -18,13 +18,13 @@ class FUN_MONGODB_API BsonWriter {
 
   void WriteCString(const String& value) {
     writer_.WriteRawBytes(value.ConstData(), value.len());
-    writer_.WriteFixed8(0x00); // null-terminator
+    writer_.WriteFixed8(0x00);  // null-terminator
   }
 
  private:
-  //TODO 참조나 포인터형이어야 하지 않을까??
+  // TODO 참조나 포인터형이어야 하지 않을까??
   MessageOut writer_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

@@ -1,22 +1,20 @@
 ﻿#include "fun/base/uuid.h"
-#include "fun/base/uuid_generator.h"
 #include "fun/base/byte_order.h"
-#include "fun/base/uuid_parser.h"
 #include "fun/base/exception.h"
 #include "fun/base/serialization/archive.h"
+#include "fun/base/uuid_generator.h"
+#include "fun/base/uuid_parser.h"
 
 namespace fun {
 
 /*! \class Uuid
-  \brief Uuid 클래스는 GUID(Globally Unique IDentifier)를 저장하고 표현하는데 사용합니다.
+  \brief Uuid 클래스는 GUID(Globally Unique IDentifier)를 저장하고 표현하는데
+  사용합니다.
 
-  GUID는 분산 컴퓨팅 환경에서 객체를 식별하는 유일한 표준 방법입니다. GUID는 몇몇 알고리즘(방식)에
-  의해서 생성된 128비트(16바이트) 번호로 분산 컴퓨팅 환경에서 공유하게 사용됩니다.
-  GUID는 UUID(Universal Unique IDentifier)와 같은 말입니다.
-  \n
-  GUID 레이아웃은 아래와 같습니다.
-  \code
-   0                   1                   2                   3
+  GUID는 분산 컴퓨팅 환경에서 객체를 식별하는 유일한 표준 방법입니다. GUID는
+  몇몇 알고리즘(방식)에 의해서 생성된 128비트(16바이트) 번호로 분산 컴퓨팅
+  환경에서 공유하게 사용됩니다. GUID는 UUID(Universal Unique IDentifier)와 같은
+  말입니다. \n GUID 레이아웃은 아래와 같습니다. \code 0                   1 2 3
    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
   |                          time_low                             |
@@ -38,27 +36,24 @@ const Uuid Uuid::URI(AsciiString("6ba7b811-9dad-11d1-80b4-00c04fd430c8"));
 const Uuid Uuid::OID(AsciiString("6ba7b812-9dad-11d1-80b4-00c04fd430c8"));
 const Uuid Uuid::X500(AsciiString("6ba7b814-9dad-11d1-80b4-00c04fd430c8"));
 
-Uuid::Uuid(const String& str)
-{
-  try
-  {
+Uuid::Uuid(const String& str) {
+  try {
     Parse(str);
-  }
-  catch (Exception&)
-  {
+  } catch (Exception&) {
     *this = None;
 
-    //TODO
-    //fun_log(Warning, "Can not parse guid from string '%s'. Replace with the value None.", *str);
+    // TODO
+    // fun_log(Warning, "Can not parse guid from string '%s'. Replace with the
+    // value None.", *str);
   }
 }
 
-Uuid Uuid::FromBytes(const uint8* bytes)
-{
+Uuid Uuid::FromBytes(const uint8* bytes) {
   fun_check_ptr(bytes);
 
   Uuid ret;
-  ret.u.a = ((uint32)bytes[3] << 24) | ((uint32)bytes[2] << 16) | ((uint32)bytes[1] << 8) | bytes[0];
+  ret.u.a = ((uint32)bytes[3] << 24) | ((uint32)bytes[2] << 16) |
+            ((uint32)bytes[1] << 8) | bytes[0];
   ret.u.b = (uint16)(((uint32)bytes[5] << 8) | bytes[4]);
   ret.u.c = (uint16)(((uint32)bytes[7] << 8) | bytes[6]);
   ret.u.d = bytes[8];
@@ -72,31 +67,28 @@ Uuid Uuid::FromBytes(const uint8* bytes)
   return ret;
 }
 
-Uuid Uuid::FromBytes(const ByteArray& bytes)
-{
+Uuid Uuid::FromBytes(const ByteArray& bytes) {
   fun_check(bytes.Len() == 16);
-  if (bytes.Len() != 16)
-  {
+  if (bytes.Len() != 16) {
     return Uuid::None;
   }
 
   return FromBytes((const uint8*)bytes.ConstData());
 }
 
-void Uuid::ToBytes(uint8* buffer) const
-{
+void Uuid::ToBytes(uint8* buffer) const {
   fun_check_ptr(buffer);
 
-  buffer[ 0] = uint8(u.a);
-  buffer[ 1] = uint8(u.a >> 8);
-  buffer[ 2] = uint8(u.a >> 16);
-  buffer[ 3] = uint8(u.a >> 24);
-  buffer[ 4] = uint8(u.b);
-  buffer[ 5] = uint8(u.b >> 8);
-  buffer[ 6] = uint8(u.c);
-  buffer[ 7] = uint8(u.c >> 8);
-  buffer[ 8] = u.d;
-  buffer[ 9] = u.e;
+  buffer[0] = uint8(u.a);
+  buffer[1] = uint8(u.a >> 8);
+  buffer[2] = uint8(u.a >> 16);
+  buffer[3] = uint8(u.a >> 24);
+  buffer[4] = uint8(u.b);
+  buffer[5] = uint8(u.b >> 8);
+  buffer[6] = uint8(u.c);
+  buffer[7] = uint8(u.c >> 8);
+  buffer[8] = u.d;
+  buffer[9] = u.e;
   buffer[10] = u.f;
   buffer[11] = u.g;
   buffer[12] = u.h;
@@ -105,20 +97,19 @@ void Uuid::ToBytes(uint8* buffer) const
   buffer[15] = u.k;
 }
 
-ByteArray Uuid::ToBytes() const
-{
+ByteArray Uuid::ToBytes() const {
   ByteArray result(16, NoInit);
   ToBytes((uint8*)result.MutableData());
   return result;
 }
 
-Uuid Uuid::FromRFC4122(const uint8* bytes)
-{
+Uuid Uuid::FromRFC4122(const uint8* bytes) {
   fun_check_ptr(bytes);
 
   Uuid ret;
 
-  ret.u.a = (uint32(bytes[0]) << 24) | (uint32(bytes[1]) << 16) | (uint32(bytes[2]) << 8) | bytes[3];
+  ret.u.a = (uint32(bytes[0]) << 24) | (uint32(bytes[1]) << 16) |
+            (uint32(bytes[2]) << 8) | bytes[3];
 
   ret.u.b = uint16((uint32(bytes[4]) << 8) | bytes[5]);
 
@@ -137,8 +128,7 @@ Uuid Uuid::FromRFC4122(const uint8* bytes)
   return ret;
 }
 
-void Uuid::ToRFC4122(uint8* buffer) const
-{
+void Uuid::ToRFC4122(uint8* buffer) const {
   fun_check_ptr(buffer);
 
   buffer[0] = uint8(u.a >> 24);
@@ -165,18 +155,15 @@ void Uuid::ToRFC4122(uint8* buffer) const
 
 namespace {
 
-inline char* HexsToChars(char* dst, uint32 a, uint32 b, bool hex = false)
-{
-  if (hex)
-  {
+inline char* HexsToChars(char* dst, uint32 a, uint32 b, bool hex = false) {
+  if (hex) {
     *dst++ = '0';
     *dst++ = 'x';
   }
   *dst++ = CharTraitsA::NibbleToHexChar(a >> 4);
   *dst++ = CharTraitsA::NibbleToHexChar(a & 0xF);
 
-  if (hex)
-  {
+  if (hex) {
     *dst++ = ',';
     *dst++ = '0';
     *dst++ = 'x';
@@ -186,17 +173,15 @@ inline char* HexsToChars(char* dst, uint32 a, uint32 b, bool hex = false)
   return dst;
 }
 
-} // namespace
+}  // namespace
 
-String Uuid::ToString(UuidFormat format) const
-{
+String Uuid::ToString(UuidFormat format) const {
   char buffer[68 + 1];
   char* dst = buffer;
 
   // ObjectId는 일반 GUID 표기 형식이 아니므로, 별도 처리해야함.
   // 00000000-00000000-00000000-00000000
-  if (format == UuidFormat::ObjectId)
-  {
+  if (format == UuidFormat::ObjectId) {
     dst = HexsToChars(dst, u.packed1 >> 24, u.packed1 >> 16);
     dst = HexsToChars(dst, u.packed1 >> 8, u.packed1);
     *dst++ = '-';
@@ -215,8 +200,7 @@ String Uuid::ToString(UuidFormat format) const
   bool hex = false;
   int32 len = 0;
 
-  switch (format)
-  {
+  switch (format) {
     // 00000000-0000-0000-0000-000000000000
     case UuidFormat::DigitsWithHyphens:
       len = 36;
@@ -232,26 +216,26 @@ String Uuid::ToString(UuidFormat format) const
     case UuidFormat::DigitsWithHyphensInBraces:
       len = 38;
 
-      *dst++ = '{';   // begin '{'
-      buffer[37] = '}'; // end   '}'
+      *dst++ = '{';      // begin '{'
+      buffer[37] = '}';  // end   '}'
       break;
 
     // (00000000-0000-0000-0000-000000000000)
     case UuidFormat::DigitsWithHyphensInParentheses:
       len = 38;
 
-      *dst++ = '(';   // begin '('
-      buffer[37] = ')'; // end   ')'
+      *dst++ = '(';      // begin '('
+      buffer[37] = ')';  // end   ')'
       break;
 
     // {0x00000000,0x0000,0x0000,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}}
     case UuidFormat::HexValuesInBraces:
       len = 68;
-      dash = false; //meaningless, just clarity
+      dash = false;  // meaningless, just clarity
       hex = true;
 
-      *dst++ = '{';   // begin '{'
-      buffer[67] = '}'; // end   '}'
+      *dst++ = '{';      // begin '{'
+      buffer[67] = '}';  // end   '}'
       break;
 
     // 위에서 별도로 처리하므로, 이곳에 도달할 수 없음.
@@ -260,13 +244,12 @@ String Uuid::ToString(UuidFormat format) const
       break;
 
     default:
-      //TODO error illegal guid format specifier.
+      // TODO error illegal guid format specifier.
       fun_unexpected();
       return String();
   }
 
-  if (hex)
-  {
+  if (hex) {
     // {0x00000000,0x0000,0x0000,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}}
     *dst++ = '0';
     *dst++ = 'x';
@@ -290,9 +273,7 @@ String Uuid::ToString(UuidFormat format) const
     *dst++ = ',';
     dst = HexsToChars(dst, u.j, u.k, true);
     *dst++ = '}';
-  }
-  else
-  {
+  } else {
     // [{|(]00000000[-]0000[-]0000[-]0000[-]000000000000[}|)]
     dst = HexsToChars(dst, u.a >> 24, u.a >> 16);
     dst = HexsToChars(dst, u.a >> 8, u.a);
@@ -311,10 +292,8 @@ String Uuid::ToString(UuidFormat format) const
   return String(buffer, len);
 }
 
-String Uuid::ToString(const String& format) const
-{
-  if (format.Len() != 1)
-  {
+String Uuid::ToString(const String& format) const {
+  if (format.Len() != 1) {
     throw InvalidArgumentException(AsciiString("Illegal format specifier"));
   }
 
@@ -322,105 +301,83 @@ String Uuid::ToString(const String& format) const
   return ToString(CharToFormat(f));
 }
 
-String Uuid::ToString() const
-{
+String Uuid::ToString() const {
   return ToString(UuidFormat::DigitsWithHyphens);
 }
 
-Uuid Uuid::Parse(const String& str)
-{
+Uuid Uuid::Parse(const String& str) {
   UuidParser::ParsingResult result;
-  if (!UuidParser::TryParse(str, result))
-  {
+  if (!UuidParser::TryParse(str, result)) {
     throw SyntaxException(result.failure_message);
   }
 
   return result.parsed_uuid;
 }
 
-Uuid Uuid::Parse(const String& str, const String& format)
-{
-  if (format.Len() != 1)
-  {
+Uuid Uuid::Parse(const String& str, const String& format) {
+  if (format.Len() != 1) {
     throw InvalidArgumentException(AsciiString("Illegal format specifier"));
   }
 
   const char f = format[0];
   UuidParser::ParsingResult result;
-  if (!UuidParser::TryParse(str, CharToFormat(f), result))
-  {
+  if (!UuidParser::TryParse(str, CharToFormat(f), result)) {
     throw SyntaxException(result.failure_message);
   }
 
   return result.parsed_uuid;
 }
 
-Uuid Uuid::Parse(const String& str, UuidFormat format)
-{
+Uuid Uuid::Parse(const String& str, UuidFormat format) {
   UuidParser::ParsingResult result;
-  if (!UuidParser::TryParse(str, format, result))
-  {
+  if (!UuidParser::TryParse(str, format, result)) {
     throw SyntaxException(result.failure_message);
   }
 
   return result.parsed_uuid;
 }
 
-bool Uuid::TryParse(const String& str, Uuid& out_uuid)
-{
+bool Uuid::TryParse(const String& str, Uuid& out_uuid) {
   UuidParser::ParsingResult result;
-  if (UuidParser::TryParse(str, result))
-  {
+  if (UuidParser::TryParse(str, result)) {
     out_uuid = result.parsed_uuid;
     return true;
-  }
-  else
-  {
+  } else {
     out_uuid = None;
     return false;
   }
 }
 
-bool Uuid::TryParse(const String& str, UuidFormat format, Uuid& out_uuid)
-{
+bool Uuid::TryParse(const String& str, UuidFormat format, Uuid& out_uuid) {
   UuidParser::ParsingResult result;
-  if (UuidParser::TryParse(str, format, result))
-  {
+  if (UuidParser::TryParse(str, format, result)) {
     out_uuid = result.parsed_uuid;
     return true;
-  }
-  else
-  {
+  } else {
     out_uuid = None;
     return false;
   }
 }
 
-bool Uuid::TryParse(const String& str, const String& format, Uuid& out_uuid)
-{
-  if (format.Len() != 1)
-  {
-    //throw InvalidArgumentException(AsciiString("Illegal format specifier"));
+bool Uuid::TryParse(const String& str, const String& format, Uuid& out_uuid) {
+  if (format.Len() != 1) {
+    // throw InvalidArgumentException(AsciiString("Illegal format specifier"));
     return false;
   }
 
   const char f = format[0];
   UuidParser::ParsingResult result;
   const bool ok = UuidParser::TryParse(str, CharToFormat(f), result);
-  if (ok)
-  {
+  if (ok) {
     out_uuid = result.parsed_uuid;
-  }
-  else
-  {
+  } else {
     out_uuid = None;
   }
 
   return ok;
 }
 
-int32 Uuid::Compare(const Uuid& rhs) const
-{
+int32 Uuid::Compare(const Uuid& rhs) const {
 #if 0
   if (u.time_low != rhs.u.time_low) {
     return u.time_low < rhs.u.time_low ? -1 : 1;
@@ -446,88 +403,83 @@ int32 Uuid::Compare(const Uuid& rhs) const
     }
   }
 #else
-  //일반 GUID포맷은 순서가 의미 없지만(?) ObjectId일 경우에는 버젼으로 사용될수도 있으므로, 순서가 중요할수도 있다.
+  //일반 GUID포맷은 순서가 의미 없지만(?) ObjectId일 경우에는 버젼으로
+  //사용될수도 있으므로, 순서가 중요할수도 있다.
 
-  //if (u.a != rhs.u.a) { return u.a < rhs.u.a ? -1 : 1; }
-  //if (u.b != rhs.u.b) { return u.b < rhs.u.b ? -1 : 1; }
-  //if (u.c != rhs.u.c) { return u.c < rhs.u.c ? -1 : 1; }
-  //if (u.d != rhs.u.d) { return u.d < rhs.u.d ? -1 : 1; }
-  //if (u.e != rhs.u.e) { return u.e < rhs.u.e ? -1 : 1; }
-  //if (u.f != rhs.u.f) { return u.f < rhs.u.f ? -1 : 1; }
-  //if (u.g != rhs.u.g) { return u.g < rhs.u.g ? -1 : 1; }
-  //if (u.h != rhs.u.h) { return u.h < rhs.u.h ? -1 : 1; }
-  //if (u.i != rhs.u.i) { return u.i < rhs.u.i ? -1 : 1; }
-  //if (u.j != rhs.u.j) { return u.j < rhs.u.j ? -1 : 1; }
-  //if (u.k != rhs.u.k) { return u.k < rhs.u.k ? -1 : 1; }
+  // if (u.a != rhs.u.a) { return u.a < rhs.u.a ? -1 : 1; }
+  // if (u.b != rhs.u.b) { return u.b < rhs.u.b ? -1 : 1; }
+  // if (u.c != rhs.u.c) { return u.c < rhs.u.c ? -1 : 1; }
+  // if (u.d != rhs.u.d) { return u.d < rhs.u.d ? -1 : 1; }
+  // if (u.e != rhs.u.e) { return u.e < rhs.u.e ? -1 : 1; }
+  // if (u.f != rhs.u.f) { return u.f < rhs.u.f ? -1 : 1; }
+  // if (u.g != rhs.u.g) { return u.g < rhs.u.g ? -1 : 1; }
+  // if (u.h != rhs.u.h) { return u.h < rhs.u.h ? -1 : 1; }
+  // if (u.i != rhs.u.i) { return u.i < rhs.u.i ? -1 : 1; }
+  // if (u.j != rhs.u.j) { return u.j < rhs.u.j ? -1 : 1; }
+  // if (u.k != rhs.u.k) { return u.k < rhs.u.k ? -1 : 1; }
 
-  if (u.packed1 != rhs.u.packed1) { return u.packed1 < rhs.u.packed1 ? -1 : 1; }
-  if (u.packed2 != rhs.u.packed2) { return u.packed2 < rhs.u.packed2 ? -1 : 1; }
-  if (u.packed3 != rhs.u.packed3) { return u.packed3 < rhs.u.packed3 ? -1 : 1; }
-  if (u.packed4 != rhs.u.packed4) { return u.packed4 < rhs.u.packed4 ? -1 : 1; }
+  if (u.packed1 != rhs.u.packed1) {
+    return u.packed1 < rhs.u.packed1 ? -1 : 1;
+  }
+  if (u.packed2 != rhs.u.packed2) {
+    return u.packed2 < rhs.u.packed2 ? -1 : 1;
+  }
+  if (u.packed3 != rhs.u.packed3) {
+    return u.packed3 < rhs.u.packed3 ? -1 : 1;
+  }
+  if (u.packed4 != rhs.u.packed4) {
+    return u.packed4 < rhs.u.packed4 ? -1 : 1;
+  }
 #endif
 
   return 0;
 }
 
-Uuid Uuid::NewUuid()
-{
-  return UuidGenerator::DefaultGenerator().NewUuid();
-}
+Uuid Uuid::NewUuid() { return UuidGenerator::DefaultGenerator().NewUuid(); }
 
-Uuid Uuid::NewSecuredRandomUuid()
-{
+Uuid Uuid::NewSecuredRandomUuid() {
   return UuidGenerator::DefaultGenerator().NewSecuredRandomUuid();
 }
 
-Uuid Uuid::NewRandomUuid()
-{
+Uuid Uuid::NewRandomUuid() {
   return UuidGenerator::DefaultGenerator().NewRandomUuid();
 }
 
-Uuid Uuid::NewUuidFromName(const Uuid& ns_id, const String& name)
-{
+Uuid Uuid::NewUuidFromName(const Uuid& ns_id, const String& name) {
   return UuidGenerator::DefaultGenerator().NewUuidFromName(ns_id, name);
 }
 
-Uuid Uuid::NewUuidFromName( const Uuid& ns_id,
-                            const String& name,
-                            CryptographicHash& hasher)
-{
+Uuid Uuid::NewUuidFromName(const Uuid& ns_id, const String& name,
+                           CryptographicHash& hasher) {
   return UuidGenerator::DefaultGenerator().NewUuidFromName(ns_id, name, hasher);
 }
 
-Uuid Uuid::NewUuidFromName( const Uuid& ns_id,
-                            const String& name,
-                            CryptographicHash& hasher,
-                            UuidVersion version)
-{
-  return UuidGenerator::DefaultGenerator().NewUuidFromName(ns_id, name, hasher, version);
+Uuid Uuid::NewUuidFromName(const Uuid& ns_id, const String& name,
+                           CryptographicHash& hasher, UuidVersion version) {
+  return UuidGenerator::DefaultGenerator().NewUuidFromName(ns_id, name, hasher,
+                                                           version);
 }
 
-uint32 HashOf(const Uuid& uuid)
-{
+uint32 HashOf(const Uuid& uuid) {
 #if 0
   return Crc::MemCrc32(&uuid, sizeof(uuid));
 #else
-  return uuid.u.a ^ (((uint32)uuid.u.b << 16) | (uint32)uuid.u.c) ^ (((uint32)uuid.u.f << 24) | uuid.u.k); // from C# reference source
+  return uuid.u.a ^ (((uint32)uuid.u.b << 16) | (uint32)uuid.u.c) ^
+         (((uint32)uuid.u.f << 24) | uuid.u.k);  // from C# reference source
 #endif
 }
 
-Archive& operator & (Archive& ar, Uuid& uuid)
-{
+Archive& operator&(Archive& ar, Uuid& uuid) {
   static_assert(sizeof(Uuid) == Uuid::BYTE_LENGTH, "sizeof(Uuid) == 16");
 
 #if 0
   return ar & uuid.u.a & uuid.u.b & uuid.u.c & uuid.u.d;
 #else
   uint8 bytes[Uuid::BYTE_LENGTH];
-  if (ar.IsLoading())
-  {
+  if (ar.IsLoading()) {
     ar.Serialize(bytes, Uuid::BYTE_LENGTH);
     uuid = Uuid::FromBytes(bytes);
-  }
-  else
-  {
+  } else {
     uint8 bytes[Uuid::BYTE_LENGTH];
     uuid.ToBytes(bytes);
     ar.Serialize(bytes, Uuid::BYTE_LENGTH);
@@ -536,4 +488,4 @@ Archive& operator & (Archive& ar, Uuid& uuid)
 #endif
 }
 
-} // namespace fun
+}  // namespace fun

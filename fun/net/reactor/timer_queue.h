@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
+#include "fun/base/container/array.h"
 #include "fun/base/container/pair.h"
 #include "fun/base/container/set.h"
-#include "fun/base/container/array.h"
 #include "fun/base/timestamp.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -24,16 +24,13 @@ class TimerQueue : Noncopyable {
   /**
    * Schedules the callback to be run at given time,
    * repeats if @c interval > 0.0.
-   * 
+   *
    * Must be thread safe. Usually be called from other threads.
    */
-  TimerId AddTimer( const TimerCallback& cb,
-                    const Timestamp& when,
-                    double interval);
+  TimerId AddTimer(const TimerCallback& cb, const Timestamp& when,
+                   double interval);
 
-  TimerId AddTimer( TimerCallback&& cb,
-                    const Timestamp& when,
-                    double interval);
+  TimerId AddTimer(TimerCallback&& cb, const Timestamp& when, double interval);
 
   void Cancel(TimerId timer_id);
 
@@ -67,10 +64,10 @@ class TimerQueue : Noncopyable {
 
   // for Cancel()
   ActiveTimerSet active_timers_;
-  bool calling_expired_timers_; // atomic
+  bool calling_expired_timers_;  // atomic
   ActiveTimerSet cancelling_timers_;
 };
 
-} // namespace reactor
-} // namespace net
-} // namespace fun
+}  // namespace reactor
+}  // namespace net
+}  // namespace fun

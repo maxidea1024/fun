@@ -19,8 +19,7 @@ class FUN_MONGODB_API Connection {
     SocketFactory();
     virtual ~SocketFactory();
 
-    virtual StreamSocket CreateSocket(const String& host,
-                                      int32 port,
+    virtual StreamSocket CreateSocket(const String& host, int32 port,
                                       const Timespan& connect_timeout,
                                       bool secure);
   };
@@ -53,5 +52,5 @@ class FUN_MONGODB_API Connection {
   StreamSocket socket_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

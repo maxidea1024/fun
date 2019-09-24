@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
+#include "fun/base/container/array.h"
 #include "fun/base/path.h"
 #include "fun/base/string/string.h"
-#include "fun/base/container/array.h"
 
 #ifdef _MSC_VER
-#undef SetPort //#define SetPort SetPortW in winspool.h
+#undef SetPort  //#define SetPort SetPortW in winspool.h
 #endif
 
 namespace fun {
@@ -25,12 +25,13 @@ namespace fun {
  *   * percent-encoded characters are decoded (except for the query string)
  *   * optionally, dot segments are removed from paths (see Normalize())
  *
- * Note that dealing with query strings requires some precautions, as, internally,
- * query strings are stored in percent-encoded form, while all other parts of the URI
- * are stored in decoded form. While parsing query strings from properly encoded URLs
- * generally works, explicitly setting query strings with SetQuery() or extracting
- * query strings with GetQuery() may lead to ambiguities. See the descriptions of
- * SetQuery(), SetRawQuery(), GetQuery() and GetRawQuery() for more information.
+ * Note that dealing with query strings requires some precautions, as,
+ * internally, query strings are stored in percent-encoded form, while all other
+ * parts of the URI are stored in decoded form. While parsing query strings from
+ * properly encoded URLs generally works, explicitly setting query strings with
+ * SetQuery() or extracting query strings with GetQuery() may lead to
+ * ambiguities. See the descriptions of SetQuery(), SetRawQuery(), GetQuery()
+ * and GetRawQuery() for more information.
  */
 class FUN_BASE_API Uri {
  public:
@@ -41,11 +42,10 @@ class FUN_BASE_API Uri {
     QueryParameter() = default;
 
     QueryParameter(const String& name, const String& value)
-      : name(name), value(value) {}
+        : name(name), value(value) {}
   };
 
   typedef Array<QueryParameter> QueryParameters;
-
 
   /**
    * Creates an empty URI.
@@ -77,19 +77,14 @@ class FUN_BASE_API Uri {
   /**
    * Creates an URI from its parts.
    */
-  Uri(const String& scheme,
-      const String& authority,
-      const String& path,
+  Uri(const String& scheme, const String& authority, const String& path,
       const String& query);
 
   /**
    * Creates an URI from its parts.
    */
-  Uri(const String& scheme,
-      const String& authority,
-      const String& path,
-      const String& query,
-      const String& fragment);
+  Uri(const String& scheme, const String& authority, const String& path,
+      const String& query, const String& fragment);
 
   /**
    * Copy constructor. Creates an URI from another one.
@@ -120,24 +115,24 @@ class FUN_BASE_API Uri {
   /**
    * Assignment operator.
    */
-  Uri& operator = (const Uri& other);
+  Uri& operator=(const Uri& other);
 
   /**
    * Move operator.
    */
-  Uri& operator = (Uri&& other);
+  Uri& operator=(Uri&& other);
 
   /**
    * Parses and assigns an URI from the given string. Throws a
    * UriSyntaxException if the uri is not valid.
    */
-  Uri& operator = (const String& uri);
+  Uri& operator=(const String& uri);
 
   /**
    * Parses and assigns an URI from the given string. Throws a
    * UriSyntaxException if the uri is not valid.
    */
-  Uri& operator = (const char* uri);
+  Uri& operator=(const char* uri);
 
   /**
    * Swaps the URI with another one.
@@ -289,7 +284,8 @@ class FUN_BASE_API Uri {
   void SetRawQuery(const String& query);
 
   /**
-   * Returns the decoded query string parameters as a vector of name-value pairs.
+   * Returns the decoded query string parameters as a vector of name-value
+   * pairs.
    */
   QueryParameters GetQueryParameters() const;
 
@@ -358,28 +354,33 @@ class FUN_BASE_API Uri {
   bool IsEmpty() const;
 
   /**
-   * A loopback URI is one which refers to a hostname or ip address with meaning only on the local machine.
+   * A loopback URI is one which refers to a hostname or ip address with meaning
+   * only on the local machine.
    */
   bool IsHostLoopback() const;
 
   /**
-   * A wildcard URI is one which refers to all hostnames that Resolve to the local machine (using the * or +)
+   * A wildcard URI is one which refers to all hostnames that Resolve to the
+   * local machine (using the * or +)
    */
   bool IsHostWildcard() const;
 
   /**
-   * A portable URI is one with a hostname that can be resolved globally (used from another machine).
+   * A portable URI is one with a hostname that can be resolved globally (used
+   * from another machine).
    */
   bool IsHostPortable() const;
 
   /**
-   * A default port is one where the port is unspecified, and will be determined by the operating system.
-   * The choice of default port may be dictated by the scheme (http -> 80) or not.
+   * A default port is one where the port is unspecified, and will be determined
+   * by the operating system. The choice of default port may be dictated by the
+   * scheme (http -> 80) or not.
    */
   bool IsPortDefault() const;
 
   /**
-   * An "authority" URI is one with only a scheme, optional userinfo, hostname, and (optional) port.
+   * An "authority" URI is one with only a scheme, optional userinfo, hostname,
+   * and (optional) port.
    */
   bool IsAuthority() const;
 
@@ -399,25 +400,28 @@ class FUN_BASE_API Uri {
    * Two URIs are identical if their scheme, authority,
    * path, query and fragment part are identical.
    */
-  bool operator == (const Uri& other) const;
+  bool operator==(const Uri& other) const;
 
   /**
-   * Parses the given URI and returns true if both URIs are identical, false otherwise.
+   * Parses the given URI and returns true if both URIs are identical, false
+   * otherwise.
    */
-  bool operator == (const String& other) const;
+  bool operator==(const String& other) const;
 
   /**
    * Returns true if both URIs are identical, false otherwise.
    */
-  bool operator != (const Uri& other) const;
+  bool operator!=(const Uri& other) const;
 
   /**
-   * Parses the given URI and returns true if both URIs are identical, false otherwise.
+   * Parses the given URI and returns true if both URIs are identical, false
+   * otherwise.
    */
-  bool operator != (const String& other) const;
+  bool operator!=(const String& other) const;
 
   /**
-   * Normalizes the URI by removing all but leading . and .. segments from the path.
+   * Normalizes the URI by removing all but leading . and .. segments from the
+   * path.
    *
    * If the first path segment in a relative path contains a colon (:),
    * such as in a Windows path containing a drive letter, a dot segment (./)
@@ -426,7 +430,8 @@ class FUN_BASE_API Uri {
   void Normalize();
 
   /**
-   * Places the single path segments (delimited by slashes) into the given vector.
+   * Places the single path segments (delimited by slashes) into the given
+   * vector.
    */
   void GetPathSegments(Array<String>& out_segments);
 
@@ -441,8 +446,8 @@ class FUN_BASE_API Uri {
    * characters with the actual character. The decoded string
    * is appended to decodedStr.
    *
-   * When plus_as_space is true, non-encoded plus signs in the query are decoded as spaces.
-   * (http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1)
+   * When plus_as_space is true, non-encoded plus signs in the query are decoded
+   * as spaces. (http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1)
    */
   static String Decode(const String& str, bool plus_as_space = false);
 
@@ -453,17 +458,20 @@ class FUN_BASE_API Uri {
   bool Equals(const Uri& other) const;
 
   /**
-   * Returns true if the URI's port number is a well-known one (for example, 80, if the scheme is http).
+   * Returns true if the URI's port number is a well-known one (for example, 80,
+   * if the scheme is http).
    */
   bool IsWellKnownPort() const;
 
   /**
-   * Returns the well-known port number for the URI's scheme, or 0 if the port number is not known.
+   * Returns the well-known port number for the URI's scheme, or 0 if the port
+   * number is not known.
    */
   int32 GetWellKnownPort() const;
 
   /**
-   * Parses and assigns an URI from the given string. Throws a SyntaxException if the uri is not valid.
+   * Parses and assigns an URI from the given string. Throws a SyntaxException
+   * if the uri is not valid.
    */
   void Parse(const String& uri);
 
@@ -508,16 +516,16 @@ class FUN_BASE_API Uri {
   void RemoveDotSegments(bool remove_leading = true);
 
   /**
-   * Places the single path segments (delimited by slashes) into the given vector.
+   * Places the single path segments (delimited by slashes) into the given
+   * vector.
    */
   static void GetPathSegments(const String& path, Array<String>& segments);
 
   /**
    * Builds the path from the given segments.
    */
-  void BuildPath( const Array<String>& segments,
-                  bool leading_slash,
-                  bool trailing_slash);
+  void BuildPath(const Array<String>& segments, bool leading_slash,
+                 bool trailing_slash);
 
   static const String RESERVED_PATH;
   static const String RESERVED_QUERY;
@@ -541,20 +549,16 @@ class FUN_BASE_API Uri {
   String fragment_;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE const String& Uri::GetScheme() const {
-  return scheme_;
-}
+FUN_ALWAYS_INLINE const String& Uri::GetScheme() const { return scheme_; }
 
-FUN_ALWAYS_INLINE const String& Uri::GetUserInfo() const {
-  return user_info_;
-}
+FUN_ALWAYS_INLINE const String& Uri::GetUserInfo() const { return user_info_; }
 
-FUN_ALWAYS_INLINE void Uri::GetUserInfo(String& out_user, String& out_password) const {
+FUN_ALWAYS_INLINE void Uri::GetUserInfo(String& out_user,
+                                        String& out_password) const {
   out_user = "";
   out_password = "";
 
@@ -569,21 +573,13 @@ FUN_ALWAYS_INLINE void Uri::GetUserInfo(String& out_user, String& out_password) 
   }
 }
 
-FUN_ALWAYS_INLINE const String& Uri::GetHost() const {
-  return host_;
-}
+FUN_ALWAYS_INLINE const String& Uri::GetHost() const { return host_; }
 
-FUN_ALWAYS_INLINE const String& Uri::GetPath() const {
-  return path_;
-}
+FUN_ALWAYS_INLINE const String& Uri::GetPath() const { return path_; }
 
-FUN_ALWAYS_INLINE const String& Uri::GetRawQuery() const {
-  return query_;
-}
+FUN_ALWAYS_INLINE const String& Uri::GetRawQuery() const { return query_; }
 
-FUN_ALWAYS_INLINE const String& Uri::GetFragment() const {
-  return fragment_;
-}
+FUN_ALWAYS_INLINE const String& Uri::GetFragment() const { return fragment_; }
 
 FUN_ALWAYS_INLINE bool Uri::IsHostLoopback() const {
   // IPv6
@@ -591,7 +587,8 @@ FUN_ALWAYS_INLINE bool Uri::IsHostLoopback() const {
     return true;
   }
 
-  return !IsEmpty() && ((host_ == "localhost") || (host_.Len() > 4 && host_.Mid(0, 4) == "127."));
+  return !IsEmpty() && ((host_ == "localhost") ||
+                        (host_.Len() > 4 && host_.Mid(0, 4) == "127."));
 }
 
 FUN_ALWAYS_INLINE bool Uri::IsHostWildcard() const {
@@ -618,9 +615,7 @@ FUN_ALWAYS_INLINE bool Uri::IsPathEmpty() const {
   return path_.IsEmpty() || path_ == "/";
 }
 
-//TODO 없애는게 좋지 아니한가...
-FUN_ALWAYS_INLINE void Swap(Uri& lhs, Uri& rhs) {
-  lhs.Swap(rhs);
-}
+// TODO 없애는게 좋지 아니한가...
+FUN_ALWAYS_INLINE void Swap(Uri& lhs, Uri& rhs) { lhs.Swap(rhs); }
 
-} // namespace fun
+}  // namespace fun

@@ -40,29 +40,24 @@ class FUN_SQL_API Bulk {
   Limit limit_;
 };
 
-
 //
 // inlines
 //
 
-inline const Limit& Bulk::limit() const {
-  return limit_;
-}
+inline const Limit& Bulk::limit() const { return limit_; }
 
-inline uint32 Bulk::size() const {
-  return limit_.value();
-}
-
+inline uint32 Bulk::size() const { return limit_.value(); }
 
 namespace Keywords {
 
 /**
  * Convenience function for creation of bulk.
  */
-inline Bulk bulk(const Limit& limit = Limit(static_cast<Limit::SizeT>(Limit::LIMIT_UNLIMITED), false, false)) {
+inline Bulk bulk(const Limit& limit =
+                     Limit(static_cast<Limit::SizeT>(Limit::LIMIT_UNLIMITED),
+                           false, false)) {
   return Bulk(limit);
 }
-
 
 /**
  * Dummy bulk function. Used for bulk binding creation
@@ -70,9 +65,9 @@ inline Bulk bulk(const Limit& limit = Limit(static_cast<Limit::SizeT>(Limit::LIM
  */
 inline void bulk(Void) {}
 
-} // namespace Keywords
+}  // namespace Keywords
 
 typedef void (*BulkFnType)(Void);
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

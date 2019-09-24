@@ -1,25 +1,24 @@
 ﻿#include "fun/framework/configuration_base.h"
-#include "fun/framework/configuration_view.h"
 #include "fun/base/exception.h"
 #include "fun/base/str.h"
+#include "fun/framework/configuration_view.h"
 
-//TODO
+// TODO
 //#include "fun/base/number_parser.h"
 //#include "fun/base/number_formatter.h"
 
+using fun::CircularReferenceException;
 using fun::Mutex;
 using fun::NotFoundException;
 using fun::SyntaxException;
-using fun::CircularReferenceException;
-//using fun::NumberParser;
-//using fun::NumberFormatter;
+// using fun::NumberParser;
+// using fun::NumberFormatter;
 using fun::icompare;
 
 namespace fun {
 namespace framework {
 
-ConfigurationBase::ConfigurationBase()
-  : depth_(0), events_enabled_(true) {}
+ConfigurationBase::ConfigurationBase() : depth_(0), events_enabled_(true) {}
 
 ConfigurationBase::~ConfigurationBase() {}
 
@@ -72,8 +71,8 @@ String ConfigurationBase::GetRawString(const String& key) const {
   }
 }
 
-String ConfigurationBase::GetRawString( const String& key,
-                                        const String& default_value) const {
+String ConfigurationBase::GetRawString(const String& key,
+                                       const String& default_value) const {
   Mutex::ScopedLock guard(mutex_);
 
   String value;
@@ -117,7 +116,8 @@ uint32 ConfigurationBase::GetUInt(const String& key) const {
   }
 }
 
-uint32 ConfigurationBase::GetUInt(const String& key, uint32 default_value) const {
+uint32 ConfigurationBase::GetUInt(const String& key,
+                                  uint32 default_value) const {
   Mutex::ScopedLock guard(mutex_);
 
   String value;
@@ -139,7 +139,8 @@ int64 ConfigurationBase::GetInt64(const String& key) const {
   }
 }
 
-int64 ConfigurationBase::GetInt64(const String& key, int64 default_value) const {
+int64 ConfigurationBase::GetInt64(const String& key,
+                                  int64 default_value) const {
   Mutex::ScopedLock guard(mutex_);
 
   String value;
@@ -174,58 +175,60 @@ uint64 ConfigurationBase::GetUInt64(const String& key,
 }
 
 float ConfigurationBase::GetFloat(const String& key) const {
-  //Mutex::ScopedLock guard(mutex_);
+  // Mutex::ScopedLock guard(mutex_);
 
-  //String value;
-  //if (GetRaw(key, value)) {
+  // String value;
+  // if (GetRaw(key, value)) {
   //  return NumberParser::ParseFloat(ExpandInternal(value));
   //} else {
   //  throw NotFoundException(key);
   //}
 
-  //TODO
+  // TODO
   return 0.0f;
 }
 
-float ConfigurationBase::GetFloat(const String& key, float default_value) const {
-  //Mutex::ScopedLock guard(mutex_);
+float ConfigurationBase::GetFloat(const String& key,
+                                  float default_value) const {
+  // Mutex::ScopedLock guard(mutex_);
 
-  //String value;
-  //if (GetRaw(key, value)) {
+  // String value;
+  // if (GetRaw(key, value)) {
   //  return NumberParser::ParseFloat(ExpandInternal(value));
   //} else {
   //  return default_value;
   //}
 
-  //TODO
+  // TODO
   return 0.0f;
 }
 
 double ConfigurationBase::GetDouble(const String& key) const {
-  //Mutex::ScopedLock guard(mutex_);
+  // Mutex::ScopedLock guard(mutex_);
 
-  //String value;
-  //if (GetRaw(key, value)) {
+  // String value;
+  // if (GetRaw(key, value)) {
   //  return NumberParser::ParseFloat(ExpandInternal(value));
   //} else {
   //  throw NotFoundException(key);
   //}
 
-  //TODO
+  // TODO
   return 0.0;
 }
 
-double ConfigurationBase::GetDouble(const String& key, double default_value) const {
-  //Mutex::ScopedLock guard(mutex_);
+double ConfigurationBase::GetDouble(const String& key,
+                                    double default_value) const {
+  // Mutex::ScopedLock guard(mutex_);
 
-  //String value;
-  //if (GetRaw(key, value)) {
+  // String value;
+  // if (GetRaw(key, value)) {
   //  return NumberParser::ParseFloat(ExpandInternal(value));
   //} else {
   //  return default_value;
   //}
 
-  //TODO
+  // TODO
   return 0.0;
 }
 
@@ -302,8 +305,11 @@ void ConfigurationBase::GetKeys(const String& key, Keys& range) const {
   Enumerate(key, range);
 }
 
-const ConfigurationBase::Ptr ConfigurationBase::CreateView(const String& prefix) const {
-  return new ConfigurationView(prefix, ConfigurationBase::Ptr(const_cast<ConfigurationBase*>(this), true));
+const ConfigurationBase::Ptr ConfigurationBase::CreateView(
+    const String& prefix) const {
+  return new ConfigurationView(
+      prefix,
+      ConfigurationBase::Ptr(const_cast<ConfigurationBase*>(this), true));
 }
 
 ConfigurationBase::Ptr ConfigurationBase::CreateView(const String& prefix) {
@@ -321,7 +327,7 @@ class AutoCounter {
   int32& count_;
 };
 
-} // namespace
+}  // namespace
 
 String ConfigurationBase::Expand(const String& value) const {
   Mutex::ScopedLock guard(mutex_);
@@ -347,9 +353,7 @@ void ConfigurationBase::SetEventsEnabled(bool enable) {
   events_enabled_ = enable;
 }
 
-bool ConfigurationBase::GetEventsEnabled() const {
-  return events_enabled_;
-}
+bool ConfigurationBase::GetEventsEnabled() const { return events_enabled_; }
 
 void ConfigurationBase::RemoveRaw(const String& /*key*/) {
   throw fun::NotImplementedException("RemoveRaw()");
@@ -358,14 +362,15 @@ void ConfigurationBase::RemoveRaw(const String& /*key*/) {
 String ConfigurationBase::ExpandInternal(const String& value) const {
   AutoCounter counter(depth_);
   if (depth_ > 10) {
-    throw CircularReferenceException("Too many property references encountered");
+    throw CircularReferenceException(
+        "Too many property references encountered");
   }
   return UncheckedExpand(value);
 }
 
 String ConfigurationBase::UncheckedExpand(const String& value) const {
   String result;
-  String::const_iterator it  = value.begin();
+  String::const_iterator it = value.begin();
   String::const_iterator end = value.end();
   while (it != end) {
     if (*it == '$') {
@@ -398,46 +403,46 @@ String ConfigurationBase::UncheckedExpand(const String& value) const {
 }
 
 int32 ConfigurationBase::ParseInt(const String& value) {
-  //if ((value.compare(0, 2, "0x") == 0) || (value.compare(0, 2, "0X") == 0)) {
+  // if ((value.compare(0, 2, "0x") == 0) || (value.compare(0, 2, "0X") == 0)) {
   //  return static_cast<int32>(NumberParser::ParseHex(value));
   //} else {
   //  return NumberParser::Parse(value);
   //}
-  
-  //TODO
+
+  // TODO
   return 0;
 }
 
 uint32 ConfigurationBase::ParseUInt(const String& value) {
-  //if ((value.compare(0, 2, "0x") == 0) || (value.compare(0, 2, "0X") == 0)) {
+  // if ((value.compare(0, 2, "0x") == 0) || (value.compare(0, 2, "0X") == 0)) {
   //  return NumberParser::ParseHex(value);
   //} else {
   //  return NumberParser::ParseUnsigned(value);
   //}
-  
-  //TODO
+
+  // TODO
   return 0;
 }
 
 int64 ConfigurationBase::ParseInt64(const String& value) {
-  //if ((value.compare(0, 2, "0x") == 0) || (value.compare(0, 2, "0X") == 0)) {
+  // if ((value.compare(0, 2, "0x") == 0) || (value.compare(0, 2, "0X") == 0)) {
   //  return static_cast<int64>(NumberParser::ParseHex64(value));
   //} else {
   //  return NumberParser::Parse64(value);
   //}
-  
-  //TODO
+
+  // TODO
   return 0;
 }
 
 uint64 ConfigurationBase::ParseUInt64(const String& value) {
-  //if ((value.compare(0, 2, "0x") == 0) || (value.compare(0, 2, "0X") == 0)) {
+  // if ((value.compare(0, 2, "0x") == 0) || (value.compare(0, 2, "0X") == 0)) {
   //  return NumberParser::ParseHex64(value);
   //} else {
   //  return NumberParser::ParseUnsigned64(value);
   //}
-  
-  //TODO
+
+  // TODO
   return 0;
 }
 
@@ -464,7 +469,8 @@ bool ConfigurationBase::ParseBool(const String& value) {
   }
 }
 
-void ConfigurationBase::SetRawWithEvent(const String& key, const String& value) {
+void ConfigurationBase::SetRawWithEvent(const String& key,
+                                        const String& value) {
   KeyValue kv(key, value);
 
   if (events_enabled_) {
@@ -481,5 +487,5 @@ void ConfigurationBase::SetRawWithEvent(const String& key, const String& value) 
   }
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

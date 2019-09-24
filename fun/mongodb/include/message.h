@@ -10,14 +10,11 @@ namespace mongodb {
  */
 class FUN_MONGODB_API Message {
  public:
-  explicit Message(MessageHeader::Opcode opcode)
-    : Message(opcode) {}
+  explicit Message(MessageHeader::Opcode opcode) : Message(opcode) {}
 
   virtual ~Message() {}
 
-  MessageHeader& GetHeader() {
-    return header_;
-  }
+  MessageHeader& GetHeader() { return header_; }
 
  protected:
   /** Message header. */
@@ -29,5 +26,5 @@ class FUN_MONGODB_API Message {
   }
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

@@ -1,14 +1,14 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/binder_base.h"
+#include <cstddef>
+#include <deque>
+#include <list>
+#include <vector>
 #include "fun/base/any.h"
 #include "fun/ref_counted_object.h"
 #include "fun/ref_counted_ptr.h"
-#include <vector>
-#include <list>
-#include <deque>
-#include <cstddef>
+#include "fun/sql/binder_base.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -30,7 +30,8 @@ class FUN_SQL_API BindingBase {
   /**
    * Creates the BindingBase.
    */
-  BindingBase(const String& name = "", Direction direction = PD_IN, uint32 bulk_size = 0);
+  BindingBase(const String& name = "", Direction direction = PD_IN,
+              uint32 bulk_size = 0);
 
   /**
    * Destroys the BindingBase.
@@ -38,7 +39,8 @@ class FUN_SQL_API BindingBase {
   virtual ~BindingBase();
 
   /**
-   * Sets the object used for binding; object does NOT take ownership of the pointer.
+   * Sets the object used for binding; object does NOT take ownership of the
+   * pointer.
    */
   void SetBinder(BinderPtr binder);
 
@@ -100,40 +102,30 @@ class FUN_SQL_API BindingBase {
 
  private:
   BinderPtr binder_;
-  String  name_;
+  String name_;
   Direction direction_;
   uint32 bulk_size_;
 };
 
-
 typedef std::vector<BindingBase::Ptr> BindingBaseVec;
-typedef std::deque<BindingBase::Ptr>  BindingBaseDeq;
-typedef std::list<BindingBase::Ptr>   BindingBaseLst;
-
+typedef std::deque<BindingBase::Ptr> BindingBaseDeq;
+typedef std::list<BindingBase::Ptr> BindingBaseLst;
 
 //
 // inlines
 //
 
-inline BinderBase::Ptr BindingBase::GetBinder() const {
-  return binder_;
-}
+inline BinderBase::Ptr BindingBase::GetBinder() const { return binder_; }
 
-inline const String& BindingBase::Name() const {
-  return name_;
-}
+inline const String& BindingBase::Name() const { return name_; }
 
 inline BinderBase::Direction BindingBase::GetDirection() const {
-  return (BinderBase::Direction) direction_;
+  return (BinderBase::Direction)direction_;
 }
 
-inline bool BindingBase::IsBulk() const {
-  return bulk_size_ > 0;
-}
+inline bool BindingBase::IsBulk() const { return bulk_size_ > 0; }
 
-inline uint32 BindingBase::BulkSize() const {
-  return bulk_size_;
-}
+inline uint32 BindingBase::BulkSize() const { return bulk_size_; }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

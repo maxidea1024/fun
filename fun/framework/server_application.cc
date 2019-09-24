@@ -1,34 +1,34 @@
 ﻿#include "fun/framework/server_application.h"
 #include "fun/framework/option.h"
-#include "fun/framework/option_set.h"
 #include "fun/framework/option_exception.h"
-//TODO
+#include "fun/framework/option_set.h"
+// TODO
 //#include "fun/base/file_stream.h"
 #include "fun/base/exception.h"
 
 #if FUN_PLATFORM != FUN_PLATFORM_VXWORKS
-#include "fun/base/process.h"
 #include "fun/base/named_event.h"
-#endif //#if FUN_PLATFORM != FUN_PLATFORM_VXWORKS
+#include "fun/base/process.h"
+#endif  //#if FUN_PLATFORM != FUN_PLATFORM_VXWORKS
 
 #include "fun/base/logging/logger.h"
 #include "fun/base/str.h"
 
 #if FUN_PLATFORM_UNIX_FAMILY && (FUN_PLATFORM != FUN_PLATFORM_VXWORKS)
-#include "fun/base/temporary_file.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <fstream>
+#include "fun/base/temporary_file.h"
 #elif FUN_PLATFORM_WINDOWS_FAMILY
 #if !defined(_WIN32_WCE)
-#include "fun/framework/win_service.h"
 #include "fun/framework/win_registry_key.h"
+#include "fun/framework/win_service.h"
 #endif
-#include "fun/base/windows_less.h"
 #include <cstring>
+#include "fun/base/windows_less.h"
 #endif
 
 //#include "fun/base/unicode_converter.h"
@@ -37,7 +37,8 @@ namespace fun {
 namespace framework {
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
-NamedEvent ServerApplication::terminate_(ProcessImpl::TerminationEventName(Process::CurrentPid()));
+NamedEvent ServerApplication::terminate_(
+    ProcessImpl::TerminationEventName(Process::CurrentPid()));
 #if !defined(_WIN32_WCE)
 Event ServerApplication::terminated_;
 SERVICE_STATUS ServerApplication::service_status_;
@@ -45,7 +46,9 @@ SERVICE_STATUS_HANDLE ServerApplication::service_status_handle_ = 0;
 #endif
 #endif
 
-#if FUN_PLATFORM == FUN_PLATFORM_VXWORKS || FUN_PLATFORM == FUN_PLATFORM_ANDROID || defined(__NACL__) ||  defined(__EMSCRIPTEN__)
+#if FUN_PLATFORM == FUN_PLATFORM_VXWORKS ||                      \
+    FUN_PLATFORM == FUN_PLATFORM_ANDROID || defined(__NACL__) || \
+    defined(__EMSCRIPTEN__)
 Event ServerApplication::terminate_;
 #endif
 
@@ -62,25 +65,24 @@ ServerApplication::~ServerApplication() {}
 
 bool ServerApplication::IsInteractive() const {
   bool run_in_background =
-        GetConfig().GetBool("application.run_as_daemon", false) ||
-        GetConfig().GetBool("application.run_as_service", false);
+      GetConfig().GetBool("application.run_as_daemon", false) ||
+      GetConfig().GetBool("application.run_as_service", false);
   return !run_in_background;
 }
 
-int32 ServerApplication::Run() {
-  return Application::Run();
-}
+int32 ServerApplication::Run() { return Application::Run(); }
 
 void ServerApplication::Terminate() {
 #if FUN_PLATFORM_WINDOWS_FAMILY
   terminate_.Set();
-#elif FUN_PLATFORM != FUN_PLATFORM_VXWORKS || FUN_PLATFORM == FUN_PLATFORM_ANDROID || defined(__NACL__) || defined(__EMSCRIPTEN__)
+#elif FUN_PLATFORM != FUN_PLATFORM_VXWORKS ||                    \
+    FUN_PLATFORM == FUN_PLATFORM_ANDROID || defined(__NACL__) || \
+    defined(__EMSCRIPTEN__)
   terminate_.Set();
 #else
   Process::RequestTermination(Process::CurrentPid());
 #endif
 }
-
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
 #if !defined(_WIN32_WCE)
@@ -102,18 +104,19 @@ BOOL ServerApplication::ConsoleCtrlHandler(DWORD ctrl_type) {
 }
 
 HDEVNOTIFY
-ServerApplication::RegisterServiceDeviceNotification(LPVOID filter, DWORD flags) {
+ServerApplication::RegisterServiceDeviceNotification(LPVOID filter,
+                                                     DWORD flags) {
   return RegisterDeviceNotification(service_status_handle_, filter, flags);
 }
 
-DWORD ServerApplication::HandleDeviceEvent(DWORD /*event_type*/, LPVOID /*event_data*/) {
+DWORD ServerApplication::HandleDeviceEvent(DWORD /*event_type*/,
+                                           LPVOID /*event_data*/) {
   return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
-DWORD ServerApplication::ServiceControlHandler( DWORD control,
-                                                DWORD event_type,
-                                                LPVOID event_data,
-                                                LPVOID context) {
+DWORD ServerApplication::ServiceControlHandler(DWORD control, DWORD event_type,
+                                               LPVOID event_data,
+                                               LPVOID context) {
   DWORD result = NO_ERROR;
   ServerApplication* this_ptr = reinterpret_cast<ServerApplication*>(context);
 
@@ -131,7 +134,7 @@ DWORD ServerApplication::ServiceControlHandler( DWORD control,
       }
       break;
   }
-  SetServiceStatus(service_status_handle_,  &service_status_);
+  SetServiceStatus(service_status_handle_, &service_status_);
   return result;
 }
 
@@ -144,7 +147,8 @@ void ServerApplication::ServiceMain(DWORD argc, LPWSTR* argv)
   app.GetConfig().SetBool("application.run_as_service", true);
 
 #if !defined(FUN_NO_WSTRING)
-  service_status_handle_ = RegisterServiceCtrlHandlerExW(L"", ServiceControlHandler, &app);
+  service_status_handle_ =
+      RegisterServiceCtrlHandlerExW(L"", ServiceControlHandler, &app);
 #endif
   if (!service_status_handle_) {
     throw SystemException("cannot register service control handler");
@@ -152,7 +156,8 @@ void ServerApplication::ServiceMain(DWORD argc, LPWSTR* argv)
 
   service_status_.dwServiceType = SERVICE_WIN32;
   service_status_.dwCurrentState = SERVICE_START_PENDING;
-  service_status_.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
+  service_status_.dwControlsAccepted =
+      SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
   service_status_.dwWin32ExitCode = 0;
   service_status_.dwServiceSpecificExitCode = 0;
   service_status_.dwCheckPoint = 0;
@@ -317,7 +322,8 @@ void ServerApplication::RegisterService() {
     service.SetDescription(description_);
   }
 
-  GetLogger().LogInformation("The application has been successfully registered as a service.");
+  GetLogger().LogInformation(
+      "The application has been successfully registered as a service.");
 }
 
 void ServerApplication::UnregisterService() {
@@ -333,52 +339,66 @@ void ServerApplication::DefineOptions(OptionSet& options) {
   Application::DefineOptions(options);
 
   options.AddOption(
-    Option("RegisterService", "", "Register the application as a service.")
-      .Required(false)
-      .Repeatable(false)
-      .Callback(OptionCallback<ServerApplication>(this, &ServerApplication::HandleRegisterService)));
+      Option("RegisterService", "", "Register the application as a service.")
+          .Required(false)
+          .Repeatable(false)
+          .Callback(OptionCallback<ServerApplication>(
+              this, &ServerApplication::HandleRegisterService)));
 
   options.AddOption(
-    Option("UnregisterService", "", "Unregister the application as a service.")
-      .Required(false)
-      .Repeatable(false)
-      .Callback(OptionCallback<ServerApplication>(this, &ServerApplication::HandleUnregisterService)));
+      Option("UnregisterService", "",
+             "Unregister the application as a service.")
+          .Required(false)
+          .Repeatable(false)
+          .Callback(OptionCallback<ServerApplication>(
+              this, &ServerApplication::HandleUnregisterService)));
+
+  options.AddOption(Option("displayName", "",
+                           "Specify a display name for the service (only with "
+                           "/RegisterService).")
+                        .Required(false)
+                        .Repeatable(false)
+                        .Argument("name")
+                        .Callback(OptionCallback<ServerApplication>(
+                            this, &ServerApplication::HandleDisplayName)));
 
   options.AddOption(
-    Option("displayName", "", "Specify a display name for the service (only with /RegisterService).")
-      .Required(false)
-      .Repeatable(false)
-      .Argument("name")
-      .Callback(OptionCallback<ServerApplication>(this, &ServerApplication::HandleDisplayName)));
+      Option(
+          "description", "",
+          "Specify a description for the service (only with /RegisterService).")
+          .Required(false)
+          .Repeatable(false)
+          .Argument("text")
+          .Callback(OptionCallback<ServerApplication>(
+              this, &ServerApplication::HandleDescription)));
 
-  options.AddOption(
-    Option("description", "", "Specify a description for the service (only with /RegisterService).")
-      .Required(false)
-      .Repeatable(false)
-      .Argument("text")
-      .Callback(OptionCallback<ServerApplication>(this, &ServerApplication::HandleDescription)));
-
-  options.AddOption(
-    Option("startup", "", "Specify the startup mode for the service (only with /RegisterService).")
-      .Required(false)
-      .Repeatable(false)
-      .Argument("automatic|manual")
-      .Callback(OptionCallback<ServerApplication>(this, &ServerApplication::HandleStartup)));
+  options.AddOption(Option("startup", "",
+                           "Specify the startup mode for the service (only "
+                           "with /RegisterService).")
+                        .Required(false)
+                        .Repeatable(false)
+                        .Argument("automatic|manual")
+                        .Callback(OptionCallback<ServerApplication>(
+                            this, &ServerApplication::HandleStartup)));
 }
 
-void ServerApplication::HandleRegisterService(const String& name, const String& value) {
+void ServerApplication::HandleRegisterService(const String& name,
+                                              const String& value) {
   action_ = SRV_REGISTER;
 }
 
-void ServerApplication::HandleUnregisterService(const String& name, const String& value) {
+void ServerApplication::HandleUnregisterService(const String& name,
+                                                const String& value) {
   action_ = SRV_UNREGISTER;
 }
 
-void ServerApplication::HandleDisplayName(const String& name, const String& value) {
+void ServerApplication::HandleDisplayName(const String& name,
+                                          const String& value) {
   display_name_ = value;
 }
 
-void ServerApplication::HandleDescription(const String& name, const String& value) {
+void ServerApplication::HandleDescription(const String& name,
+                                          const String& value) {
   description_ = value;
 }
 
@@ -388,15 +408,14 @@ void ServerApplication::HandleStartup(const String& name, const String& value) {
   } else if (icompare(value, String("manual")) == 0) {
     startup_ = "manual";
   } else {
-    throw InvalidArgumentException("Argument to startup option must be 'auto[matic]' or 'manual'");
+    throw InvalidArgumentException(
+        "Argument to startup option must be 'auto[matic]' or 'manual'");
   }
 }
 
-#else // _WIN32_WCE
+#else  // _WIN32_WCE
 
-void ServerApplication::WaitForTerminationRequest() {
-  terminate_.Wait();
-}
+void ServerApplication::WaitForTerminationRequest() { terminate_.Wait(); }
 
 int32 ServerApplication::Run(int32 argc, char** argv) {
   try {
@@ -433,7 +452,7 @@ int32 ServerApplication::Run(int32 argc, wchar_t** argv) {
 }
 #endif
 
-#endif // _WIN32_WCE
+#endif  // _WIN32_WCE
 
 #elif FUN_PLATFORM != FUN_PLATFORM_VXWORKS
 
@@ -441,9 +460,7 @@ int32 ServerApplication::Run(int32 argc, wchar_t** argv) {
 // VxWorks specific code
 //
 
-void ServerApplication::WaitForTerminationRequest() {
-  terminate_.Wait();
-}
+void ServerApplication::WaitForTerminationRequest() { terminate_.Wait(); }
 
 int32 ServerApplication::Run(int32 argc, char** argv) {
   try {
@@ -477,7 +494,8 @@ void ServerApplication::DefineOptions(OptionSet& options) {
 //
 
 void ServerApplication::WaitForTerminationRequest() {
-#if FUN_PLATFORM != FUN_PLATFORM_ANDROID && !defined(__NACL__) && !defined(__EMSCRIPTEN__)
+#if FUN_PLATFORM != FUN_PLATFORM_ANDROID && !defined(__NACL__) && \
+    !defined(__EMSCRIPTEN__)
   sigset_t sset;
   sigemptyset(&sset);
   if (!std::getenv("FUN_ENABLE_DEBUGGER")) {
@@ -489,7 +507,7 @@ void ServerApplication::WaitForTerminationRequest() {
   sigprocmask(SIG_BLOCK, &sset, NULL);
   int32 sig;
   sigwait(&sset, &sig);
-#else // FUN_PLATFORM != FUN_PLATFORM_ANDROID || __NACL__ || __EMSCRIPTEN__
+#else  // FUN_PLATFORM != FUN_PLATFORM_ANDROID || __NACL__ || __EMSCRIPTEN__
   terminate_.Wait();
 #endif
 }
@@ -574,7 +592,7 @@ void ServerApplication::BeDaemon() {
   // instead of just closing them. This avoids
   // issues with third party/legacy code writing
   // stuff to stdout/stderr.
-  FILE* fin  = freopen("/dev/null", "r+", stdin);
+  FILE* fin = freopen("/dev/null", "r+", stdin);
   if (!fin) {
     throw OpenFileException("Cannot attach stdin to /dev/null");
   }
@@ -596,25 +614,28 @@ void ServerApplication::BeDaemon() {
 void ServerApplication::DefineOptions(OptionSet& options) {
   Application::DefineOptions(options);
 
-  options.AddOption(
-    Option("daemon", "", "Run application as a daemon.")
-      .Required(false)
-      .Repeatable(false)
-      .Callback(OptionCallback<ServerApplication>(this, &ServerApplication::HandleDaemon)));
+  options.AddOption(Option("daemon", "", "Run application as a daemon.")
+                        .Required(false)
+                        .Repeatable(false)
+                        .Callback(OptionCallback<ServerApplication>(
+                            this, &ServerApplication::HandleDaemon)));
 
   options.AddOption(
-    Option("umask", "", "Set the daemon's umask (octal, e.g. 027).")
-      .Required(false)
-      .Repeatable(false)
-      .Argument("mask")
-      .Callback(OptionCallback<ServerApplication>(this, &ServerApplication::HandleUMask)));
+      Option("umask", "", "Set the daemon's umask (octal, e.g. 027).")
+          .Required(false)
+          .Repeatable(false)
+          .Argument("mask")
+          .Callback(OptionCallback<ServerApplication>(
+              this, &ServerApplication::HandleUMask)));
 
   options.AddOption(
-    Option("pidfile", "", "Write the process ID of the application to given file.")
-      .Required(false)
-      .Repeatable(false)
-      .Argument("path")
-      .Callback(OptionCallback<ServerApplication>(this, &ServerApplication::HandlePidFile)));
+      Option("pidfile", "",
+             "Write the process ID of the application to given file.")
+          .Required(false)
+          .Repeatable(false)
+          .Argument("path")
+          .Callback(OptionCallback<ServerApplication>(
+              this, &ServerApplication::HandlePidFile)));
 }
 
 void ServerApplication::HandleDaemon(const String& name, const String&) {
@@ -629,7 +650,8 @@ void ServerApplication::HandleUMask(const String& name, const String& value) {
     if (ch >= '0' && ch <= '7') {
       mask += ch - '0';
     } else {
-      throw InvalidArgumentException("umask contains non-octal characters", value);
+      throw InvalidArgumentException("umask contains non-octal characters",
+                                     value);
     }
   }
 
@@ -649,5 +671,5 @@ void ServerApplication::HandlePidFile(const String& name, const String& value) {
 
 #endif
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

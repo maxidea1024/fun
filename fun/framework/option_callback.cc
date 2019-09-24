@@ -9,5 +9,5 @@ OptionCallbackBase::OptionCallbackBase(const OptionCallbackBase&) {}
 
 OptionCallbackBase::~OptionCallbackBase() {}
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

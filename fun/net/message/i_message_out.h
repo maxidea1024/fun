@@ -46,5 +46,5 @@ class FUN_NET_API IMessageOut {
   virtual void WriteVarint32SignExtended(int32 value) = 0;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

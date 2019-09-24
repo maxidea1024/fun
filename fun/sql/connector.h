@@ -1,8 +1,8 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/session_impl.h"
 #include "fun/base/shared_ptr.h"
+#include "fun/sql/session_impl.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -34,11 +34,13 @@ class FUN_SQL_API Connector {
   virtual const String& GetName() const = 0;
 
   /**
-   * Create a SessionImpl object and initialize it with the given connection_string.
+   * Create a SessionImpl object and initialize it with the given
+   * connection_string.
    */
-  virtual SessionImpl::Ptr CreateSession(const String& connection_string,
-          size_t timeout = SessionImpl::LOGIN_TIMEOUT_DEFAULT) = 0;
+  virtual SessionImpl::Ptr CreateSession(
+      const String& connection_string,
+      size_t timeout = SessionImpl::LOGIN_TIMEOUT_DEFAULT) = 0;
 };
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

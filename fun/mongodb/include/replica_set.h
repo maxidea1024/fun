@@ -11,7 +11,8 @@ namespace mongodb {
  */
 class FUN_MONGODB_API ReplicaSet {
  public:
-  ReplicaSet(const fun::Array<InetAddress>& addresses) : addresses_(addresses) {}
+  ReplicaSet(const fun::Array<InetAddress>& addresses)
+      : addresses_(addresses) {}
   virtual ~ReplicaSet() {}
 
   SharedPtr<Connection> FindMaster() {
@@ -56,5 +57,5 @@ class FUN_MONGODB_API ReplicaSet {
   fun::Array<InetAddress> addresses_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

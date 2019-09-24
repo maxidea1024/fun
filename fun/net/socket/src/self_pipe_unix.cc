@@ -24,24 +24,18 @@ SelfPipe::SelfPipe() {
   }
 }
 
-fd_t SelfPipe::GetReadFD() const {
-  return fds_[0];
-}
+fd_t SelfPipe::GetReadFD() const { return fds_[0]; }
 
-fd_t SelfPipe::GetWriteFD() const {
-  return fds_[1];
-}
+fd_t SelfPipe::GetWriteFD() const { return fds_[1]; }
 
-void SelfPipe::Notify() {
-  write(fds_[1], "a", 1);
-}
+void SelfPipe::Notify() { write(fds_[1], "a", 1); }
 
 void SelfPipe::ClearBuffer() {
   char buf[1024];
   read(fds_[0], buf, 1024);
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun
 
-#endif // FUN_PLATFORM_UNIX_FAMILY
+#endif  // FUN_PLATFORM_UNIX_FAMILY

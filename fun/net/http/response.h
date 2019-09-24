@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/http/types.h"
 #include "fun/http/error.h"
+#include "fun/http/types.h"
 
 #include "fun/http/options/cookies.h"
 
@@ -21,26 +21,27 @@ class Response {
   Response() = default;
 
   inline Response(const int32 status_code)
-    : status_code{status_code}
-    , uri()
-    , headers()
-    , body()
-    , elapsed(0)
-    , cookies()
-    , error() {
-  }
+      : status_code{status_code},
+        uri(),
+        headers(),
+        body(),
+        elapsed(0),
+        cookies(),
+        error() {}
 
-  template <typename BodyType, typename HeadersType, typename UriType, typename CookiesType, typename ErrorType>
-  inline Response(const int32 status_code, BodyType&& body, HeadersType&& headers, UriType&& uri,
-           const double elapsed, CookiesType&& cookies = Cookies{}, ErrorType&& error = Error{})
-    : status_code{status_code}
-    , uri{FORWARD_VA_ARGS(uri)}
-    , headers{FORWARD_VA_ARGS(headers)}
-    , body{FORWARD_VA_ARGS(body)}
-    , elapsed{elapsed}
-    , cookies{FORWARD_VA_ARGS(cookies)}
-    , error{FORWARD_VA_ARGS(error)} {
-  }
+  template <typename BodyType, typename HeadersType, typename UriType,
+            typename CookiesType, typename ErrorType>
+  inline Response(const int32 status_code, BodyType&& body,
+                  HeadersType&& headers, UriType&& uri, const double elapsed,
+                  CookiesType&& cookies = Cookies{},
+                  ErrorType&& error = Error{})
+      : status_code{status_code},
+        uri{FORWARD_VA_ARGS(uri)},
+        headers{FORWARD_VA_ARGS(headers)},
+        body{FORWARD_VA_ARGS(body)},
+        elapsed{elapsed},
+        cookies{FORWARD_VA_ARGS(cookies)},
+        error{FORWARD_VA_ARGS(error)} {}
 
   /*
 
@@ -79,6 +80,5 @@ class Response {
   */
 };
 
-
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

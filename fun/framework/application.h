@@ -1,15 +1,15 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
-#include "fun/framework/subsystem.h"
-#include "fun/framework/layered_configuration.h"
-#include "fun/framework/option_set.h"
-#include "fun/base/timestamp.h"
-#include "fun/base/timespan.h"
-#include "fun/base/ref_counted.h"
-#include "fun/base/ref_counted_ptr.h"
 #include "fun/base/logging/logger.h"
 #include "fun/base/path.h"
+#include "fun/base/ref_counted.h"
+#include "fun/base/ref_counted_ptr.h"
+#include "fun/base/timespan.h"
+#include "fun/base/timestamp.h"
+#include "fun/framework/framework.h"
+#include "fun/framework/layered_configuration.h"
+#include "fun/framework/option_set.h"
+#include "fun/framework/subsystem.h"
 
 namespace fun {
 namespace framework {
@@ -46,14 +46,21 @@ class OptionSet;
  * its configuration. These are:
  *   - application.path: the absolute path to application executable
  *   - application.name: the file name of the application executable
- *   - application.base_name: the file name (excluding extension) of the application executable
- *   - application.dir: the path to the directory where the application executable resides
- *   - application.config_dir: the path to the directory where user specific configuration files of the application should be stored.
- *   - application.cache_dir: the path to the directory where user specific non-essential data files of the application should be stored.
- *   - application.data_dir: the path to the directory where user specific data files of the application should be stored.
- *   - application.temp_dir: the path to the directory where user specific temporary files and other file objects of the application should be stored.
+ *   - application.base_name: the file name (excluding extension) of the
+ * application executable
+ *   - application.dir: the path to the directory where the application
+ * executable resides
+ *   - application.config_dir: the path to the directory where user specific
+ * configuration files of the application should be stored.
+ *   - application.cache_dir: the path to the directory where user specific
+ * non-essential data files of the application should be stored.
+ *   - application.data_dir: the path to the directory where user specific data
+ * files of the application should be stored.
+ *   - application.temp_dir: the path to the directory where user specific
+ * temporary files and other file objects of the application should be stored.
  *
- * If LoadConfiguration() has never been called, application.config_dir will be equal to application.dir.
+ * If LoadConfiguration() has never been called, application.config_dir will be
+ * equal to application.dir.
  *
  * The FUN_APP_MAIN macro can be used to implement Main(argc, argv).
  * FUN_APP_MAIN supports Unicode command line arguments.
@@ -69,22 +76,22 @@ class FUN_FRAMEWORK_API Application : public Subsystem {
    * Based on the definitions in the 4.3BSD <sysexits.h> header file.
    */
   enum ExitCode {
-    EXIT_OK          = 0,  /// successful termination
-    EXIT_USAGE       = 64, /// command line usage error
-    EXIT_DATAERR     = 65, /// data format error
-    EXIT_NOINPUT     = 66, /// cannot open input
-    EXIT_NOUSER      = 67, /// addressee unknown
-    EXIT_NOHOST      = 68, /// host name unknown
-    EXIT_UNAVAILABLE = 69, /// service unavailable
-    EXIT_SOFTWARE    = 70, /// internal software error
-    EXIT_OSERR       = 71, /// system error (e.g., can't fork)
-    EXIT_OSFILE      = 72, /// critical OS file missing
-    EXIT_CANTCREAT   = 73, /// can't create (user) output file
-    EXIT_IOERR       = 74, /// input/output error
-    EXIT_TEMPFAIL    = 75, /// temp failure; user is invited to retry
-    EXIT_PROTOCOL    = 76, /// remote error in protocol
-    EXIT_NOPERM      = 77, /// permission denied
-    EXIT_CONFIG      = 78  /// configuration error
+    EXIT_OK = 0,            /// successful termination
+    EXIT_USAGE = 64,        /// command line usage error
+    EXIT_DATAERR = 65,      /// data format error
+    EXIT_NOINPUT = 66,      /// cannot open input
+    EXIT_NOUSER = 67,       /// addressee unknown
+    EXIT_NOHOST = 68,       /// host name unknown
+    EXIT_UNAVAILABLE = 69,  /// service unavailable
+    EXIT_SOFTWARE = 70,     /// internal software error
+    EXIT_OSERR = 71,        /// system error (e.g., can't fork)
+    EXIT_OSFILE = 72,       /// critical OS file missing
+    EXIT_CANTCREAT = 73,    /// can't create (user) output file
+    EXIT_IOERR = 74,        /// input/output error
+    EXIT_TEMPFAIL = 75,     /// temp failure; user is invited to retry
+    EXIT_PROTOCOL = 76,     /// remote error in protocol
+    EXIT_NOPERM = 77,       /// permission denied
+    EXIT_CONFIG = 78        /// configuration error
   };
 
   enum ConfigPriority {
@@ -375,7 +382,7 @@ class FUN_FRAMEWORK_API Application : public Subsystem {
    * path if the file could be found. Returns false and leaves path
    * unchanged otherwise.
    */
-  bool FindFile(Path& path) const; // reference 타입임에 주의!!
+  bool FindFile(Path& path) const;  // reference 타입임에 주의!!
 
   /**
    * Common initialization code.
@@ -394,14 +401,11 @@ class FUN_FRAMEWORK_API Application : public Subsystem {
   void GetApplicationPath(Path& app_path) const;
   void ProcessOptions();
 
-  bool FindAppConfigFile( const String& app_name,
-                          const String& extension,
-                          Path& path) const;
+  bool FindAppConfigFile(const String& app_name, const String& extension,
+                         Path& path) const;
 
-  bool FindAppConfigFile( const Path& base_path,
-                          const String& app_name,
-                          const String& extension,
-                          Path& path) const;
+  bool FindAppConfigFile(const Path& base_path, const String& app_name,
+                         const String& extension, Path& path) const;
 
   using ConfigPtr = LayeredConfiguration::Ptr;
   using LoggerPtr = Logger::Ptr;
@@ -428,9 +432,8 @@ class FUN_FRAMEWORK_API Application : public Subsystem {
   friend class LoggingSubsystem;
 
   Application(const Application&) = delete;
-  Application& operator = (const Application&) = delete;
+  Application& operator=(const Application&) = delete;
 };
-
 
 //
 // inlines
@@ -439,7 +442,7 @@ class FUN_FRAMEWORK_API Application : public Subsystem {
 template <typename T>
 FUN_ALWAYS_INLINE T& Application::GetSubsystem() const {
   for (auto& it : subsystems_) {
-    //TODO dynmaic cast를 통해서만 가능한가??
+    // TODO dynmaic cast를 통해서만 가능한가??
     const Subsystem* subsystem = it.Get();
     const T* casted = dynamic_cast<T*>(subsystem);
     if (casted) {
@@ -447,16 +450,15 @@ FUN_ALWAYS_INLINE T& Application::GetSubsystem() const {
     }
   }
 
-  throw NotFoundException("The subsystem has not been registered", typeid(T).name());
+  throw NotFoundException("The subsystem has not been registered",
+                          typeid(T).name());
 }
 
 FUN_ALWAYS_INLINE Application::SubsystemList& Application::GetSubsystems() {
   return subsystems_;
 }
 
-bool Application::IsInitialized() const {
-  return initialized_;
-}
+bool Application::IsInitialized() const { return initialized_; }
 
 FUN_ALWAYS_INLINE LayeredConfiguration& Application::GetConfig() const {
   fun_check(config_.IsValid());
@@ -494,9 +496,8 @@ FUN_ALWAYS_INLINE Timespan Application::GetUptime() const {
   return now - start_time_;
 }
 
-} // namespace framework
-} // namespace fun
-
+}  // namespace framework
+}  // namespace fun
 
 //
 // Macro to implement main()
@@ -504,60 +505,60 @@ FUN_ALWAYS_INLINE Timespan Application::GetUptime() const {
 
 #if FUN_PLATFORM_WINDOWS_FAMILY && !defined(FUN_NO_WSTRING)
 
-  #define FUN_APP_MAIN(App) \
-    int wmain(int argc, wchar_t** argv) { \
-      fun::RefCountedPtr<App> app = new App; \
-      try { \
-        app->Init(argc, argv); \
-      } catch (fun::Exception& e) { \
-        app->GetLogger().Log(e); \
-        return fun::framework::Application::EXIT_CONFIG;\
-      } \
-      \
-      return app->Run(); \
-    } \
-    FUN_WMAIN_WRAPPER()
+#define FUN_APP_MAIN(App)                              \
+  int wmain(int argc, wchar_t** argv) {                \
+    fun::RefCountedPtr<App> app = new App;             \
+    try {                                              \
+      app->Init(argc, argv);                           \
+    } catch (fun::Exception & e) {                     \
+      app->GetLogger().Log(e);                         \
+      return fun::framework::Application::EXIT_CONFIG; \
+    }                                                  \
+                                                       \
+    return app->Run();                                 \
+  }                                                    \
+  FUN_WMAIN_WRAPPER()
 
 #elif defined(FUN_PLATFORM_VXWORKS)
 
-  #define FUN_APP_MAIN(App) \
-    int RedAppMain(const char* app_name, ...) { \
-      fun::Array<String> args; \
-      args.Add(String(app_name)); \
-      \
-      va_list vargs; \
-      va_start(vargs, app_name); \
-      const char* arg = va_arg(vargs, const char*); \
-      while (arg) { \
-        args.Add(String(arg)); \
-        arg = va_arg(vargs, const char*); \
-      } \
-      va_end(vargs); \
-      \
-      fun::RefCountedPtr<App> app = new App; \
-      try { \
-        app->Init(args); \
-      } catch (fun::Exception& e) { \
-        app->GetLogger().Log(e); \
-        return fun::framework::Application::EXIT_CONFIG; \
-      } \
-      \
-      return app->Run(); \
-    }
+#define FUN_APP_MAIN(App)                              \
+  int RedAppMain(const char* app_name, ...) {          \
+    fun::Array<String> args;                           \
+    args.Add(String(app_name));                        \
+                                                       \
+    va_list vargs;                                     \
+    va_start(vargs, app_name);                         \
+    const char* arg = va_arg(vargs, const char*);      \
+    while (arg) {                                      \
+      args.Add(String(arg));                           \
+      arg = va_arg(vargs, const char*);                \
+    }                                                  \
+    va_end(vargs);                                     \
+                                                       \
+    fun::RefCountedPtr<App> app = new App;             \
+    try {                                              \
+      app->Init(args);                                 \
+    } catch (fun::Exception & e) {                     \
+      app->GetLogger().Log(e);                         \
+      return fun::framework::Application::EXIT_CONFIG; \
+    }                                                  \
+                                                       \
+    return app->Run();                                 \
+  }
 
 #else
 
-  #define FUN_APP_MAIN(App) \
-    int main(int argc, char** argv) { \
-      fun::RefCountedPtr<App> app = new App; \
-      try { \
-        app->Init(argc, argv); \
-      } catch (fun::Exception& e) { \
-        app->GetLogger().Log(e); \
-        return fun::framework::Application::EXIT_CONFIG; \
-      } \
-      \
-      return app->Run(); \
-    }
+#define FUN_APP_MAIN(App)                              \
+  int main(int argc, char** argv) {                    \
+    fun::RefCountedPtr<App> app = new App;             \
+    try {                                              \
+      app->Init(argc, argv);                           \
+    } catch (fun::Exception & e) {                     \
+      app->GetLogger().Log(e);                         \
+      return fun::framework::Application::EXIT_CONFIG; \
+    }                                                  \
+                                                       \
+    return app->Run();                                 \
+  }
 
 #endif

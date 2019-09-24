@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
-#include "fun/base/mutex.h"
 #include "fun/base/condition.h"
-#include "fun/base/thread.h"
 #include "fun/base/function.h"
+#include "fun/base/mutex.h"
+#include "fun/base/thread.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -14,7 +14,7 @@ namespace net {
  */
 class EventLoopThread : Noncopyable {
  public:
-  typedef Function<void (EventLoop*)> ThreadInitCallback;
+  typedef Function<void(EventLoop*)> ThreadInitCallback;
 
   EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback(),
                   const String& name = String());
@@ -34,5 +34,5 @@ class EventLoopThread : Noncopyable {
   ThreadInitCallback callback_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -1,33 +1,36 @@
 ﻿#include "fun/framework/property_file_configuration.h"
 #include "fun/base/exception.h"
-#include "fun/base/str.h"
 #include "fun/base/path.h"
+#include "fun/base/str.h"
 //#include "fun/base/file_stream.h"
 //#include "fun/base/line_ending_converter.h"
 //#include "fun/base/ascii.h"
 
-//using fun::Trim;
+// using fun::Trim;
 using fun::Path;
 
 namespace fun {
 namespace framework {
 
 PropertyFileConfiguration::PropertyFileConfiguration()
-  : preserve_comment_(false) {}
+    : preserve_comment_(false) {}
 
-PropertyFileConfiguration::PropertyFileConfiguration(std::istream& istr, bool preserve_comment)
-  : preserve_comment_(preserve_comment) {
+PropertyFileConfiguration::PropertyFileConfiguration(std::istream& istr,
+                                                     bool preserve_comment)
+    : preserve_comment_(preserve_comment) {
   Load(istr, preserve_comment);
 }
 
-PropertyFileConfiguration::PropertyFileConfiguration(const String& path, bool preserve_comment)
-  : preserve_comment_(preserve_comment) {
+PropertyFileConfiguration::PropertyFileConfiguration(const String& path,
+                                                     bool preserve_comment)
+    : preserve_comment_(preserve_comment) {
   Load(path, preserve_comment);
 }
 
 PropertyFileConfiguration::~PropertyFileConfiguration() {}
 
-void PropertyFileConfiguration::Load(std::istream& istr, bool preserve_comment) {
+void PropertyFileConfiguration::Load(std::istream& istr,
+                                     bool preserve_comment) {
   preserve_comment_ = preserve_comment;
   Clear();
   file_content_.Clear();
@@ -38,7 +41,8 @@ void PropertyFileConfiguration::Load(std::istream& istr, bool preserve_comment) 
   }
 }
 
-void PropertyFileConfiguration::Load(const String& path, bool preserve_comment) {
+void PropertyFileConfiguration::Load(const String& path,
+                                     bool preserve_comment) {
   fun::FileInputStream istr(path);
   if (istr.good()) {
     Load(istr, preserve_comment);
@@ -49,7 +53,8 @@ void PropertyFileConfiguration::Load(const String& path, bool preserve_comment) 
 
 void PropertyFileConfiguration::Save(std::ostream& ostr) const {
   if (preserve_comment_) {
-    for (FileContent::const_iterator it = file_content_.begin(); it != file_content_.end(); ++it) {
+    for (FileContent::const_iterator it = file_content_.begin();
+         it != file_content_.end(); ++it) {
       ostr << *it;
     }
   } else {
@@ -134,9 +139,11 @@ int32 PropertyFileConfiguration::ReadChar(std::istream& istr) {
 void PropertyFileConfiguration::SetRaw(const String& key, const String& value) {
   MapConfiguration::SetRaw(key, value);
   if (preserve_comment_) {
-    // Insert the key-value to the end of file_content_ and update key_file_content_it_map_.
+    // Insert the key-value to the end of file_content_ and update
+    // key_file_content_it_map_.
     if (key_file_content_it_map_.count(key) == 0) {
-      FileContent::iterator fit = file_content_.insert(file_content_.end(), ComposeOneLine(key, value));
+      FileContent::iterator fit =
+          file_content_.insert(file_content_.end(), ComposeOneLine(key, value));
       key_file_content_it_map_[key] = fit;
     }
     // Update the key-value in file_content_.
@@ -204,7 +211,8 @@ bool PropertyFileConfiguration::IsNewLine(int32 c) const {
   return c == std::char_traits<char>::eof() || c == '\n' || c == '\r';
 }
 
-String PropertyFileConfiguration::ComposeOneLine(const String& key, const String& value) const {
+String PropertyFileConfiguration::ComposeOneLine(const String& key,
+                                                 const String& value) const {
   String result = key + ": ";
 
   for (String::const_iterator its = value.begin(); its != value.end(); ++its) {
@@ -225,7 +233,7 @@ String PropertyFileConfiguration::ComposeOneLine(const String& key, const String
         result += "\\\\";
         break;
       default:
-        result +=  *its;
+        result += *its;
         break;
     }
   }
@@ -237,5 +245,5 @@ bool PropertyFileConfiguration::IsKeyValueSeparator(int32 c) const {
   return c == '=' || c == ':';
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

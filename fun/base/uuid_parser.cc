@@ -34,8 +34,7 @@ bool UuidParser::TryParse(const String& str, ParsingResult& result) {
   }
 }
 
-bool UuidParser::TryParse(const String& str,
-                          UuidFormat format,
+bool UuidParser::TryParse(const String& str, UuidFormat format,
                           ParsingResult& result) {
   const String str2 = str.Simplified();
 
@@ -60,28 +59,29 @@ bool UuidParser::TryParse(const String& str,
 namespace {
 
 inline uint32 ReadHexUInt32_NoFail(const String& str, int32 offset) {
-  return  (CharTraitsA::HexCharToNibble(str[offset + 0]) << 28) |
-          (CharTraitsA::HexCharToNibble(str[offset + 1]) << 24) |
-          (CharTraitsA::HexCharToNibble(str[offset + 2]) << 20) |
-          (CharTraitsA::HexCharToNibble(str[offset + 3]) << 16) |
-          (CharTraitsA::HexCharToNibble(str[offset + 4]) << 12) |
-          (CharTraitsA::HexCharToNibble(str[offset + 5]) <<  8) |
-          (CharTraitsA::HexCharToNibble(str[offset + 6]) <<  4) |
-          (CharTraitsA::HexCharToNibble(str[offset + 7]));
+  return (CharTraitsA::HexCharToNibble(str[offset + 0]) << 28) |
+         (CharTraitsA::HexCharToNibble(str[offset + 1]) << 24) |
+         (CharTraitsA::HexCharToNibble(str[offset + 2]) << 20) |
+         (CharTraitsA::HexCharToNibble(str[offset + 3]) << 16) |
+         (CharTraitsA::HexCharToNibble(str[offset + 4]) << 12) |
+         (CharTraitsA::HexCharToNibble(str[offset + 5]) << 8) |
+         (CharTraitsA::HexCharToNibble(str[offset + 6]) << 4) |
+         (CharTraitsA::HexCharToNibble(str[offset + 7]));
 }
 
 inline uint16 ReadHexUInt16_NoFail(const String& str, int32 offset) {
-  return  (CharTraitsA::HexCharToNibble(str[offset + 0]) << 12) |
-          (CharTraitsA::HexCharToNibble(str[offset + 1]) <<  8) |
-          (CharTraitsA::HexCharToNibble(str[offset + 2]) <<  4) |
-          (CharTraitsA::HexCharToNibble(str[offset + 3]));
+  return (CharTraitsA::HexCharToNibble(str[offset + 0]) << 12) |
+         (CharTraitsA::HexCharToNibble(str[offset + 1]) << 8) |
+         (CharTraitsA::HexCharToNibble(str[offset + 2]) << 4) |
+         (CharTraitsA::HexCharToNibble(str[offset + 3]));
 }
 
 inline uint8 ReadHexUInt8_NoFail(const String& str, int32 offset) {
-  return (CharTraitsA::HexCharToNibble(str[offset]) << 4) | CharTraitsA::HexCharToNibble(str[offset+1]);
+  return (CharTraitsA::HexCharToNibble(str[offset]) << 4) |
+         CharTraitsA::HexCharToNibble(str[offset + 1]);
 }
 
-} // namespace
+}  // namespace
 
 // 00000000000000000000000000000000
 bool UuidParser::TryParseWithDigits(const String& str, ParsingResult& result) {
@@ -118,8 +118,8 @@ bool UuidParser::TryParseWithDigits(const String& str, ParsingResult& result) {
 }
 
 // 00000000-0000-0000-0000-000000000000
-bool UuidParser::TryParseWithDigitsWithHyphens(
-    const String& str, ParsingResult& result) {
+bool UuidParser::TryParseWithDigitsWithHyphens(const String& str,
+                                               ParsingResult& result) {
   if (str.Len() == 0) {
     result.SetFailure("It is an empty guid str");
     return false;
@@ -130,7 +130,7 @@ bool UuidParser::TryParseWithDigitsWithHyphens(
     return false;
   }
 
-  const int32 dash_pos[] = { 8, 13, 18, 23 };
+  const int32 dash_pos[] = {8, 13, 18, 23};
   for (int32 i = 0; i < countof(dash_pos); ++i) {
     const int32 pos = dash_pos[i];
     if (str[pos] != '-') {
@@ -165,8 +165,8 @@ bool UuidParser::TryParseWithDigitsWithHyphens(
 }
 
 // {00000000-0000-0000-0000-000000000000}
-bool UuidParser::TryParseWithDigitsWithHyphensInBraces(
-      const String& str, ParsingResult& result) {
+bool UuidParser::TryParseWithDigitsWithHyphensInBraces(const String& str,
+                                                       ParsingResult& result) {
   if (str.Len() == 0) {
     result.SetFailure("It is an empty guid str");
     return false;
@@ -187,7 +187,7 @@ bool UuidParser::TryParseWithDigitsWithHyphensInBraces(
     return false;
   }
 
-  const int32 dash_pos[] = { 9, 14, 19, 24 };
+  const int32 dash_pos[] = {9, 14, 19, 24};
   for (int32 i = 0; i < countof(dash_pos); ++i) {
     const int32 pos = dash_pos[i];
     if (str[pos] != '-') {
@@ -223,7 +223,7 @@ bool UuidParser::TryParseWithDigitsWithHyphensInBraces(
 
 // (00000000-0000-0000-0000-000000000000)
 bool UuidParser::TryParseWithDigitsWithHyphensInParentheses(
-      const String& str, ParsingResult& result) {
+    const String& str, ParsingResult& result) {
   if (str.Len() == 0) {
     result.SetFailure("It is an empty guid str");
     return false;
@@ -244,7 +244,7 @@ bool UuidParser::TryParseWithDigitsWithHyphensInParentheses(
     return false;
   }
 
-  const int32 dash_pos[] = { 9, 14, 19, 24 };
+  const int32 dash_pos[] = {9, 14, 19, 24};
   for (int32 i = 0; i < countof(dash_pos); ++i) {
     const int32 pos = dash_pos[i];
     if (str[pos] != '-') {
@@ -253,7 +253,7 @@ bool UuidParser::TryParseWithDigitsWithHyphensInParentheses(
     }
   }
 
-  for (int32 i = 1; i < str.Len()-1; ++i) {
+  for (int32 i = 1; i < str.Len() - 1; ++i) {
     const char c = str[i];
     if (c != '-') {
       if (!CharTraitsA::IsHexDigit(c)) {
@@ -279,8 +279,8 @@ bool UuidParser::TryParseWithDigitsWithHyphensInParentheses(
 }
 
 // {0x00000000,0x0000,0x0000,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}}
-bool UuidParser::TryParseWithHexValuesInBraces(
-      const String& str, ParsingResult& result) {
+bool UuidParser::TryParseWithHexValuesInBraces(const String& str,
+                                               ParsingResult& result) {
   if (str.Len() == 0) {
     result.SetFailure("It is an empty guid str");
     return false;
@@ -301,7 +301,7 @@ bool UuidParser::TryParseWithHexValuesInBraces(
     return false;
   }
 
-  const int32 comma_pos[] = { 11, 18, 25, 31, 36, 41, 46, 51, 56, 61 };
+  const int32 comma_pos[] = {11, 18, 25, 31, 36, 41, 46, 51, 56, 61};
   for (int32 i = 0; i < countof(comma_pos); ++i) {
     const int32 pos = comma_pos[i];
     if (str[pos] != ',') {
@@ -310,7 +310,7 @@ bool UuidParser::TryParseWithHexValuesInBraces(
     }
   }
 
-  const int32 zx_pos[] = { 1, 12, 19, 27, 32, 37, 42, 47, 52, 57, 62 };
+  const int32 zx_pos[] = {1, 12, 19, 27, 32, 37, 42, 47, 52, 57, 62};
   for (int32 i = 0; i < countof(zx_pos); ++i) {
     const int32 pos = zx_pos[i];
     if (str[pos] != '0' || (str[pos + 1] != 'x' && str[pos + 1] != 'X')) {
@@ -319,7 +319,8 @@ bool UuidParser::TryParseWithHexValuesInBraces(
     }
   }
 
-  const int32 digit_pos_and_len[] = { 3,8, 14,4, 21,4, 29,2, 34,2, 39,2, 44,2, 49,2, 54,2, 59,2, 64,2 };
+  const int32 digit_pos_and_len[] = {3, 8,  14, 4,  21, 4,  29, 2,  34, 2,  39,
+                                     2, 44, 2,  49, 2,  54, 2,  59, 2,  64, 2};
   for (int32 i = 0; i < countof(digit_pos_and_len); i += 2) {
     const int32 pos = digit_pos_and_len[i];
     const int32 len = digit_pos_and_len[i + 1];
@@ -348,7 +349,8 @@ bool UuidParser::TryParseWithHexValuesInBraces(
 
 // 바이트 인코딩에 대해서 한번더 생각해봐야함.
 // 00000000-00000000-00000000-00000000
-bool UuidParser::TryParseWithObjectId(const String& str, ParsingResult& result) {
+bool UuidParser::TryParseWithObjectId(const String& str,
+                                      ParsingResult& result) {
   if (str.Len() == 0) {
     result.SetFailure("It is an empty guid str");
     return false;
@@ -359,7 +361,7 @@ bool UuidParser::TryParseWithObjectId(const String& str, ParsingResult& result) 
     return false;
   }
 
-  const int32 dash_pos[] = { 8, 17, 26 };
+  const int32 dash_pos[] = {8, 17, 26};
   for (int32 i = 0; i < countof(dash_pos); ++i) {
     const int32 pos = dash_pos[i];
     if (str[pos] != '-') {
@@ -368,7 +370,7 @@ bool UuidParser::TryParseWithObjectId(const String& str, ParsingResult& result) 
     }
   }
 
-  for (int32 i = 1; i < str.Len()-1; ++i) {
+  for (int32 i = 1; i < str.Len() - 1; ++i) {
     const char c = str[i];
     if (c != '-') {
       if (!CharTraitsA::IsHexDigit(c)) {
@@ -387,4 +389,4 @@ bool UuidParser::TryParseWithObjectId(const String& str, ParsingResult& result) 
   return true;
 }
 
-} // namespace fun
+}  // namespace fun

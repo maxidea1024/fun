@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/message/message.h"
 #include "fun/base/runtime_class.h"
+#include "fun/net/message/message.h"
 
 namespace fun {
 namespace net {
@@ -55,5 +55,5 @@ FUN_ALWAYS_INLINE String ToString(const GeneratedStruct* value) {
   return value ? value->ToString() : "<null>";
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

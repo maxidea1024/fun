@@ -4,8 +4,8 @@
 #include "fun/framework/map_configuration.h"
 
 #include <istream>
-#include <ostream>
 #include <list>
+#include <ostream>
 
 namespace fun {
 namespace framework {
@@ -15,22 +15,25 @@ namespace framework {
  * from a Java-style properties file.
  *
  * The file syntax is implemented as follows.
- *   - a line starting with a hash '#' or exclamation mark '!' is treated as a comment and ignored
+ *   - a line starting with a hash '#' or exclamation mark '!' is treated as a
+ * comment and ignored
  *   - every other line denotes a property assignment in the form
  *     <key> = <value> or
  *     <key> : <value>
  *
- * Keys and values may contain special characters represented by the following escape sequences:
+ * Keys and values may contain special characters represented by the following
+ * escape sequences:
  *   - \t: tab (0x09)
  *   - \n: line feed (0x0a)
  *   - \r: carriage return (0x0d)
  *   - \f: form feed (0x0c)
  *
- * For every other sequence that starts with a backslash, the backslash is removed.
- * Therefore, the sequence \a would just yield an 'a'.
+ * For every other sequence that starts with a backslash, the backslash is
+ * removed. Therefore, the sequence \a would just yield an 'a'.
  *
- * A value can spread across multiple lines if the last character in a line (the character
- * immediately before the carriage return or line feed character) is a single backslash.
+ * A value can spread across multiple lines if the last character in a line (the
+ * character immediately before the carriage return or line feed character) is a
+ * single backslash.
  *
  * Property names are case sensitive. Leading and trailing whitespace is
  * removed from both keys and values. A property name can neither contain
@@ -96,7 +99,7 @@ class FUN_FRAMEWORK_API PropertyFileConfiguration : public MapConfiguration {
 
   void ParseLine(std::istream& istr);
   void SkipSpace(std::istream& istr) const;
-  bool IsComment(int32 c) const ;
+  bool IsComment(int32 c) const;
   void SaveComments(std::istream& istr);
   void SkipLine(std::istream& istr) const;
   void SaveKeyValue(std::istream& istr);
@@ -111,5 +114,5 @@ class FUN_FRAMEWORK_API PropertyFileConfiguration : public MapConfiguration {
   static int32 ReadChar(std::istream& istr);
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

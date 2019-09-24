@@ -12,4 +12,4 @@ class FUN_NETSOCKET_API ServerSocketImpl : public SocketImpl {
   ~ServerSocketImpl();
 };
 
-} // namespace fun
+}  // namespace fun

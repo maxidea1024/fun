@@ -2,28 +2,24 @@
 
 #if !defined(FUN_NO_INI_CONFIGURATION)
 
-#include "fun/base/exception.h"
-#include "fun/base/str.h"
-#include "fun/base/path.h"
-#include "fun/base/file_stream.h"
 #include <set>
+#include "fun/base/exception.h"
+#include "fun/base/file_stream.h"
+#include "fun/base/path.h"
+#include "fun/base/str.h"
 
 using fun::icompare;
-using fun::Trim;
 using fun::Path;
+using fun::Trim;
 
 namespace fun {
 namespace framework {
 
 IniFileConfiguration::IniFileConfiguration() {}
 
-IniFileConfiguration::IniFileConfiguration(std::istream& istr) {
-  Load(istr);
-}
+IniFileConfiguration::IniFileConfiguration(std::istream& istr) { Load(istr); }
 
-IniFileConfiguration::IniFileConfiguration(const String& path) {
-  Load(path);
-}
+IniFileConfiguration::IniFileConfiguration(const String& path) { Load(path); }
 
 IniFileConfiguration::~IniFileConfiguration() {}
 
@@ -95,13 +91,15 @@ void IniFileConfiguration::RemoveRaw(const String& key) {
   IStringMap::iterator itCur;
   while (it != map_.end()) {
     itCur = it++;
-    if ((icompare(itCur->first, key) == 0) || (icompare(itCur->first, psize, prefix) == 0)) {
+    if ((icompare(itCur->first, key) == 0) ||
+        (icompare(itCur->first, psize, prefix) == 0)) {
       map_.erase(itCur);
     }
   }
 }
 
-bool IniFileConfiguration::ICompare::operator () (const String& s1, const String& s2) const {
+bool IniFileConfiguration::ICompare::operator()(const String& s1,
+                                                const String& s2) const {
   return icompare(s1, s2) < 0;
 }
 
@@ -149,7 +147,7 @@ void IniFileConfiguration::ParseLine(std::istream& istr) {
   }
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun
 
-#endif // !defined(FUN_NO_INI_CONFIGURATION)
+#endif  // !defined(FUN_NO_INI_CONFIGURATION)

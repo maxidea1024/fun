@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
 #include "fun/base/windows_less.h"
+#include "fun/framework/framework.h"
 
-#define FUN_LPQUERY_SERVICE_CONFIG  LPQUERY_SERVICE_CONFIGW
+#define FUN_LPQUERY_SERVICE_CONFIG LPQUERY_SERVICE_CONFIGW
 
 namespace fun {
 namespace framework {
@@ -18,11 +18,7 @@ namespace framework {
  */
 class FUN_FRAMEWORK_API WinService {
  public:
-  enum Startup {
-    SVC_AUTO_START,
-    SVC_MANUAL_START,
-    SVC_DISABLED
-  };
+  enum Startup { SVC_AUTO_START, SVC_MANUAL_START, SVC_DISABLED };
 
   /**
    * Creates the WinService, using the given service name.
@@ -37,7 +33,7 @@ class FUN_FRAMEWORK_API WinService {
   // Disable default constructor and copy.
   WinService() = delete;
   WinService(const WinService&) = delete;
-  WinService& operator = (const WinService&) = delete;
+  WinService& operator=(const WinService&) = delete;
 
   /**
    * Returns the service name.
@@ -108,7 +104,7 @@ class FUN_FRAMEWORK_API WinService {
 
   /**
    * Sets the startup mode for the service.
-  */
+   */
   void SetStartup(Startup startup);
 
   /**
@@ -143,5 +139,5 @@ class FUN_FRAMEWORK_API WinService {
   mutable SC_HANDLE svc_handle_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

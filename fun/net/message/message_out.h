@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/message/message.h"
 #include "fun/net/message/imessage_out.h"
+#include "fun/net/message/message.h"
 
 namespace fun {
 namespace net {
@@ -11,13 +11,13 @@ class FUN_NET_API MessageOut : public IMessageOut {
   MessageOut(int32 min_capacity = -1);
   MessageOut(ByteArray data);
   MessageOut(const MessageOut& rhs);
-  MessageOut& operator = (const MessageOut& rhs);
+  MessageOut& operator=(const MessageOut& rhs);
 
   // IMessageOut interface
   bool CountingOnly() const override { return false; }
 
   //복사를 줄이기 위해서 참조로 리턴.
-  //ByteArrayView AsByteArrayView() const;
+  // ByteArrayView AsByteArrayView() const;
 
   const uint8* ConstData() const override;
   uint8* MutableData() override;
@@ -49,15 +49,15 @@ class FUN_NET_API MessageOut : public IMessageOut {
   void WriteVarint32(uint32 value) override;
   void WriteVarint64(uint64 value) override;
 
-  //TODO 아래 함수들이 구태여 인터페이스일 필요는 없는데...
+  // TODO 아래 함수들이 구태여 인터페이스일 필요는 없는데...
   void WriteVarint8SignExtended(int8 value) override;
   void WriteVarint16SignExtended(int16 value) override;
   void WriteVarint32SignExtended(int32 value) override;
 
-  MessageIn ToMessageIn() const; // no copy
-  MessageIn ToMessageIn(int32 offset, int32 len) const; // no copy
-  ByteArray ToBytesCopy() const; // ocationally copy
-  ByteArray ToBytesCopy(int32 offset, int32 len) const; // with copy
+  MessageIn ToMessageIn() const;                         // no copy
+  MessageIn ToMessageIn(int32 offset, int32 len) const;  // no copy
+  ByteArray ToBytesCopy() const;                         // ocationally copy
+  ByteArray ToBytesCopy(int32 offset, int32 len) const;  // with copy
   ByteArray ToBytesRaw() const;
   ByteArray ToBytesRaw(int32 offset, int32 len) const;
   ByteArrayView ToBytesView() const;
@@ -123,51 +123,50 @@ class FUN_NET_API MessageOut : public IMessageOut {
   static uint8* WriteVarint64ToBufferInline(uint64 value, uint8* dst);
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteFixed8ToBuffer(uint8 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteFixed8ToBuffer(uint8 value,
+                                                         uint8* dst) {
   *dst = value;
   return dst + sizeof(value);
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteFixed16ToBuffer(uint16 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteFixed16ToBuffer(uint16 value,
+                                                          uint8* dst) {
 #if FUN_ARCH_BIG_ENDIAN
   dst[0] = static_cast<uint8>(value);
   dst[1] = static_cast<uint8>(value >> 8);
 #else
-  #if FUN_REQUIRES_ALIGNED_ACCESS
+#if FUN_REQUIRES_ALIGNED_ACCESS
   UnsafeMemory::Memcpy(dst, &value, sizeof(value));
-  #else
+#else
   *((uint16*)dst) = value;
-  #endif
+#endif
 #endif
   return dst + sizeof(value);
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteFixed32ToBuffer(uint32 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteFixed32ToBuffer(uint32 value,
+                                                          uint8* dst) {
 #if FUN_ARCH_BIG_ENDIAN
   dst[0] = static_cast<uint8>(value);
   dst[1] = static_cast<uint8>(value >> 8);
   dst[2] = static_cast<uint8>(value >> 16);
   dst[3] = static_cast<uint8>(value >> 24);
 #else
-  #if FUN_REQUIRES_ALIGNED_ACCESS
+#if FUN_REQUIRES_ALIGNED_ACCESS
   UnsafeMemory::Memcpy(dst, &value, sizeof(value));
-  #else
+#else
   *((uint32*)dst) = value;
-  #endif
+#endif
 #endif
   return dst + sizeof(value);
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteFixed64ToBuffer(uint64 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteFixed64ToBuffer(uint64 value,
+                                                          uint8* dst) {
 #if FUN_ARCH_BIG_ENDIAN
   const uint32 part0 = static_cast<uint32>(value);
   const uint32 part1 = static_cast<uint32>(value >> 32);
@@ -181,17 +180,17 @@ MessageOut::WriteFixed64ToBuffer(uint64 value, uint8* dst) {
   dst[6] = static_cast<uint8>(part1 >> 16);
   dst[7] = static_cast<uint8>(part1 >> 24);
 #else
-  #if FUN_REQUIRES_ALIGNED_ACCESS
+#if FUN_REQUIRES_ALIGNED_ACCESS
   UnsafeMemory::Memcpy(dst, &value, sizeof(value));
-  #else
+#else
   *((uint64*)dst) = value;
-  #endif
+#endif
 #endif
   return dst + sizeof(value);
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint8ToBuffer(uint8 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint8ToBuffer(uint8 value,
+                                                          uint8* dst) {
   if (value < (1 << 7)) {
     *dst = value;
     return dst + 1;
@@ -200,9 +199,8 @@ MessageOut::WriteVarint8ToBuffer(uint8 value, uint8* dst) {
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint16ToBuffer(uint16 value, uint8* dst)
-{
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint16ToBuffer(uint16 value,
+                                                           uint8* dst) {
   if (value < (1 << 7)) {
     *dst = static_cast<uint8>(value);
     return dst + 1;
@@ -211,9 +209,8 @@ MessageOut::WriteVarint16ToBuffer(uint16 value, uint8* dst)
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint32ToBuffer(uint32 value, uint8* dst)
-{
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint32ToBuffer(uint32 value,
+                                                           uint8* dst) {
   if (value < (1 << 7)) {
     *dst = static_cast<uint8>(value);
     return dst + 1;
@@ -222,13 +219,12 @@ MessageOut::WriteVarint32ToBuffer(uint32 value, uint8* dst)
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint64ToBuffer(uint64 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint64ToBuffer(uint64 value,
+                                                           uint8* dst) {
   return WriteVarint64ToBufferInline(value, dst);
 }
 
-FUN_ALWAYS_INLINE void
-MessageOut::WriteVarint8SignExtended(int8 value) {
+FUN_ALWAYS_INLINE void MessageOut::WriteVarint8SignExtended(int8 value) {
   if (value < 0) {
     WriteVarint64(static_cast<uint64>(value));
   } else {
@@ -236,8 +232,8 @@ MessageOut::WriteVarint8SignExtended(int8 value) {
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint8SignExtendedToBuffer(int8 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint8SignExtendedToBuffer(
+    int8 value, uint8* dst) {
   if (value < 0) {
     return WriteVarint64ToBuffer(static_cast<uint64>(value), dst);
   } else {
@@ -245,9 +241,7 @@ MessageOut::WriteVarint8SignExtendedToBuffer(int8 value, uint8* dst) {
   }
 }
 
-FUN_ALWAYS_INLINE void
-MessageOut::WriteVarint16SignExtended(int16 value)
-{
+FUN_ALWAYS_INLINE void MessageOut::WriteVarint16SignExtended(int16 value) {
   if (value < 0) {
     WriteVarint64(static_cast<uint64>(value));
   } else {
@@ -255,8 +249,8 @@ MessageOut::WriteVarint16SignExtended(int16 value)
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint16SignExtendedToBuffer(int16 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint16SignExtendedToBuffer(
+    int16 value, uint8* dst) {
   if (value < 0) {
     return WriteVarint64ToBuffer(static_cast<uint64>(value), dst);
   } else {
@@ -264,8 +258,7 @@ MessageOut::WriteVarint16SignExtendedToBuffer(int16 value, uint8* dst) {
   }
 }
 
-FUN_ALWAYS_INLINE void
-MessageOut::WriteVarint32SignExtended(int32 value) {
+FUN_ALWAYS_INLINE void MessageOut::WriteVarint32SignExtended(int32 value) {
   if (value < 0) {
     WriteVarint64(static_cast<uint64>(value));
   } else {
@@ -273,9 +266,8 @@ MessageOut::WriteVarint32SignExtended(int32 value) {
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint32SignExtendedToBuffer(int32 value, uint8* dst)
-{
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint32SignExtendedToBuffer(
+    int32 value, uint8* dst) {
   if (value < 0) {
     return WriteVarint64ToBuffer(static_cast<uint64>(value), dst);
   } else {
@@ -283,13 +275,14 @@ MessageOut::WriteVarint32SignExtendedToBuffer(int32 value, uint8* dst)
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteRawBytesToBuffer(const void* data, int32 len, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteRawBytesToBuffer(const void* data,
+                                                           int32 len,
+                                                           uint8* dst) {
   UnsafeMemory::Memcpy(dst, data, len);
   return dst + len;
 }
 
-//FUN_ALWAYS_INLINE ByteArrayView MessageOut::AsByteArrayView() const {
+// FUN_ALWAYS_INLINE ByteArrayView MessageOut::AsByteArrayView() const {
 //  return ByteArrayView(ConstData(), GetLength());
 //}
 
@@ -319,13 +312,13 @@ FUN_ALWAYS_INLINE void MessageOut::SetLength(int32 new_len) {
   written_length_ = new_len;
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint8FallbackToBuffer(uint8 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint8FallbackToBuffer(uint8 value,
+                                                                  uint8* dst) {
   return WriteVarint8FallbackToBufferInline(value, dst);
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint8FallbackToBufferInline(uint8 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint8FallbackToBufferInline(
+    uint8 value, uint8* dst) {
   if (value < 0x80) {
     dst[0] = value;
     return dst + 1;
@@ -336,13 +329,13 @@ MessageOut::WriteVarint8FallbackToBufferInline(uint8 value, uint8* dst) {
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint16FallbackToBuffer(uint16 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint16FallbackToBuffer(uint16 value,
+                                                                   uint8* dst) {
   return WriteVarint16FallbackToBufferInline(value, dst);
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint16FallbackToBufferInline(uint16 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint16FallbackToBufferInline(
+    uint16 value, uint8* dst) {
   dst[0] = static_cast<uint8>(value | 0x80);
   if (value >= (1 << 7)) {
     dst[1] = static_cast<uint8>((value >> 7) | 0x80);
@@ -359,13 +352,13 @@ MessageOut::WriteVarint16FallbackToBufferInline(uint16 value, uint8* dst) {
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint32FallbackToBuffer(uint32 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint32FallbackToBuffer(uint32 value,
+                                                                   uint8* dst) {
   return WriteVarint32FallbackToBufferInline(value, dst);
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint32FallbackToBufferInline(uint32 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint32FallbackToBufferInline(
+    uint32 value, uint8* dst) {
   dst[0] = static_cast<uint8>(value | 0x80);
   if (value >= (1 << 7)) {
     dst[1] = static_cast<uint8>((value >> 7) | 0x80);
@@ -394,8 +387,8 @@ MessageOut::WriteVarint32FallbackToBufferInline(uint32 value, uint8* dst) {
   }
 }
 
-FUN_ALWAYS_INLINE uint8*
-MessageOut::WriteVarint64ToBufferInline(uint64 value, uint8* dst) {
+FUN_ALWAYS_INLINE uint8* MessageOut::WriteVarint64ToBufferInline(uint64 value,
+                                                                 uint8* dst) {
   // Splitting into 32-bit pieces gives better performance on 32-bit processors.
   const uint32 part0 = static_cast<uint32>(value);
   const uint32 part1 = static_cast<uint32>(value >> 28);
@@ -414,56 +407,76 @@ MessageOut::WriteVarint64ToBufferInline(uint64 value, uint8* dst) {
     if (part1 == 0) {
       if (part0 < (1 << 14)) {
         if (part0 < (1 << 7)) {
-          len = 1; goto Length01;
+          len = 1;
+          goto Length01;
         } else {
-          len = 2; goto Length02;
+          len = 2;
+          goto Length02;
         }
       } else {
         if (part0 < (1 << 21)) {
-          len = 3; goto Length03;
+          len = 3;
+          goto Length03;
         } else {
-          len = 4; goto Length04;
+          len = 4;
+          goto Length04;
         }
       }
     } else {
       if (part1 < (1 << 14)) {
         if (part1 < (1 << 7)) {
-          len = 5; goto Length05;
+          len = 5;
+          goto Length05;
         } else {
-          len = 6; goto Length06;
+          len = 6;
+          goto Length06;
         }
       } else {
         if (part1 < (1 << 21)) {
-          len = 7; goto Length07;
+          len = 7;
+          goto Length07;
         } else {
-          len = 8; goto Length08;
+          len = 8;
+          goto Length08;
         }
       }
     }
   } else {
     if (part2 < (1 << 7)) {
-      len = 9; goto Length09;
+      len = 9;
+      goto Length09;
     } else {
-      len = 10; goto Length10;
+      len = 10;
+      goto Length10;
     }
   }
 
-  fun_check(0); // Couldn't reached at here!
+  fun_check(0);  // Couldn't reached at here!
 
-  Length10: dst[9] = static_cast<uint8>((part2 >>  7) | 0x80);
-  Length09: dst[8] = static_cast<uint8>((part2      ) | 0x80);
-  Length08: dst[7] = static_cast<uint8>((part1 >> 21) | 0x80);
-  Length07: dst[6] = static_cast<uint8>((part1 >> 14) | 0x80);
-  Length06: dst[5] = static_cast<uint8>((part1 >>  7) | 0x80);
-  Length05: dst[4] = static_cast<uint8>((part1      ) | 0x80);
-  Length04: dst[3] = static_cast<uint8>((part0 >> 21) | 0x80);
-  Length03: dst[2] = static_cast<uint8>((part0 >> 14) | 0x80);
-  Length02: dst[1] = static_cast<uint8>((part0 >>  7) | 0x80);
-  Length01: dst[0] = static_cast<uint8>((part0      ) | 0x80);
+Length10:
+  dst[9] = static_cast<uint8>((part2 >> 7) | 0x80);
+Length09:
+  dst[8] = static_cast<uint8>((part2) | 0x80);
+Length08:
+  dst[7] = static_cast<uint8>((part1 >> 21) | 0x80);
+Length07:
+  dst[6] = static_cast<uint8>((part1 >> 14) | 0x80);
+Length06:
+  dst[5] = static_cast<uint8>((part1 >> 7) | 0x80);
+Length05:
+  dst[4] = static_cast<uint8>((part1) | 0x80);
+Length04:
+  dst[3] = static_cast<uint8>((part0 >> 21) | 0x80);
+Length03:
+  dst[2] = static_cast<uint8>((part0 >> 14) | 0x80);
+Length02:
+  dst[1] = static_cast<uint8>((part0 >> 7) | 0x80);
+Length01:
+  dst[0] = static_cast<uint8>((part0) | 0x80);
 
-  dst[len-1] &= 0x7F;
+  dst[len - 1] &= 0x7F;
   return dst + len;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -4,10 +4,10 @@
 #include "fun/base/memory_base.h"
 
 #if _MSC_VER || FUN_PLATFORM == FUN_PLATFORM_MAC_OS_X
-# define FUN_USE_ALIGNED_MALLOC  1
+#define FUN_USE_ALIGNED_MALLOC 1
 #else
 //@todo gcc: this should be implemented more elegantly on other platforms
-# define FUN_USE_ALIGNED_MALLOC  0
+#define FUN_USE_ALIGNED_MALLOC 0
 #endif
 
 #if FUN_PLATFORM == FUN_PLATFORM_MAC_OS_X
@@ -23,10 +23,12 @@ class MemoryAllocatorAnsi : public MemoryAllocator {
  public:
   MemoryAllocatorAnsi() {
 #if FUN_PLATFORM_WINDOWS_FAMILY
-    // Enable low fragmentation heap - http://msdn2.microsoft.com/en-US/library/aa366750.aspx
+    // Enable low fragmentation heap -
+    // http://msdn2.microsoft.com/en-US/library/aa366750.aspx
     intptr_t crt_heap_handle = _get_heap_handle();
     ULONG enable_LFH = 2;
-    HeapSetInformation((PVOID)crt_heap_handle, HeapCompatibilityInformation, &enable_LFH, sizeof(enable_LFH));
+    HeapSetInformation((PVOID)crt_heap_handle, HeapCompatibilityInformation,
+                       &enable_LFH, sizeof(enable_LFH));
 #endif
   }
 
@@ -42,7 +44,8 @@ class MemoryAllocatorAnsi : public MemoryAllocator {
 #else
     void* ptr = malloc(size + alignment + sizeof(void*) + sizeof(size_t));
     fun_check_ptr(ptr);
-    void* result = Align((uint8*)ptr + sizeof(void*) + sizeof(size_t), alignment);
+    void* result =
+        Align((uint8*)ptr + sizeof(void*) + sizeof(size_t), alignment);
     *((void**)((uint8*)result - sizeof(void*))) = ptr;
     *((size_t*)((uint8*)result - sizeof(void*) - sizeof(size_t))) = size;
 #endif
@@ -58,7 +61,8 @@ class MemoryAllocatorAnsi : public MemoryAllocator {
     IncrementTotalReallocCalls();
 
     void* result;
-    alignment = MathBase::Max(new_size >= 16 ? (uint32)16 : (uint32)8, alignment);
+    alignment =
+        MathBase::Max(new_size >= 16 ? (uint32)16 : (uint32)8, alignment);
 
 #if FUN_USE_ALIGNED_MALLOC
     if (ptr && new_size > 0) {
@@ -109,9 +113,11 @@ class MemoryAllocatorAnsi : public MemoryAllocator {
     }
 
 #if FUN_USE_ALIGNED_MALLOC
-    out_allocation_size = _aligned_msize(original, 16, 0); // Assumes alignment of 16
+    out_allocation_size =
+        _aligned_msize(original, 16, 0);  // Assumes alignment of 16
 #else
-    out_allocation_size = *((size_t*)((uint8*)original - sizeof(void*) - sizeof(size_t)));
+    out_allocation_size =
+        *((size_t*)((uint8*)original - sizeof(void*) - sizeof(size_t)));
 #endif
     return true;
   }
@@ -141,4 +147,4 @@ class MemoryAllocatorAnsi : public MemoryAllocator {
   const char* GetDescriptiveName() override { return "ANSI"; }
 };
 
-} // namespace fun
+}  // namespace fun

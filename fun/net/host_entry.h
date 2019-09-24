@@ -1,9 +1,9 @@
 ﻿#pragma once
 
+#include "fun/base/container/array.h"
+#include "fun/net/ip_address.h"
 #include "fun/net/net.h"
 #include "fun/net/socket_defs.h"
-#include "fun/net/ip_address.h"
-#include "fun/base/container/array.h"
 
 namespace fun {
 namespace net {
@@ -44,7 +44,7 @@ class FUN_NET_API HostEntry {
   /**
    * Assigns another HostEntry.
    */
-  HostEntry& operator = (const HostEntry& rhs);
+  HostEntry& operator=(const HostEntry& rhs);
 
   /**
    * Swaps the HostEntry with another one.
@@ -77,7 +77,6 @@ class FUN_NET_API HostEntry {
   AddressList host_addresses_;
 };
 
-
 //
 // inlines
 //
@@ -90,18 +89,17 @@ FUN_ALWAYS_INLINE const HostEntry::AliasList& HostEntry::GetAliases() const {
   return host_aliases_;
 }
 
-FUN_ALWAYS_INLINE const HostEntry::AddressList& HostEntry::GetAddresses() const {
+FUN_ALWAYS_INLINE const HostEntry::AddressList& HostEntry::GetAddresses()
+    const {
   return host_addresses_;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun
 
-//TODO 이걸 안해도 되도록 하자.
+// TODO 이걸 안해도 되도록 하자.
 namespace fun {
 
-FUN_ALWAYS_INLINE void Swap(net::HostEntry& x, net::HostEntry& y) {
-  x.Swap(y);
-}
+FUN_ALWAYS_INLINE void Swap(net::HostEntry& x, net::HostEntry& y) { x.Swap(y); }
 
-} // namespace fun
+}  // namespace fun

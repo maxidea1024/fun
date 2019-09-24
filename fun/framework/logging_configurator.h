@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
-#include "fun/framework/configuration_base.h"
-#include "fun/base/logging/log_sink.h"
 #include "fun/base/logging/log_formatter.h"
+#include "fun/base/logging/log_sink.h"
+#include "fun/framework/configuration_base.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
 
-//TODO private code임과 동시에 static으로 해도 무방할듯...
+// TODO private code임과 동시에 static으로 해도 무방할듯...
 
 /**
  * This utility class uses a configuration object to configure the
@@ -46,9 +46,9 @@ namespace framework {
  *
  * For convenience, the "formatter" property of a sink is treated
  * specifically. The "formatter" property can either be used to refer to
- * an already defined formatter, or it can be used to specify an "FUN_ALWAYS_INLINE"
- * formatter definition. In either case, when a "formatter" property is
- * present, the sink is automatically "wrapped" in a FormattingSink
+ * an already defined formatter, or it can be used to specify an
+ * "FUN_ALWAYS_INLINE" formatter definition. In either case, when a "formatter"
+ * property is present, the sink is automatically "wrapped" in a FormattingSink
  * object.
  *
  * Similarly, a sink supports also a "pattern" property, which results
@@ -93,13 +93,14 @@ class FUN_FRAMEWORK_API LoggingConfigurator {
   /**
    * Configures the logging subsystem based on the given configuration.
    *
-   * A ConfigurationView can be used to pass only a part of a larger configuration.
+   * A ConfigurationView can be used to pass only a part of a larger
+   * configuration.
    */
   void Configure(ConfigurationBase::Ptr config);
 
   // Disable copy and assignment.
   LoggingConfigurator(const LoggingConfigurator&) = delete;
-  LoggingConfigurator& operator = (const LoggingConfigurator&) = delete;
+  LoggingConfigurator& operator=(const LoggingConfigurator&) = delete;
 
  private:
   void ConfigureFormatters(ConfigurationBase::Ptr config);
@@ -111,5 +112,5 @@ class FUN_FRAMEWORK_API LoggingConfigurator {
   void ConfigureLogger(ConfigurationBase::Ptr config);
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

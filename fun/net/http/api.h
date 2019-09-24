@@ -28,8 +28,7 @@ void SetOption(Session& session, T&& value, args... args) {
   SetOption(session, FORWARD_VA_ARGS(args)...);
 }
 
-} // namespace internal
-
+}  // namespace internal
 
 //
 // GET
@@ -44,14 +43,18 @@ Response Get(args... args) {
 
 template <typename... args>
 AsyncResponse GetAsync(args... args) {
-  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() -> Response { return Get(MoveTemp(args)...); });
+  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() -> Response {
+    return Get(MoveTemp(args)...);
+  });
 }
 
 template <typename Then, typename... args>
-auto GetCallback(Then then, args... args) -> Future<decltype(then(Get(MoveTemp(args)...)))> {
-  return Async<Response>(EAsyncExecution::TaskGraph, [then,args...]() -> Response { return then(Get(MoveTemp(args)...)); });
+auto GetCallback(Then then, args... args)
+    -> Future<decltype(then(Get(MoveTemp(args)...)))> {
+  return Async<Response>(
+      EAsyncExecution::TaskGraph,
+      [then, args...]() -> Response { return then(Get(MoveTemp(args)...)); });
 }
-
 
 //
 // POST
@@ -60,21 +63,25 @@ auto GetCallback(Then then, args... args) -> Future<decltype(then(Get(MoveTemp(a
 template <typename... args>
 Response Post(args... args) {
   Session session;
-  //internal::SetOption(session, FORWARD_VA_ARGS(args)...);
+  // internal::SetOption(session, FORWARD_VA_ARGS(args)...);
   internal::SetOption(session, FORWARD_VA_ARGS(args)...);
   return session.Post();
 }
 
 template <typename... args>
 AsyncResponse PostAsync(args... args) {
-  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() -> Response { return Post(MoveTemp(args)...); });
+  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() -> Response {
+    return Post(MoveTemp(args)...);
+  });
 }
 
 template <typename Then, typename... args>
-auto PostCallback(Then then, args... args) -> Future<decltype(then(Post(MoveTemp(args)...)))> {
-  return Async<Response>(EAsyncExecution::TaskGraph, [then,args...]() -> Response { return then(Post(MoveTemp(args)...)); });
+auto PostCallback(Then then, args... args)
+    -> Future<decltype(then(Post(MoveTemp(args)...)))> {
+  return Async<Response>(
+      EAsyncExecution::TaskGraph,
+      [then, args...]() -> Response { return then(Post(MoveTemp(args)...)); });
 }
-
 
 //
 // PUT
@@ -89,14 +96,17 @@ Response Put(args... args) {
 
 template <typename... args>
 AsyncResponse PutAsync(args... args) {
-  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() { return Put(MoveTemp(args)...); });
+  return Async<Response>(EAsyncExecution::TaskGraph,
+                         [args...]() { return Put(MoveTemp(args)...); });
 }
 
 template <typename Then, typename... args>
-auto PutCallback(Then then, args... args) -> Future<decltype(then(Put(MoveTemp(args)...)))> {
-  return Async<Response>(EAsyncExecution::TaskGraph, [then,args...]() { return then(Put(MoveTemp(args)...)); });
+auto PutCallback(Then then, args... args)
+    -> Future<decltype(then(Put(MoveTemp(args)...)))> {
+  return Async<Response>(EAsyncExecution::TaskGraph, [then, args...]() {
+    return then(Put(MoveTemp(args)...));
+  });
 }
-
 
 //
 // HEAD
@@ -111,14 +121,18 @@ Response Head(args... args) {
 
 template <typename... args>
 AsyncResponse HeadAsync(args... args) {
-  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() -> Response { return Head(MoveTemp(args)...); });
+  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() -> Response {
+    return Head(MoveTemp(args)...);
+  });
 }
 
 template <typename Then, typename... args>
-auto HeadCallback(Then then, args... args) -> Future<decltype(then(Head(MoveTemp(args)...)))> {
-  return Async<Response>(EAsyncExecution::TaskGraph, [then,args...]() -> Response { return then(Head(MoveTemp(args)...)); });
+auto HeadCallback(Then then, args... args)
+    -> Future<decltype(then(Head(MoveTemp(args)...)))> {
+  return Async<Response>(
+      EAsyncExecution::TaskGraph,
+      [then, args...]() -> Response { return then(Head(MoveTemp(args)...)); });
 }
-
 
 //
 // DELETE
@@ -133,14 +147,19 @@ Response Delete(args... args) {
 
 template <typename... args>
 AsyncResponse DeleteAsync(args... args) {
-  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() -> Response { return Delete(MoveTemp(args)...); });
+  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() -> Response {
+    return Delete(MoveTemp(args)...);
+  });
 }
 
 template <typename Then, typename... args>
-auto DeleteCallback(Then then, args... args) -> Future<decltype(then(Delete(MoveTemp(args)...)))> {
-  return Async<Response>(EAsyncExecution::TaskGraph, [then,args...]() -> Response { return then(Delete(MoveTemp(args)...)); });
+auto DeleteCallback(Then then, args... args)
+    -> Future<decltype(then(Delete(MoveTemp(args)...)))> {
+  return Async<Response>(EAsyncExecution::TaskGraph,
+                         [then, args...]() -> Response {
+                           return then(Delete(MoveTemp(args)...));
+                         });
 }
-
 
 //
 // OPTIONS
@@ -155,14 +174,17 @@ Response Options(args... args) {
 
 template <typename... args>
 AsyncResponse OptionsAsync(args... args) {
-  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() { return Options(MoveTemp(args)...); });
+  return Async<Response>(EAsyncExecution::TaskGraph,
+                         [args...]() { return Options(MoveTemp(args)...); });
 }
 
 template <typename Then, typename... args>
-auto OptionsCallback(Then then, args... args) -> Future<decltype(then(Options(MoveTemp(args)...)))> {
-  return Async<Response>(EAsyncExecution::TaskGraph, [then,args...]() { return then(Options(MoveTemp(args)...)); });
+auto OptionsCallback(Then then, args... args)
+    -> Future<decltype(then(Options(MoveTemp(args)...)))> {
+  return Async<Response>(EAsyncExecution::TaskGraph, [then, args...]() {
+    return then(Options(MoveTemp(args)...));
+  });
 }
-
 
 //
 // PATCH
@@ -177,13 +199,18 @@ Response Patch(args... args) {
 
 template <typename... args>
 AsyncResponse PatchAsync(args... args) {
-  return Async<Response>(EAsyncExecution::TaskGraph, [args...]() { return Patch(MoveTemp(args)...); });
+  return Async<Response>(EAsyncExecution::TaskGraph,
+                         [args...]() { return Patch(MoveTemp(args)...); });
 }
 
 template <typename Then, typename... args>
-auto PatchCallback(Then then, args... args) -> Future<decltype(then(Patch(MoveTemp(args)...)))> {
-  return Async<Response>(EAsyncExecution::TaskGraph, [then,args...](Then then, args... args) { return then(Patch(MoveTemp(args)...));});
+auto PatchCallback(Then then, args... args)
+    -> Future<decltype(then(Patch(MoveTemp(args)...)))> {
+  return Async<Response>(EAsyncExecution::TaskGraph,
+                         [then, args...](Then then, args... args) {
+                           return then(Patch(MoveTemp(args)...));
+                         });
 }
 
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

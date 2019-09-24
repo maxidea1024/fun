@@ -3,7 +3,5 @@
 #include "mongodb.h"
 
 namespace fun {
-namespace mongodb {
-
-}
-}
+namespace mongodb {}
+}  // namespace fun

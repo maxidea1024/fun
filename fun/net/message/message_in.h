@@ -16,11 +16,12 @@ class FUN_NET_API MessageIn : public IMessageIn {
   MessageIn(const MessageIn& source, int32 offset, int32 length);
   MessageIn(const ByteArray& source);
   MessageIn(const ByteArray& source, int32 offset, int32 length);
-  MessageIn& operator = (const MessageIn& rhs);
+  MessageIn& operator=(const MessageIn& rhs);
 
   static MessageIn From(const MessageOut& source);
   static MessageIn From(const MessageOut& source, int32 offset, int32 length);
-  static MessageIn From(const MessageIn& source, bool with_source_position = true);
+  static MessageIn From(const MessageIn& source,
+                        bool with_source_position = true);
   static MessageIn From(const MessageIn& source, int32 offset, int32 length);
   static MessageIn From(const ByteArray& source);
   static MessageIn From(const ByteArray& source, int32 offset, int32 length);
@@ -30,48 +31,51 @@ class FUN_NET_API MessageIn : public IMessageIn {
    * 특별한 경우가 아니라면 사용하지 않는것이 좋습니다. 복사 비용이 뒤따릅니다.
    */
   ByteArray ToAllBytesCopy() const;
-  
+
   /**
    * 읽기 위치 고려없이, 전체 데이터를 MessageIn 형태로 참조하여 돌려줍니다.
    */
   MessageIn ToAllMessage() const;
-  
+
   /**
-   * 읽기 위치 고려없이, 전체 데이터를 raw 형태로 돌려줍니다. 원본 객체가 파괴되면
-   * 반환된 객체는 더이상 안전하지 않습니다.
+   * 읽기 위치 고려없이, 전체 데이터를 raw 형태로 돌려줍니다. 원본 객체가
+   * 파괴되면 반환된 객체는 더이상 안전하지 않습니다.
    */
   ByteArray ToAllBytesRaw() const;
-  
+
   /**
-   * 읽기 위치 고려없이, 전체 데이터를 ByteArrayView 형태로 돌려줍니다. 원본 객체가 파괴되면
-   * 반환된 객체는 더이상 안전하지 않습니다.
+   * 읽기 위치 고려없이, 전체 데이터를 ByteArrayView 형태로 돌려줍니다. 원본
+   * 객체가 파괴되면 반환된 객체는 더이상 안전하지 않습니다.
    */
   ByteArrayView ToAllBytesView() const;
 
   /**
-   * 읽기 가능한 데이터를 ByteArray 형태로 복사해서 돌려줍니다. MessageIn 객체가 파괴되는 경우,
-   * 불가피하게 데이터 사본이 필요한 경우에 사용합니다.
+   * 읽기 가능한 데이터를 ByteArray 형태로 복사해서 돌려줍니다. MessageIn 객체가
+   * 파괴되는 경우, 불가피하게 데이터 사본이 필요한 경우에 사용합니다.
    * 가급적이면, 사용하지 않는것이 좋습니다.
    */
   ByteArray ToReadableBytesCopy() const;
-  
+
   /**
-   * 읽기 가능한 데이터를 복사 없이 참조를 유지한채 접근할 수 있도록 만든, MessageIn 객체를 만들어 반환합니다.
-   * 내부적으로 버퍼는 공유되며, 이 함수가 반환한 객체는 원래 참조되던 내부버퍼가 다른곳에서 수정된다고 하여도
-   * 내용이 변경되지 않습니다. 이러한 이유는 내부버퍼가 COW(Copy On Write) 형태로 구현되어 있기 때문입니다.
+   * 읽기 가능한 데이터를 복사 없이 참조를 유지한채 접근할 수 있도록 만든,
+   * MessageIn 객체를 만들어 반환합니다. 내부적으로 버퍼는 공유되며, 이 함수가
+   * 반환한 객체는 원래 참조되던 내부버퍼가 다른곳에서 수정된다고 하여도 내용이
+   * 변경되지 않습니다. 이러한 이유는 내부버퍼가 COW(Copy On Write) 형태로
+   * 구현되어 있기 때문입니다.
    */
   MessageIn ToReadableMessage() const;
-  
+
   /**
-   * 읽기 가능한 데이터를 Raw형태의 ByteArray 형태로 돌려줍니다. 원본 객체가 파괴될 경우에
-   * 더이상 안전하지 않습니다.  바로 사용하고 회수되는 경우에 한해서 사용하는 것이 좋습니다.
+   * 읽기 가능한 데이터를 Raw형태의 ByteArray 형태로 돌려줍니다. 원본 객체가
+   * 파괴될 경우에 더이상 안전하지 않습니다.  바로 사용하고 회수되는 경우에
+   * 한해서 사용하는 것이 좋습니다.
    */
   ByteArray ToReadableBytesRaw() const;
-  
+
   /**
    * 읽기 가능한 데이터를 ByteArrayView 형태로 돌려줍니다.
-   * ByteArrayView 객체 자체가 원본 객체가 유효한 경우를 가정하므로, 원본 객체가 파괴되면
-   * 메모리 오류가 발생하게 됩니다.
+   * ByteArrayView 객체 자체가 원본 객체가 유효한 경우를 가정하므로, 원본 객체가
+   * 파괴되면 메모리 오류가 발생하게 됩니다.
    */
   ByteArrayView ToReadableBytesView() const;
 
@@ -80,9 +84,9 @@ class FUN_NET_API MessageIn : public IMessageIn {
    */
   void ResetBuffer();
 
-  bool ReadAsShared(MessageIn& to, int32 length_to_read); // share(no copy)
-  bool ReadAsCopy(ByteArray& to, int32 length_to_read); // copy
-  bool ReadAsRaw(ByteArray& to, int32 length_to_read); // raw(no copy)
+  bool ReadAsShared(MessageIn& to, int32 length_to_read);  // share(no copy)
+  bool ReadAsCopy(ByteArray& to, int32 length_to_read);    // copy
+  bool ReadAsRaw(ByteArray& to, int32 length_to_read);     // raw(no copy)
 
   // IMessageIn interface
   bool ExceptionsEnabled() const override;
@@ -152,9 +156,8 @@ class FUN_NET_API MessageIn : public IMessageIn {
   void SetupMasterView();
 
   /** 메인 뷰를 설정합니다. */
-  void SetupMasterView( int32 master_view_offset,
-                        int32 master_view_length,
-                        int32 source_length = -1);
+  void SetupMasterView(int32 master_view_offset, int32 master_view_length,
+                       int32 source_length = -1);
 
   bool exceptions_enabled_;
 
@@ -179,12 +182,15 @@ class FUN_NET_API MessageIn : public IMessageIn {
 
   bool Advance(int32 amount);
 
-  static const uint8* ReadVarint8FromBuffer(const uint8* buffer, uint8& out_value);
-  static const uint8* ReadVarint16FromBuffer(const uint8* buffer, uint16& out_value);
-  static const uint8* ReadVarint32FromBuffer(const uint8* buffer, uint32& out_value);
-  static const uint8* ReadVarint64FromBuffer(const uint8* buffer, uint64& out_value);
+  static const uint8* ReadVarint8FromBuffer(const uint8* buffer,
+                                            uint8& out_value);
+  static const uint8* ReadVarint16FromBuffer(const uint8* buffer,
+                                             uint16& out_value);
+  static const uint8* ReadVarint32FromBuffer(const uint8* buffer,
+                                             uint32& out_value);
+  static const uint8* ReadVarint64FromBuffer(const uint8* buffer,
+                                             uint64& out_value);
 };
-
 
 //
 // inlines
@@ -215,35 +221,38 @@ FUN_ALWAYS_INLINE const uint8* MessageIn::ReadablePtr() const {
 }
 
 FUN_ALWAYS_INLINE ByteArray MessageIn::ToAllBytesCopy() const {
-  return ByteArray((const char*)ConstData(), Length()); // copy
+  return ByteArray((const char*)ConstData(), Length());  // copy
 }
 
 FUN_ALWAYS_INLINE MessageIn MessageIn::ToAllMessage() const {
-  return From(*this, false); // without source posiiton
+  return From(*this, false);  // without source posiiton
 }
 
 FUN_ALWAYS_INLINE ByteArray MessageIn::ToAllBytesRaw() const {
-  return ByteArray::FromRawData((const char*)ConstData(), Length()); // raw(unsafe)
+  return ByteArray::FromRawData((const char*)ConstData(),
+                                Length());  // raw(unsafe)
 }
 
 FUN_ALWAYS_INLINE ByteArrayView MessageIn::ToAllBytesView() const {
-  return ByteArrayView((const char*)ConstData(), Length()); // reference
+  return ByteArrayView((const char*)ConstData(), Length());  // reference
 }
 
 FUN_ALWAYS_INLINE ByteArray MessageIn::ToReadableBytesCopy() const {
-  return ByteArray((const char*)ReadablePtr(), ReadableLength()); // copy
+  return ByteArray((const char*)ReadablePtr(), ReadableLength());  // copy
 }
 
 FUN_ALWAYS_INLINE MessageIn MessageIn::ToReadableMessage() const {
-  return MessageIn(sharable_buffer_, Tell(), ReadableLength()); // share
+  return MessageIn(sharable_buffer_, Tell(), ReadableLength());  // share
 }
 
 FUN_ALWAYS_INLINE ByteArray MessageIn::ToReadableBytesRaw() const {
-  return ByteArray::FromRawData((const char*)ReadablePtr(), ReadableLength()); // raw(unsafe)
+  return ByteArray::FromRawData((const char*)ReadablePtr(),
+                                ReadableLength());  // raw(unsafe)
 }
 
 FUN_ALWAYS_INLINE ByteArrayView MessageIn::ToReadableBytesView() const {
-  return ByteArrayView((const char*)ReadablePtr(), ReadableLength()); // reference
+  return ByteArrayView((const char*)ReadablePtr(),
+                       ReadableLength());  // reference
 }
 
 FUN_ALWAYS_INLINE int32 MessageIn::Tell() const {
@@ -251,7 +260,7 @@ FUN_ALWAYS_INLINE int32 MessageIn::Tell() const {
 }
 
 FUN_ALWAYS_INLINE int32 MessageIn::Length() const {
-  //return int32(original_buffer_end_ - original_buffer_);
+  // return int32(original_buffer_end_ - original_buffer_);
   return int32(buffer_end_ - buffer_start_);
 }
 
@@ -259,34 +268,32 @@ FUN_ALWAYS_INLINE const uint8* MessageIn::ConstData() const {
   return original_buffer_;
 }
 
-FUN_ALWAYS_INLINE MessageIn
-MessageIn::From(const MessageOut& source) {
+FUN_ALWAYS_INLINE MessageIn MessageIn::From(const MessageOut& source) {
   return MessageIn(source);
 }
 
-FUN_ALWAYS_INLINE MessageIn
-MessageIn::From(const MessageOut& source, int32 offset, int32 length) {
+FUN_ALWAYS_INLINE MessageIn MessageIn::From(const MessageOut& source,
+                                            int32 offset, int32 length) {
   return MessageIn(source, offset, length);
 }
 
-FUN_ALWAYS_INLINE MessageIn
-MessageIn::From(const MessageIn& source, bool with_source_position) {
+FUN_ALWAYS_INLINE MessageIn MessageIn::From(const MessageIn& source,
+                                            bool with_source_position) {
   return MessageIn(source, with_source_position);
 }
 
-FUN_ALWAYS_INLINE MessageIn
-MessageIn::From(const MessageIn& source, int32 offset, int32 length) {
+FUN_ALWAYS_INLINE MessageIn MessageIn::From(const MessageIn& source,
+                                            int32 offset, int32 length) {
   return MessageIn(source, offset, length);
 }
 
-FUN_ALWAYS_INLINE MessageIn
-MessageIn::From(const ByteArray& source) {
+FUN_ALWAYS_INLINE MessageIn MessageIn::From(const ByteArray& source) {
   return MessageIn(source);
 }
 
-FUN_ALWAYS_INLINE MessageIn
-MessageIn::From(const ByteArray& source, int32 offset, int32 length) {
+FUN_ALWAYS_INLINE MessageIn MessageIn::From(const ByteArray& source,
+                                            int32 offset, int32 length) {
   return MessageIn(source, offset, length);
 }
 
-} // namespace fun
+}  // namespace net

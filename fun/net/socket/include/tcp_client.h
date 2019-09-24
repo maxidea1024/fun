@@ -4,8 +4,8 @@
 
 namespace fun {
 
-//line 단위로 읽기 처리하는 옵션을 추가하는게 좋을듯함.
-//streaming 모드 설정가능 하도록 지원.
+// line 단위로 읽기 처리하는 옵션을 추가하는게 좋을듯함.
+// streaming 모드 설정가능 하도록 지원.
 
 class FUN_NETSOCKET_API TcpClient {
  public:
@@ -19,22 +19,22 @@ class FUN_NETSOCKET_API TcpClient {
     int32 size;
   };
 
-  typedef Function<void ()> ConnectedCallback;
-  typedef Function<void ()> DisconnectedCallback;
-  typedef Function<void (ReadResult&)> AsyncReadCallback;
-  typedef Function<void (WriteResult&)> AsyncWriteCallback;
+  typedef Function<void()> ConnectedCallback;
+  typedef Function<void()> DisconnectedCallback;
+  typedef Function<void(ReadResult&)> AsyncReadCallback;
+  typedef Function<void(WriteResult&)> AsyncWriteCallback;
 
   //요청시점에 내용이 담김.
-  //client.async_read({1024, OnNewMessage});
+  // client.async_read({1024, OnNewMessage});
   struct ReadRequest {
     int32 size;
     AsyncReadCallback async_read_cb;
   };
 
   //요청시점에 내용이 담김.
-  //client.async_write({res.buffer,nullptr});
+  // client.async_write({res.buffer,nullptr});
   struct WriteRequest {
-    //TODO 차라리 ByteArray 객체를 사용하는게 복사 부담을 줄일 수 있지 않을까??
+    // TODO 차라리 ByteArray 객체를 사용하는게 복사 부담을 줄일 수 있지 않을까??
     Array<char> buffer;
     AsyncWriteCallback async_write_cb;
   };
@@ -71,23 +71,23 @@ class FUN_NETSOCKET_API TcpClient {
   AsyncWriteCallback ProcessWrite(WriteResult& result);
 
  public:
-  //io_service_
+  // io_service_
   SharedPtr<SocketIoService> io_service_;
 
-  //socket object
+  // socket object
   StreamSocket socket_;
-  //Whether connected or not
+  // Whether connected or not
   ThreadSafeBool is_connected_{false};
   ThreadSafeBool is_connecting_{false};
 
-  //Read requests queue
+  // Read requests queue
   Queue<ReadRequest> read_requests_;
-  //Write requests queue
+  // Write requests queue
   Queue<WriteRequest> write_requests_;
 
-  //Criticalsection for read-requests
+  // Criticalsection for read-requests
   Mutex read_requests_mutex_;
-  //Criticalsection for write-requests
+  // Criticalsection for write-requests
   Mutex write_requests_mutex_;
 
   ConnectedCallback connected_cb_;
@@ -97,4 +97,4 @@ class FUN_NETSOCKET_API TcpClient {
   void SetDisconnectedCallback(const DisconnectedCallback& cb);
 };
 
-} // namespace fun
+}  // namespace fun

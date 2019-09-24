@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
+#include "fun/base/memory_base.h"
 #include "fun/base/mutex.h"
 #include "fun/base/scoped_lock.h"
-#include "fun/base/memory_base.h"
 
 namespace fun {
 
@@ -15,13 +15,14 @@ class Printer;
 class MemoryAllocatorThreadSafeProxy : public MemoryAllocator {
  public:
   /**
-   * Constructor for thread safe proxy malloc that takes a malloc to be used and a
-   * synchronization object used via ScopedLock<FastMutex> as a parameter.
+   * Constructor for thread safe proxy malloc that takes a malloc to be used and
+   * a synchronization object used via ScopedLock<FastMutex> as a parameter.
    *
-   * @param malloc - MemoryAllocator that is going to be used for actual allocations.
+   * @param malloc - MemoryAllocator that is going to be used for actual
+   * allocations.
    */
   MemoryAllocatorThreadSafeProxy(MemoryAllocator* malloc)
-    : inner_malloc_(malloc) {}
+      : inner_malloc_(malloc) {}
 
   // MemoryAllocator interface
 
@@ -72,7 +73,8 @@ class MemoryAllocatorThreadSafeProxy : public MemoryAllocator {
     return inner_malloc_->Exec(env, cmd, out);
   }
 
-  bool GetAllocationSize(void* reported_ptr, size_t& out_allocation_size) override {
+  bool GetAllocationSize(void* reported_ptr,
+                         size_t& out_allocation_size) override {
     ScopedLock<FastMutex> guard(mutex_);
     return inner_malloc_->GetAllocationSize(reported_ptr, out_allocation_size);
   }
@@ -91,4 +93,4 @@ class MemoryAllocatorThreadSafeProxy : public MemoryAllocator {
   FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

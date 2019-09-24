@@ -12,7 +12,8 @@ class FUN_BASE_API Uuid64Generator {
   int64 NextId(int32 object_type);
 
  private:
-  static const int64 EPOCH = 63618825600000LL; // 2017-1-1 0:00:00 (UTC) (in millisec)
+  // 2017-1-1 0:00:00 (UTC) (in millisec)
+  static const int64 EPOCH = 63618825600000LL;
 
   static const int64 SEQUENCE_BITS = 13;
   static const int64 WORKER_ID_BITS = 2;
@@ -22,8 +23,10 @@ class FUN_BASE_API Uuid64Generator {
 
   static const int64 WORKER_ID_SHIFT = SEQUENCE_BITS;
   static const int64 DATACENTER_ID_SHIFT = (SEQUENCE_BITS + WORKER_ID_BITS);
-  static const int64 OBJECT_TYPE_SHIFT = (SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_ID_BITS);
-  static const int64 TIMESTAMP_SHIFT = (SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_ID_BITS + OBJECT_TYPE_BITS);
+  static const int64 OBJECT_TYPE_SHIFT =
+      (SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_ID_BITS);
+  static const int64 TIMESTAMP_SHIFT =
+      (SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_ID_BITS + OBJECT_TYPE_BITS);
 
   static const int64 MAX_WORKER_ID = (1LL << WORKER_ID_BITS) - 1;
   static const int64 MAX_DATACENTER_ID = (1LL << DATACENTER_ID_BITS) - 1;
@@ -44,4 +47,4 @@ class FUN_BASE_API Uuid64Generator {
   int64 GetCurrentTimestamp() const;
 };
 
-} // namespace fun
+}  // namespace fun

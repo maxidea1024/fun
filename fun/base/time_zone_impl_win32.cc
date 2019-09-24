@@ -1,7 +1,7 @@
-﻿#include "fun/base/time_zone.h"
-#include "fun/base/time_zone_impl.h"
-#include "fun/base/date_time.h"
+﻿#include "fun/base/date_time.h"
 #include "fun/base/locale/locale_private.h"
+#include "fun/base/time_zone.h"
+#include "fun/base/time_zone_impl.h"
 
 #include <algorithm>
 
@@ -23,22 +23,26 @@ namespace fun {
 // MSDN home page for Time support
 // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724962%28v=vs.85%29.aspx
 
-// For Windows XP and later refer to MSDN docs on TIME_ZONE_INFORMATION structure
+// For Windows XP and later refer to MSDN docs on TIME_ZONE_INFORMATION
+// structure
 // http://msdn.microsoft.com/en-gb/library/windows/desktop/ms725481%28v=vs.85%29.aspx
 
-// Vista introduced support for historic data, see MSDN docs on DYNAMIC_TIME_ZONE_INFORMATION
+// Vista introduced support for historic data, see MSDN docs on
+// DYNAMIC_TIME_ZONE_INFORMATION
 // http://msdn.microsoft.com/en-gb/library/windows/desktop/ms724253%28v=vs.85%29.aspx
 #ifdef FUN_USE_REGISTRY_TIMEZONE
-static const char TZ_REG_PATH[] = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones";
-static const char CURRENT_TZ_REG_PATH[] = "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation";
+static const char TZ_REG_PATH[] =
+    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones";
+static const char CURRENT_TZ_REG_PATH[] =
+    "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation";
 #endif
 
 enum {
   MIN_YEAR = -292275056,
   MAX_YEAR = 292278994,
   MSECS_PER_DAY = 86400000,
-  TIME_T_MAX = 2145916799,  // int maximum 2037-12-31T23:59:59 UTC
-  JULIAN_DAY_FOR_EPOCH = 2440588 // result of julianDayFromDate(1970, 1, 1)
+  TIME_T_MAX = 2145916799,        // int maximum 2037-12-31T23:59:59 UTC
+  JULIAN_DAY_FOR_EPOCH = 2440588  // result of julianDayFromDate(1970, 1, 1)
 };
 
 // Copied from MSDN, see above for link
@@ -71,38 +75,35 @@ Date MSecsToDate(int64 msecs) {
 }
 
 bool EqualSystemtime(const SYSTEMTIME& t1, const SYSTEMTIME& t2) {
-  return (t1.wYear == t2.wYear
-      && t1.wMonth == t2.wMonth
-      && t1.wDay == t2.wDay
-      && t1.wDayOfWeek == t2.wDayOfWeek
-      && t1.wHour == t2.wHour
-      && t1.wMinute == t2.wMinute
-      && t1.wSecond == t2.wSecond
-      && t1.wMilliseconds == t2.wMilliseconds);
+  return (t1.wYear == t2.wYear && t1.wMonth == t2.wMonth &&
+          t1.wDay == t2.wDay && t1.wDayOfWeek == t2.wDayOfWeek &&
+          t1.wHour == t2.wHour && t1.wMinute == t2.wMinute &&
+          t1.wSecond == t2.wSecond && t1.wMilliseconds == t2.wMilliseconds);
 }
 
-bool EqualTzi(const TIME_ZONE_INFORMATION&tzi1, const TIME_ZONE_INFORMATION& tzi2) {
-  return(tzi1.Bias == tzi2.Bias
-       && tzi1.StandardBias == tzi2.StandardBias
-       && EqualSystemtime(tzi1.StandardDate, tzi2.StandardDate)
-       && wcscmp(tzi1.StandardName, tzi2.StandardName) == 0
-       && tzi1.DaylightBias == tzi2.DaylightBias
-       && EqualSystemtime(tzi1.DaylightDate, tzi2.DaylightDate)
-       && wcscmp(tzi1.DaylightName, tzi2.DaylightName) == 0);
+bool EqualTzi(const TIME_ZONE_INFORMATION& tzi1,
+              const TIME_ZONE_INFORMATION& tzi2) {
+  return (tzi1.Bias == tzi2.Bias && tzi1.StandardBias == tzi2.StandardBias &&
+          EqualSystemtime(tzi1.StandardDate, tzi2.StandardDate) &&
+          wcscmp(tzi1.StandardName, tzi2.StandardName) == 0 &&
+          tzi1.DaylightBias == tzi2.DaylightBias &&
+          EqualSystemtime(tzi1.DaylightDate, tzi2.DaylightDate) &&
+          wcscmp(tzi1.DaylightName, tzi2.DaylightName) == 0);
 }
 
 #ifdef FUN_USE_REGISTRY_TIMEZONE
 bool OpenRegistryKey(const String& key_path, HKEY* key) {
-  //return (RegOpenKeyEx(HKEY_LOCAL_MACHINE, (const wchar_t*)key_path.utf16(), 0, KEY_READ, key)
-  return (RegOpenKeyEx(HKEY_LOCAL_MACHINE, UTF8_TO_WCHAR(key_path.c_str()), 0, KEY_READ, key)
-      == ERROR_SUCCESS);
+  // return (RegOpenKeyEx(HKEY_LOCAL_MACHINE, (const wchar_t*)key_path.utf16(),
+  // 0, KEY_READ, key)
+  return (RegOpenKeyEx(HKEY_LOCAL_MACHINE, UTF8_TO_WCHAR(key_path.c_str()), 0,
+                       KEY_READ, key) == ERROR_SUCCESS);
 }
 
 String ReadRegistryString(const HKEY key, const wchar_t* value) {
   wchar_t buffer[MAX_PATH] = {0};
   DWORD size = sizeof(wchar_t) * MAX_PATH;
   RegQueryValueEx(key, (LPCWSTR)value, NULL, NULL, (LPBYTE)buffer, &size);
-  //return String::fromWCharArray(buffer);
+  // return String::fromWCharArray(buffer);
   return WCHAR_TO_UTF8(buffer);
 }
 
@@ -113,16 +114,19 @@ int32 ReadRegistryValue(const HKEY key, const wchar_t* value) {
   return buffer;
 }
 
-WinTimeZoneImpl::WinTransitionRule
-ReadRegistryRule(const HKEY key, const wchar_t* value, bool* ok) {
+WinTimeZoneImpl::WinTransitionRule ReadRegistryRule(const HKEY key,
+                                                    const wchar_t* value,
+                                                    bool* ok) {
   *ok = false;
   WinTimeZoneImpl::WinTransitionRule rule;
   REG_TZI_FORMAT tzi;
   DWORD tzi_size = sizeof(tzi);
-  if (RegQueryValueEx(key, (LPCWSTR)value, NULL, NULL, (BYTE*)&tzi, &tzi_size) == ERROR_SUCCESS) {
+  if (RegQueryValueEx(key, (LPCWSTR)value, NULL, NULL, (BYTE*)&tzi,
+                      &tzi_size) == ERROR_SUCCESS) {
     rule.start_year = 0;
     rule.standard_time_bias = tzi.Bias + tzi.StandardBias;
-    rule.daylight_time_bias = tzi.Bias + tzi.DaylightBias - rule.standard_time_bias;
+    rule.daylight_time_bias =
+        tzi.Bias + tzi.DaylightBias - rule.standard_time_bias;
     rule.standard_time_rule = tzi.StandardDate;
     rule.daylight_time_rule = tzi.DaylightDate;
     *ok = true;
@@ -145,7 +149,8 @@ TIME_ZONE_INFORMATION GetRegistryTzi(const String& windows_id, bool* ok) {
     size = sizeof(tzi.StandardName);
     RegQueryValueEx(key, L"Std", NULL, NULL, (LPBYTE)tzi.StandardName, &size);
 
-    if (RegQueryValueEx(key, L"TZI", NULL, NULL, (BYTE*)&reg_tzi, &reg_tzi_size) == ERROR_SUCCESS) {
+    if (RegQueryValueEx(key, L"TZI", NULL, NULL, (BYTE*)&reg_tzi,
+                        &reg_tzi_size) == ERROR_SUCCESS) {
       tzi.Bias = reg_tzi.Bias;
       tzi.StandardBias = reg_tzi.StandardBias;
       tzi.DaylightBias = reg_tzi.DaylightBias;
@@ -160,7 +165,7 @@ TIME_ZONE_INFORMATION GetRegistryTzi(const String& windows_id, bool* ok) {
   return tzi;
 }
 
-#else // FUN_USE_REGISTRY_TIMEZONE
+#else  // FUN_USE_REGISTRY_TIMEZONE
 
 struct WinDynamicTimeZone {
   String standard_name;
@@ -200,7 +205,8 @@ DYNAMIC_TIME_ZONE_INFORMATION DynamicInfoForId(const String& windows_id) {
   quint32 index = 0;
   String prev_time_zone_key_name;
   while (SUCCEEDED(EnumDynamicTimeZoneInformation(index++, &dtz_info))) {
-    const String time_zone_name = String::fromWCharArray(dtz_info.TimeZoneKeyName);
+    const String time_zone_name =
+        String::fromWCharArray(dtz_info.TimeZoneKeyName);
     if (time_zone_name == QLatin1String(windows_id)) {
       break;
     }
@@ -212,22 +218,23 @@ DYNAMIC_TIME_ZONE_INFORMATION DynamicInfoForId(const String& windows_id) {
   return dtz_info;
 }
 
-WinTimeZoneImpl::WinTransitionRule
-ReadDynamicRule(DYNAMIC_TIME_ZONE_INFORMATION& dtzi, int32 year, bool* ok) {
+WinTimeZoneImpl::WinTransitionRule ReadDynamicRule(
+    DYNAMIC_TIME_ZONE_INFORMATION& dtzi, int32 year, bool* ok) {
   TIME_ZONE_INFORMATION tzi;
   WinTimeZoneImpl::WinTransitionRule rule;
   *ok = GetTimeZoneInformationForYear(year, &dtzi, &tzi);
   if (*ok) {
     rule.start_year = 0;
     rule.standard_time_bias = tzi.Bias + tzi.StandardBias;
-    rule.daylight_time_bias = tzi.Bias + tzi.DaylightBias - rule.standard_time_bias;
+    rule.daylight_time_bias =
+        tzi.Bias + tzi.DaylightBias - rule.standard_time_bias;
     rule.standard_time_rule = tzi.StandardDate;
     rule.daylight_time_rule = tzi.DaylightDate;
   }
   return rule;
 }
 
-#endif // FUN_USE_REGISTRY_TIMEZONE
+#endif  // FUN_USE_REGISTRY_TIMEZONE
 
 bool IsSameRule(const WinTimeZoneImpl::WinTransitionRule& last,
                 const WinTimeZoneImpl::WinTransitionRule& rule) {
@@ -236,10 +243,10 @@ bool IsSameRule(const WinTimeZoneImpl::WinTransitionRule& last,
   // either rule *isn't* recurrent, it has non-0 wYear which shall be
   // different from the other's.  Note that we don't compare .start_year, since
   // that will always be different.
-  return EqualSystemtime(last.standard_time_rule, rule.standard_time_rule)
-      && EqualSystemtime(last.daylight_time_rule, rule.daylight_time_rule)
-      && last.standard_time_bias == rule.standard_time_bias
-      && last.daylight_time_bias == rule.daylight_time_bias;
+  return EqualSystemtime(last.standard_time_rule, rule.standard_time_rule) &&
+         EqualSystemtime(last.daylight_time_rule, rule.daylight_time_rule) &&
+         last.standard_time_bias == rule.standard_time_bias &&
+         last.daylight_time_bias == rule.daylight_time_bias;
 }
 
 Array<String> AvailableWindowsIds() {
@@ -249,12 +256,14 @@ Array<String> AvailableWindowsIds() {
   HKEY key = NULL;
   if (OpenRegistryKey(TZ_REG_PATH, &key)) {
     DWORD id_count = 0;
-    if (RegQueryInfoKey(key, 0, 0, 0, &id_count, 0, 0, 0, 0, 0, 0, 0) == ERROR_SUCCESS
-      && id_count > 0) {
+    if (RegQueryInfoKey(key, 0, 0, 0, &id_count, 0, 0, 0, 0, 0, 0, 0) ==
+            ERROR_SUCCESS &&
+        id_count > 0) {
       for (DWORD i = 0; i < id_count; ++i) {
         DWORD max_len = MAX_KEY_LENGTH;
         wchar_t buffer[MAX_KEY_LENGTH];
-        if (RegEnumKeyEx(key, i, buffer, &max_len, 0, 0, 0, 0) == ERROR_SUCCESS) {
+        if (RegEnumKeyEx(key, i, buffer, &max_len, 0, 0, 0, 0) ==
+            ERROR_SUCCESS) {
           list.Add(String(WCHAR_TO_UTF8(buffer)));
         }
       }
@@ -262,17 +271,18 @@ Array<String> AvailableWindowsIds() {
     RegCloseKey(key);
   }
   return list;
-#else // FUN_USE_REGISTRY_TIMEZONE
+#else   // FUN_USE_REGISTRY_TIMEZONE
   if (g_time_zones->IsEmpty()) {
     EnumerateTimeZones();
   }
   return g_time_zones->keys();
-#endif // FUN_USE_REGISTRY_TIMEZONE
+#endif  // FUN_USE_REGISTRY_TIMEZONE
 }
 
 String WindowsSystemZoneId() {
 #ifdef FUN_USE_REGISTRY_TIMEZONE
-  // On Vista and later is held in the value TimeZoneKeyName in key CURRENT_TZ_REG_PATH
+  // On Vista and later is held in the value TimeZoneKeyName in key
+  // CURRENT_TZ_REG_PATH
   String id;
   HKEY key = NULL;
   String tzi_key_path = CURRENT_TZ_REG_PATH;
@@ -295,12 +305,12 @@ String WindowsSystemZoneId() {
       return win_id;
     }
   }
-#else // FUN_USE_REGISTRY_TIMEZONE
+#else   // FUN_USE_REGISTRY_TIMEZONE
   DYNAMIC_TIME_ZONE_INFORMATION dtzi;
   if (SUCCEEDED(GetDynamicTimeZoneInformation(&dtzi))) {
     return String::fromWCharArray(dtzi.TimeZoneKeyName).toLocal8Bit();
   }
-#endif // FUN_USE_REGISTRY_TIMEZONE
+#endif  // FUN_USE_REGISTRY_TIMEZONE
 
   // If we can't determine the current ID use UTC
   return "UTC";
@@ -324,8 +334,8 @@ Date CalculateTransitionLocalDate(const SYSTEMTIME& rule, int32 year) {
   const int32 day_of_week = rule.wDayOfWeek == 0 ? 7 : rule.wDayOfWeek;
   Date date(year, rule.wMonth, 1);
   // How many days before was last day_of_week before target month ?
-  int32 adjust = day_of_week - (int32)date.DayOfWeek(); // -6 <= adjust < 7
-  if (adjust >= 0) { // Ensure -7 <= adjust < 0:
+  int32 adjust = day_of_week - (int32)date.DayOfWeek();  // -6 <= adjust < 7
+  if (adjust >= 0) {  // Ensure -7 <= adjust < 0:
     adjust -= 7;
   }
   // Normally, wDay is day-within-month; but here it is 1 for the first
@@ -345,10 +355,12 @@ Date CalculateTransitionLocalDate(const SYSTEMTIME& rule, int32 year) {
 
 // Converts a date/time value into msecs
 inline int64 TimeToMSecs(const Date& date, const Time& time) {
-  return (int64)((date.ToJulianDay() - JULIAN_DAY_FOR_EPOCH) * MSECS_PER_DAY) + time.ToMSecsStartOfDay();
+  return (int64)((date.ToJulianDay() - JULIAN_DAY_FOR_EPOCH) * MSECS_PER_DAY) +
+         time.ToMSecsStartOfDay();
 }
 
-int64 calculateTransitionForYear(const SYSTEMTIME& rule, int32 year, int32 bias) {
+int64 calculateTransitionForYear(const SYSTEMTIME& rule, int32 year,
+                                 int32 bias) {
   // TODO Consider caching the calculated values - i.e. replace SYSTEMTIME in
   // WinTransitionRule; do this in init() once and store the results.
   const Date date = CalculateTransitionLocalDate(rule, year);
@@ -365,13 +377,15 @@ struct TransitionTimePair {
   // If either is InvalidMSecs(), which shall then be < the other, there is no
   // DST and the other describes a change in actual standard offset.
 
-  TransitionTimePair(const WinTimeZoneImpl::WinTransitionRule& rule,
-             int32 year, int32 old_year_offset)
-    // The local time in Daylight Time of the switch to Standard Time
-    : std(calculateTransitionForYear(rule.standard_time_rule, year,
-                     rule.standard_time_bias + rule.daylight_time_bias)),
-      // The local time in Standard Time of the switch to Daylight Time
-      dst(calculateTransitionForYear(rule.daylight_time_rule, year, rule.standard_time_bias)) {
+  TransitionTimePair(const WinTimeZoneImpl::WinTransitionRule& rule, int32 year,
+                     int32 old_year_offset)
+      // The local time in Daylight Time of the switch to Standard Time
+      : std(calculateTransitionForYear(
+            rule.standard_time_rule, year,
+            rule.standard_time_bias + rule.daylight_time_bias)),
+        // The local time in Standard Time of the switch to Daylight Time
+        dst(calculateTransitionForYear(rule.daylight_time_rule, year,
+                                       rule.standard_time_bias)) {
     // Check for potential "fake DST", used by MS's APIs because the
     // TIME_ZONE_INFORMATION spec either expresses no transitions in the
     // year, or expresses a transition of each kind, even if standard time
@@ -391,29 +405,36 @@ struct TransitionTimePair {
     // Example: Russia/Moscow
     // Format: -bias +( -stdBias, stdDate | -dstBias, dstDate ) notes
     // Last year of DST, 2010: 180 +( 0, 0-10-5 3:0 | 60, 0-3-5 2:0 ) normal DST
-    // Zone change in 2011: 180 +( 0, 0-1-1 0:0 | 60 0-3-5 2:0 ) fake DST at transition
-    // Fixed standard in 2012: 240 +( 0, 0-0-0 0:0 | 60, 0-0-0 0:0 ) standard time years
-    // Zone change in 2014: 180 +( 0, 0-10-5 2:0 | 60, 0-1-1 0:0 ) fake DST at year-start
-    // The last of these is missing on Win7 VMs (too old to know about it).
+    // Zone change in 2011: 180 +( 0, 0-1-1 0:0 | 60 0-3-5 2:0 ) fake DST at
+    // transition Fixed standard in 2012: 240 +( 0, 0-0-0 0:0 | 60, 0-0-0 0:0 )
+    // standard time years Zone change in 2014: 180 +( 0, 0-10-5 2:0 | 60, 0-1-1
+    // 0:0 ) fake DST at year-start The last of these is missing on Win7 VMs
+    // (too old to know about it).
 
-    if (rule.daylight_time_rule.wMonth == 1 && rule.daylight_time_rule.wDay == 1) {
+    if (rule.daylight_time_rule.wMonth == 1 &&
+        rule.daylight_time_rule.wDay == 1) {
       // Fake "DST transition" at start of year producing the same offset as
       // previous year ended in.
-      if (rule.standard_time_bias + rule.daylight_time_bias == old_year_offset) {
+      if (rule.standard_time_bias + rule.daylight_time_bias ==
+          old_year_offset) {
         dst = TimeZoneImpl::InvalidMSecs();
       }
-    } else if (rule.daylight_time_rule.wMonth == 12 && rule.daylight_time_rule.wDay > 3) {
+    } else if (rule.daylight_time_rule.wMonth == 12 &&
+               rule.daylight_time_rule.wDay > 3) {
       // Similar, conjectured, for end of year, not changing offset.
       if (rule.daylight_time_bias == 0) {
         dst = TimeZoneImpl::InvalidMSecs();
       }
-    } if (rule.standard_time_rule.wMonth == 1 && rule.standard_time_rule.wDay == 1) {
+    }
+    if (rule.standard_time_rule.wMonth == 1 &&
+        rule.standard_time_rule.wDay == 1) {
       // Fake "transition out of DST" at start of year producing the same
       // offset as previous year ended in.
       if (rule.standard_time_bias == old_year_offset) {
         std = TimeZoneImpl::InvalidMSecs();
       }
-    } else if (rule.standard_time_rule.wMonth == 12 && rule.standard_time_rule.wDay > 3) {
+    } else if (rule.standard_time_rule.wMonth == 12 &&
+               rule.standard_time_rule.wDay > 3) {
       // Similar, conjectured, for end of year, not changing offset.
       if (rule.daylight_time_bias == 0) {
         std = TimeZoneImpl::InvalidMSecs();
@@ -422,11 +443,13 @@ struct TransitionTimePair {
   }
 
   bool FakesDst() const {
-    return std == TimeZoneImpl::InvalidMSecs() || dst == TimeZoneImpl::InvalidMSecs();
+    return std == TimeZoneImpl::InvalidMSecs() ||
+           dst == TimeZoneImpl::InvalidMSecs();
   }
 };
 
-int32 YearEndOffset(const WinTimeZoneImpl::WinTransitionRule& rule, int32 year) {
+int32 YearEndOffset(const WinTimeZoneImpl::WinTransitionRule& rule,
+                    int32 year) {
   int32 offset = rule.standard_time_bias;
   // Only needed to help another TransitionTimePair work out year + 1's start
   // offset; and the old_year_offset we use only affects an alleged transition
@@ -442,16 +465,19 @@ Locale::Country GetUserCountry() {
   const GEOID id = GetUserGeoID(GEOCLASS_NATION);
   wchar_t code[3];
   const int32 size = GetGeoInfo(id, GEO_ISO2, code, 3, 0);
-  return (size == 3) ? LocaleImpl::CodeToCountry(UStringView(code, size)) : Locale::AnyCountry;
+  return (size == 3) ? LocaleImpl::CodeToCountry(UStringView(code, size))
+                     : Locale::AnyCountry;
 }
 
 // Index of last rule in rules with .start_year <= year:
-int32 RuleIndexForYear(const Array<WinTimeZoneImpl::WinTransitionRule>& rules, int32 year) {
+int32 RuleIndexForYear(const Array<WinTimeZoneImpl::WinTransitionRule>& rules,
+                       int32 year) {
   if (rules.Last().start_year <= year) {
     return rules.Count() - 1;
   }
 
-  // We don't have a rule for before the first, but the first is the best we can offer:
+  // We don't have a rule for before the first, but the first is the best we can
+  // offer:
   if (rules.First().start_year > year) {
     return 0;
   }
@@ -469,31 +495,28 @@ int32 RuleIndexForYear(const Array<WinTimeZoneImpl::WinTransitionRule>& rules, i
       hi = mid;
     } else if (mid_year < year) {
       lo = mid;
-    } else { // No two rules have the same start_year:
+    } else {  // No two rules have the same start_year:
       return mid;
     }
   }
   return lo;
 }
 
-} // namespace
+}  // namespace
 
-
-WinTimeZoneImpl::WinTimeZoneImpl() : TimeZoneImpl() {
-  Init(String());
-}
+WinTimeZoneImpl::WinTimeZoneImpl() : TimeZoneImpl() { Init(String()); }
 
 WinTimeZoneImpl::WinTimeZoneImpl(const String& iana_id) : TimeZoneImpl() {
   Init(iana_id);
 }
 
 WinTimeZoneImpl::WinTimeZoneImpl(const WinTimeZoneImpl& other)
-  : TimeZoneImpl(other),
-    windows_id_(other.windows_id_),
-    display_name_(other.display_name_),
-    standard_name_(other.standard_name_),
-    daylight_name_(other.daylight_name_),
-    trans_rules_(other.trans_rules_) {}
+    : TimeZoneImpl(other),
+      windows_id_(other.windows_id_),
+      display_name_(other.display_name_),
+      standard_name_(other.standard_name_),
+      daylight_name_(other.daylight_name_),
+      trans_rules_(other.trans_rules_) {}
 
 WinTimeZoneImpl::~WinTimeZoneImpl() {}
 
@@ -510,7 +533,7 @@ void WinTimeZoneImpl::Init(const String& iana_id) {
     id_ = iana_id;
   }
 
-  bool bad_month = false; // Only warn once per zone, if at all.
+  bool bad_month = false;  // Only warn once per zone, if at all.
   if (!windows_id_.IsEmpty()) {
 #ifdef FUN_USE_REGISTRY_TIMEZONE
     // Open the base TZI for the time zone
@@ -530,18 +553,17 @@ void WinTimeZoneImpl::Init(const String& iana_id) {
         int32 end_year = ReadRegistryValue(dynamic_key, L"LastEntry");
         for (int32 year = start_year; year <= end_year; ++year) {
           bool rule_ok;
-          WinTransitionRule rule = ReadRegistryRule(dynamic_key,
-                                 (LPCWSTR)UString::FromNumber(year).c_str(),
-                                 &rule_ok);
+          WinTransitionRule rule = ReadRegistryRule(
+              dynamic_key, (LPCWSTR)UString::FromNumber(year).c_str(),
+              &rule_ok);
           if (rule_ok
-            // Don't repeat a recurrent rule:
-            && (trans_rules_.IsEmpty()
-              || !IsSameRule(trans_rules_.Last(), rule))) {
-            if (!bad_month
-              && (rule.standard_time_rule.wMonth == 0)
-              != (rule.daylight_time_rule.wMonth == 0)) {
+              // Don't repeat a recurrent rule:
+              && (trans_rules_.IsEmpty() ||
+                  !IsSameRule(trans_rules_.Last(), rule))) {
+            if (!bad_month && (rule.standard_time_rule.wMonth == 0) !=
+                                  (rule.daylight_time_rule.wMonth == 0)) {
               bad_month = true;
-              //qWarning("MS registry TZ API violated its wMonth constraint;"
+              // qWarning("MS registry TZ API violated its wMonth constraint;"
               //     "this may cause mistakes for %s from %d",
               //     iana_id.constData(), year);
             }
@@ -561,7 +583,7 @@ void WinTimeZoneImpl::Init(const String& iana_id) {
       }
       RegCloseKey(base_key);
     }
-#else // FUN_USE_REGISTRY_TIMEZONE
+#else   // FUN_USE_REGISTRY_TIMEZONE
     if (g_time_zones->IsEmpty()) {
       EnumerateTimeZones();
     }
@@ -574,22 +596,23 @@ void WinTimeZoneImpl::Init(const String& iana_id) {
       DWORD first_year = 0;
       DWORD last_year = 0;
       DYNAMIC_TIME_ZONE_INFORMATION dtzi = DynamicInfoForId(windows_id_);
-      if (GetDynamicTimeZoneInformationEffectiveYears(&dtzi, &first_year, &last_year)
-        == ERROR_SUCCESS && first_year < last_year) {
+      if (GetDynamicTimeZoneInformationEffectiveYears(
+              &dtzi, &first_year, &last_year) == ERROR_SUCCESS &&
+          first_year < last_year) {
         for (DWORD year = first_year; year <= last_year; ++year) {
           bool ok = false;
           WinTransitionRule rule = ReadDynamicRule(dtzi, year, &ok);
           if (ok
-            // Don't repeat a recurrent rule
-            && (trans_rules_.IsEmpty()
-              || !IsSameRule(trans_rules_.last(), rule))) {
-            if (!bad_month
-              && (rule.standard_time_rule.wMonth == 0)
-              != (rule.daylight_time_rule.wMonth == 0)) {
+              // Don't repeat a recurrent rule
+              && (trans_rules_.IsEmpty() ||
+                  !IsSameRule(trans_rules_.last(), rule))) {
+            if (!bad_month && (rule.standard_time_rule.wMonth == 0) !=
+                                  (rule.daylight_time_rule.wMonth == 0)) {
               bad_month = true;
-              qWarning("MS dynamic TZ API violated its wMonth constraint;"
-                   "this may cause mistakes for %s from %d",
-                   iana_id.constData(), year);
+              qWarning(
+                  "MS dynamic TZ API violated its wMonth constraint;"
+                  "this may cause mistakes for %s from %d",
+                  iana_id.constData(), year);
             }
             rule.start_year = trans_rules_.IsEmpty() ? MIN_YEAR : year;
             trans_rules_.Add(rule);
@@ -606,7 +629,7 @@ void WinTimeZoneImpl::Init(const String& iana_id) {
         }
       }
     }
-#endif // FUN_USE_REGISTRY_TIMEZONE
+#endif  // FUN_USE_REGISTRY_TIMEZONE
   }
 
   // If there are no rules then we failed to find a windows_id or any tzi info
@@ -617,21 +640,20 @@ void WinTimeZoneImpl::Init(const String& iana_id) {
   }
 }
 
-String WinTimeZoneImpl::GetComment() const {
-  return display_name_;
-}
+String WinTimeZoneImpl::GetComment() const { return display_name_; }
 
 String WinTimeZoneImpl::GetDisplayName(TimeZone::TimeType time_type,
-                     TimeZone::NameType name_type,
-                     const Locale& locale) const {
+                                       TimeZone::NameType name_type,
+                                       const Locale& locale) const {
   // TODO Registry holds MUI keys, should be able to look up translations?
   FUN_UNUSED(locale);
 
   if (name_type == TimeZone::OffsetName) {
     const auto& rule =
-      trans_rules_[RuleIndexForYear(trans_rules_, Date::Today().Year())];
+        trans_rules_[RuleIndexForYear(trans_rules_, Date::Today().Year())];
     if (time_type == TimeZone::DaylightTime) {
-      return IsoOffsetFormat((rule.standard_time_bias + rule.daylight_time_bias) * -60);
+      return IsoOffsetFormat(
+          (rule.standard_time_bias + rule.daylight_time_bias) * -60);
     } else {
       return IsoOffsetFormat((rule.standard_time_bias) * -60);
     }
@@ -664,40 +686,41 @@ int32 WinTimeZoneImpl::GetDaylightTimeOffset(int64 at_msecs_since_epoch) const {
   return GetData(at_msecs_since_epoch).daylight_time_offset;
 }
 
-bool WinTimeZoneImpl::HasDaylightTime() const {
-  return HasTransitions();
-}
+bool WinTimeZoneImpl::HasDaylightTime() const { return HasTransitions(); }
 
 bool WinTimeZoneImpl::IsDaylightTime(int64 at_msecs_since_epoch) const {
   return (GetData(at_msecs_since_epoch).daylight_time_offset != 0);
 }
 
-TimeZoneImpl::Data
-WinTimeZoneImpl::GetData(int64 for_msecs_since_epoch) const {
+TimeZoneImpl::Data WinTimeZoneImpl::GetData(int64 for_msecs_since_epoch) const {
   int32 year = MSecsToDate(for_msecs_since_epoch).Year();
-  for (int32 rule_index = RuleIndexForYear(trans_rules_, year);
-     rule_index >= 0; --rule_index) {
+  for (int32 rule_index = RuleIndexForYear(trans_rules_, year); rule_index >= 0;
+       --rule_index) {
     const auto& rule = trans_rules_[rule_index];
     // Does this rule's period include any transition at all ?
-    if (rule.standard_time_rule.wMonth > 0 || rule.daylight_time_rule.wMonth > 0) {
+    if (rule.standard_time_rule.wMonth > 0 ||
+        rule.daylight_time_rule.wMonth > 0) {
       const int32 end_year = MathBase::Max(rule.start_year, year - 1);
       while (year >= end_year) {
-        const int32 new_year_offset = (year <= rule.start_year && rule_index > 0)
-          ? YearEndOffset(trans_rules_[rule_index - 1], year - 1)
-          : YearEndOffset(rule, year - 1);
+        const int32 new_year_offset =
+            (year <= rule.start_year && rule_index > 0)
+                ? YearEndOffset(trans_rules_[rule_index - 1], year - 1)
+                : YearEndOffset(rule, year - 1);
         const TransitionTimePair pair(rule, year, new_year_offset);
         bool is_dst = false;
         if (pair.std != InvalidMSecs() && pair.std <= for_msecs_since_epoch) {
           is_dst = pair.std < pair.dst && pair.dst <= for_msecs_since_epoch;
-        } else if (pair.dst != InvalidMSecs() && pair.dst <= for_msecs_since_epoch) {
+        } else if (pair.dst != InvalidMSecs() &&
+                   pair.dst <= for_msecs_since_epoch) {
           is_dst = true;
         } else {
-          --year; // Try an earlier year for this rule (once).
+          --year;  // Try an earlier year for this rule (once).
           continue;
         }
-        return RuleToData(rule, for_msecs_since_epoch,
-                  is_dst ? TimeZone::DaylightTime : TimeZone::StandardTime,
-                  pair.FakesDst());
+        return RuleToData(
+            rule, for_msecs_since_epoch,
+            is_dst ? TimeZone::DaylightTime : TimeZone::StandardTime,
+            pair.FakesDst());
       }
       // Fell off start of rule, try previous rule.
     } else {
@@ -706,7 +729,7 @@ WinTimeZoneImpl::GetData(int64 for_msecs_since_epoch) const {
     }
 
     if (year >= rule.start_year) {
-      year = rule.start_year - 1; // Seek last transition in new rule.
+      year = rule.start_year - 1;  // Seek last transition in new rule.
     }
   }
   // We don't have relevant data :-(
@@ -715,33 +738,39 @@ WinTimeZoneImpl::GetData(int64 for_msecs_since_epoch) const {
 
 bool WinTimeZoneImpl::HasTransitions() const {
   for (const auto& rule : trans_rules_) {
-    if (rule.standard_time_rule.wMonth > 0 && rule.daylight_time_rule.wMonth > 0) {
+    if (rule.standard_time_rule.wMonth > 0 &&
+        rule.daylight_time_rule.wMonth > 0) {
       return true;
     }
   }
   return false;
 }
 
-TimeZoneImpl::Data
-WinTimeZoneImpl::NextTransition(int64 after_msecs_since_epoch) const {
+TimeZoneImpl::Data WinTimeZoneImpl::NextTransition(
+    int64 after_msecs_since_epoch) const {
   int32 year = MSecsToDate(after_msecs_since_epoch).Year();
   for (int32 rule_index = RuleIndexForYear(trans_rules_, year);
-     rule_index < trans_rules_.Count(); ++rule_index) {
+       rule_index < trans_rules_.Count(); ++rule_index) {
     const auto& rule = trans_rules_[rule_index];
     // Does this rule's period include any transition at all ?
-    if (rule.standard_time_rule.wMonth > 0 || rule.daylight_time_rule.wMonth > 0) {
+    if (rule.standard_time_rule.wMonth > 0 ||
+        rule.daylight_time_rule.wMonth > 0) {
       if (year < rule.start_year) {
-        year = rule.start_year; // Seek first transition in this rule.
+        year = rule.start_year;  // Seek first transition in this rule.
       }
-      const int32 end_year = rule_index + 1 < trans_rules_.Count()
-        ? MathBase::Min(trans_rules_[rule_index + 1].start_year, year + 2) : (year + 2);
-      int32 new_year_offset = (year <= rule.start_year && rule_index > 0)
-        ? YearEndOffset(trans_rules_[rule_index - 1], year - 1)
-        : YearEndOffset(rule, year - 1);
+      const int32 end_year =
+          rule_index + 1 < trans_rules_.Count()
+              ? MathBase::Min(trans_rules_[rule_index + 1].start_year, year + 2)
+              : (year + 2);
+      int32 new_year_offset =
+          (year <= rule.start_year && rule_index > 0)
+              ? YearEndOffset(trans_rules_[rule_index - 1], year - 1)
+              : YearEndOffset(rule, year - 1);
       while (year < end_year) {
         const TransitionTimePair pair(rule, year, new_year_offset);
         bool is_dst = false;
-        fun_check(InvalidMSecs() <= after_msecs_since_epoch); // invalid is min int64
+        fun_check(InvalidMSecs() <=
+                  after_msecs_since_epoch);  // invalid is min int64
         if (pair.std > after_msecs_since_epoch) {
           is_dst = pair.std > pair.dst && pair.dst > after_msecs_since_epoch;
         } else if (pair.dst > after_msecs_since_epoch) {
@@ -751,54 +780,61 @@ WinTimeZoneImpl::NextTransition(int64 after_msecs_since_epoch) const {
           if (pair.dst > pair.std) {
             new_year_offset += rule.daylight_time_bias;
           }
-          ++year; // Try a later year for this rule (once).
+          ++year;  // Try a later year for this rule (once).
           continue;
         }
 
         if (is_dst) {
-          return RuleToData(rule, pair.dst, TimeZone::DaylightTime, pair.FakesDst());
+          return RuleToData(rule, pair.dst, TimeZone::DaylightTime,
+                            pair.FakesDst());
         }
-        return RuleToData(rule, pair.std, TimeZone::StandardTime, pair.FakesDst());
+        return RuleToData(rule, pair.std, TimeZone::StandardTime,
+                          pair.FakesDst());
       }
       // Fell off end of rule, try next rule.
-    } // else: no transition during rule's period
+    }  // else: no transition during rule's period
   }
   // Apparently no transition after the given time:
   return InvalidData();
 }
 
-TimeZoneImpl::Data
-WinTimeZoneImpl::PreviousTransition(int64 before_msecs_since_epoch) const {
+TimeZoneImpl::Data WinTimeZoneImpl::PreviousTransition(
+    int64 before_msecs_since_epoch) const {
   const int64 start_of_time = InvalidMSecs() + 1;
   if (before_msecs_since_epoch <= start_of_time) {
     return InvalidData();
   }
 
   int32 year = MSecsToDate(before_msecs_since_epoch).Year();
-  for (int32 rule_index = RuleIndexForYear(trans_rules_, year);
-     rule_index >= 0; --rule_index) {
+  for (int32 rule_index = RuleIndexForYear(trans_rules_, year); rule_index >= 0;
+       --rule_index) {
     const WinTransitionRule& rule = trans_rules_[rule_index];
     // Does this rule's period include any transition at all ?
-    if (rule.standard_time_rule.wMonth > 0 || rule.daylight_time_rule.wMonth > 0) {
+    if (rule.standard_time_rule.wMonth > 0 ||
+        rule.daylight_time_rule.wMonth > 0) {
       const int32 end_year = MathBase::Max(rule.start_year, year - 1);
       while (year >= end_year) {
-        const int32 new_year_offset = (year <= rule.start_year && rule_index > 0)
-          ? YearEndOffset(trans_rules_[rule_index - 1], year - 1)
-          : YearEndOffset(rule, year - 1);
+        const int32 new_year_offset =
+            (year <= rule.start_year && rule_index > 0)
+                ? YearEndOffset(trans_rules_[rule_index - 1], year - 1)
+                : YearEndOffset(rule, year - 1);
         const TransitionTimePair pair(rule, year, new_year_offset);
         bool is_dst = false;
         if (pair.std != InvalidMSecs() && pair.std < before_msecs_since_epoch) {
           is_dst = pair.std < pair.dst && pair.dst < before_msecs_since_epoch;
-        } else if (pair.dst != InvalidMSecs() && pair.dst < before_msecs_since_epoch) {
+        } else if (pair.dst != InvalidMSecs() &&
+                   pair.dst < before_msecs_since_epoch) {
           is_dst = true;
         } else {
-          --year; // Try an earlier year for this rule (once).
+          --year;  // Try an earlier year for this rule (once).
           continue;
         }
         if (is_dst) {
-          return RuleToData(rule, pair.dst, TimeZone::DaylightTime, pair.FakesDst());
+          return RuleToData(rule, pair.dst, TimeZone::DaylightTime,
+                            pair.FakesDst());
         }
-        return RuleToData(rule, pair.std, TimeZone::StandardTime, pair.FakesDst());
+        return RuleToData(rule, pair.std, TimeZone::StandardTime,
+                          pair.FakesDst());
       }
       // Fell off start of rule, try previous rule.
     } else if (rule_index == 0) {
@@ -806,9 +842,9 @@ WinTimeZoneImpl::PreviousTransition(int64 before_msecs_since_epoch) const {
       // time, so that a scan through all rules *does* see it as the first
       // rule:
       return RuleToData(rule, start_of_time, TimeZone::StandardTime, false);
-    } // else: no transition during rule's period
+    }  // else: no transition during rule's period
     if (year >= rule.start_year) {
-      year = rule.start_year - 1; // Seek last transition in new rule
+      year = rule.start_year - 1;  // Seek last transition in new rule
     }
   }
   // Apparently no transition before the given time:
@@ -822,7 +858,8 @@ String WinTimeZoneImpl::GetSystemTimeZoneId() const {
   // If we have a real country, then try get a specific match for that country
   if (country != Locale::AnyCountry)
     iana_id = WindowsIdToDefaultIanaId(windows_id, country);
-  // If we don't have a real country, or there wasn't a specific match, try the global default
+  // If we don't have a real country, or there wasn't a specific match, try the
+  // global default
   if (iana_id.IsEmpty()) {
     iana_id = WindowsIdToDefaultIanaId(windows_id);
     // If no global default then probably an unknown Windows ID so return UTC
@@ -842,18 +879,17 @@ Array<String> WinTimeZoneImpl::AvailableTimeZoneIds() const {
 
   result.Sort();
 
-  //TODO
+  // TODO
   fun_check(0);
-  //result.erase(std::unique(result.begin(), result.end()), result.end());
+  // result.erase(std::unique(result.begin(), result.end()), result.end());
 
   return result;
 }
 
-TimeZoneImpl::Data
-WinTimeZoneImpl::RuleToData(const WinTransitionRule& rule,
-                             int64 at_msecs_since_epoch,
-                             TimeZone::TimeType type,
-                             bool fake_dst) const {
+TimeZoneImpl::Data WinTimeZoneImpl::RuleToData(const WinTransitionRule& rule,
+                                               int64 at_msecs_since_epoch,
+                                               TimeZone::TimeType type,
+                                               bool fake_dst) const {
   Data trans = InvalidData();
   trans.at_msecs_since_epoch = at_msecs_since_epoch;
   trans.standard_time_offset = rule.standard_time_bias * -60;
@@ -871,8 +907,9 @@ WinTimeZoneImpl::RuleToData(const WinTransitionRule& rule,
     trans.daylight_time_offset = 0;
     trans.abbreviation = standard_name_;
   }
-  trans.offset_from_utc = trans.standard_time_offset + trans.daylight_time_offset;
+  trans.offset_from_utc =
+      trans.standard_time_offset + trans.daylight_time_offset;
   return trans;
 }
 
-} // namespace fun
+}  // namespace fun

@@ -4,14 +4,14 @@ namespace fun {
 namespace net {
 namespace reactor {
 
-Acceptor::Acceptor( EventLoop* loop,
-                    const InetAddress& listen_addr,
-                    bool reuse_port)
-  : loop_(loop),
-    accept_socket_(sockets::CreateNonBlockingOrDie(listen_addr.GetAddressFamily())),
-    accept_channel_(loop, accept_socket_.fd()),
-    listening_(false),
-    idle_fd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)) {
+Acceptor::Acceptor(EventLoop* loop, const InetAddress& listen_addr,
+                   bool reuse_port)
+    : loop_(loop),
+      accept_socket_(
+          sockets::CreateNonBlockingOrDie(listen_addr.GetAddressFamily())),
+      accept_channel_(loop, accept_socket_.fd()),
+      listening_(false),
+      idle_fd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)) {
   fun_check(idle_fd_ >= 0);
   accept_socket_.SetReuseAddr(true);
   accept_socket_.SetReusePort(reuse_port);
@@ -36,7 +36,7 @@ void Acceptor::HandleRead() {
   loop_->AssertInLoopThread();
 
   InetAddress peer_addr;
-  //FIXME loop until no more
+  // FIXME loop until no more
   int conn_fd = accept_socket_.Accept(&peer_addr);
   if (conn_fd >= 0) {
     // string hostport = peer_addr.ToIpPort();
@@ -60,6 +60,6 @@ void Acceptor::HandleRead() {
   }
 }
 
-} // namespace reactor
-} // namespace net
-} // namespace fun
+}  // namespace reactor
+}  // namespace net
+}  // namespace fun

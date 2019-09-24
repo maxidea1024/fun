@@ -1,16 +1,16 @@
-﻿//TODO 이게 실제로 필요할까??
+﻿// TODO 이게 실제로 필요할까??
 
 #include "fun/framework/filesystem_configuration.h"
+#include "fun/base/directory_iterator.h"
 #include "fun/base/file.h"
 #include "fun/base/path.h"
-#include "fun/base/directory_iterator.h"
 //#include "fun/base/file_stream.h"
 
 namespace fun {
 namespace framework {
 
 FilesystemConfiguration::FilesystemConfiguration(const String& path)
-  : path_(path) {
+    : path_(path) {
   path_.MakeDirectory();
 }
 
@@ -27,11 +27,11 @@ bool FilesystemConfiguration::GetRaw(const String& key, String& value) const {
   File f(p);
   if (f.Exists()) {
     value.Reserve((String::size_type)f.GetSize());
-    //TOO
+    // TOO
     fun_check(0);
-    //fun::FileInputStream istr(p.ToString());
-    //int32 c = istr.get();
-    //while (c != std::char_traits<char>::eof()) {
+    // fun::FileInputStream istr(p.ToString());
+    // int32 c = istr.get();
+    // while (c != std::char_traits<char>::eof()) {
     //  value += (char)c;
     //  c = istr.get();
     //}
@@ -47,10 +47,10 @@ void FilesystemConfiguration::SetRaw(const String& key, const String& value) {
   dir.CreateDirectories();
   p.SetFileName("data");
 
-  //TODO
+  // TODO
   fun_check(0);
-  //fun::FileOutputStream ostr(p.ToString());
-  //ostr.write(value.c_str(), (std::streamsize)value.Len());
+  // fun::FileOutputStream ostr(p.ToString());
+  // ostr.write(value.c_str(), (std::streamsize)value.Len());
 }
 
 void FilesystemConfiguration::Enumerate(const String& key, Keys& range) const {
@@ -80,12 +80,13 @@ void FilesystemConfiguration::RemoveRaw(const String& key) {
 
 Path FilesystemConfiguration::KeyToPath(const String& key) const {
   Path result(path_);
-  Array<String> dirs = key.Split(".", 0, StringSplitOption::TrimmingAndCullEmpty);
+  Array<String> dirs =
+      key.Split(".", 0, StringSplitOption::TrimmingAndCullEmpty);
   for (const auto& dir : dirs) {
     result.PushDirectory(dir);
   }
   return result;
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

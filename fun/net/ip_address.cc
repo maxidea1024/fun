@@ -8,27 +8,23 @@ IpAddress IpAddress::IPv4Loopback(0x7F000001);
 IpAddress IpAddress::IPv4Broadcast(0xFFFFFFFF);
 IpAddress IpAddress::IPv4None(0xFFFFFFFF);
 
-static const uint16 IPv6AnyWords[8]      = {0,0,0,0,0,0,0,0};
-static const uint16 IPv6LoopbackWords[8] = {0,0,0,0,0,0,0,1};
-static const uint16 IPv6NoneWords[8]     = {0,0,0,0,0,0,0,0};
+static const uint16 IPv6AnyWords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+static const uint16 IPv6LoopbackWords[8] = {0, 0, 0, 0, 0, 0, 0, 1};
+static const uint16 IPv6NoneWords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 IpAddress IpAddress::IPv6Any(IPv6AnyWords, 0);
 IpAddress IpAddress::IPv6Loopback(IPv6LoopbackWords, 0);
 IpAddress IpAddress::IPv6None(IPv6NoneWords, 0);
 
 IpAddress::IpAddress() {
-  //scope_id_ = 0;
-  //UnsafeMemory::Memset(ipv6_words_, 0, sizeof(ipv6_words_));
-  SetIPv4MappedToIPv6(0); // IPv4 Any
+  // scope_id_ = 0;
+  // UnsafeMemory::Memset(ipv6_words_, 0, sizeof(ipv6_words_));
+  SetIPv4MappedToIPv6(0);  // IPv4 Any
 }
 
-IpAddress::IpAddress(const String& str) {
-  *this = Parse(str);
-}
+IpAddress::IpAddress(const String& str) { *this = Parse(str); }
 
-IpAddress::IpAddress(uint32 ipv4_addr) {
-  SetIPv4MappedToIPv6(ipv4_addr);
-}
+IpAddress::IpAddress(uint32 ipv4_addr) { SetIPv4MappedToIPv6(ipv4_addr); }
 
 IpAddress::IpAddress(const uint16* ipv6_words, uint32 scope_id) {
   fun_check_ptr(ipv6_words);
@@ -43,30 +39,29 @@ IpAddress::IpAddress(const uint8* bytes, int32 length, uint32 scope_id) {
   if (length == IPv4AddressByteLength) {
     fun_check(scope_id == 0);
 
-    SetIPv4MappedToIPv6(uint32(bytes[3] << 24) |
-                        uint32(bytes[2] << 16) |
-                        uint32(bytes[1] << 8) |
-                        uint32(bytes[0]));
+    SetIPv4MappedToIPv6(uint32(bytes[3] << 24) | uint32(bytes[2] << 16) |
+                        uint32(bytes[1] << 8) | uint32(bytes[0]));
   } else if (length == IPv6AddressByteLength) {
     scope_id_ = scope_id;
 
     for (int32 i = 0; i < NumIPv6Words; ++i) {
-      ipv6_words_[i] = uint16(bytes[i*2] + bytes[i*2+1] * 256);
+      ipv6_words_[i] = uint16(bytes[i * 2] + bytes[i * 2 + 1] * 256);
     }
   } else {
-    //TODO throw exception
+    // TODO throw exception
   }
 }
 
-void IpAddress::Synthesize(const uint8* prefix, int32 prefix_len, uint32 ipv4_addr) {
-  //TODO
+void IpAddress::Synthesize(const uint8* prefix, int32 prefix_len,
+                           uint32 ipv4_addr) {
+  // TODO
   fun_check(0);
 }
 
 int32 IpAddress::GetAddressBytes(uint8* buffer, int32 length) const {
   if (IsIPv4MappedToIPv6()) {
     if (length < IPv4AddressByteLength) {
-      //TODO throw exception
+      // TODO throw exception
       fun_check(0);
     }
 
@@ -78,7 +73,7 @@ int32 IpAddress::GetAddressBytes(uint8* buffer, int32 length) const {
     return IPv4AddressByteLength;
   } else {
     if (length < IPv6AddressByteLength) {
-      //TODO throw exception
+      // TODO throw exception
       fun_check(0);
     }
 
@@ -91,35 +86,35 @@ int32 IpAddress::GetAddressBytes(uint8* buffer, int32 length) const {
   }
 }
 
-IpAddress::IpAddress(const in_addr& in4) {
-  FromNative(in4);
-}
+IpAddress::IpAddress(const in_addr& in4) { FromNative(in4); }
 
 IpAddress::IpAddress(const in6_addr& in6, uint32 scope_id) {
   FromNative(in6, scope_id);
 }
 
 // IPv4 192.168.1.1 maps as ::FFFF:192.168.1.1
-//IpAddress IpAddress::MapToIPv6() const {
+// IpAddress IpAddress::MapToIPv6() const {
 //  if (Family == AddressFamily::IPv6) {
 //    return *this;
 //  } else {
 //    uint16 ipv6_words[8] = {0};
 //    ipv6_words[5] = 0xFFFF;
-//    ipv6_words[6] = uint16(((ipv4_addr_ & 0x0000FF00) >> 8) | ((ipv4_addr_ & 0x000000FF) << 8));
-//    ipv6_words[7] = uint16(((ipv4_addr_ & 0xFF000000) >> 24) | ((ipv4_addr_ & 0x00FF0000) >> 8));
-//    return IpAddress(ipv6_words, 0);
+//    ipv6_words[6] = uint16(((ipv4_addr_ & 0x0000FF00) >> 8) | ((ipv4_addr_ &
+//    0x000000FF) << 8)); ipv6_words[7] = uint16(((ipv4_addr_ & 0xFF000000) >>
+//    24) | ((ipv4_addr_ & 0x00FF0000) >> 8)); return IpAddress(ipv6_words, 0);
 //  }
 //}
 //
-//IpAddress IpAddress::MapToIPv4() const {
+// IpAddress IpAddress::MapToIPv4() const {
 //  if (GetFamily() == AddressFamily::IPv4) {
 //    return *this;
 //  } else {
 //    //ipv6_words_[5] 값이 0xFFFF가 아니면 오동작아닌가??
 //
-//    const uint32 addr_ipv4 = ((((uint32)ipv6_words_[6] & 0x0000FF00) >> 8) | (((uint32)ipv6_words_[6] & 0x000000FF) << 8)) |
-//                (((((uint32)ipv6_words_[7] & 0x0000FF00) >> 8) | (((uint32)ipv6_words_[7] & 0x000000FF) << 8)) << 16);
+//    const uint32 addr_ipv4 = ((((uint32)ipv6_words_[6] & 0x0000FF00) >> 8) |
+//    (((uint32)ipv6_words_[6] & 0x000000FF) << 8)) |
+//                (((((uint32)ipv6_words_[7] & 0x0000FF00) >> 8) |
+//                (((uint32)ipv6_words_[7] & 0x000000FF) << 8)) << 16);
 //    return IpAddress(addr_ipv4);
 //  }
 //}
@@ -142,7 +137,7 @@ void IpAddress::FromNative(const in6_addr& in6, uint32 scope_id) {
 
 void IpAddress::ToNative(in_addr& in4) const {
   fun_check(IsIPv4MappedToIPv6());
-  //if (!IsIPv4MappedToIPv6()) {
+  // if (!IsIPv4MappedToIPv6()) {
   //  LOG(LogCore, Warning, "Invalid ipv4 address: %s", *ToString());
   //}
 
@@ -153,7 +148,7 @@ void IpAddress::ToNative(in_addr& in4) const {
 void IpAddress::ToNative(in6_addr& in6) const {
   UnsafeMemory::Memset(&in6, 0x00, sizeof(in6));
 
-  //if (IsIPv4MappedToIPv6()) {
+  // if (IsIPv4MappedToIPv6()) {
   //  LOG(LogCore,Info,"mapped address: %s", *ToString());
   //}
 
@@ -174,7 +169,7 @@ String IpAddress::ToString() const {
     const uint8 b = uint8(ipv4_addr_ >> 16);
     const uint8 c = uint8(ipv4_addr_ >> 8);
     const uint8 d = uint8(ipv4_addr_);
-    //return String::Format("::ffff:%u.%u.%u.%u", a, b, c, d);
+    // return String::Format("::ffff:%u.%u.%u.%u", a, b, c, d);
     return String::Format("%u.%u.%u.%u", a, b, c, d);
   } else {
     String result(64, ReservationInit);
@@ -233,15 +228,15 @@ IpAddress IpAddress::Parse(const String& addr) {
     return IpAddress::IPv4Any;
   }
 
-  //TODO 먼저 IP 리터럴로 해보고 안되면, getaddrinfo를 통해서 해야하지 않을까??
+  // TODO 먼저 IP 리터럴로 해보고 안되면, getaddrinfo를 통해서 해야하지 않을까??
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
   struct addrinfo* ai;
   struct addrinfo hints;
   UnsafeMemory::Memset(&hints, 0, sizeof(hints));
-  //힌트를 지정하면, FQDN이 resolve가 안되는 문제가 있네... API 문서를 확인해봐야할듯...
-  //hints.ai_flags = AI_NUMERICHOST;
-  //hints.ai_flags = AI_NUMERICHOST
+  //힌트를 지정하면, FQDN이 resolve가 안되는 문제가 있네... API 문서를
+  //확인해봐야할듯... hints.ai_flags = AI_NUMERICHOST; hints.ai_flags =
+  // AI_NUMERICHOST
 
   const int rc = getaddrinfo(addr.c_str(), nullptr, &hints, &ai);
   if (rc == 0) {
@@ -249,9 +244,12 @@ IpAddress IpAddress::Parse(const String& addr) {
     if (ai->ai_family == AF_INET6) {
       result = IpAddress(
           reinterpret_cast<struct sockaddr_in6*>(ai->ai_addr)->sin6_addr,
-          static_cast<uint32>(reinterpret_cast<struct sockaddr_in6*>(ai->ai_addr)->sin6_scope_id));
+          static_cast<uint32>(
+              reinterpret_cast<struct sockaddr_in6*>(ai->ai_addr)
+                  ->sin6_scope_id));
     } else if (ai->ai_family == AF_INET) {
-      result = IpAddress(reinterpret_cast<struct sockaddr_in*>(ai->ai_addr)->sin_addr);
+      result = IpAddress(
+          reinterpret_cast<struct sockaddr_in*>(ai->ai_addr)->sin_addr);
     } else {
       // unsupported...
     }
@@ -313,11 +311,12 @@ bool IpAddress::IsUnicast() const {
 
 bool IpAddress::IsMulticast() const {
   if (IsIPv4MappedToIPv6()) {
-    return (ipv4_addr_ & 0xF0000000) == 0xE0000000; // 224.0.0.0/24 to 239.0.0.0/24
+    return (ipv4_addr_ & 0xF0000000) ==
+           0xE0000000;  // 224.0.0.0/24 to 239.0.0.0/24
   } else {
     return (ipv6_words_[0] & 0xFFE0) == 0xFF00;
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

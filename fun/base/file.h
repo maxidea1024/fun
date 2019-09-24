@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/timestamp.h"
 #include "fun/base/container/array.h"
 #include "fun/base/string/string.h"
+#include "fun/base/timestamp.h"
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
 #if defined(_WIN32_WCE)
@@ -83,22 +83,22 @@ class FUN_BASE_API File : private FileImpl {
   /**
    * Assignment operator
    */
-  File& operator = (const File& file);
+  File& operator=(const File& file);
 
   /**
    * Assignment operator
    */
-  File& operator = (const String& path);
+  File& operator=(const String& path);
 
   /**
    * Assignment operator
    */
-  File& operator = (const char* path);
+  File& operator=(const char* path);
 
   /**
    * Assignment operator
    */
-  File& operator = (const Path& path);
+  File& operator=(const Path& path);
 
   /**
    * Swaps the file with another one.
@@ -237,7 +237,7 @@ class FUN_BASE_API File : private FileImpl {
 
   /**
    * Renames the file to the new name.
-  */
+   */
   void RenameTo(const String& path);
 
   /**
@@ -293,7 +293,8 @@ class FUN_BASE_API File : private FileImpl {
   FileSize TotalSpace() const;
 
   /**
-   * Returns the number of usable free bytes on the partition containing this path.
+   * Returns the number of usable free bytes on the partition containing this
+   * path.
    */
   FileSize UsableSpace() const;
 
@@ -302,12 +303,12 @@ class FUN_BASE_API File : private FileImpl {
    */
   FileSize FreeSpace() const;
 
-  bool operator == (const File& file) const;
-  bool operator != (const File& file) const;
-  bool operator <  (const File& file) const;
-  bool operator <= (const File& file) const;
-  bool operator >  (const File& file) const;
-  bool operator >= (const File& file) const;
+  bool operator==(const File& file) const;
+  bool operator!=(const File& file) const;
+  bool operator<(const File& file) const;
+  bool operator<=(const File& file) const;
+  bool operator>(const File& file) const;
+  bool operator>=(const File& file) const;
 
   static void HandleLastError(const String& path);
 
@@ -318,41 +319,36 @@ class FUN_BASE_API File : private FileImpl {
   void CopyDirectory(const String& path) const;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE const String& File::GetPath() const {
-  return GetPathImpl();
-}
+FUN_ALWAYS_INLINE const String& File::GetPath() const { return GetPathImpl(); }
 
-FUN_ALWAYS_INLINE bool File::operator == (const File& file) const {
+FUN_ALWAYS_INLINE bool File::operator==(const File& file) const {
   return GetPathImpl() == file.GetPathImpl();
 }
 
-FUN_ALWAYS_INLINE bool File::operator != (const File& file) const {
+FUN_ALWAYS_INLINE bool File::operator!=(const File& file) const {
   return GetPathImpl() != file.GetPathImpl();
 }
 
-FUN_ALWAYS_INLINE bool File::operator < (const File& file) const {
+FUN_ALWAYS_INLINE bool File::operator<(const File& file) const {
   return GetPathImpl() < file.GetPathImpl();
 }
 
-FUN_ALWAYS_INLINE bool File::operator <= (const File& file) const {
+FUN_ALWAYS_INLINE bool File::operator<=(const File& file) const {
   return GetPathImpl() <= file.GetPathImpl();
 }
 
-FUN_ALWAYS_INLINE bool File::operator > (const File& file) const {
+FUN_ALWAYS_INLINE bool File::operator>(const File& file) const {
   return GetPathImpl() > file.GetPathImpl();
 }
 
-FUN_ALWAYS_INLINE bool File::operator >= (const File& file) const {
+FUN_ALWAYS_INLINE bool File::operator>=(const File& file) const {
   return GetPathImpl() >= file.GetPathImpl();
 }
 
-FUN_ALWAYS_INLINE void Swap(File& lhs, File& rhs) {
-  lhs.Swap(rhs);
-}
+FUN_ALWAYS_INLINE void Swap(File& lhs, File& rhs) { lhs.Swap(rhs); }
 
-} // namespace fun
+}  // namespace fun

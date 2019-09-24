@@ -24,7 +24,6 @@ class FUN_FRAMEWORK_API OptionCallbackBase {
   OptionCallbackBase(const OptionCallbackBase&);
 };
 
-
 /**
  * This class is used as an argument to Option::Callback().
  *
@@ -38,19 +37,19 @@ class OptionCallback : public OptionCallbackBase {
 
   /** Creates the OptionCallback for the given object and member function. */
   OptionCallback(C* object, Callback method)
-    : object_(fun_check_ptr(object)), method_(method) {}
+      : object_(fun_check_ptr(object)), method_(method) {}
 
   /** Creates an OptionCallback from another one. */
   OptionCallback(const OptionCallback& cb)
-    : OptionCallbackBase(cb), object_(cb.object_), method_(cb.method_) {}
+      : OptionCallbackBase(cb), object_(cb.object_), method_(cb.method_) {}
 
   /** Destroys the OptionCallback. */
   ~OptionCallback() {}
 
-  OptionCallback& operator = (const OptionCallback& cb) {
+  OptionCallback& operator=(const OptionCallback& cb) {
     if (&cb != this) {
       object_ = cb.object_;
-      method_  = cb.method_;
+      method_ = cb.method_;
     }
 
     return *this;
@@ -71,5 +70,5 @@ class OptionCallback : public OptionCallbackBase {
   Callback method_;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

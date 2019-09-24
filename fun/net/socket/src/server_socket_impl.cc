@@ -7,5 +7,5 @@ ServerSocketImpl::ServerSocketImpl() {}
 
 ServerSocketImpl::~ServerSocketImpl() {}
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

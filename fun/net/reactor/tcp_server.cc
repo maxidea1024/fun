@@ -3,18 +3,19 @@
 namespace fun {
 namespace net {
 
-TcpServer::TcpServer(EventLoop* loop,
-                    const InetAddress& listen_addr,
-                    const string& name,
-                    Option option)
-  : loop_(loop),
-    name_(name),
-    acceptor_(new Acceptor(loop, listen_addr, option == kReusePort)),
-    thread_pool_(new EventLoopThreadPool(loop, name)),
-    connection_cb_(DefaultConnectionCallback),
-    message_cb_(DefaultMessageCallback),
-    next_conn_id_(1) {
-  acceptor_->SetNewConnectionCallback([this](int fd, const InetAddress& peer_addr) { NewConnection(fd, peer_addr); });
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& listen_addr,
+                     const string& name, Option option)
+    : loop_(loop),
+      name_(name),
+      acceptor_(new Acceptor(loop, listen_addr, option == kReusePort)),
+      thread_pool_(new EventLoopThreadPool(loop, name)),
+      connection_cb_(DefaultConnectionCallback),
+      message_cb_(DefaultMessageCallback),
+      next_conn_id_(1) {
+  acceptor_->SetNewConnectionCallback(
+      [this](int fd, const InetAddress& peer_addr) {
+        NewConnection(fd, peer_addr);
+      });
 }
 
 TcpServer::~TcpServer() {
@@ -44,36 +45,32 @@ void TcpServer::NewConnection(int fd, const InetAddress& peer_addr) {
   loop_->AssertInLoopThread();
 
   EventLoop* loop = thread_pool_->GetNextLoop();
-  //TODO Makes unique name.
-  //TODO 원래대로 라면 이름을 순차적으로 생성해야하는데...
+  // TODO Makes unique name.
+  // TODO 원래대로 라면 이름을 순차적으로 생성해야하는데...
 
-  //char buf[64];
-  //snprintf(buf, sizeof buf, "-%s#%d", ipPort_.c_str(), nextConnId_);
+  // char buf[64];
+  // snprintf(buf, sizeof buf, "-%s#%d", ipPort_.c_str(), nextConnId_);
   //++nextConnId_;
-  //string connName = name_ + buf;
+  // string connName = name_ + buf;
 
   string conn_name = name_ + Uuid::NewUuid().ToString();
   ++next_conn_id_;
 
-
-  TcpConnectionPtr conn(new TcpConnection(loop,
-                                          conn_name,
-                                          fd,
-                                          local_addr,
-                                          peer_addr));
+  TcpConnectionPtr conn(
+      new TcpConnection(loop, conn_name, fd, local_addr, peer_addr));
   connections_.Add(conn_name, conn);
 
   conn->SetConnectionCallback(connection_cb_);
   conn->SetMessageCallback(message_cb_);
   conn->SetWriteCompleteCallback(write_complete_cb_);
-  //safe하지는 않을터...
+  // safe하지는 않을터...
   //위험을 제대로 파악하고 어찌 보완할지 살펴보자..
-  conn->SetCloseCallback([this,conn]() { RemoveConnection(conn); });
+  conn->SetCloseCallback([this, conn]() { RemoveConnection(conn); });
   loop->RunInLoop([conn]() { conn.ConnectEstablish(); });
 }
 
 void TcpServer::RemoveConnection(const TcpConnectionPtr& conn) {
-  loop_->RunInLoop([this,conn]() { RemoveConnectionLoop(conn); });
+  loop_->RunInLoop([this, conn]() { RemoveConnectionLoop(conn); });
 }
 
 void TcpServer::RemoveConnectionInLoop(const TcpConnectionPtr& conn) {
@@ -82,8 +79,8 @@ void TcpServer::RemoveConnectionInLoop(const TcpConnectionPtr& conn) {
   connections_.Remove(conn->GetName());
 
   EventLoop* loop = conn->GetLoop();
-  loop->QueueInLoop([this,conn]() { conn.ConnectDestroyed(); });
+  loop->QueueInLoop([this, conn]() { conn.ConnectDestroyed(); });
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

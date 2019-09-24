@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/mongodb/request.h"
 #include "fun/mongodb/document.h"
+#include "fun/mongodb/request.h"
 
 namespace fun {
 namespace mongodb {
@@ -19,11 +19,11 @@ class FUN_MONGODB_API InsertRequest : public Request {
   };
 
   InsertRequest(const String& collection_name, Flags flags = INSERT_DEFAULT)
-    : Request(MessageHeader::OP_INSERT),
-      flags_(flags),
-      full_collection_name_(collection_name) {}
+      : Request(MessageHeader::OP_INSERT),
+        flags_(flags),
+        full_collection_name_(collection_name) {}
 
-  //virtual ~InsertRequest() {}
+  // virtual ~InsertRequest() {}
 
   /**
    * Adds a new document for insertion. A reference to the empty document is
@@ -39,17 +39,16 @@ class FUN_MONGODB_API InsertRequest : public Request {
   /**
    * Returns the documents to insert into the database.
    */
-  fun::Array<Document>& GetDocuments() {
-    return documents_;
-  }
+  fun::Array<Document>& GetDocuments() { return documents_; }
 
  protected:
   void BuildRequest(MessageOut& wirter) override {
-    //struct {
+    // struct {
     //  MsgHeader header;             // standard message header
     //  int32     flags;              // bit vector - see below
     //  cstring   fullCollectionName; // "dbname.collectionname"
-    //  document* documents;          // one or more documents to insert into the collection
+    //  document* documents;          // one or more documents to insert into
+    //  the collection
     //}
     fun_check(!documents_.IsEmpty());
 
@@ -69,5 +68,5 @@ class FUN_MONGODB_API InsertRequest : public Request {
   fun::Array<Document> documents_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
-#include "fun/framework/application.h"
 #include "fun/base/event.h"
+#include "fun/framework/application.h"
+#include "fun/framework/framework.h"
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
 #include "fun/base/named_event.h"
@@ -165,7 +165,8 @@ class FUN_FRAMEWORK_API ServerApplication : public Application {
    * Registers the ServerApplication to receive SERVICE_CONTROL_DEVICEEVENT
    * events via HandleDeviceEvent().
    */
-  static HDEVNOTIFY RegisterServiceDeviceNotification(LPVOID filter, DWORD flags);
+  static HDEVNOTIFY RegisterServiceDeviceNotification(LPVOID filter,
+                                                      DWORD flags);
 
   /**
    * Handles the SERVICE_CONTROL_DEVICEEVENT event. The default
@@ -187,23 +188,19 @@ class FUN_FRAMEWORK_API ServerApplication : public Application {
   bool IsDaemon(int32 argc, char** argv);
   void BeDaemon();
 
-#if FUN_PLATFORM == FUN_PLATFORM_ANDROID || defined(__NACL__) || defined(__EMSCRIPTEN__)
+#if FUN_PLATFORM == FUN_PLATFORM_ANDROID || defined(__NACL__) || \
+    defined(__EMSCRIPTEN__)
   static Event terminate_;
 #endif
 
 #elif FUN_PLATFORM_WINDOWS_FAMILY
 
 #if !defined(_WIN32_WCE)
-  enum Action {
-    SRV_RUN,
-    SRV_REGISTER,
-    SRV_UNREGISTER
-  };
+  enum Action { SRV_RUN, SRV_REGISTER, SRV_UNREGISTER };
   static BOOL __stdcall ConsoleCtrlHandler(DWORD ctrlType);
-  static DWORD __stdcall ServiceControlHandler( DWORD control,
-                                                DWORD event_type,
-                                                LPVOID event_data,
-                                                LPVOID context);
+  static DWORD __stdcall ServiceControlHandler(DWORD control, DWORD event_type,
+                                               LPVOID event_data,
+                                               LPVOID context);
 
 #if !defined(FUN_NO_WSTRING)
   static void __stdcall ServiceMain(DWORD argc, LPWSTR* argv);
@@ -229,16 +226,15 @@ class FUN_FRAMEWORK_API ServerApplication : public Application {
   static SERVICE_STATUS service_status_;
   static SERVICE_STATUS_HANDLE service_status_handle_;
 
-#endif // _WIN32_WCE
+#endif  // _WIN32_WCE
 
   static fun::NamedEvent terminate_;
 
-#endif // defined(FUN_PLATFORM_WINDOWS_FAMILY)
+#endif  // defined(FUN_PLATFORM_WINDOWS_FAMILY)
 };
 
-} // namespace framework
-} // namespace fun
-
+}  // namespace framework
+}  // namespace fun
 
 //
 // Macro to implement main()
@@ -246,52 +242,52 @@ class FUN_FRAMEWORK_API ServerApplication : public Application {
 
 #if FUN_PLATFORM_WINDOWS_FAMILY && !defined(FUN_NO_WSTRING)
 
-  #define FUN_SERVER_MAIN(App) \
-    int32 wmain(int32 argc, wchar_t** argv) { \
-      try { \
-        App app; \
-        return app.Run(argc, argv); \
-      } catch (fun::Exception& e) { \
-        std::cerr << e.GetDisplayText().c_str() << std::endl; \
-        return fun::framework::Application::EXIT_SOFTWARE; \
-      } \
-    } \
-    FUN_WMAIN_WRAPPER()
+#define FUN_SERVER_MAIN(App)                                \
+  int32 wmain(int32 argc, wchar_t** argv) {                 \
+    try {                                                   \
+      App app;                                              \
+      return app.Run(argc, argv);                           \
+    } catch (fun::Exception & e) {                          \
+      std::cerr << e.GetDisplayText().c_str() << std::endl; \
+      return fun::framework::Application::EXIT_SOFTWARE;    \
+    }                                                       \
+  }                                                         \
+  FUN_WMAIN_WRAPPER()
 
 #elif defined(FUN_PLATFORM_VXWORKS)
 
-  #define FUN_SERVER_MAIN(App) \
-    int32 RedSrvMain(const char* app_name, ...) { \
-      fun::Array<String> args; \
-      args.Add(String(app_name)); \
-      va_list vargs; \
-      va_start(vargs, app_name); \
-      const char* arg = va_arg(vargs, const char*); \
-      while (arg) { \
-        args.Add(String(arg)); \
-        arg = va_arg(vargs, const char*); \
-      } \
-      va_end(vargs); \
-      try { \
-        App app; \
-        return app.Run(args); \
-      } catch (fun::Exception& e) { \
-        std::cerr << e.GetDisplayText().c_str() << std::endl; \
-        return fun::framework::Application::EXIT_SOFTWARE; \
-      } \
-    }
+#define FUN_SERVER_MAIN(App)                                \
+  int32 RedSrvMain(const char* app_name, ...) {             \
+    fun::Array<String> args;                                \
+    args.Add(String(app_name));                             \
+    va_list vargs;                                          \
+    va_start(vargs, app_name);                              \
+    const char* arg = va_arg(vargs, const char*);           \
+    while (arg) {                                           \
+      args.Add(String(arg));                                \
+      arg = va_arg(vargs, const char*);                     \
+    }                                                       \
+    va_end(vargs);                                          \
+    try {                                                   \
+      App app;                                              \
+      return app.Run(args);                                 \
+    } catch (fun::Exception & e) {                          \
+      std::cerr << e.GetDisplayText().c_str() << std::endl; \
+      return fun::framework::Application::EXIT_SOFTWARE;    \
+    }                                                       \
+  }
 
 #else
 
-  #define FUN_SERVER_MAIN(App) \
-    int32 main(int32 argc, char** argv) { \
-      try { \
-        App app; \
-        return app.Run(argc, argv); \
-      } catch (fun::Exception& e) { \
-        std::cerr << e.GetDisplayText().c_str() << std::endl; \
-        return fun::framework::Application::EXIT_SOFTWARE; \
-      } \
-    }
+#define FUN_SERVER_MAIN(App)                                \
+  int32 main(int32 argc, char** argv) {                     \
+    try {                                                   \
+      App app;                                              \
+      return app.Run(argc, argv);                           \
+    } catch (fun::Exception & e) {                          \
+      std::cerr << e.GetDisplayText().c_str() << std::endl; \
+      return fun::framework::Application::EXIT_SOFTWARE;    \
+    }                                                       \
+  }
 
 #endif

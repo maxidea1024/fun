@@ -13,14 +13,13 @@ class FUN_NET_API MessageInView {
   MessageInView() : offset(nullptr), end(nullptr) {}
 
   MessageInView(const uint8* offset, const uint8* end)
-    : offset(offset), end(end) {}
+      : offset(offset), end(end) {}
 
   MessageInView(const MessageInView&) = default;
-  MessageInView& operator = (const MessageInView&) = default;
+  MessageInView& operator=(const MessageInView&) = default;
   MessageInView(MessageInView&&) = default;
-  MessageInView& operator = (MessageInView&&) = default;
+  MessageInView& operator=(MessageInView&&) = default;
 };
-
 
 class FUN_NET_API IMessageIn {
  public:
@@ -57,14 +56,17 @@ class FUN_NET_API IMessageIn {
    */
   virtual const uint8* ReadablePtr() const = 0;
   /**
-   * Currently readable data length. That is, the length of the data that is still less read.
+   * Currently readable data length. That is, the length of the data that is
+   * still less read.
    */
   virtual int32 ReadableLength() const = 0;
 
   /**
    * Checks whether data can be read by the length specified in `length`.
    */
-  FUN_ALWAYS_INLINE bool CanRead(int32 length) const { return ReadableLength() >= length; }
+  FUN_ALWAYS_INLINE bool CanRead(int32 length) const {
+    return ReadableLength() >= length;
+  }
   /**
    * Check whether all data have been read.
    * Used to check whether the message has been read normally.
@@ -73,7 +75,8 @@ class FUN_NET_API IMessageIn {
   FUN_ALWAYS_INLINE bool AtBegin() const { return Tell() == 0; }
 
   /**
-   * Returns the maximum message length. Used internally to check data integrity etc.
+   * Returns the maximum message length. Used internally to check data integrity
+   * etc.
    */
   virtual int32 MessageMaxLength() const = 0;
   /**
@@ -85,40 +88,47 @@ class FUN_NET_API IMessageIn {
    * Move the reading position to the beginning.
    * it should not be used if the reading position is limited.
    */
-  FUN_ALWAYS_INLINE void SeekToBegin() { fun_check(!IsViewAdjusted()); Seek(0); }
+  FUN_ALWAYS_INLINE void SeekToBegin() {
+    fun_check(!IsViewAdjusted());
+    Seek(0);
+  }
   /**
    * Move the reading position to the end.
    * it should not be used if the reading position is limited.
    */
-  FUN_ALWAYS_INLINE void SeekToEnd() { fun_check(!IsViewAdjusted()); Seek(Length()); }
+  FUN_ALWAYS_INLINE void SeekToEnd() {
+    fun_check(!IsViewAdjusted());
+    Seek(Length());
+  }
 
   /**
-   * Skip the reading position. You can only move forward, and you can not move backward.
-   * 
+   * Skip the reading position. You can only move forward, and you can not move
+   * backward.
+   *
    * \param amount - Distance in bytes to move. (Can not be negative.)
    */
   virtual bool SkipRead(int32 amount) = 0;
 
   /**
-   * Read data from the message stream. Attempts to read as specified by `length`,
-   * Returns the actual length read as a return value.
-   * 
+   * Read data from the message stream. Attempts to read as specified by
+   * `length`, Returns the actual length read as a return value.
+   *
    * \param buffer - The buffer pointer from which to read the data.
    * \param length - The length of the data to read.
-   * 
+   *
    * \return The length of the data actually read.
    */
   virtual int32 TryReadRawBytes(void* buffer, int32 length) = 0;
 
   /**
    * Read data from the message stream.
-   * Unlike the TryReadRawBytes function, it should read as much as the length specified in `length`,
-   * If the length specified by `length` can not be read,
+   * Unlike the TryReadRawBytes function, it should read as much as the length
+   * specified in `length`, If the length specified by `length` can not be read,
    * `False`, and no data is filled in` buffer`.
-   * 
+   *
    * \param buffer - The buffer pointer from which to read the data.
    * \param length - The length of the data to read.
-   * 
+   *
    * \return Returns whether it has been read properly.
    */
   FUN_ALWAYS_INLINE bool ReadRawBytes(void* buffer, int32 length) {
@@ -145,25 +155,17 @@ class FUN_NET_API IMessageIn {
   virtual bool IsViewAdjusted() const = 0;
 };
 
-
 class ScopedMessageInPositionTransaction {
  public:
-  ScopedMessageInPositionTransaction(IMessageIn& message)
-    : message_(message) {
+  ScopedMessageInPositionTransaction(IMessageIn& message) : message_(message) {
     saved_read_position_ = message_.Tell();
   }
 
-  ~ScopedMessageInPositionTransaction() {
-    Rollback();
-  }
+  ~ScopedMessageInPositionTransaction() { Rollback(); }
 
-  bool IsRollbackable() const {
-    return saved_read_position_ != -1;
-  }
+  bool IsRollbackable() const { return saved_read_position_ != -1; }
 
-  void Commit() {
-    saved_read_position_ = -1;
-  }
+  void Commit() { saved_read_position_ = -1; }
 
   void Rollback() {
     if (saved_read_position_ != -1) {
@@ -173,8 +175,10 @@ class ScopedMessageInPositionTransaction {
   }
 
   ScopedMessageInPositionTransaction() = delete;
-  ScopedMessageInPositionTransaction(const ScopedMessageInPositionTransaction&) = delete;
-  ScopedMessageInPositionTransaction& operator = (const ScopedMessageInPositionTransaction&) = delete;
+  ScopedMessageInPositionTransaction(
+      const ScopedMessageInPositionTransaction&) = delete;
+  ScopedMessageInPositionTransaction& operator=(
+      const ScopedMessageInPositionTransaction&) = delete;
 
  private:
   /** 메시지 객체입니다. */
@@ -187,13 +191,13 @@ class ScopedMessageInPositionTransaction {
   int32 saved_read_position_;
 };
 
-
 class ScopedMessageInExceptionEnable {
  public:
   ScopedMessageInExceptionEnable() {}
 
-  FUN_ALWAYS_INLINE ScopedMessageInExceptionEnable(IMessageIn& input, bool enable = true)
-    : input_(&input) {
+  FUN_ALWAYS_INLINE ScopedMessageInExceptionEnable(IMessageIn& input,
+                                                   bool enable = true)
+      : input_(&input) {
     saved_exceptions_enabled_ = input_->ExceptionsEnabled();
     input_->SetExceptionsEnabled(enable);
   }
@@ -207,11 +211,10 @@ class ScopedMessageInExceptionEnable {
   bool saved_exceptions_enabled_;
 };
 
-
 class ScopedMessageInRecursionGuard {
  public:
   FUN_ALWAYS_INLINE ScopedMessageInRecursionGuard(IMessageIn& input)
-    : input_(&input) {
+      : input_(&input) {
     input_->IncreaseRecursionDepth();
   }
 
@@ -223,15 +226,15 @@ class ScopedMessageInRecursionGuard {
   IMessageIn* input_;
 };
 
-
 /**
  * Used to limit the locally readable range in the message stream.
- * Automatically restores the limit range to the previous range upon stack unwinding.
+ * Automatically restores the limit range to the previous range upon stack
+ * unwinding.
  */
 class ScopedMessageInViewGuard {
  public:
   FUN_ALWAYS_INLINE ScopedMessageInViewGuard(IMessageIn& input)
-    : input_(&input) {
+      : input_(&input) {
     previous_view_ = input_->PushView();
   }
 
@@ -249,9 +252,9 @@ class ScopedMessageInViewGuard {
 #define SCOPED_MESSAGEIN_EXCEPTIONS_DISABLED(MessageIn) \
   ScopedMessageInExceptionsEnabled ScopedExceptionsDisabled(MessageIn, false);
 
-#define FUN_SCOPED_MESSAGEIN_GUARDS(MessageIn) \
+#define FUN_SCOPED_MESSAGEIN_GUARDS(MessageIn)              \
   ScopedMessageInRecursionGuard recursion_guard(MessageIn); \
   ScopedMessageInViewGuard view_guard(MessageIn);
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

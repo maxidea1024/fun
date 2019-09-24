@@ -1,10 +1,10 @@
-﻿//TODO HashOf
-//TODO Serialization
+﻿// TODO HashOf
+// TODO Serialization
 
-#include "fun/json/value.h"
-#include "fun/json/reader.h"
-#include "fun/json/writer.h"
 #include "fun/json/file_helper.h"
+#include "fun/json/reader.h"
+#include "fun/json/value.h"
+#include "fun/json/writer.h"
 
 namespace fun {
 namespace json {
@@ -63,14 +63,8 @@ String JValue::ToString(bool pretty) const {
   }
 }
 
-} // namespace json
-} // namespace fun
-
-
-
-
-
-
+}  // namespace json
+}  // namespace fun
 
 static inline char* DuplicateStringValue(const char* value, size_t length) {
   if (length >= static_cast<size_t>(JValue::MaxInt)) {
@@ -79,8 +73,9 @@ static inline char* DuplicateStringValue(const char* value, size_t length) {
 
   char* new_string = static_cast<char*>(UnsafeMemory::Malloc(length + 1));
   if (new_string == nullptr) {
-    ThrowRuntimeError("in JValue::DuplicateStringValue(): "
-                      "Failed to allocate string value buffer");
+    ThrowRuntimeError(
+        "in JValue::DuplicateStringValue(): "
+        "Failed to allocate string value buffer");
   }
 
   UnsafeMemory::Memcpy(new_string, value, length);
@@ -88,29 +83,25 @@ static inline char* DuplicateStringValue(const char* value, size_t length) {
   return new_string;
 }
 
-static inline char* DuplicateAndPrefixStringValue(const char* value, uint32 length) {
-  //TODO
+static inline char* DuplicateAndPrefixStringValue(const char* value,
+                                                  uint32 length) {
+  // TODO
 }
-
-
-
 
 JValue::CZString(int32 index) : cstr_(nullptr), index_(index) {}
 
-JValue::CZString::CZString( const char* str,
-                            uint32 length,
-                            DuplicationPolicy allocation_policy)
+JValue::CZString::CZString(const char* str, uint32 length,
+                           DuplicationPolicy allocation_policy)
     : cstr_(str) {
   storage_.policy_ = allocation_policy & 3;
   storage_.length_ = length & 0x3FFFFFFF;
 }
 
-//TODO copy constructor.
+// TODO copy constructor.
 
 JValue::CZString::~CZString() {
   if (cstr_ && storage_.policy_ == DUPLICATE) {
-    ReleaseStringValue( const_cast<char*>(cstr_),
-                        storage_.length_ + 1);
+    ReleaseStringValue(const_cast<char*>(cstr_), storage_.length_ + 1);
   }
 }
 
@@ -119,20 +110,18 @@ void JValue::CZString::Swap(CZString& other) {
   fun::Swap(index_, other.index_);
 }
 
-JValue::CZString& JValue::CZString::operator = (const CZString& other) {
+JValue::CZString& JValue::CZString::operator=(const CZString& other) {
   cstr_ = other.cstr_;
   index_ = other.index_;
   return *this;
 }
 
-JValue::CZString& JValue::CZString::operator = (CZString&& other) {
+JValue::CZString& JValue::CZString::operator=(CZString&& other) {
   cstr_ = other.cstr_;
   index_ = other.index_;
   other.cstr_ = nullptr;
   return *this;
 }
-
-
 
 int32 JValue::CZString::Index() const { return index_; }
 
@@ -144,10 +133,7 @@ bool JValue::CZString::IsStaticString() const {
   return storage_.policy_ == NO_DUPLICATION;
 }
 
-
-
-bool JValue::TryRemoveField(const char* begin,
-                            const char* end,
+bool JValue::TryRemoveField(const char* begin, const char* end,
                             JValue* out_removed) {
   if (GetType() != Type::ObjectValue) {
     return false;
@@ -180,15 +166,15 @@ void JValue::RemoveField(const char* key) {
     return;
   }
 
-  CZString actual_key(key, key + CharTraitsA::Strlen(key), CZString::NO_DUPLICATION);
+  CZString actual_key(key, key + CharTraitsA::Strlen(key),
+                      CZString::NO_DUPLICATION);
   value_.map_->erase(actual_key);
 }
 
 void JValue::RemoveField(const String& key) {
-  //TODO optimize (remove Strlen)
+  // TODO optimize (remove Strlen)
   RemoveField(key.c_str());
 }
-
 
 bool JValue::RemoveIndex(int32 index, JValue* out_removed) {
   if (!IsArray()) {
@@ -221,21 +207,14 @@ bool JValue::RemoveIndex(int32 index, JValue* out_removed) {
   return true;
 }
 
-
-
-
 static bool IsIntegral(double d) {
   double integral_part;
   return modf(d, &integral_part) == 0.0;
 }
 
-bool JValue::IsNull() const {
-  return type_ == Type::Null;
-}
+bool JValue::IsNull() const { return type_ == Type::Null; }
 
-bool JValue::IsBool() const {
-  return type_ == Type::Bool;
-}
+bool JValue::IsBool() const { return type_ == Type::Bool; }
 
 bool JValue::IsInt32() const {
   switch (type_) {
@@ -246,8 +225,8 @@ bool JValue::IsInt32() const {
       return value_.uint_ <= uint32(int32_MAX);
 
     case Type::Real:
-      return  value_.real_ >= int32_MIN && value_.real_ <= int32_MAX &&
-              IsIntegral(value_.real_);
+      return value_.real_ >= int32_MIN && value_.real_ <= int32_MAX &&
+             IsIntegral(value_.real_);
 
     default:
       return false;
@@ -257,14 +236,15 @@ bool JValue::IsInt32() const {
 bool JValue::IsUInt32() const {
   switch (type_) {
     case Type::Int:
-      return value_.int_ >= 0 && LargestUInt(value_.int_) <= LargestUInt(uint32_MAX);
+      return value_.int_ >= 0 &&
+             LargestUInt(value_.int_) <= LargestUInt(uint32_MAX);
 
     case Type::UInt:
       return value_.uint_ <= uint32_MAX;
 
     case Type::Real:
-      return  value_.real_ >= 0 && value_.real_ <= uint32_MAX &&
-              IsIntegral(value_.real_);
+      return value_.real_ >= 0 && value_.real_ <= uint32_MAX &&
+             IsIntegral(value_.real_);
 
     default:
       return false;
@@ -280,8 +260,8 @@ bool JValue::IsInt64() const {
       return value_.uint_ <= uint64(MAX_INT64);
 
     case Type::Real:
-      return  value_.real_ >= double(int64_MIN) &&
-              value_.real_ < double(int64_MAX) && IsIntegral(value_.real_);
+      return value_.real_ >= double(int64_MIN) &&
+             value_.real_ < double(int64_MAX) && IsIntegral(value_.real_);
 
     default:
       return false;
@@ -297,8 +277,8 @@ bool JValue::IsUInt64() const {
       return true;
 
     case Type::Real:
-      return  value_.real_ >= 0 && value_.real_ < MAX_UINT64_AS_DOUBLE &&
-              IsIntegral(value_.real_);
+      return value_.real_ >= 0 && value_.real_ < MAX_UINT64_AS_DOUBLE &&
+             IsIntegral(value_.real_);
 
     default:
       return false;
@@ -312,8 +292,8 @@ bool JValue::IsIntegral() const {
       return true;
 
     case Type::Real:
-      return  value_.real_ >= double(MIN_INT64) &&
-              value_.real_ < MAX_UINT64_AS_DOUBLE && IsIntegral(value_.real_);
+      return value_.real_ >= double(MIN_INT64) &&
+             value_.real_ < MAX_UINT64_AS_DOUBLE && IsIntegral(value_.real_);
 
     default:
       return false;
@@ -321,30 +301,17 @@ bool JValue::IsIntegral() const {
 }
 
 bool JValue::IsDouble() const {
-  return GetType() == Type::Int || GetType() == Type::UInt || GetType() == Type::Real;
+  return GetType() == Type::Int || GetType() == Type::UInt ||
+         GetType() == Type::Real;
 }
 
-bool JValue::IsNumeric() const {
-  return IsDouble();
-}
+bool JValue::IsNumeric() const { return IsDouble(); }
 
-bool JValue::IsString() const {
-  return GetType() == Type::String;
-}
+bool JValue::IsString() const { return GetType() == Type::String; }
 
-bool JValue::IsArray() const {
-  return GetType() == Type::Array;
-}
+bool JValue::IsArray() const { return GetType() == Type::Array; }
 
-bool JValue::IsObject() const {
-  return GetType() == Type::Object;
-}
-
-
-
-
-
-
+bool JValue::IsObject() const { return GetType() == Type::Object; }
 
 JValue::ConstIterator JValue::begin() const {
   switch (type_) {
@@ -374,7 +341,6 @@ JValue::ConstIterator JValue::end() const {
   }
 }
 
-
 JValue::Iterator JValue::begin() {
   switch (type_) {
     case Type::Array:
@@ -403,11 +369,6 @@ JValue::Iterator JValue::end() {
   }
 }
 
-
-
-
-
-
 int32 JValue::Compare(const JValue& other) const {
   if (*this < other) {
     return -1;
@@ -418,7 +379,7 @@ int32 JValue::Compare(const JValue& other) const {
   return 0;
 }
 
-bool JValue::operator < (const JValue& other) const {
+bool JValue::operator<(const JValue& other) const {
   int32 type_delta = GetType() - other.GetType();
   if (type_delta != 0) {
     return type_delta < 0;
@@ -455,30 +416,21 @@ bool JValue::operator < (const JValue& other) const {
   }
 }
 
-bool JValue::operator <= (const JValue& other) const {
-  return !(other < *this);
-}
+bool JValue::operator<=(const JValue& other) const { return !(other < *this); }
 
-bool JValue::operator >= (const JValue& other) const {
-  return !(*this < other);
-}
+bool JValue::operator>=(const JValue& other) const { return !(*this < other); }
 
-bool JValue::operator > (const JValue& other) const {
-  return other < *this;
-}
+bool JValue::operator>(const JValue& other) const { return other < *this; }
 
-bool JValue::operator == (const JValue& other) const {
+bool JValue::operator==(const JValue& other) const {
   if (GetType() != other.GetType()) {
     return false;
   }
 
-  //TODO
+  // TODO
 }
 
-bool JValue::operator != (const JValue& other) const {
-  return !(*this == other);
-}
-
+bool JValue::operator!=(const JValue& other) const { return !(*this == other); }
 
 const char* JValue::AsCString() const {
   fun_check_msg(IsString(), "in JValue::AsCString(): requires string");
@@ -489,8 +441,8 @@ const char* JValue::AsCString() const {
 
   uint32 this_len;
   const char* this_str;
-  DecodePrefixedString( this->IsAllocated(), this->value_.string_, &this_len,
-                        &this_str);
+  DecodePrefixedString(this->IsAllocated(), this->value_.string_, &this_len,
+                       &this_str);
   return this_str;
 }
 
@@ -504,8 +456,8 @@ uint32 JValue::GetCStringLength() const {
 
   uint32 this_len;
   const char* this_str;
-  DecodePrefixedString( this->IsAllocated(), this->value_.string_, &this_len,
-                        &this_str);
+  DecodePrefixedString(this->IsAllocated(), this->value_.string_, &this_len,
+                       &this_str);
   return this_len;
 }
 #endif
@@ -520,8 +472,8 @@ bool JValue::GetString(const char** begin, const char** end) const {
   }
 
   uint32 this_len;
-  DecodePrefixedString( this->IsAllocated(), this->value_.string_, &this_len,
-                        begin);
+  DecodePrefixedString(this->IsAllocated(), this->value_.string_, &this_len,
+                       begin);
   *end = *begin + this_len;
   return true;
 }
@@ -537,8 +489,8 @@ String JValue::AsString() const {
       } else {
         uint32 this_len;
         const char* this_str;
-        DecodePrefixedString( this->IsAllocated(), this->value_.string_, &this_len,
-                              &this_str);
+        DecodePrefixedString(this->IsAllocated(), this->value_.string_,
+                             &this_len, &this_str);
         return String(this_str, this_len);
       }
 
@@ -559,31 +511,23 @@ String JValue::AsString() const {
   }
 }
 
-int32 JValue::AsInt() const {
-}
+int32 JValue::AsInt() const {}
 
-uint32 JValue::AsUInt() const {
-}
+uint32 JValue::AsUInt() const {}
 
-int64 JValue::AsInt64() const {
-}
+int64 JValue::AsInt64() const {}
 
-uint64 JValue::AsUInt64() const {
-}
+uint64 JValue::AsUInt64() const {}
 
-//TODO LargestInt / LargestUInt ?
+// TODO LargestInt / LargestUInt ?
 
-double JValue::AsDouble() const {
-}
+double JValue::AsDouble() const {}
 
-float JValue::AsFloat() const {
-}
+float JValue::AsFloat() const {}
 
-bool JValue::AsBool() const {
-}
+bool JValue::AsBool() const {}
 
-bool JValue::IsConvertibleTo(ValueType type_to) const {
-}
+bool JValue::IsConvertibleTo(ValueType type_to) const {}
 
 int32 JValue::Count() const {
   switch (type_) {
@@ -596,7 +540,7 @@ int32 JValue::Count() const {
       return 0;
 
     case Type::Array:
-      //TODO
+      // TODO
       return 0;
 
     case Type::Object:
@@ -619,8 +563,9 @@ bool JValue::IsEmpty() const {
 JValue::operator bool() const { return !IsNull(); }
 
 void JValue::Clear() {
-  fun_check_msg(type_ == Type::Null || type_ == Type::Array || type_ == Type::Object,
-                "in JValue::Clear(): requires complex value");
+  fun_check_msg(
+      type_ == Type::Null || type_ == Type::Array || type_ == Type::Object,
+      "in JValue::Clear(): requires complex value");
 
   start_ = 0;
   limit_ = 0;
@@ -675,10 +620,6 @@ JValue& JValue::operator[](int32 index) {
   return (*it).second;
 }
 
-
-
-
-
 void JValue::DuplicatePaylod(const JValue& other) {
   SetType(other.GetType());
   SetIsAllocated(false);
@@ -689,14 +630,15 @@ void JValue::DuplicatePaylod(const JValue& other) {
     case Type::UInt:
     case Type::Real:
     case Type::Bool:
-        value_ = other.value_;
-        break;
+      value_ = other.value_;
+      break;
 
     case Type::String:
       if (other.value_.string_ && other.IsAllocated()) {
         uint32 len;
         const char* str;
-        DecodePrefixedString(other.IsAllocated(), other.value_.string_, &len, &str);
+        DecodePrefixedString(other.IsAllocated(), other.value_.string_, &len,
+                             &str);
         value_.string_ = DuplicateAndPrefixStringValue(str, len);
         SetIsAllocated(true);
       } else {
@@ -721,7 +663,7 @@ void JValue::ReleasePayload() {
     case Type::UInt:
     case Type::Real:
     case Type::Bool:
-        break;
+      break;
 
     case Type::String:
       if (IsAllocated()) {
@@ -745,12 +687,9 @@ void JValue::DuplicateMeta(const JValue& other) {
   limit_ = other.limit_;
 }
 
-JValue& JValue::ResolveReference(const char* key) {
-}
+JValue& JValue::ResolveReference(const char* key) {}
 
-JValue& JValue::ResolveReference(const char* key, const char* end) {
-}
-
+JValue& JValue::ResolveReference(const char* key, const char* end) {}
 
 JValue JValue::Get(int32 index, const JValue& default_value) const {
   const JValue* value = &((*this)[index]);
@@ -759,14 +698,7 @@ JValue JValue::Get(int32 index, const JValue& default_value) const {
 
 bool JValue::IsValidIndex(int32 index) const { return index < Count(); }
 
-
-
-
-
-JValue* JValue::Demand(const char* begin, const char* end) {
-}
-
-
+JValue* JValue::Demand(const char* begin, const char* end) {}
 
 const JValue& JValue::operator[](const char* key) const {
   const JValue* found = Find(key, key + CharTraitsA::Strlen(key));

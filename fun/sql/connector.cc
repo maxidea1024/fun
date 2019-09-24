@@ -7,5 +7,5 @@ Connector::Connector() {}
 
 Connector::~Connector() {}
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

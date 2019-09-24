@@ -7,14 +7,18 @@ namespace fun {
 
 /** Governs when malloc that poisons the allocations is enabled. */
 #ifndef FUN_USE_MALLOC_FILL_BYTES
-# define FUN_USE_MALLOC_FILL_BYTES  ((FUN_BUILD_DEBUG || FUN_BUILD_DEVELOPMENT) && !WITH_EDITORONLY_DATA && !PLATFORM_USES_FIXED_GMalloc_CLASS)
+#define FUN_USE_MALLOC_FILL_BYTES                                         \
+  ((FUN_BUILD_DEBUG || FUN_BUILD_DEVELOPMENT) && !WITH_EDITORONLY_DATA && \
+   !PLATFORM_USES_FIXED_GMalloc_CLASS)
 #endif
 
-/** Value that a freed memory block will be filled with when FUN_USE_MALLOC_FILL_BYTES is defined. */
-#define DEBUG_FILL_FREED  (0xdd)
+/** Value that a freed memory block will be filled with when
+ * FUN_USE_MALLOC_FILL_BYTES is defined. */
+#define DEBUG_FILL_FREED (0xdd)
 
-/** Value that a new memory block will be filled with when FUN_USE_MALLOC_FILL_BYTES is defined. */
-#define DEBUG_FILL_NEW  (0xcd)
+/** Value that a new memory block will be filled with when
+ * FUN_USE_MALLOC_FILL_BYTES is defined. */
+#define DEBUG_FILL_NEW (0xcd)
 
 /**
  * MemoryAllocator proxy that poisons new and freed allocations, helping to
@@ -24,7 +28,7 @@ class MemoryAllocatorPoisonProxy : public MemoryAllocator {
  public:
   // MemoryAllocator interface begin
   explicit MemoryAllocatorPoisonProxy(MemoryAllocator* malloc)
-    : inner_malloc_(malloc) {
+      : inner_malloc_(malloc) {
     fun_check_ptr(inner_malloc_);
   }
 
@@ -54,13 +58,16 @@ class MemoryAllocatorPoisonProxy : public MemoryAllocator {
     IncrementTotalReallocCalls();
 
     size_t old_size = 0;
-    if (ptr && GetAllocationSize(ptr, old_size) && old_size > 0 && old_size > new_size) {
-      UnsafeMemory::Memset(static_cast<uint8*>(ptr) + new_size, DEBUG_FILL_FREED, old_size - new_size);
+    if (ptr && GetAllocationSize(ptr, old_size) && old_size > 0 &&
+        old_size > new_size) {
+      UnsafeMemory::Memset(static_cast<uint8*>(ptr) + new_size,
+                           DEBUG_FILL_FREED, old_size - new_size);
     }
 
     void* result = inner_malloc_->Realloc(ptr, new_size, alignment);
     if (result && old_size > 0 && old_size < new_size) {
-      UnsafeMemory::Memset(static_cast<uint8*>(result) + old_size, DEBUG_FILL_NEW, new_size - old_size);
+      UnsafeMemory::Memset(static_cast<uint8*>(result) + old_size,
+                           DEBUG_FILL_NEW, new_size - old_size);
     }
 
     return result;
@@ -86,15 +93,14 @@ class MemoryAllocatorPoisonProxy : public MemoryAllocator {
     inner_malloc_->DumpAllocatorStats(out);
   }
 
-  bool ValidateHeap() override {
-    return inner_malloc_->ValidateHeap();
-  }
+  bool ValidateHeap() override { return inner_malloc_->ValidateHeap(); }
 
   bool Exec(RuntimeEnv* env, const char* cmd, Printer& out) override {
     return inner_malloc_->Exec(env, cmd, out);
   }
 
-  bool GetAllocationSize(void* reported_ptr, size_t& out_allocation_size) override {
+  bool GetAllocationSize(void* reported_ptr,
+                         size_t& out_allocation_size) override {
     return inner_malloc_->GetAllocationSize(reported_ptr, out_allocation_size);
   }
 
@@ -102,13 +108,11 @@ class MemoryAllocatorPoisonProxy : public MemoryAllocator {
     return inner_malloc_->GetDescriptiveName();
   }
 
-  void Trim() override {
-    inner_malloc_->Trim();
-  }
+  void Trim() override { inner_malloc_->Trim(); }
 
  private:
   /** Malloc we're based on, aka using under the hood */
   MemoryAllocator* inner_malloc_;
 };
 
-} // namespace fun
+}  // namespace fun

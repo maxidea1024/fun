@@ -2,8 +2,8 @@
 
 #include "fun/base/base.h"
 #include "fun/base/cryptographic_hash.h"
-#include "fun/base/string/byte_array.h"
 #include "fun/base/ftl/template.h"
+#include "fun/base/string/byte_array.h"
 
 namespace fun {
 
@@ -39,15 +39,17 @@ enum class UuidFormat {
   DigitsWithHyphensInBraces = 2,
 
   /**
-   * 32 digits separated by hyphens, enclosed in parentheses: (format Specifier 'P')
+   * 32 digits separated by hyphens, enclosed in parentheses: (format Specifier
+   * 'P')
    *
    * (00000000-0000-0000-0000-000000000000)
    */
   DigitsWithHyphensInParentheses = 3,
 
   /**
-   * Four hexadecimal values enclosed in braces, where the fourth value is a subset of
-   * eight hexadecimal values that is also enclosed in braces: (format Specifier 'X')
+   * Four hexadecimal values enclosed in braces, where the fourth value is a
+   * subset of eight hexadecimal values that is also enclosed in braces: (format
+   * Specifier 'X')
    *
    * {0x00000000,0x0000,0x0000,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}}
    */
@@ -73,13 +75,14 @@ class FUN_BASE_API Uuid {
 
   Uuid();
   Uuid(const uint8* bytes);
-  Uuid(uint32 a, uint16 b, uint16 c, uint8 d, uint8 e, uint8 f, uint8 g, uint8 h, uint8 i, uint8 j, uint8 k);
+  Uuid(uint32 a, uint16 b, uint16 c, uint8 d, uint8 e, uint8 f, uint8 g,
+       uint8 h, uint8 i, uint8 j, uint8 k);
   Uuid(uint32 a, uint16 b, uint16 c, const uint8* d);
   Uuid(uint32 packed1, uint32 packed2, uint32 packed3, uint32 packed4);
   explicit Uuid(const String& str);
 
   Uuid(const Uuid& rhs);
-  Uuid& operator = (const Uuid& rhs);
+  Uuid& operator=(const Uuid& rhs);
 
   void Swap(Uuid& rhs);
 
@@ -109,28 +112,30 @@ class FUN_BASE_API Uuid {
   int32 Compare(const Uuid& rhs) const;
   bool Equals(const Uuid& rhs) const;
 
-  bool operator == (const Uuid& rhs) const;
-  bool operator != (const Uuid& rhs) const;
-  bool operator <  (const Uuid& rhs) const;
-  bool operator <= (const Uuid& rhs) const;
-  bool operator >  (const Uuid& rhs) const;
-  bool operator >= (const Uuid& rhs) const;
+  bool operator==(const Uuid& rhs) const;
+  bool operator!=(const Uuid& rhs) const;
+  bool operator<(const Uuid& rhs) const;
+  bool operator<=(const Uuid& rhs) const;
+  bool operator>(const Uuid& rhs) const;
+  bool operator>=(const Uuid& rhs) const;
 
   bool IsValid() const;
   void Invalidate();
 
   explicit operator bool() const;
-  bool operator !() const;
+  bool operator!() const;
 
   static Uuid NewUuid();
   static Uuid NewSecuredRandomUuid();
   static Uuid NewRandomUuid();
   static Uuid NewUuidFromName(const Uuid& ns_id, const String& name);
-  static Uuid NewUuidFromName(const Uuid& ns_id, const String& name, CryptographicHash& hasher);
-  static Uuid NewUuidFromName(const Uuid& ns_id, const String& name, CryptographicHash& hasher, UuidVersion version);
+  static Uuid NewUuidFromName(const Uuid& ns_id, const String& name,
+                              CryptographicHash& hasher);
+  static Uuid NewUuidFromName(const Uuid& ns_id, const String& name,
+                              CryptographicHash& hasher, UuidVersion version);
 
   friend uint32 HashOf(const Uuid& uuid);
-  friend Archive& operator & (Archive& ar, Uuid& uuid);
+  friend Archive& operator&(Archive& ar, Uuid& uuid);
 
  private:
   alignas(4) union {
@@ -140,7 +145,7 @@ class FUN_BASE_API Uuid {
       uint16 time_mid;
       uint16 time_hi_and_version;
       uint16 clock_seq;
-      uint8  node[6];
+      uint8 node[6];
     };
 
     // C#(Microsoft) layout
@@ -148,14 +153,14 @@ class FUN_BASE_API Uuid {
       uint32 a;
       uint16 b;
       uint16 c;
-      uint8  d;
-      uint8  e;
-      uint8  f;
-      uint8  g;
-      uint8  h;
-      uint8  i;
-      uint8  j;
-      uint8  k;
+      uint8 d;
+      uint8 e;
+      uint8 f;
+      uint8 g;
+      uint8 h;
+      uint8 i;
+      uint8 j;
+      uint8 k;
     };
 
     // Packed layout
@@ -170,17 +175,13 @@ class FUN_BASE_API Uuid {
   friend class UuidGenerator;
   friend class UuidParser;
 
-  Uuid( uint32 time_low,
-        uint32 time_mid,
-        uint32 time_hi_and_version,
-        uint16 clock_seq,
-        const uint8* node);
+  Uuid(uint32 time_low, uint32 time_mid, uint32 time_hi_and_version,
+       uint16 clock_seq, const uint8* node);
 
   Uuid(const uint8* bytes, UuidVersion version);
 
   static UuidFormat CharToFormat(char f);
 };
-
 
 //
 // Inline codes
@@ -190,21 +191,11 @@ FUN_ALWAYS_INLINE Uuid::Uuid() {
   u.packed1 = u.packed2 = u.packed3 = u.packed4 = 0;
 }
 
-FUN_ALWAYS_INLINE Uuid::Uuid(const uint8* bytes) {
-  *this = FromBytes(bytes);
-}
+FUN_ALWAYS_INLINE Uuid::Uuid(const uint8* bytes) { *this = FromBytes(bytes); }
 
-FUN_ALWAYS_INLINE Uuid::Uuid(uint32 a,
-                  uint16 b,
-                  uint16 c,
-                  uint8 d,
-                  uint8 e,
-                  uint8 f,
-                  uint8 g,
-                  uint8 h,
-                  uint8 i,
-                  uint8 j,
-                  uint8 k) {
+FUN_ALWAYS_INLINE Uuid::Uuid(uint32 a, uint16 b, uint16 c, uint8 d, uint8 e,
+                             uint8 f, uint8 g, uint8 h, uint8 i, uint8 j,
+                             uint8 k) {
   u.a = a;
   u.b = b;
   u.c = c;
@@ -232,11 +223,9 @@ FUN_ALWAYS_INLINE Uuid::Uuid(uint32 a, uint16 b, uint16 c, const uint8* d) {
   u.k = d[7];
 }
 
-FUN_ALWAYS_INLINE Uuid::Uuid(uint32 time_low,
-                  uint32 time_mid,
-                  uint32 time_hi_and_version,
-                  uint16 clock_seq,
-                  const uint8* node) {
+FUN_ALWAYS_INLINE Uuid::Uuid(uint32 time_low, uint32 time_mid,
+                             uint32 time_hi_and_version, uint16 clock_seq,
+                             const uint8* node) {
   u.time_low = time_low;
   u.time_mid = time_mid;
   u.time_hi_and_version = time_hi_and_version;
@@ -253,10 +242,8 @@ FUN_ALWAYS_INLINE Uuid::Uuid(const uint8* bytes, UuidVersion version) {
   u.clock_seq |= 0x8000;
 }
 
-FUN_ALWAYS_INLINE Uuid::Uuid( uint32 packed1,
-                              uint32 packed2,
-                              uint32 packed3,
-                              uint32 packed4) {
+FUN_ALWAYS_INLINE Uuid::Uuid(uint32 packed1, uint32 packed2, uint32 packed3,
+                             uint32 packed4) {
   u.packed1 = packed1;
   u.packed2 = packed2;
   u.packed3 = packed3;
@@ -270,7 +257,7 @@ FUN_ALWAYS_INLINE Uuid::Uuid(const Uuid& rhs) {
   u.packed4 = rhs.u.packed4;
 }
 
-FUN_ALWAYS_INLINE Uuid& Uuid::operator = (const Uuid& rhs) {
+FUN_ALWAYS_INLINE Uuid& Uuid::operator=(const Uuid& rhs) {
   if (FUN_LIKELY(&rhs != this)) {
     u.packed1 = rhs.u.packed1;
     u.packed2 = rhs.u.packed2;
@@ -307,59 +294,57 @@ FUN_ALWAYS_INLINE bool Uuid::Equals(const Uuid& rhs) const {
   return Compare(rhs) == 0;
 }
 
-FUN_ALWAYS_INLINE bool Uuid::operator == (const Uuid& rhs) const {
+FUN_ALWAYS_INLINE bool Uuid::operator==(const Uuid& rhs) const {
   return Equals(rhs);
 }
 
-FUN_ALWAYS_INLINE bool Uuid::operator != (const Uuid& rhs) const {
+FUN_ALWAYS_INLINE bool Uuid::operator!=(const Uuid& rhs) const {
   return !Equals(rhs);
 }
 
-FUN_ALWAYS_INLINE bool Uuid::operator < (const Uuid& rhs) const {
+FUN_ALWAYS_INLINE bool Uuid::operator<(const Uuid& rhs) const {
   return Compare(rhs) < 0;
 }
 
-FUN_ALWAYS_INLINE bool Uuid::operator <= (const Uuid& rhs) const {
+FUN_ALWAYS_INLINE bool Uuid::operator<=(const Uuid& rhs) const {
   return Compare(rhs) <= 0;
 }
 
-FUN_ALWAYS_INLINE bool Uuid::operator > (const Uuid& rhs) const {
+FUN_ALWAYS_INLINE bool Uuid::operator>(const Uuid& rhs) const {
   return Compare(rhs) > 0;
 }
 
-FUN_ALWAYS_INLINE bool Uuid::operator >= (const Uuid& rhs) const {
+FUN_ALWAYS_INLINE bool Uuid::operator>=(const Uuid& rhs) const {
   return Compare(rhs) >= 0;
 }
 
-FUN_ALWAYS_INLINE bool Uuid::IsValid() const {
-  return *this != None;
-}
+FUN_ALWAYS_INLINE bool Uuid::IsValid() const { return *this != None; }
 
-FUN_ALWAYS_INLINE Uuid::operator bool() const {
-  return IsValid();
-}
+FUN_ALWAYS_INLINE Uuid::operator bool() const { return IsValid(); }
 
-FUN_ALWAYS_INLINE bool Uuid::operator !() const {
-  return !IsValid();
-}
+FUN_ALWAYS_INLINE bool Uuid::operator!() const { return !IsValid(); }
 
-FUN_ALWAYS_INLINE void Uuid::Invalidate() {
-  *this = None;
-}
+FUN_ALWAYS_INLINE void Uuid::Invalidate() { *this = None; }
 
 FUN_ALWAYS_INLINE UuidFormat Uuid::CharToFormat(char f) {
   switch (f) {
-    case 'D': case 'd':
+    case 'D':
+    case 'd':
       return UuidFormat::DigitsWithHyphens;
-    case 'N': case 'n':
+    case 'N':
+    case 'n':
       return UuidFormat::Digits;
-    case 'B': case 'b':
+    case 'B':
+    case 'b':
       return UuidFormat::DigitsWithHyphensInBraces;
-    case 'P': case 'p':
+    case 'P':
+    case 'p':
       return UuidFormat::DigitsWithHyphensInParentheses;
-    case 'X': case 'x':
+    case 'X':
+    case 'x':
       return UuidFormat::HexValuesInBraces;
-    case 'O': case 'o':
+    case 'O':
+    case 'o':
       return UuidFormat::ObjectId;
   }
 
@@ -367,14 +352,12 @@ FUN_ALWAYS_INLINE UuidFormat Uuid::CharToFormat(char f) {
   return UuidFormat::DigitsWithHyphens;
 }
 
-FUN_ALWAYS_INLINE void Swap(Uuid& lhs, Uuid& rhs) {
-  lhs.Swap(rhs);
-}
+FUN_ALWAYS_INLINE void Swap(Uuid& lhs, Uuid& rhs) { lhs.Swap(rhs); }
 
 namespace Lex {
 FUN_ALWAYS_INLINE String ToString(const Uuid& value) {
   return value.ToString();
 }
-}
+}  // namespace Lex
 
-} // namespace fun
+}  // namespace fun

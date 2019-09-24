@@ -23,15 +23,11 @@ class FUN_MONGODB_API MessageHeader {
   };
 
   explicit MessageHeader(OpCode opcode)
-    : opcode_(opcode),
-      message_length_(0),
-      request_id_(0),
-      response_to_(0) {
-  }
+      : opcode_(opcode), message_length_(0), request_id_(0), response_to_(0) {}
 
-  //virtual ~MessageHeader() {}
+  // virtual ~MessageHeader() {}
 
-  //struct MsgHeader {
+  // struct MsgHeader {
   //  int32   messageLength;  // total message size, including this
   //  int32   requestID;      // identifier for this message
   //  int32   responseTo;     // requestID from the original request
@@ -40,7 +36,7 @@ class FUN_MONGODB_API MessageHeader {
   //}
 
   void Read(MessageIn& reader) {
-    //TODO 오류처리
+    // TODO 오류처리
     LiteFormat::Read(reader, message_length_);
     LiteFormat::Read(reader, request_id_);
     LiteFormat::Read(reader, response_to_);
@@ -56,25 +52,15 @@ class FUN_MONGODB_API MessageHeader {
     LiteFormat::Write(wirter, (int32)opcode_);
   }
 
-  int32 GetMessageLength() const {
-    return message_length_;
-  }
+  int32 GetMessageLength() const { return message_length_; }
 
-  OpCode GetOpcode() const {
-    return opcode_;
-  }
+  OpCode GetOpcode() const { return opcode_; }
 
-  int32 GetRequestId() const {
-    return request_id_;
-  }
+  int32 GetRequestId() const { return request_id_; }
 
-  void SetRequestId(int32 id) {
-    request_id_ = id;
-  }
+  void SetRequestId(int32 id) { request_id_ = id; }
 
-  int32 GetResponseTo() const {
-    return response_to_;
-  }
+  int32 GetResponseTo() const { return response_to_; }
 
  private:
   void SetMessageLength(int32 len) {
@@ -90,5 +76,5 @@ class FUN_MONGODB_API MessageHeader {
   friend class Message;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

@@ -5,18 +5,16 @@
 #include <algorithm>
 
 #if PLATFORM_HAVE_FD_EPOLL
-  #include <sys/epoll.h>
+#include <sys/epoll.h>
 #elif PLATFORM_HAVE_FD_POLL
-  #include <poll.h>
+#include <poll.h>
 #endif
 
 namespace fun {
 
 Socket::Socket() : impl_(new StreamSocketImpl) {}
 
-Socket::Socket(SocketImpl* impl) : impl_(impl) {
-  fun_check_ptr(impl_);
-}
+Socket::Socket(SocketImpl* impl) : impl_(impl) { fun_check_ptr(impl_); }
 
 Socket::Socket(const Socket& rhs) : impl_(rhs.impl_) {
   fun_check_ptr(impl_);
@@ -24,7 +22,7 @@ Socket::Socket(const Socket& rhs) : impl_(rhs.impl_) {
   impl_->AddRef();
 }
 
-Socket& Socket::operator = (const Socket& rhs) {
+Socket& Socket::operator=(const Socket& rhs) {
   if (FUN_LIKELY(&rhs != this)) {
     if (impl_) {
       impl_->Release();
@@ -40,19 +38,20 @@ Socket& Socket::operator = (const Socket& rhs) {
   return *this;
 }
 
-Socket::~Socket() {
-  impl_->Release();
-}
+Socket::~Socket() { impl_->Release(); }
 
-int32 Socket::Select(SocketList& read_list, SocketList& write_list, SocketList& error_list, const Timespan& timeout) {
+int32 Socket::Select(SocketList& read_list, SocketList& write_list,
+                     SocketList& error_list, const Timespan& timeout) {
 #if PLATFORM_HAVE_FD_EPOLL
 
-  int32 epoll_size = read_list.Count() + write_list.Count() + error_list.Count();
+  int32 epoll_size =
+      read_list.Count() + write_list.Count() + error_list.Count();
   if (epoll_size == 0) {
     return 0;
   }
 
-  int32 epoll_fd = -1; {
+  int32 epoll_fd = -1;
+  {
     struct epoll_event events_in[epoll_size];
     UnsafeMemory::Memzero(events_in, sizeof(events_in));
     struct epoll_event* eventLast = events_in;
@@ -129,7 +128,8 @@ int32 Socket::Select(SocketList& read_list, SocketList& write_list, SocketList& 
       if (fd != FUN_INVALID_SOCKET) {
         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, e) < 0) {
           close(epoll_fd);
-          SocketImpl::ThrowError(CStringLiteral("Can't insert socket to epoll queue: "));
+          SocketImpl::ThrowError(
+              CStringLiteral("Can't insert socket to epoll queue: "));
         }
       }
     }
@@ -142,7 +142,8 @@ int32 Socket::Select(SocketList& read_list, SocketList& write_list, SocketList& 
   int32 rc;
   do {
     DateTime start(DateTime::UtcNow());
-    rc = epoll_wait(epoll_fd, events_out, epoll_size, remaining_time.TotalMilliseconds());
+    rc = epoll_wait(epoll_fd, events_out, epoll_size,
+                    remaining_time.TotalMilliseconds());
     if (rc < 0 && SocketImpl::GetLastError() == FUN_EINTR) {
       DateTime end(DateTime::UtcNow());
       const Timespan waited = end - start;
@@ -183,7 +184,9 @@ int32 Socket::Select(SocketList& read_list, SocketList& write_list, SocketList& 
 
 #elif PLATFORM_HAVE_FD_POLL
 
-  typedef fun::SharedPtr<pollfd, fun::ReferenceCounter, fun::ReleaseArrayPolicy<pollfd> > SharedPollArray;
+  typedef fun::SharedPtr<pollfd, fun::ReferenceCounter,
+                         fun::ReleaseArrayPolicy<pollfd> >
+      SharedPollArray;
 
   nfds_t nfd = read_list.Count() + write_list.Count() + error_list.Count();
   if (0 == nfd) {
@@ -203,7 +206,7 @@ int32 Socket::Select(SocketList& read_list, SocketList& write_list, SocketList& 
   for (const auto& socket : write_list) {
     SocketList::iterator pos = std::find(begR, endR, *it);
     if (pos != endR) {
-      pPollArr[pos-begR].events |= POLLOUT;
+      pPollArr[pos - begR].events |= POLLOUT;
       --nfd;
     } else {
       pPollArr[idx].fd = int32(socket.GetSocketHandle());
@@ -254,7 +257,8 @@ int32 Socket::Select(SocketList& read_list, SocketList& write_list, SocketList& 
   SocketList::iterator begE = error_list.begin();
   SocketList::iterator endE = error_list.End();
   for (int32 i = 0; i < nfd; ++i) {
-    SocketList::iterator slIt = std::find_if(begR, endR, Socket::FDCompare(pPollArr[i].fd));
+    SocketList::iterator slIt =
+        std::find_if(begR, endR, Socket::FDCompare(pPollArr[i].fd));
     if (POLLIN & pPollArr[i].revents && slIt != endR) {
       ready_read_list.Add(*slIt);
     }
@@ -377,52 +381,32 @@ int32 Socket::Select(SocketList& read_list, SocketList& write_list, SocketList& 
 
   return rc;
 
-#endif // PLATFORM_HAVE_FD_EPOLL
+#endif  // PLATFORM_HAVE_FD_EPOLL
 }
 
-bool Socket::operator == (const Socket& rhs) const {
-  return impl_ == rhs.impl_;
-}
+bool Socket::operator==(const Socket& rhs) const { return impl_ == rhs.impl_; }
 
-bool Socket::operator != (const Socket& rhs) const {
-  return impl_ != rhs.impl_;
-}
+bool Socket::operator!=(const Socket& rhs) const { return impl_ != rhs.impl_; }
 
-bool Socket::operator <  (const Socket& rhs) const {
-  return impl_ < rhs.impl_;
-}
+bool Socket::operator<(const Socket& rhs) const { return impl_ < rhs.impl_; }
 
-bool Socket::operator <= (const Socket& rhs) const {
-  return impl_ <= rhs.impl_;
-}
+bool Socket::operator<=(const Socket& rhs) const { return impl_ <= rhs.impl_; }
 
-bool Socket::operator >  (const Socket& rhs) const {
-  return impl_ > rhs.impl_;
-}
+bool Socket::operator>(const Socket& rhs) const { return impl_ > rhs.impl_; }
 
-bool Socket::operator >= (const Socket& rhs) const {
-  return impl_ >= rhs.impl_;
-}
+bool Socket::operator>=(const Socket& rhs) const { return impl_ >= rhs.impl_; }
 
-void Socket::Close() {
-  impl_->Close();
-}
+void Socket::Close() { impl_->Close(); }
 
 bool Socket::Poll(const Timespan& timeout, int32 mode) const {
   return impl_->Poll(timeout, mode);
 }
 
-int32 Socket::Available() const {
-  return impl_->Available();
-}
+int32 Socket::Available() const { return impl_->Available(); }
 
-void Socket::SetSendBufferSize(int32 size) {
-  impl_->SetSendBufferSize(size);
-}
+void Socket::SetSendBufferSize(int32 size) { impl_->SetSendBufferSize(size); }
 
-int32 Socket::GetSendBufferSize() const {
-  return impl_->GetSendBufferSize();
-}
+int32 Socket::GetSendBufferSize() const { return impl_->GetSendBufferSize(); }
 
 void Socket::SetReceiveBufferSize(int32 size) {
   impl_->SetReceiveBufferSize(size);
@@ -436,9 +420,7 @@ void Socket::SetSendTimeout(const Timespan& timeout) {
   impl_->SetSendTimeout(timeout);
 }
 
-Timespan Socket::GetSendTimeout() const {
-  return impl_->GetSendTimeout();
-}
+Timespan Socket::GetSendTimeout() const { return impl_->GetSendTimeout(); }
 
 void Socket::SetReceiveTimeout(const Timespan& timeout) {
   impl_->SetReceiveTimeout(timeout);
@@ -496,57 +478,31 @@ void Socket::GetLinger(bool& on, int32& seconds) const {
   impl_->GetLinger(on, seconds);
 }
 
-void Socket::SetNoDelay(bool flag) {
-  impl_->SetNoDelay(flag);
-}
+void Socket::SetNoDelay(bool flag) { impl_->SetNoDelay(flag); }
 
-bool Socket::GetNoDelay() const {
-  return impl_->GetNoDelay();
-}
+bool Socket::GetNoDelay() const { return impl_->GetNoDelay(); }
 
-void Socket::SetKeepAlive(bool flag) {
-  impl_->SetKeepAlive(flag);
-}
+void Socket::SetKeepAlive(bool flag) { impl_->SetKeepAlive(flag); }
 
-bool Socket::GetKeepAlive() const {
-  return impl_->GetKeepAlive();
-}
+bool Socket::GetKeepAlive() const { return impl_->GetKeepAlive(); }
 
-void Socket::SetReuseAddress(bool flag) {
-  impl_->SetReuseAddress(flag);
-}
+void Socket::SetReuseAddress(bool flag) { impl_->SetReuseAddress(flag); }
 
-bool Socket::GetReuseAddress() const {
-  return impl_->GetReuseAddress();
-}
+bool Socket::GetReuseAddress() const { return impl_->GetReuseAddress(); }
 
-void Socket::SetReusePort(bool flag) {
-  impl_->SetReusePort(flag);
-}
+void Socket::SetReusePort(bool flag) { impl_->SetReusePort(flag); }
 
-bool Socket::GetReusePort() const {
-  return impl_->GetReusePort();
-}
+bool Socket::GetReusePort() const { return impl_->GetReusePort(); }
 
-void Socket::SetOOBInline(bool flag) {
-  impl_->SetOOBInline(flag);
-}
+void Socket::SetOOBInline(bool flag) { impl_->SetOOBInline(flag); }
 
-bool Socket::GetOOBInline() const {
-  return impl_->GetOOBInline();
-}
+bool Socket::GetOOBInline() const { return impl_->GetOOBInline(); }
 
-void Socket::SetBlocking(bool flag) {
-  impl_->SetBlocking(flag);
-}
+void Socket::SetBlocking(bool flag) { impl_->SetBlocking(flag); }
 
-bool Socket::GetBlocking() const {
-  return impl_->GetBlocking();
-}
+bool Socket::GetBlocking() const { return impl_->GetBlocking(); }
 
-SocketImpl* Socket::GetImpl() const {
-  return impl_;
-}
+SocketImpl* Socket::GetImpl() const { return impl_; }
 
 fun_socket_t Socket::GetSocketHandle() const {
   return impl_->GetSocketHandle();
@@ -556,17 +512,11 @@ InetAddress Socket::GetSocketAddress() const {
   return impl_->GetSocketAddress();
 }
 
-InetAddress Socket::GetPeerAddress() const {
-  return impl_->GetPeerAddress();
-}
+InetAddress Socket::GetPeerAddress() const { return impl_->GetPeerAddress(); }
 
-bool Socket::Secure() const {
-  return impl_->Secure();
-}
+bool Socket::Secure() const { return impl_->Secure(); }
 
-bool Socket::SupportsIPv4() {
-  return true;
-}
+bool Socket::SupportsIPv4() { return true; }
 
 bool Socket::SupportsIPv6() {
 #if FUN_PLATFORM_HAVE_IPv6
@@ -576,8 +526,6 @@ bool Socket::SupportsIPv6() {
 #endif
 }
 
-void Socket::Init() {
-  impl_->Init();
-}
+void Socket::Init() { impl_->Init(); }
 
-} // namespace fun
+}  // namespace fun

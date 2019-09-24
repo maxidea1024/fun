@@ -11,12 +11,10 @@ class Digest : public Auth {
 
   template <typename UserType, typename PassType>
   Digest(UserType&& user_name, PassType&& password)
-    : Auth{FORWARD(user_name), FORWARD(password)} {}
+      : Auth{FORWARD(user_name), FORWARD(password)} {}
 
-  const char* GetAuthString() const noexcept {
-    return Auth::GetAuthString();
-  }
+  const char* GetAuthString() const noexcept { return Auth::GetAuthString(); }
 };
 
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

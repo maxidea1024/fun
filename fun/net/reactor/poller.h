@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/reactor/event_loop.h"
 #include "fun/base/container/map.h"
+#include "fun/net/reactor/event_loop.h"
 
 namespace fun {
 namespace net {
@@ -43,9 +43,7 @@ class Poller : Noncopyable {
 
   static Poller* Create(EventLoop* loop);
 
-  void AssertInLoopThread() const {
-    owner_loop_->AssertInLoopThread();
-  }
+  void AssertInLoopThread() const { owner_loop_->AssertInLoopThread(); }
 
  protected:
   typedef Map<int, Channel*> ChannelMap;
@@ -55,5 +53,5 @@ class Poller : Noncopyable {
   EventLoop* owner_loop_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

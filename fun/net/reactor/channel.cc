@@ -8,15 +8,15 @@ const int Channel::kReadEvent = POLLIN | POLLPRI;
 const int Channel::kWriteEvent = POLLOUT;
 
 Channel::Channel(EventLoop* loop, int fd)
-  : loop_(loop),
-    fd_(fd),
-    events_(0),
-    revents_(0),
-    index_(-1),
-    log_hup_(true),
-    tied_(false),
-    events_handling_(false),
-    added_to_loop_(false) {}
+    : loop_(loop),
+      fd_(fd),
+      events_(0),
+      revents_(0),
+      index_(-1),
+      log_hup_(true),
+      tied_(false),
+      events_handling_(false),
+      added_to_loop_(false) {}
 
 Channel::~Channel() {
   fun_check(!events_handling_);
@@ -98,9 +98,7 @@ string Channel::ReventsToString() const {
   return EventsToString(fd_, revents_);
 }
 
-string Channel::EventsToString() const {
-  return EventsToString(fd_, events_);
-}
+string Channel::EventsToString() const { return EventsToString(fd_, events_); }
 
 string Channel::EventsToString(int fd, int ev) {
   std::ostringstream oss;
@@ -130,5 +128,5 @@ string Channel::EventsToString(int fd, int ev) {
   return oss.str().c_str();
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -24,4 +24,4 @@ struct FUN_BASE_API AndroidMemory : public CGenericPlatformMemory {
 
 typedef AndroidMemory PlatformMemory;
 
-} // namespace fun
+}  // namespace fun

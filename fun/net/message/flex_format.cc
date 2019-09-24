@@ -65,5 +65,5 @@ bool FlexFormat::SkipStruct(IMessageIn& input) {
 
 #undef FUN_DO_CHECKED
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

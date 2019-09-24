@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
-#include "fun/base/shared_ptr.h"
 #include "fun/base/function.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -12,7 +12,7 @@ class EventLoop;
 
 class Connector : Noncopyable, public EnableSharedFromThis<Connector> {
  public:
-  typedef Function<void (int sock_fd)> NewConnectionCallback;
+  typedef Function<void(int sock_fd)> NewConnectionCallback;
 
   Connector(EventLoop* loop, const InetAddress& server_addr);
   ~Connector();
@@ -28,13 +28,11 @@ class Connector : Noncopyable, public EnableSharedFromThis<Connector> {
   // can be called in any thread
   void Stop();
 
-  const InetAddress& GetServerAddress() const {
-    return server_addr_;
-  }
+  const InetAddress& GetServerAddress() const { return server_addr_; }
 
  private:
   enum States { kDisconnected, kConnecting, kConnected };
-  static const int kMaxRetryDelayMs = 30*1000;
+  static const int kMaxRetryDelayMs = 30 * 1000;
   static const int kInitRetryDelayMs = 500;
 
   void SetState(States s) { state_ = s; }
@@ -50,12 +48,12 @@ class Connector : Noncopyable, public EnableSharedFromThis<Connector> {
 
   EventLoop* loop_;
   InetAddress server_addr_;
-  bool connect_; // atomic
+  bool connect_;  // atomic
   States state_;  // FIXME: use atomic variable
   SharedPtr<Channel> channel_;
   NewConnectionCallback new_connection_cb_;
   int retry_delay_msecs_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

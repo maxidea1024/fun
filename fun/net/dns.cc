@@ -33,8 +33,8 @@ HostEntry Dns::HostByName(const String& host_name, uint32 int_flags) {
   }
 #endif
 
-  HandleError(LastError(), host_name); // will throw an appropriate exception
-  return HostEntry(); // relax compiler.
+  HandleError(LastError(), host_name);  // will throw an appropriate exception
+  return HostEntry();                   // relax compiler.
 }
 
 HostEntry Dns::HostByAddress(const IpAddress& address, uint32 int_flags) {
@@ -45,13 +45,8 @@ HostEntry Dns::HostByAddress(const IpAddress& address, uint32 int_flags) {
   sa.ToNative(native_addr);
 
   char host_name[1024];
-  int rc = getnameinfo((const sockaddr*)&native_addr,
-                        sizeof(native_addr),
-                        host_name,
-                        sizeof(host_name),
-                        nullptr,
-                        0,
-                        NI_NAMEREQD);
+  int rc = getnameinfo((const sockaddr*)&native_addr, sizeof(native_addr),
+                       host_name, sizeof(host_name), nullptr, 0, NI_NAMEREQD);
   if (rc == 0) {
     struct addrinfo* ai;
     struct addrinfo hints;
@@ -69,18 +64,18 @@ HostEntry Dns::HostByAddress(const IpAddress& address, uint32 int_flags) {
     AddrInfoError(rc, address.ToString());
   }
 #else
-  //TODO
-  //af�� �����Ϸ���? ipv4 mapped�δ� �ָ��ѵ�??
-  if (struct hostent* he = gethostbyaddr(reinterpret_cast<const char*>(address.addr()),
-                                        address.Length(),
-                                        address.af())) {
+  // TODO
+  // af�� �����Ϸ���? ipv4 mapped�δ� �ָ��ѵ�??
+  if (struct hostent* he =
+          gethostbyaddr(reinterpret_cast<const char*>(address.addr()),
+                        address.Length(), address.af())) {
     return HostEntry(he);
   }
 #endif
 
   const int32 err = LastError();
-  HandleError(err, address.ToString()); // will throw an appropriate exception
-  return HostEntry(); // relax compiler.
+  HandleError(err, address.ToString());  // will throw an appropriate exception
+  return HostEntry();                    // relax compiler.
 }
 
 HostEntry Dns::Resolve(const String& address) {
@@ -146,9 +141,11 @@ void Dns::HandleError(int code, const String& arg) {
     case FUN_HOST_NOT_FOUND:
       throw HostNotFoundException(arg);
     case FUN_TRY_AGAIN:
-      throw DnsException(StringLiteral("temporary DNS error while resolving"), arg);
+      throw DnsException(StringLiteral("temporary DNS error while resolving"),
+                         arg);
     case FUN_NO_RECOVERY:
-      throw DnsException(StringLiteral("non recoverable DNS error while resolving"), arg);
+      throw DnsException(
+          StringLiteral("non recoverable DNS error while resolving"), arg);
     case FUN_NO_DATA:
       throw NoAddressFoundException(arg);
     default:
@@ -160,37 +157,40 @@ void Dns::AddrInfoError(int code, const String& args) {
 #if FUN_PLATFORM_HAVE_IPv6 || FUN_PLATFORM_HAVE_ADDRINFO
   switch (code) {
     case EAI_AGAIN:
-      throw DnsException(StringLiteral("Temporary DNS error while resolving"), args);
+      throw DnsException(StringLiteral("Temporary DNS error while resolving"),
+                         args);
 
     case EAI_FAIL:
-      throw DnsException(StringLiteral("Non recoverable DNS error while resolving"), args);
+      throw DnsException(
+          StringLiteral("Non recoverable DNS error while resolving"), args);
 
-  #if !FUN_PLATFORM_WINDOWS_FAMILY // EAI_NODATA and EAI_NONAME have the same value
-  #if defined(EAI_NODATA) // deprecated in favor of EAI_NONAME on FreeBSD
+#if !FUN_PLATFORM_WINDOWS_FAMILY  // EAI_NODATA and EAI_NONAME have the same
+                                  // value
+#if defined(EAI_NODATA)  // deprecated in favor of EAI_NONAME on FreeBSD
     case EAI_NODATA:
       throw NoAddressFoundException(args);
-  #endif
-  #endif
+#endif
+#endif
 
     case EAI_NONAME:
       throw HostNotFoundException(args);
 
-  #if defined(EAI_SYSTEM)
+#if defined(EAI_SYSTEM)
     case EAI_SYSTEM:
       HandleError(LastError(), args);
       break;
-  #endif
+#endif
 
-  #if FUN_PLATFORM_WINDOWS_FAMILY
-    case WSANO_DATA: // may happen on XP
+#if FUN_PLATFORM_WINDOWS_FAMILY
+    case WSANO_DATA:  // may happen on XP
       throw HostNotFoundException(args);
-  #endif
+#endif
 
     default:
       throw DnsException(StringLiteral("EAI"), String::FromNumber(code));
   }
-#endif // FUN_PLATFORM_HAVE_IPv6 || FUN_PLATFORM_HAVE_ADDRINFO
+#endif  // FUN_PLATFORM_HAVE_IPv6 || FUN_PLATFORM_HAVE_ADDRINFO
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

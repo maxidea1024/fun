@@ -1,9 +1,9 @@
 ﻿#if !defined(_WIN32_WCE)
 
 #include "fun/framework/win_service.h"
-#include "fun/framework/win_registry_key.h"
-#include "fun/base/thread.h"
 #include "fun/base/exception.h"
+#include "fun/base/thread.h"
+#include "fun/framework/win_registry_key.h"
 
 namespace fun {
 namespace framework {
@@ -12,9 +12,7 @@ const int32 WinService::STARTUP_TIMEOUT = 30000;
 const String WinService::REGISTRY_KEY("SYSTEM\\CurrentControlSet\\Services\\");
 const String WinService::REGISTRY_DESCRIPTION("Description");
 
-WinService::WinService(const String& name)
-  : name_(name),
-    svc_handle_(0) {
+WinService::WinService(const String& name) : name_(name), svc_handle_(0) {
   scm_handle_ = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
   if (!scm_handle_) {
     throw SystemException("cannot Open Service Control Manager");
@@ -27,9 +25,7 @@ WinService::~WinService() {
   CloseServiceHandle(scm_handle_);
 }
 
-const String& WinService::GetName() const {
-  return name_;
-}
+const String& WinService::GetName() const { return name_; }
 
 String WinService::GetDisplayName() const {
   FUN_LPQUERY_SERVICE_CONFIG svc_config = GetConfig();
@@ -47,23 +43,17 @@ String WinService::GetPath() const {
   return path;
 }
 
-void WinService::RegisterService( const String& path,
-                                  const String& display_name) {
+void WinService::RegisterService(const String& path,
+                                 const String& display_name) {
   Close();
 
   UString uname = UString::FromUtf8(name_);
   UString udisplay_name = UString::FromUtf8(display_name);
   UString upath = UString::FromUtf8(path);
   svc_handle_ = CreateServiceW(
-    scm_handle_,
-    uname.c_str(),
-    udisplay_name.c_str(),
-    SERVICE_ALL_ACCESS,
-    SERVICE_WIN32_OWN_PROCESS,
-    SERVICE_DEMAND_START,
-    SERVICE_ERROR_NORMAL,
-    upath.c_str(),
-    NULL, NULL, NULL, NULL, NULL);
+      scm_handle_, uname.c_str(), udisplay_name.c_str(), SERVICE_ALL_ACCESS,
+      SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
+      upath.c_str(), NULL, NULL, NULL, NULL, NULL);
   if (!svc_handle_) {
     throw SystemException("cannot register service", name_);
   }
@@ -81,9 +71,7 @@ void WinService::UnregisterService() {
   }
 }
 
-bool WinService::IsRegistered() const {
-  return TryOpen();
-}
+bool WinService::IsRegistered() const { return TryOpen(); }
 
 bool WinService::IsRunning() const {
   Open();
@@ -121,7 +109,8 @@ void WinService::Start() {
   if (!QueryServiceStatus(svc_handle_, &svc_status)) {
     throw SystemException("cannot query status of starting service", name_);
   } else if (svc_status.dwCurrentState != SERVICE_RUNNING) {
-    throw SystemException("service failed to start within a reasonable time", name_);
+    throw SystemException("service failed to start within a reasonable time",
+                          name_);
   }
 }
 
@@ -152,17 +141,9 @@ void WinService::SetStartup(WinService::Startup startup) {
       start_type = SERVICE_NO_CHANGE;
   }
 
-  if (!ChangeServiceConfig( svc_handle_,
-                            SERVICE_NO_CHANGE,
-                            start_type,
-                            SERVICE_NO_CHANGE,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL)) {
+  if (!ChangeServiceConfig(svc_handle_, SERVICE_NO_CHANGE, start_type,
+                           SERVICE_NO_CHANGE, NULL, NULL, NULL, NULL, NULL,
+                           NULL, NULL)) {
     throw SystemException("cannot change service startup mode");
   }
 }
@@ -231,7 +212,8 @@ FUN_LPQUERY_SERVICE_CONFIG WinService::GetConfig() const {
 
   int32 size = 4096;
   DWORD bytes_needed;
-  FUN_LPQUERY_SERVICE_CONFIG svc_config = (FUN_LPQUERY_SERVICE_CONFIG)LocalAlloc(LPTR, size);
+  FUN_LPQUERY_SERVICE_CONFIG svc_config =
+      (FUN_LPQUERY_SERVICE_CONFIG)LocalAlloc(LPTR, size);
   if (!svc_config) {
     throw OutOfMemoryException("cannot allocate service config buffer");
   }
@@ -254,7 +236,7 @@ FUN_LPQUERY_SERVICE_CONFIG WinService::GetConfig() const {
   return svc_config;
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun
 
-#endif // !defined(_WIN32_WCE)
+#endif  // !defined(_WIN32_WCE)

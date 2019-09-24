@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/memory_base.h"
 #include "fun/base/container/ansi_allocator.h"
+#include "fun/base/memory_base.h"
 
 //@maxidea: temp
 //#define FUN_MALLOC_VERIFY  1
@@ -30,15 +30,13 @@ class MallocVerify {
   Set<void*, DefaultKeyFuncs<void*>, AnsiSetAllocator> allocated_pointers_;
 };
 
-
 /**
- * A verifying proxy malloc that takes a malloc to be used and checks that the caller
- * is passing valid pointers.
+ * A verifying proxy malloc that takes a malloc to be used and checks that the
+ * caller is passing valid pointers.
  */
 class MemoryAllocatorVerifyProxy : public MemoryAllocator {
  public:
-  MemoryAllocatorVerifyProxy(Malloc* malloc)
-    : inner_malloc_(malloc) {}
+  MemoryAllocatorVerifyProxy(Malloc* malloc) : inner_malloc_(malloc) {}
 
   // MemoryAllocator interface
 
@@ -76,9 +74,7 @@ class MemoryAllocatorVerifyProxy : public MemoryAllocator {
     inner_malloc_->DumpAllocatorStats(ar);
   }
 
-  bool ValidateHeap() override {
-    return inner_malloc_->ValidateHeap();
-  }
+  bool ValidateHeap() override { return inner_malloc_->ValidateHeap(); }
 
   bool Exec(RuntimeEnv* env, const char* cmd, Printer& out) override {
     return inner_malloc_->Exec(env, cmd, out);
@@ -92,9 +88,7 @@ class MemoryAllocatorVerifyProxy : public MemoryAllocator {
     return inner_malloc_->QuantizeSize(Count, alignment);
   }
 
-  void Trim() override {
-    return inner_malloc_->Trim();
-  }
+  void Trim() override { return inner_malloc_->Trim(); }
 
   void SetupTlsCachesOnCurrentThread() override {
     return inner_malloc_->SetupTlsCachesOnCurrentThread();
@@ -119,6 +113,6 @@ class MemoryAllocatorVerifyProxy : public MemoryAllocator {
   FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif //FUN_MALLOC_VERIFY
+#endif  // FUN_MALLOC_VERIFY

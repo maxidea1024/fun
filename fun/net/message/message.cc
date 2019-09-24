@@ -13,5 +13,5 @@ MessageFormat
 
 */
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -2,7 +2,7 @@
 #include "Net/socket/NetSocket.h"
 #include "Net/socket/SocketImpl.h"
 
-#pragma warning(disable : 4996) // warning C4996: 'GetVersionExW': deprecated
+#pragma warning(disable : 4996)  // warning C4996: 'GetVersionExW': deprecated
 
 namespace fun {
 
@@ -12,31 +12,33 @@ static bool CheckIsBrokenTimeout() {
 #if FUN_BROKEN_TIMEOUTS
   return true;
 #elif FUN_PLATFORM_WINDOWS_FAMILY
-  // on Windows 7 and lower, socket timeouts have a minimum of 500ms, use poll for timeouts on this case
+  // on Windows 7 and lower, socket timeouts have a minimum of 500ms, use poll
+  // for timeouts on this case
   // https://social.msdn.microsoft.com/Forums/en-US/76620f6d-22b1-4872-aaf0-833204f3f867/minimum-timeout-value-for-sorcvtimeo
   OSVERSIONINFO vi;
   vi.dwOSVersionInfoSize = sizeof(vi);
-  if (GetVersionEx(&vi) == 0) return true; //throw SystemException(CStringLiteral("Cannot get OS version information"));
-  return vi.dwMajorVersion < 6 || (vi.dwMajorVersion == 6 && vi.dwMinorVersion < 2);
+  if (GetVersionEx(&vi) == 0)
+    return true;  // throw SystemException(CStringLiteral("Cannot get OS version
+                  // information"));
+  return vi.dwMajorVersion < 6 ||
+         (vi.dwMajorVersion == 6 && vi.dwMinorVersion < 2);
 #endif
   return false;
 }
 
-} // namespace
+}  // namespace
 
 SocketImpl::SocketImpl()
-  : fd_(INVALID_SOCKET),
-  , blocking_(true),
-  , broken_timeout_(CheckIsBrokenTimeout()) {}
+    : fd_(INVALID_SOCKET),
+      ,
+      blocking_(true),
+      ,
+      broken_timeout_(CheckIsBrokenTimeout()) {}
 
 SocketImpl::SocketImpl(SOCKET fd)
-  : fd_(fd),
-  , blocking_(true),
-  , broken_timeout_(CheckIsBrokenTimeout()) {}
+    : fd_(fd), , blocking_(true), , broken_timeout_(CheckIsBrokenTimeout()) {}
 
-SocketImpl::~SocketImpl() {
-  Close();
-}
+SocketImpl::~SocketImpl() { Close(); }
 
 SocketImpl* SocketImpl::AcceptConnection(InetAddress& client_addr) {
   if (fd_ == INVALID_SOCKET) {
@@ -98,7 +100,8 @@ void SocketImpl::Connect(const InetAddress& address, const Timespan& timeout) {
       }
 
       if (!Poll(timeout, SELECT_READ | SELECT_WRITE | SELECT_ERROR)) {
-        throw TimeoutException(CStringLiteral("connect timed out"), address.ToString());
+        throw TimeoutException(CStringLiteral("connect timed out"),
+                               address.ToString());
       }
 
       error = GetSocketError();
@@ -137,7 +140,8 @@ void SocketImpl::Bind(const InetAddress& address, bool reuse_addr) {
   Bind(address, reuse_addr, false);
 }
 
-void SocketImpl::Bind(const InetAddress& address, bool reuse_addr, bool reuse_port) {
+void SocketImpl::Bind(const InetAddress& address, bool reuse_addr,
+                      bool reuse_port) {
   if (fd_ == INVALID_SOCKET) {
     Init();
   }
@@ -159,44 +163,47 @@ void SocketImpl::Bind(const InetAddress& address, bool reuse_addr, bool reuse_po
   }
 }
 
-void SocketImpl::Bind6(const InetAddress& address, bool reuse_addr, bool ipv6_only) {
+void SocketImpl::Bind6(const InetAddress& address, bool reuse_addr,
+                       bool ipv6_only) {
   Bind6(address, reuse_addr, false, ipv6_only);
 }
 
-void SocketImpl::Bind6(const InetAddress& address, bool reuse_addr, bool reuse_port, bool ipv6_only) {
-  //if (address.Family() != InetAddress::IPv6)
-  if (address.GetHost().IsIPv4MappedToIPv6()) //IPv6 전용임! {
-    throw InvalidArgumentException(CStringLiteral("address must be an IPv6 address"));
-  }
+void SocketImpl::Bind6(const InetAddress& address, bool reuse_addr,
+                       bool reuse_port, bool ipv6_only) {
+  // if (address.Family() != InetAddress::IPv6)
+  if (address.GetHost().IsIPv4MappedToIPv6())  // IPv6 전용임! {
+    throw InvalidArgumentException(
+        CStringLiteral("address must be an IPv6 address"));
+}
 
-  if (fd_ == INVALID_SOCKET) {
-    Init();
-  }
+if (fd_ == INVALID_SOCKET) {
+  Init();
+}
 
 #ifdef IPV6_V6ONLY
-  SetOption(IPPROTO_IPV6, IPV6_V6ONLY, ipv6_only ? 1 : 0);
+SetOption(IPPROTO_IPV6, IPV6_V6ONLY, ipv6_only ? 1 : 0);
 #else
-  if (ipv6_only) {
-    throw NotImplementedException(CStringLiteral("IPV6_V6ONLY not defined."));
-  }
+if (ipv6_only) {
+  throw NotImplementedException(CStringLiteral("IPV6_V6ONLY not defined."));
+}
 #endif
 
-  if (reuse_addr) {
-    SetReuseAddress(true);
-  }
-
-  if (reuse_port) {
-    SetReusePort(true);
-  }
-
-  sockaddr_in6 sa;
-  address.ToNative(sa);
-
-  const int32 rc = bind(fd_, (const sockaddr*)&sa, sizeof(sa));
-  if (rc != 0) {
-    ThrowError(rc, *address.ToString());
-  }
+if (reuse_addr) {
+  SetReuseAddress(true);
 }
+
+if (reuse_port) {
+  SetReusePort(true);
+}
+
+sockaddr_in6 sa;
+address.ToNative(sa);
+
+const int32 rc = bind(fd_, (const sockaddr*)&sa, sizeof(sa));
+if (rc != 0) {
+  ThrowError(rc, *address.ToString());
+}
+}  // namespace fun
 
 void SocketImpl::Listen(int32 backlog) {
   if (fd_ == INVALID_SOCKET) {
@@ -209,7 +216,8 @@ void SocketImpl::Listen(int32 backlog) {
   }
 }
 
-//TODO 핸들값은 그대로 둔채 소켓만 닫아주어서, 오류를 캐치할 수 있도록 하는 옵션을 제공하는것도 좋을듯 싶은데...
+// TODO 핸들값은 그대로 둔채 소켓만 닫아주어서, 오류를 캐치할 수 있도록 하는
+// 옵션을 제공하는것도 좋을듯 싶은데...
 void SocketImpl::Close() {
   if (fd_ != INVALID_SOCKET) {
     fun_closesocket(fd_);
@@ -306,7 +314,8 @@ int32 SocketImpl::ReceiveBytes(void* buffer, int32 length, int32 flags) {
   return rc;
 }
 
-int32 SocketImpl::SendTo(const void* data, int32 length, const InetAddress& address, int32 flags) {
+int32 SocketImpl::SendTo(const void* data, int32 length,
+                         const InetAddress& address, int32 flags) {
   int32 rc;
   do {
     if (fd_ == INVALID_SOCKET) {
@@ -316,7 +325,8 @@ int32 SocketImpl::SendTo(const void* data, int32 length, const InetAddress& addr
     sockaddr_in6 sa;
     address.ToNative(sa);
 
-    rc = sendto(fd_, reinterpret_cast<const char*>(data), length, flags, (const sockaddr*)&sa, sizeof(sa));
+    rc = sendto(fd_, reinterpret_cast<const char*>(data), length, flags,
+                (const sockaddr*)&sa, sizeof(sa));
   } while (blocking_ && rc < 0 && GetLastError() == FUN_EINTR);
 
   if (rc < 0) {
@@ -326,7 +336,8 @@ int32 SocketImpl::SendTo(const void* data, int32 length, const InetAddress& addr
   return rc;
 }
 
-int32 SocketImpl::ReceiveFrom(void* buffer, int32 length, InetAddress& address, int32 flags) {
+int32 SocketImpl::ReceiveFrom(void* buffer, int32 length, InetAddress& address,
+                              int32 flags) {
   if (broken_timeout_) {
     if (recv_timeout_.TotalMicroseconds() != 0) {
       if (!Poll(recv_timeout_, SELECT_READ)) {
@@ -344,7 +355,8 @@ int32 SocketImpl::ReceiveFrom(void* buffer, int32 length, InetAddress& address, 
       throw InvalidSocketException();
     }
 
-    rc = recvfrom(fd_, reinterpret_cast<char*>(buffer), length, flags, (sockaddr*)&sa, &sa_len);
+    rc = recvfrom(fd_, reinterpret_cast<char*>(buffer), length, flags,
+                  (sockaddr*)&sa, &sa_len);
   } while (blocking_ && rc < 0 && GetLastError() == FUN_EINTR);
 
   if (rc >= 0) {
@@ -367,7 +379,8 @@ void SocketImpl::SendUrgent(uint8 data) {
     throw InvalidSocketException();
   }
 
-  const int32 rc = send(fd_, reinterpret_cast<const char*>(&data), sizeof(data), MSG_OOB);
+  const int32 rc =
+      send(fd_, reinterpret_cast<const char*>(&data), sizeof(data), MSG_OOB);
   if (rc < 0) {
     ThrowError();
   }
@@ -379,9 +392,7 @@ int32 SocketImpl::Available() {
   return rc;
 }
 
-bool SocketImpl::Secure() const {
-  return false;
-}
+bool SocketImpl::Secure() const { return false; }
 
 bool SocketImpl::Poll(const Timespan& timeout, int32 mode) {
   SOCKET sockfd = fd_;
@@ -529,7 +540,7 @@ bool SocketImpl::Poll(const Timespan& timeout, int32 mode) {
 
   return rc > 0;
 
-#endif // PLATFORM_HAVE_FD_EPOLL
+#endif  // PLATFORM_HAVE_FD_EPOLL
 }
 
 void SocketImpl::SetSendBufferSize(int32 size) {
@@ -677,12 +688,14 @@ void SocketImpl::SetOption(int32 level, int32 option, const Timespan& value) {
   SetRawOption(level, option, &tv, sizeof(tv));
 }
 
-void SocketImpl::SetRawOption(int32 level, int32 option, const void* value, fun_socklen_t length) {
+void SocketImpl::SetRawOption(int32 level, int32 option, const void* value,
+                              fun_socklen_t length) {
   if (fd_ == INVALID_SOCKET) {
     throw InvalidSocketException();
   }
 
-  const int32 rc = setsockopt(fd_, level, option, reinterpret_cast<const char*>(value), length);
+  const int32 rc = setsockopt(fd_, level, option,
+                              reinterpret_cast<const char*>(value), length);
   if (rc == -1) {
     ThrowError();
   }
@@ -716,18 +729,20 @@ void SocketImpl::GetOption(int32 level, int32 option, IpAddress& value) {
   in6_addr sa;
   fun_socklen_t length = sizeof(sa);
 
-  //TODO scopeid도 정상적으로 처리를 해주어야하는지??
+  // TODO scopeid도 정상적으로 처리를 해주어야하는지??
 
   GetRawOption(level, option, &sa, length);
-  value = IpAddress(sa, 0); // scopeid=0
+  value = IpAddress(sa, 0);  // scopeid=0
 }
 
-void SocketImpl::GetRawOption(int32 level, int32 option, void* value, fun_socklen_t& length) {
+void SocketImpl::GetRawOption(int32 level, int32 option, void* value,
+                              fun_socklen_t& length) {
   if (fd_ == INVALID_SOCKET) {
     throw InvalidSocketException();
   }
 
-  const int32 rc = getsockopt(fd_, level, option, reinterpret_cast<char*>(value), &length);
+  const int32 rc =
+      getsockopt(fd_, level, option, reinterpret_cast<char*>(value), &length);
   if (rc == -1) {
     ThrowError();
   }
@@ -735,7 +750,7 @@ void SocketImpl::GetRawOption(int32 level, int32 option, void* value, fun_sockle
 
 void SocketImpl::SetLinger(bool on, int32 seconds) {
   struct linger l;
-  l.l_onoff  = on ? 1 : 0;
+  l.l_onoff = on ? 1 : 0;
   l.l_linger = seconds;
   SetRawOption(SOL_SOCKET, SO_LINGER, &l, sizeof(l));
 }
@@ -787,7 +802,8 @@ void SocketImpl::SetReusePort(bool flag) {
     int32 value = flag ? 1 : 0;
     SetOption(SOL_SOCKET, SO_REUSEPORT, value);
   } catch (IoException&) {
-    // ignore error, since not all implementations support SO_REUSEPORT, even if the macro is defined.
+    // ignore error, since not all implementations support SO_REUSEPORT, even if
+    // the macro is defined.
   }
 #endif
 }
@@ -845,7 +861,7 @@ int32 SocketImpl::GetSocketError() {
 }
 
 void SocketImpl::Init() {
-  InitSocket(AF_INET6, SOCK_STREAM); //warning fixed to IPv6
+  InitSocket(AF_INET6, SOCK_STREAM);  // warning fixed to IPv6
 }
 
 void SocketImpl::InitSocket(int32 af, int32 type, int32 proto) {
@@ -907,9 +923,7 @@ int32 SocketImpl::fcntl(fun_fcntl_request_t request, long arg) {
 }
 #endif
 
-void SocketImpl::Reset(SOCKET fd) {
-  fd_ = fd;
-}
+void SocketImpl::Reset(SOCKET fd) { fd_ = fd; }
 
 void SocketImpl::ThrowError() {
   const int32 error = GetLastError();
@@ -928,46 +942,101 @@ void SocketImpl::ThrowError(int32 code) {
 
 void SocketImpl::ThrowError(int32 code, const String& arg) {
   switch (code) {
-    case FUN_ENOERR: fun_check(0); return; //meaningless call
-    case FUN_ESYSNOTREADY: throw NetException(CStringLiteral("net subsystem not ready"), code);
-    case FUN_ENOTINIT: throw NetException(CStringLiteral("net subsystem not initialized"), code);
-    case FUN_EINTR: throw IoException(CStringLiteral("interrupted"), code);
-    case FUN_EACCES: throw IoException(CStringLiteral("permission denied"), code);
-    case FUN_EFAULT: throw IoException(CStringLiteral("bad address"), code);
-    case FUN_EINVAL: throw InvalidArgumentException(CStringLiteral("an invalid argument was supplied."), code);
-    case FUN_EMFILE: throw IoException(CStringLiteral("too many open files"), code);
-    case FUN_EWOULDBLOCK: throw IoException(CStringLiteral("operation would block"), code);
-    case FUN_EINPROGRESS: throw IoException(CStringLiteral("operation now in progress"), code);
-    case FUN_EALREADY: throw IoException(CStringLiteral("operation already in progress"), code);
-    case FUN_ENOTSOCK: throw IoException(CStringLiteral("socket operation attempted on non-socket"), code);
-    case FUN_EDESTADDRREQ: throw NetException(CStringLiteral("destination address required"), code);
-    case FUN_EMSGSIZE: throw NetException(CStringLiteral("message too long"), code);
-    case FUN_EPROTOTYPE: throw NetException(CStringLiteral("wrong protocol type"), code);
-    case FUN_ENOPROTOOPT: throw NetException(CStringLiteral("protocol not available"), code);
-    case FUN_EPROTONOSUPPORT: throw NetException(CStringLiteral("protocol not supported"), code);
-    case FUN_ESOCKTNOSUPPORT: throw NetException(CStringLiteral("socket type not supported"), code);
-    case FUN_ENOTSUP: throw NetException(CStringLiteral("operation not supported"), code);
-    case FUN_EPFNOSUPPORT: throw NetException(CStringLiteral("protocol family not supported"), code);
-    case FUN_EAFNOSUPPORT: throw NetException(CStringLiteral("address family not supported"), code);
-    case FUN_EADDRINUSE: throw NetException(CStringLiteral("address already in use"), arg, code);
-    case FUN_EADDRNOTAVAIL: throw NetException(CStringLiteral("cannot assign requested address"), arg, code);
-    case FUN_ENETDOWN: throw NetException(CStringLiteral("network is down"), code);
-    case FUN_ENETUNREACH: throw NetException(CStringLiteral("network is unreachable"), code);
-    case FUN_ENETRESET: throw NetException(CStringLiteral("network dropped connection on reset"), code);
-    case FUN_ECONNABORTED: throw ConnectionAbortedException(CStringLiteral("an established connection was aborted by the software in your host machine."), code);
-    case FUN_ECONNRESET: throw ConnectionResetException(CStringLiteral("an existing connection was forcibly closed by the remote host."), code);
-    case FUN_ENOBUFS: throw IoException(CStringLiteral("no buffer space available"), code);
-    case FUN_EISCONN: throw NetException(CStringLiteral("socket is already connected"), code);
-    case FUN_ENOTCONN: throw NetException(CStringLiteral("socket is not connected"), code);
-    case FUN_ESHUTDOWN: throw NetException(CStringLiteral("cannot send after socket shutdown"), code);
-    case FUN_ETIMEDOUT: throw TimeoutException(CStringLiteral("a connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond."), code);
+    case FUN_ENOERR:
+      fun_check(0);
+      return;  // meaningless call
+    case FUN_ESYSNOTREADY:
+      throw NetException(CStringLiteral("net subsystem not ready"), code);
+    case FUN_ENOTINIT:
+      throw NetException(CStringLiteral("net subsystem not initialized"), code);
+    case FUN_EINTR:
+      throw IoException(CStringLiteral("interrupted"), code);
+    case FUN_EACCES:
+      throw IoException(CStringLiteral("permission denied"), code);
+    case FUN_EFAULT:
+      throw IoException(CStringLiteral("bad address"), code);
+    case FUN_EINVAL:
+      throw InvalidArgumentException(
+          CStringLiteral("an invalid argument was supplied."), code);
+    case FUN_EMFILE:
+      throw IoException(CStringLiteral("too many open files"), code);
+    case FUN_EWOULDBLOCK:
+      throw IoException(CStringLiteral("operation would block"), code);
+    case FUN_EINPROGRESS:
+      throw IoException(CStringLiteral("operation now in progress"), code);
+    case FUN_EALREADY:
+      throw IoException(CStringLiteral("operation already in progress"), code);
+    case FUN_ENOTSOCK:
+      throw IoException(
+          CStringLiteral("socket operation attempted on non-socket"), code);
+    case FUN_EDESTADDRREQ:
+      throw NetException(CStringLiteral("destination address required"), code);
+    case FUN_EMSGSIZE:
+      throw NetException(CStringLiteral("message too long"), code);
+    case FUN_EPROTOTYPE:
+      throw NetException(CStringLiteral("wrong protocol type"), code);
+    case FUN_ENOPROTOOPT:
+      throw NetException(CStringLiteral("protocol not available"), code);
+    case FUN_EPROTONOSUPPORT:
+      throw NetException(CStringLiteral("protocol not supported"), code);
+    case FUN_ESOCKTNOSUPPORT:
+      throw NetException(CStringLiteral("socket type not supported"), code);
+    case FUN_ENOTSUP:
+      throw NetException(CStringLiteral("operation not supported"), code);
+    case FUN_EPFNOSUPPORT:
+      throw NetException(CStringLiteral("protocol family not supported"), code);
+    case FUN_EAFNOSUPPORT:
+      throw NetException(CStringLiteral("address family not supported"), code);
+    case FUN_EADDRINUSE:
+      throw NetException(CStringLiteral("address already in use"), arg, code);
+    case FUN_EADDRNOTAVAIL:
+      throw NetException(CStringLiteral("cannot assign requested address"), arg,
+                         code);
+    case FUN_ENETDOWN:
+      throw NetException(CStringLiteral("network is down"), code);
+    case FUN_ENETUNREACH:
+      throw NetException(CStringLiteral("network is unreachable"), code);
+    case FUN_ENETRESET:
+      throw NetException(CStringLiteral("network dropped connection on reset"),
+                         code);
+    case FUN_ECONNABORTED:
+      throw ConnectionAbortedException(
+          CStringLiteral("an established connection was aborted by the "
+                         "software in your host machine."),
+          code);
+    case FUN_ECONNRESET:
+      throw ConnectionResetException(
+          CStringLiteral(
+              "an existing connection was forcibly closed by the remote host."),
+          code);
+    case FUN_ENOBUFS:
+      throw IoException(CStringLiteral("no buffer space available"), code);
+    case FUN_EISCONN:
+      throw NetException(CStringLiteral("socket is already connected"), code);
+    case FUN_ENOTCONN:
+      throw NetException(CStringLiteral("socket is not connected"), code);
+    case FUN_ESHUTDOWN:
+      throw NetException(CStringLiteral("cannot send after socket shutdown"),
+                         code);
+    case FUN_ETIMEDOUT:
+      throw TimeoutException(
+          CStringLiteral("a connection attempt failed because the connected "
+                         "party did not properly respond after a period of "
+                         "time, or established connection failed because "
+                         "connected host has failed to respond."),
+          code);
     case FUN_ECONNREFUSED: throw ConnectionRefusedException, arg, code);
-    case FUN_EHOSTDOWN: throw NetException(CStringLiteral("host is down"), arg, code);
-    case FUN_EHOSTUNREACH: throw NetException(CStringLiteral("no route to host"), arg, code);
+    case FUN_EHOSTDOWN:
+      throw NetException(CStringLiteral("host is down"), arg, code);
+    case FUN_EHOSTUNREACH:
+      throw NetException(CStringLiteral("no route to host"), arg, code);
 #if FUN_PLATFORM_UNIX_FAMILY
-    case EPIPE: throw IoException(CStringLiteral("broken pipe"), code);
-    case EBADF: throw IoException(CStringLiteral("bad socket descriptor"), code);
-    case ENOENT: throw IoException(CStringLiteral("not found"), arg, code);
+    case EPIPE:
+      throw IoException(CStringLiteral("broken pipe"), code);
+    case EBADF:
+      throw IoException(CStringLiteral("bad socket descriptor"), code);
+    case ENOENT:
+      throw IoException(CStringLiteral("not found"), arg, code);
 #endif
 
     default:
@@ -975,4 +1044,4 @@ void SocketImpl::ThrowError(int32 code, const String& arg) {
   }
 }
 
-} // namespace fun
+}  // namespace fun

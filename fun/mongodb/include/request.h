@@ -13,11 +13,11 @@ typedef SharedPtr<class Request> RequestPtr;
 class FUN_MONGODB_API Request : public Message {
  public:
   explicit Request(MessageHeader::OpCode opcode) : Message(opcode) {}
-  //virtual ~Request() {}
+  // virtual ~Request() {}
 
   void WireSend(std::ostream& os) {
-    //TODO
-    //struct MsgHeader {
+    // TODO
+    // struct MsgHeader {
     //  int32   messageLength; // total message size, including this
     //  int32   requestID;     // identifier for this message
     //  int32   responseTo;    // requestID from the original request
@@ -26,8 +26,8 @@ class FUN_MONGODB_API Request : public Message {
     //}
 
     /*
-    //임시 버퍼를 사용해 기록한 후 헤더를 채우고, 뒤에 붙이는 방식 최적화가 필요해보임.
-    BuildRequest(wirter);
+    //임시 버퍼를 사용해 기록한 후 헤더를 채우고, 뒤에 붙이는 방식 최적화가
+    필요해보임. BuildRequest(wirter);
 
     SetMessageLength(wirter.Length());
 
@@ -41,5 +41,5 @@ class FUN_MONGODB_API Request : public Message {
   virtual void BuildRequest(MessageOut& wirter) = 0;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

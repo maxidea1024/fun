@@ -3,7 +3,7 @@
 namespace fun {
 namespace net {
 
-NamedInetAddress NamedInetAddress::None; // ("", 0)
+NamedInetAddress NamedInetAddress::None;  // ("", 0)
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -21,7 +21,7 @@ class FUN_MONGODB_API BsonReader {
     for (;;) {
       char c;
       if (LiteFormat::Read(reader_, c)) {
-        if (c == 0x00) { // null-terminator
+        if (c == 0x00) {  // null-terminator
           return str;
         } else {
           str += c;
@@ -32,9 +32,9 @@ class FUN_MONGODB_API BsonReader {
   }
 
  private:
-  //TODO 참조나 포인터형이어야 하지 않을까??
+  // TODO 참조나 포인터형이어야 하지 않을까??
   MessageIn reader_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

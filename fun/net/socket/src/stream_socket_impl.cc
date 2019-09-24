@@ -2,9 +2,7 @@
 
 namespace fun {
 
-StreamSocketImpl::StreamSocketImpl() {
-  Init();
-}
+StreamSocketImpl::StreamSocketImpl() { Init(); }
 
 StreamSocketImpl::StreamSocketImpl(SOCKET fd) : SocketImpl(fd) {}
 
@@ -16,7 +14,9 @@ int32 StreamSocketImpl::SendBytes(const void* data, int32 length, int32 flags) {
   int32 sent = 0;
   const bool blocking = GetBlocking();
   while (remaining > 0) {
-    const int32 n = SocketImpl::SendBytes(src, remaining, flags); //note: send failure시에 예외를 던지는 부분에 대해서 감안해야함.
+    const int32 n = SocketImpl::SendBytes(
+        src, remaining, flags);  // note: send failure시에 예외를 던지는 부분에
+                                 // 대해서 감안해야함.
     fun_check(n >= 0);
     src += n;
     sent += n;
@@ -31,4 +31,4 @@ int32 StreamSocketImpl::SendBytes(const void* data, int32 length, int32 flags) {
   return sent;
 }
 
-} // namespace fun
+}  // namespace fun

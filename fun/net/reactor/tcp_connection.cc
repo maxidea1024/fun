@@ -7,47 +7,45 @@ void DefaultConnectionCallback(const TcpConnectionPtr& conn) {
   LOG_TRACE << conn->GetLocalAddress().ToIpPort() << " -> "
             << conn->GetPeerAddress().ToIpPort() << " is "
             << (conn->IsConnected() ? "UP" : "DOWN");
-  // do not call conn->ForceClose(), because some users want to register message callback only.
+  // do not call conn->ForceClose(), because some users want to register message
+  // callback only.
 }
 
-void DefaultMessageCallback(const TcpConnectionPtr& conn,
-                            Buffer* buf,
+void DefaultMessageCallback(const TcpConnectionPtr& conn, Buffer* buf,
                             const Timestamp&) {
   buf->RetrieveAll();
 }
 
-TcpConnection::TcpConnection(EventLoop* loop,
-                             const String& name,
-                             int sock_fd,
+TcpConnection::TcpConnection(EventLoop* loop, const String& name, int sock_fd,
                              const InetAddress& local_addr,
                              const InetAddress& peer_addr)
-  : loop_(CHECK_NOTNULL(loop)),
-    name_(name),
-    state_(kConnecting),
-    reading_(true),
-    socket_(new Socket(sock_fd)),
-    channel_(new Channel(loop, sock_fd)),
-    localAddr_(local_addr),
-    peer_addr_(peer_addr),
-    high_water_mark_(64*1024*1024) {
+    : loop_(CHECK_NOTNULL(loop)),
+      name_(name),
+      state_(kConnecting),
+      reading_(true),
+      socket_(new Socket(sock_fd)),
+      channel_(new Channel(loop, sock_fd)),
+      localAddr_(local_addr),
+      peer_addr_(peer_addr),
+      high_water_mark_(64 * 1024 * 1024) {
   channel_->SetReadCallback(boost::bind(&TcpConnection::HandleRead, this, _1));
   channel_->SetWriteCallback(boost::bind(&TcpConnection::HandleWrite, this));
   channel_->SetCloseCallback(boost::bind(&TcpConnection::HandleClose, this));
   channel_->SetErrorCallback(boost::bind(&TcpConnection::HandleError, this));
 
-  LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this << " fd=" << sock_fd;
+  LOG_DEBUG << "TcpConnection::ctor[" << name_ << "] at " << this
+            << " fd=" << sock_fd;
 
   socket_->SetKeepAlive(true);
 }
 
 TcpConnection::~TcpConnection() {
-  LOG_DEBUG << "TcpConnection::dtor[" <<  name_ << "] at " << this
-            << " fd=" << channel_->fd()
-            << " state=" << StateToString();
+  LOG_DEBUG << "TcpConnection::dtor[" << name_ << "] at " << this
+            << " fd=" << channel_->fd() << " state=" << StateToString();
   fun_check(state_ == kDisconnected);
 }
 
-//TODO linux 전용 기능??
+// TODO linux 전용 기능??
 bool TcpConnection::GetTcpInfo(struct tcp_info* tcpi) const {
   return socket_->GetTcpInfo(tcpi);
 }
@@ -68,11 +66,10 @@ void TcpConnection::Send(const StringPiece& message) {
     if (loop_->IsInLoopThread()) {
       SendInLoop(message);
     } else {
-      loop_->RunInLoop(
-          boost::bind(&TcpConnection::SendInLoop,
-                      this, // FIXME
-                      message.AsString()));
-                    //std::forward<String>(message)));
+      loop_->RunInLoop(boost::bind(&TcpConnection::SendInLoop,
+                                   this,  // FIXME
+                                   message.AsString()));
+      // std::forward<String>(message)));
     }
   }
 }
@@ -84,11 +81,10 @@ void TcpConnection::Send(Buffer* buf) {
       SendInLoop(buf->Peek(), buf->GetReadableLength());
       buf->RetrieveAll();
     } else {
-      loop_->RunInLoop(
-          boost::bind(&TcpConnection::SendInLoop,
-                      this, // FIXME
-                      buf->RetrieveAllAsString()));
-                    //std::forward<String>(message)));
+      loop_->RunInLoop(boost::bind(&TcpConnection::SendInLoop,
+                                   this,  // FIXME
+                                   buf->RetrieveAllAsString()));
+      // std::forward<String>(message)));
     }
   }
 }
@@ -116,12 +112,12 @@ void TcpConnection::SendInLoop(const void* data, size_t len) {
       if (remaining == 0 && write_complete_cb_) {
         loop_->QueueInLoop(boost::bind(write_complete_cb_, SharedFromThis()));
       }
-    } else { // written_len < 0
+    } else {  // written_len < 0
       written_len = 0;
 
       if (errno != EWOULDBLOCK) {
         LOG_SYSERR << "TcpConnection::SendInLoop";
-        if (errno == EPIPE || errno == ECONNRESET) { // FIXME: any others?
+        if (errno == EPIPE || errno == ECONNRESET) {  // FIXME: any others?
           fault_encountered = true;
         }
       }
@@ -131,13 +127,14 @@ void TcpConnection::SendInLoop(const void* data, size_t len) {
   fun_check(remaining <= len);
   if (!fault_encountered && remaining > 0) {
     size_t old_len = output_buffer_.GetReadableLength();
-    if (old_len + remaining >= high_water_mark_
-        && old_len < high_water_mark_
-        && high_watermark_cb_) {
-      loop_->QueueInLoop(boost::bind(high_watermark_cb_, SharedFromThis(), old_len + remaining));
+    if (old_len + remaining >= high_water_mark_ && old_len < high_water_mark_ &&
+        high_watermark_cb_) {
+      loop_->QueueInLoop(boost::bind(high_watermark_cb_, SharedFromThis(),
+                                     old_len + remaining));
     }
 
-    output_buffer_.Append(static_cast<const char*>(data) + written_len, remaining);
+    output_buffer_.Append(static_cast<const char*>(data) + written_len,
+                          remaining);
 
     if (!channel_->IsWriting()) {
       channel_->EnableWriting();
@@ -168,7 +165,8 @@ void TcpConnection::ShutdownInLoop() {
 //   // FIXME: use compare and swap
 //   if (state_ == kConnected) {
 //     SetState(kDisconnecting);
-//     loop_->RunInLoop(boost::bind(&TcpConnection::ShutdownAndForceCloseInLoop, this, seconds));
+//     loop_->RunInLoop(boost::bind(&TcpConnection::ShutdownAndForceCloseInLoop,
+//     this, seconds));
 //   }
 // }
 
@@ -190,7 +188,8 @@ void TcpConnection::ForceClose() {
   if (state_ == kConnected || state_ == kDisconnecting) {
     SetState(kDisconnecting);
 
-    loop_->QueueInLoop(boost::bind(&TcpConnection::ForceCloseInLoop, SharedFromThis()));
+    loop_->QueueInLoop(
+        boost::bind(&TcpConnection::ForceCloseInLoop, SharedFromThis()));
   }
 }
 
@@ -200,9 +199,10 @@ void TcpConnection::ForceCloseWithDelay(double seconds) {
     SetState(kDisconnecting);
 
     loop_->RunAfter(
-        seconds,
-        MakeWeakCallback(SharedFromThis(),
-                         &TcpConnection::ForceClose)); // not ForceCloseInLoop to avoid race condition
+        seconds, MakeWeakCallback(
+                     SharedFromThis(),
+                     &TcpConnection::ForceClose));  // not ForceCloseInLoop to
+                                                    // avoid race condition
   }
 }
 
@@ -230,9 +230,7 @@ const char* TcpConnection::StateToString() const {
   }
 }
 
-void TcpConnection::SetTcpNoDelay(bool on) {
-  socket_->SetTcpNoDelay(on);
-}
+void TcpConnection::SetTcpNoDelay(bool on) { socket_->SetTcpNoDelay(on); }
 
 void TcpConnection::StartRead() {
   loop_->RunInLoop(boost::bind(&TcpConnection::StartReadInLoop, this));
@@ -291,10 +289,10 @@ void TcpConnection::HandleRead(const Timestamp& received_time) {
   int saved_errno = 0;
   ssize_t n = input_buffer_.ReadFd(channel_->fd(), &saved_errno);
   if (n > 0) {
-    //warning message_cb_에서는 받은 메시지만큼 제외해주어야함.
+    // warning message_cb_에서는 받은 메시지만큼 제외해주어야함.
     message_cb_(SharedFromThis(), &input_buffer_, received_time);
 
-    //TODO 그냥 여기서 해주어도 좋지 아니한가??
+    // TODO 그냥 여기서 해주어도 좋지 아니한가??
   } else if (n == 0) {
     HandleClose();
   } else {
@@ -308,8 +306,7 @@ void TcpConnection::HandleWrite() {
   loop_->AssertInLoopThread();
 
   if (channel_->IsWriting()) {
-    ssize_t n = sockets::write(channel_->fd(),
-                               output_buffer_.GetReadablePtr(),
+    ssize_t n = sockets::write(channel_->fd(), output_buffer_.GetReadablePtr(),
                                output_buffer_.GetReadableLength());
     if (n > 0) {
       output_buffer_.Drain(n);
@@ -361,5 +358,5 @@ void TcpConnection::HandleError() {
             << "] - SO_ERROR = " << err << " " << strerror_tl(err);
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

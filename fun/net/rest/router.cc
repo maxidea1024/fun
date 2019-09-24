@@ -100,19 +100,10 @@ Tuple<bool,Array<TypedParam>,Array<TypedParam>> Route::Match(const String& req) 
 
 
 namespace internal {
+  RouterHandler::RouterHandler(const Router& router) : router(router) {}
 
-
-RouterHandler::RouterHandler(const Router& router)
-  : router(router)
-{
-  
-}
-
-
-void RouterHandler::OnRequest(const http::Request& req, http::ResponseWriter& response)
-{
-  
-}
+  void RouterHandler::OnRequest(const http::Request& req,
+                                http::ResponseWriter& response) {}
 
 
 } // namespace internal
@@ -206,53 +197,25 @@ void Router::AddRoute(http::Method method, String resource, Route::Handler handl
 
 
 namesace Routes {
+  void Get(Router & router, String resource, Route::Handler handler) {}
 
+  void Post(Router & router, String resource, Route::Handler handler) {}
 
-void Get(Router& router, String resource, Route::Handler handler)
-{
-  
-}
+  void Put(Router & router, String resource, Route::Handler handler) {}
 
+  void Patch(Router & router, String resource, Route::Handler handler) {}
 
-void Post(Router& router, String resource, Route::Handler handler)
-{
-  
-}
+  void Delete(Router & router, String resource, Route::Handler handler) {}
 
+  void Options(Router & router, String resource, Route::Handler handler) {}
 
-void Put(Router& router, String resource, Route::Handler handler)
-{
-  
-}
-
-
-void Patch(Router& router, String resource, Route::Handler handler)
-{
-  
-}
-
-
-void Delete(Router& router, String resource, Route::Handler handler)
-{
-  
-}
-
-
-void Options(Router& router, String resource, Route::Handler handler)
-{
-  
-}
-
-
-void NotFound(Router& router, String resource, Route::Handler handler)
-{
-  router.AddNotFoundHandler(MoveTemp(handler));
-}
+  void NotFound(Router & router, String resource, Route::Handler handler) {
+    router.AddNotFoundHandler(MoveTemp(handler));
+  }
 
 
 
 } // namespace routers
 
-
-} // namespace rest
-} // namespace fun
+}  // namespace rest
+}  // namespace fun

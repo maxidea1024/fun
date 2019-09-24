@@ -1,5 +1,5 @@
-#include "fun/sql/ArchiveStrategy.h"
 #include "fun/Ascii.h"
+#include "fun/sql/ArchiveStrategy.h"
 
 namespace fun {
 namespace sql {
@@ -12,14 +12,13 @@ using namespace Keywords;
 
 const String ArchiveStrategy::DEFAULT_ARCHIVE_DESTINATION = "FUN_LOG_ARCHIVE";
 
-ArchiveStrategy::ArchiveStrategy( const String& connector,
-                                  const String& connect,
-                                  const String& source,
-                                  const String& destination)
-  : connector_(connector),
-    connect_(connect),
-    source_(source),
-    destination_(destination) {
+ArchiveStrategy::ArchiveStrategy(const String& connector, const String& connect,
+                                 const String& source,
+                                 const String& destination)
+    : connector_(connector),
+      connect_(connect),
+      source_(source),
+      destination_(destination) {
   Open();
 }
 
@@ -27,22 +26,22 @@ ArchiveStrategy::~ArchiveStrategy() {}
 
 void ArchiveStrategy::Open() {
   if (connector_.IsEmpty() || connect_.IsEmpty()) {
-    throw IllegalStateException("Connector and connect string must be non-empty.");
+    throw IllegalStateException(
+        "Connector and connect string must be non-empty.");
   }
 
   session_ = new Session(connector_, connect_);
 }
 
-
 //
 // ArchiveByAgeStrategy
 //
 
-ArchiveByAgeStrategy::ArchiveByAgeStrategy( const String& connector,
-                                            const String& connect,
-                                            const String& source_table,
-                                            const String& destination_table)
-  : ArchiveStrategy(connector, connect, source_table, destination_table) {
+ArchiveByAgeStrategy::ArchiveByAgeStrategy(const String& connector,
+                                           const String& connect,
+                                           const String& source_table,
+                                           const String& destination_table)
+    : ArchiveStrategy(connector, connect, source_table, destination_table) {
   InitStatements();
 }
 
@@ -74,7 +73,8 @@ void ArchiveByAgeStrategy::InitStatements() {
 
   SetCopyStatement();
   sql.Clear();
-  fun::Format(sql, "INSERT INTO %s SELECT * FROM %s WHERE DateTime < ?", dest, src);
+  fun::Format(sql, "INSERT INTO %s SELECT * FROM %s WHERE DateTime < ?", dest,
+              src);
   GetCopyStatement() << sql, use(archive_date_time_);
 
   SetDeleteStatement();
@@ -84,15 +84,18 @@ void ArchiveByAgeStrategy::InitStatements() {
 }
 
 void ArchiveByAgeStrategy::SetThreshold(const String& age) {
-  String::const_iterator it  = age.begin();
+  String::const_iterator it = age.begin();
   String::const_iterator end = age.end();
   int n = 0;
   while (it != end && Ascii::isSpace(*it)) ++it;
-  while (it != end && Ascii::IsDigit(*it)) { n *= 10; n += *it++ - '0'; }
+  while (it != end && Ascii::IsDigit(*it)) {
+    n *= 10;
+    n += *it++ - '0';
+  }
   while (it != end && Ascii::isSpace(*it)) ++it;
   String unit;
   while (it != end && Ascii::isAlpha(*it)) unit += *it++;
-  
+
   Timespan::TimeDiff factor = Timespan::SECONDS;
   if (unit == "minutes") {
     factor = Timespan::MINUTES;
@@ -101,15 +104,15 @@ void ArchiveByAgeStrategy::SetThreshold(const String& age) {
   } else if (unit == "days") {
     factor = Timespan::DAYS;
   } else if (unit == "weeks") {
-    factor = 7*Timespan::DAYS;
+    factor = 7 * Timespan::DAYS;
   } else if (unit == "months") {
-    factor = 30*Timespan::DAYS;
+    factor = 30 * Timespan::DAYS;
   } else if (unit != "seconds") {
     throw InvalidArgumentException("setMaxAge", age);
   }
-    
+
   max_age_ = factor * n;
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

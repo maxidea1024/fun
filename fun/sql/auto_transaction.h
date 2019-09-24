@@ -7,5 +7,5 @@ namespace sql {
 
 typedef Transaction AutoTransaction;
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

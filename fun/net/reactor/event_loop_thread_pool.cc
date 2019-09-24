@@ -1,23 +1,21 @@
 ﻿#include "fun/net/reactor/event_loop_thread_pool.h"
-#include "fun/net/reactor/event_loop_thread.h"
 #include "fun/net/reactor/event_loop.h"
+#include "fun/net/reactor/event_loop_thread.h"
 
 namespace fun {
 namespace net {
 
-EventLoopThreadPool::EventLoopThreadPool( EventLoop* base_loop,
-                                          const String& name)
-  : base_loop_(base_loop),
-    name_(name),
-    started_(false),
-    thread_count_(0),
-    next_(0) {
+EventLoopThreadPool::EventLoopThreadPool(EventLoop* base_loop,
+                                         const String& name)
+    : base_loop_(base_loop),
+      name_(name),
+      started_(false),
+      thread_count_(0),
+      next_(0) {
   fun_check_ptr(base_loop);
 }
 
-EventLoopThreadPool::~EventLoopThreadPool() {
-  fun_check(!started_);
-}
+EventLoopThreadPool::~EventLoopThreadPool() { fun_check(!started_); }
 
 void EventLoopThreadPool::SetThreadCount(int32 thread_count) {
   // 시작하기 전에 호출해야함.
@@ -63,9 +61,9 @@ EventLoop* EventLoopThreadPool::GetNextLoop() {
   return loop;
 }
 
-//TODO 특정 해쉬값을 기준으로 균등하게 분할할 수 있는 기능이 필요해보이는데...
+// TODO 특정 해쉬값을 기준으로 균등하게 분할할 수 있는 기능이 필요해보이는데...
 //차라리 특정 함수를 노출해주는게 좋으려나?
-//uuid를 기준으로 분할해주는게 좋을까??
+// uuid를 기준으로 분할해주는게 좋을까??
 EventLoop* EventLoopThreadPool::GetLoopForHash(size_t hash) {
   base_loop_->AssertInLoopThread();
   fun_check(started_);
@@ -92,5 +90,5 @@ Array<EventLoop*> EventLoopThreadPool::GetAllLoops() const {
   return loops_;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

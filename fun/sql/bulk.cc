@@ -9,5 +9,5 @@ Bulk::Bulk(uint32 value) : limit_(value, false, false) {}
 
 Bulk::~Bulk() {}
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
-#include "fun/base/mutex.h"
-#include "fun/base/multicast_event.h"
 #include "fun/base/container/array.h"
+#include "fun/base/multicast_event.h"
+#include "fun/base/mutex.h"
 #include "fun/base/ref_counted.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -19,13 +19,14 @@ namespace framework {
  * is up to the actual subclass implementation of ConfigurationBase.
  * Keys are case sensitive.
  *
- * All public methods are synchronized, so the class is safe for multithreaded use.
- * ConfigurationBase implements reference counting based garbage collection.
+ * All public methods are synchronized, so the class is safe for multithreaded
+ * use. ConfigurationBase implements reference counting based garbage
+ * collection.
  *
  * Subclasses must override the GetRaw(), SetRaw() and Enumerate() methods.
-*/
+ */
 class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
-  //FUN_DECLARE_RTCLASS_BASE(ConfigurationBase)
+  // FUN_DECLARE_RTCLASS_BASE(ConfigurationBase)
 
  public:
   using Keys = Array<String>;
@@ -33,7 +34,7 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
 
   // Disable copy and assignment.
   ConfigurationBase(const ConfigurationBase&) = delete;
-  ConfigurationBase& operator = (const ConfigurationBase&) = delete;
+  ConfigurationBase& operator=(const ConfigurationBase&) = delete;
 
   /**
    * A key-value pair, used as event argument.
@@ -41,7 +42,7 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   class KeyValue {
    public:
     KeyValue(const String& key, const String& value)
-      : key_(key), value_(value) {}
+        : key_(key), value_(value) {}
 
     const String& Key() const { return key_; }
     const String& Value() const { return value_; }
@@ -51,7 +52,6 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
     String key_;
     String value_;
   };
-
 
   /**
    * Fired before a property value is changed or
@@ -87,7 +87,6 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
    */
   MulticastEvent<const String> property_removed;
 
-
   /**
    * Creates the ConfigurationBase.
    * ConfigurationBase();
@@ -122,10 +121,9 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   String GetString(const String& key) const;
 
   /**
-   * If a property with the given key exists, returns the property's string value,
-   * otherwise returns the given default value.
-   * If the value contains references to other properties (${<property>}), these
-   * are expanded.
+   * If a property with the given key exists, returns the property's string
+   * value, otherwise returns the given default value. If the value contains
+   * references to other properties (${<property>}), these are expanded.
    */
   String GetString(const String& key, const String& default_value) const;
 
@@ -137,9 +135,9 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   String GetRawString(const String& key) const;
 
   /**
-   * If a property with the given key exists, returns the property's raw string value,
-   * otherwise returns the given default value.
-   * References to other properties are not expanded.
+   * If a property with the given key exists, returns the property's raw string
+   * value, otherwise returns the given default value. References to other
+   * properties are not expanded.
    */
   String GetRawString(const String& key, const String& default_value) const;
 
@@ -177,10 +175,9 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   int32 GetInt(const String& key, int32 default_value) const;
 
   /**
-   * If a property with the given key exists, returns the property's unsigned int
-   * value, otherwise returns the given default value.
-   * Throws a SyntaxException if the property can not be converted
-   * to an unsigned int.
+   * If a property with the given key exists, returns the property's unsigned
+   * int value, otherwise returns the given default value. Throws a
+   * SyntaxException if the property can not be converted to an unsigned int.
    * Numbers starting with 0x are treated as hexadecimal.
    * If the value contains references to other properties (${<property>}), these
    * are expanded.
@@ -210,13 +207,11 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   uint64 GetUInt64(const String& key) const;
 
   /**
-   * If a property with the given key exists, returns the property's int64 value,
-   * otherwise returns the given default value.
-   * Throws a SyntaxException if the property can not be converted
-   * to an int64.
-   * Numbers starting with 0x are treated as hexadecimal.
-   * If the value contains references to other properties (${<property>}), these
-   * are expanded.
+   * If a property with the given key exists, returns the property's int64
+   * value, otherwise returns the given default value. Throws a SyntaxException
+   * if the property can not be converted to an int64. Numbers starting with 0x
+   * are treated as hexadecimal. If the value contains references to other
+   * properties (${<property>}), these are expanded.
    */
   int64 GetInt64(const String& key, int64 default_value) const;
 
@@ -242,12 +237,10 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   float GetFloat(const String& key) const;
 
   /**
-   * If a property with the given key exists, returns the property's float value,
-   * otherwise returns the given default value.
-   * Throws a SyntaxException if the property can not be converted
-   * to an float.
-   * If the value contains references to other properties (${<property>}), these
-   * are expanded.
+   * If a property with the given key exists, returns the property's float
+   * value, otherwise returns the given default value. Throws a SyntaxException
+   * if the property can not be converted to an float. If the value contains
+   * references to other properties (${<property>}), these are expanded.
    */
   float GetFloat(const String& key, float default_value) const;
 
@@ -262,12 +255,10 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   double GetDouble(const String& key) const;
 
   /**
-   * If a property with the given key exists, returns the property's double value,
-   * otherwise returns the given default value.
-   * Throws a SyntaxException if the property can not be converted
-   * to an double.
-   * If the value contains references to other properties (${<property>}), these
-   * are expanded.
+   * If a property with the given key exists, returns the property's double
+   * value, otherwise returns the given default value. Throws a SyntaxException
+   * if the property can not be converted to an double. If the value contains
+   * references to other properties (${<property>}), these are expanded.
    */
   double GetDouble(const String& key, double default_value) const;
 
@@ -282,11 +273,10 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   bool GetBool(const String& key) const;
 
   /**
-   * If a property with the given key exists, returns the property's boolean value,
-   * otherwise returns the given default value.
-   * Throws a SyntaxException if the property can not be converted
-   * to a boolean.
-   * The following string values can be converted into a boolean:
+   * If a property with the given key exists, returns the property's boolean
+   * value, otherwise returns the given default value. Throws a SyntaxException
+   * if the property can not be converted to a boolean. The following string
+   * values can be converted into a boolean:
    *   - numerical values: non zero becomes true, zero becomes false
    *   - strings: true, yes, on become true, false, no, off become false
    * Case does not matter.
@@ -463,5 +453,5 @@ class FUN_FRAMEWORK_API ConfigurationBase : public RefCountedObject {
   friend class ConfigurationMapper;
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

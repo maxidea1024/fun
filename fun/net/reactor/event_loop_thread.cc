@@ -1,18 +1,18 @@
 ﻿#include "fun/net/reactor/event_loop_thread.h"
-#include "fun/net/reactor/event_loop.h"
 #include "fun/base/scoped_lock.h"
+#include "fun/net/reactor/event_loop.h"
 
 namespace fun {
 namespace net {
 
-EventLoopThread::EventLoopThread( const ThreadInitCallback& cb,
-                                  const String& name)
-  : loop_(nullptr),
-    exiting_(false),
-    thread_(ThreadFunc, name),
-    mutex_(),
-    cond_(mutex_),
-    callback_(cb) {}
+EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
+                                 const String& name)
+    : loop_(nullptr),
+      exiting_(false),
+      thread_(ThreadFunc, name),
+      mutex_(),
+      cond_(mutex_),
+      callback_(cb) {}
 
 EventLoopThread::~EventLoopThread() {
   exiting_ = true;
@@ -54,5 +54,5 @@ void EventLoopThread::ThreadFunc() {
   loop_ = nullptr;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/mongodb/mongodb.h"
 #include "fun/mongodb/element.h"
+#include "fun/mongodb/mongodb.h"
 
 namespace fun {
 namespace mongodb {
@@ -48,12 +48,10 @@ class FUN_MONGODB_API Document {
     return **new_doc;
   }
 
-  void Reset() {
-    elements_.Empty();
-  }
+  void Reset() { elements_.Empty(); }
 
   template <typename Allocator>
-  void GetElementNames(fun::Array<String,Allocator>& out_keys) const {
+  void GetElementNames(fun::Array<String, Allocator>& out_keys) const {
     out_keys.Clear(elements_.Count());
 
     for (const auto& element : elements_) {
@@ -61,12 +59,11 @@ class FUN_MONGODB_API Document {
     }
   }
 
-  bool IsEmpty() const {
-    return elements_.IsEmpty();
-  }
+  bool IsEmpty() const { return elements_.IsEmpty(); }
 
   bool Exists(const String& name) const {
-    return std::find_if(elements_.begin(), elements_.end(), ElementFindByName(name)) != elements_.end();
+    return std::find_if(elements_.begin(), elements_.end(),
+                        ElementFindByName(name)) != elements_.end();
   }
 
   template <typename T>
@@ -76,9 +73,10 @@ class FUN_MONGODB_API Document {
       throw NotFoundException(name);
     }
 
-    //TODO dynamic_cast는 빼도 무방할듯...
+    // TODO dynamic_cast는 빼도 무방할듯...
     if (ElementTraits<T>::TypeId == element->GetType()) {
-      ConcreteElement<T>* concrete = dynamic_cast<ConcreteElement<T>*>(element.Get());
+      ConcreteElement<T>* concrete =
+          dynamic_cast<ConcreteElement<T>*>(element.Get());
       if (concrete) {
         return concrete->GetValue();
       }
@@ -94,7 +92,7 @@ class FUN_MONGODB_API Document {
       return default_value;
     }
 
-    //TODO dynamic_cast는 빼도 무방할듯...
+    // TODO dynamic_cast는 빼도 무방할듯...
     if (ElementTraits<T>::TypeId == element->GetType()) {
       auto concrete = dynamic_cast<ConcreteElement<T>*>(element.Get());
       if (concrete) {
@@ -107,7 +105,8 @@ class FUN_MONGODB_API Document {
 
   ElementPtr Get(const String& name) const {
     ElementPtr element;
-    auto it = std::find_if(elements_.Begin(), elements_.End(), FindElementFindByName(name));
+    auto it = std::find_if(elements_.Begin(), elements_.End(),
+                           FindElementFindByName(name));
     if (it != elements_.end()) {
       return *it;
     }
@@ -120,7 +119,7 @@ class FUN_MONGODB_API Document {
       throw NotFoundException(name);
     }
 
-    //TODO dynamic_cast는 구태여하지 않아도 도리듯함.
+    // TODO dynamic_cast는 구태여하지 않아도 도리듯함.
     if (ElementTraits<double>::TypeId == element->GetType()) {
       auto concrete = dynamic_cast<ConcreteElement<double>*>(element.Get());
       if (concrete) return static_cast<int64>(concrete->GetValue());
@@ -145,9 +144,7 @@ class FUN_MONGODB_API Document {
     return ElementTraits<T>::TypeId == element->GetType();
   }
 
-  int32 Count() const {
-    return elements_.Count();
-  }
+  int32 Count() const { return elements_.Count(); }
 
   virtual String ToString(int32 indent = 0) const {
     String ret;
@@ -158,7 +155,7 @@ class FUN_MONGODB_API Document {
       ret << "\n";
     }
 
-    //TODO
+    // TODO
 
     return ret;
   }
@@ -179,7 +176,7 @@ class FUN_MONGODB_API Document {
       wirter.WriteRawBytes(tmp_writer.ConstData(), tmp_writer.GetLength());
     }
 
-    LiteFormat::Write(wirter, (uint8)0x00); // null-terminator
+    LiteFormat::Write(wirter, (uint8)0x00);  // null-terminator
   }
 
   void Read(BinaryReader& reader) {
@@ -228,7 +225,8 @@ class FUN_MONGODB_API Document {
           element = new ConcreteElement<NullValue>(name, NullValue(0));
           break;
         case ElementTraits<RegularExpressionPtr>::TypeId:
-          element = new ConcreteElement<RegularExpressionPtr>(name, new RegularExpression);
+          element = new ConcreteElement<RegularExpressionPtr>(
+              name, new RegularExpression);
           break;
         case ElementTraits<JavascriptPtr>::TypeId:
           element = new ConcreteElement<JavascriptPtr>(name, new Javascript);
@@ -237,7 +235,8 @@ class FUN_MONGODB_API Document {
           element = new ConcreteElement<int64>(name, 0);
           break;
         default: {
-          String text = String::Format("element %s contains an unsupported type 0x%x", *name, type);
+          String text = String::Format(
+              "element %s contains an unsupported type 0x%x", *name, type);
           throw NotImplementedException(text);
         }
       }
@@ -253,5 +252,5 @@ class FUN_MONGODB_API Document {
   ElementSet elements_;
 };
 
-} // namespace mongodb
-} // namespace fun
+}  // namespace mongodb
+}  // namespace fun

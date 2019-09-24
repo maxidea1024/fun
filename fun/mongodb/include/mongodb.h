@@ -2,10 +2,10 @@
 
 #include "CorePrivatePCH.h"
 
-#define FUN_MONGODB_API  /**/
+#define FUN_MONGODB_API /**/
 
 namespace fun {
 namespace mongodb {
-
-} // namespace mongodb
-} // namespace fun
+    
+}  // namespace mongodb
+}  // namespace fun

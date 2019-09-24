@@ -1,23 +1,17 @@
 ﻿#pragma once
 
-#include "fun/http/http.h"
 #include <initializer_list>
 #include <memory>
-
+#include "fun/http/http.h"
 
 namespace fun {
 namespace http {
 
-
-class Parameter
-{
-public:
+class Parameter {
+ public:
   template <typename KeyType, typename ValueType>
   Parameter(KeyType&& key, ValueType&& value)
-    : key{FORWARD(key)}
-    , value{FORWARD(value)}
-  {
-  }
+      : key{FORWARD(key)}, value{FORWARD(value)} {}
 
   /// Name of parameter
   String key;
@@ -25,34 +19,25 @@ public:
   String value;
 };
 
-
-class Parameters
-{
-public:
+class Parameters {
+ public:
   Parameters() = default;
 
-  Parameters(const std::initializer_list<Parameter>& args)
-  {
-    for (const auto& param : args)
-    {
+  Parameters(const std::initializer_list<Parameter>& args) {
+    for (const auto& param : args) {
       AddParameter(param);
     }
   }
 
-  void AddParameter(const Parameter& param)
-  {
-    if (!content.IsEmpty())
-    {
+  void AddParameter(const Parameter& param) {
+    if (!content.IsEmpty()) {
       content += '&';
     }
 
     const auto escaped_key = Uri::Encode(param.key);
-    if (param.value.IsEmpty())
-    {
+    if (param.value.IsEmpty()) {
       content += escaped_key;
-    }
-    else
-    {
+    } else {
       const auto escaped_value = Uri::Encode(param.value);
       content += escaped_key + '=' + escaped_value;
     }
@@ -62,6 +47,5 @@ public:
   String content;
 };
 
-
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

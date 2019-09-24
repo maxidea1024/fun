@@ -19,14 +19,10 @@ class InetAddress;
  */
 class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
  public:
-  enum SelectMode {
-    SELECT_READ  = 1,
-    SELECT_WRITE = 2,
-    SELECT_ERROR = 4
-  };
+  enum SelectMode { SELECT_READ = 1, SELECT_WRITE = 2, SELECT_ERROR = 4 };
 
   SocketImpl(const SocketImpl&) = delete;
-  SocketImpl& operator = (const SocketImpl&) = delete;
+  SocketImpl& operator=(const SocketImpl&) = delete;
 
   /**
    * Get the next completed connection from the
@@ -76,7 +72,8 @@ class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
    * socket option.
    */
   virtual void Bind(const InetAddress& address, bool reuse_addr = false);
-  virtual void Bind(const InetAddress& address, bool reuse_addr, bool reuse_port);
+  virtual void Bind(const InetAddress& address, bool reuse_addr,
+                    bool reuse_port);
 
   /**
    * Bind a local IPv6 address to the socket.
@@ -95,8 +92,10 @@ class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
    * If the library has not been built with IPv6 support,
    * a NotImplementedException will be thrown.
    */
-  virtual void Bind6(const InetAddress& address, bool reuse_addr = false, bool ipv6_only = false);
-  virtual void Bind6(const InetAddress& address, bool reuse_addr, bool reuse_port, bool ipv6_only);
+  virtual void Bind6(const InetAddress& address, bool reuse_addr = false,
+                     bool ipv6_only = false);
+  virtual void Bind6(const InetAddress& address, bool reuse_addr,
+                     bool reuse_port, bool ipv6_only);
 
   /**
    * Puts the socket into listening state.
@@ -161,7 +160,8 @@ class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
    * Returns the number of bytes sent, which may be
    * less than the number of bytes specified.
    */
-  virtual int32 SendTo(const void* data, int32 length, const InetAddress& address, int32 flags = 0);
+  virtual int32 SendTo(const void* data, int32 length,
+                       const InetAddress& address, int32 flags = 0);
 
   /**
    * Receives data from the socket and stores it
@@ -170,7 +170,8 @@ class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
    *
    * Returns the number of bytes received.
    */
-  virtual int32 ReceiveFrom(void* buffer, int32 length, InetAddress& address, int32 flags = 0);
+  virtual int32 ReceiveFrom(void* buffer, int32 length, InetAddress& address,
+                            int32 flags = 0);
 
   /**
    * Sends one byte of urgent data through the socket.
@@ -303,7 +304,8 @@ class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
    * Sets the socket option specified by level and option
    * to the given time value.
    */
-  virtual void SetRawOption(int32 level, int32 option, const void* value, fun_socklen_t length);
+  virtual void SetRawOption(int32 level, int32 option, const void* value,
+                            fun_socklen_t length);
 
   /**
    * Returns the value of the socket option
@@ -339,7 +341,8 @@ class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
    * Returns the value of the socket option
    * specified by level and option.
    */
-  virtual void GetRawOption(int32 level, int32 option, void* value, fun_socklen_t& length);
+  virtual void GetRawOption(int32 level, int32 option, void* value,
+                            fun_socklen_t& length);
 
   /**
    * Sets the value of the SO_LINGER socket option.
@@ -519,7 +522,8 @@ class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
   void InitSocket(int32 af, int32 type, int32 proto = 0);
 
   /**
-   * Allows subclasses to set the socket manually, if no valid socket is set yet.
+   * Allows subclasses to set the socket manually, if no valid socket is set
+   * yet.
    */
   void Reset(SOCKET new_fd = INVALID_SOCKET);
 
@@ -559,18 +563,13 @@ class FUN_NETSOCKET_API SocketImpl : public RefCountedObject {
   friend class SecureSocketImpl;
 };
 
-
 //
 // inlines
 //
 
-inline SOCKET SocketImpl::GetSocketHandle() const {
-  return fd_;
-}
+inline SOCKET SocketImpl::GetSocketHandle() const { return fd_; }
 
-inline bool SocketImpl::IsInitialized() const {
-  return fd_ != INVALID_SOCKET;
-}
+inline bool SocketImpl::IsInitialized() const { return fd_ != INVALID_SOCKET; }
 
 inline int32 SocketImpl::GetLastError() {
 #if FUN_PLATFORM_WINDOWS_FAMILY
@@ -580,9 +579,7 @@ inline int32 SocketImpl::GetLastError() {
 #endif
 }
 
-inline bool SocketImpl::GetBlocking() const {
-  return blocking_;
-}
+inline bool SocketImpl::GetBlocking() const { return blocking_; }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -5,9 +5,7 @@ namespace net {
 
 FUN_IMPLEMENT_RUNTIME_CLASS(GeneratedStruct);
 
-const char* GeneratedStruct::GetTypeName() {
-  return StaticTypeName();
-}
+const char* GeneratedStruct::GetTypeName() { return StaticTypeName(); }
 
 void GeneratedStruct::Clear() {
   //@todo
@@ -27,13 +25,9 @@ bool GeneratedStruct::Read(IMessageIn& input) {
   return true;
 }
 
-int32 GeneratedStruct::GetByteLength() const {
-  return -1;
-}
+int32 GeneratedStruct::GetByteLength() const { return -1; }
 
-String GeneratedStruct::ToString() const {
-  return "{}";
-}
+String GeneratedStruct::ToString() const { return "{}"; }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

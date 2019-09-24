@@ -7,23 +7,26 @@
 namespace fun {
 
 /**
- * An LruCache implements Least Recently Used caching. The default size for a cache is 1024 entries.
+ * An LruCache implements Least Recently Used caching. The default size for a
+ * cache is 1024 entries.
  */
 template <
-  typename KeyType,
-  typename ValueType,
-  typename MutexType = FastMutex,
-  typename EventMutexType = FastMutex,
-  >
-class LruCache : public CacheBase<KeyType, ValueType, UniqueAccessExpireStrategy<KeyType, ValueType>, MutexType, EventMutexType> {
+    typename KeyType, typename ValueType, typename MutexType = FastMutex, typename EventMutexType = FastMutex, >
+class LruCache
+    : public CacheBase<KeyType, ValueType,
+                       UniqueAccessExpireStrategy<KeyType, ValueType>,
+                       MutexType, EventMutexType> {
  public:
   LruCache(int32 cache_size = 1024)
-    : CacheBase<KeyType, ValueType, UniqueAccessExpireStrategy<KeyType, ValueType>, MutexType, EventMutexType>(LruStrategy<KeyType, ValueType>(cache_size)) {}
+      : CacheBase<KeyType, ValueType,
+                  UniqueAccessExpireStrategy<KeyType, ValueType>, MutexType,
+                  EventMutexType>(LruStrategy<KeyType, ValueType>(cache_size)) {
+  }
 
   ~LruCache() {}
 
   LruCache(const LruCache&) = delete;
-  LruCache& operator = (const LruCache&) = delete;
+  LruCache& operator=(const LruCache&) = delete;
 };
 
-} // namespace fun
+}  // namespace fun

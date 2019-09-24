@@ -5,13 +5,9 @@ namespace net {
 
 const InetAddress InetAddress::None;
 
-InetAddress::InetAddress(const sockaddr_in& in4) {
-  FromNativeIPv4(in4);
-}
+InetAddress::InetAddress(const sockaddr_in& in4) { FromNativeIPv4(in4); }
 
-InetAddress::InetAddress(const sockaddr_in6& in6) {
-  FromNative(in6);
-}
+InetAddress::InetAddress(const sockaddr_in6& in6) { FromNative(in6); }
 
 void InetAddress::FromNativeIPv4(const sockaddr_in& in4) {
   fun_check(in4.sin_family == AF_INET);
@@ -79,12 +75,12 @@ InetAddress InetAddress::Parse(const String& host_and_port) {
   String port(5, ReservationInit);
 
   int32 i = 0, end = host_and_port.Len();
-//#if FUN_PLATFORM_UNIX_FAMILY
-//  if (host_and_port[i] == '/') {
-//    NewLocal(host_and_port);
-//    return;
-//  }
-//#endif
+  //#if FUN_PLATFORM_UNIX_FAMILY
+  //  if (host_and_port[i] == '/') {
+  //    NewLocal(host_and_port);
+  //    return;
+  //  }
+  //#endif
   if (host_and_port[i] == '[') {
     ++i;
     while (i != end && host_and_port[i] != ']') {
@@ -108,7 +104,8 @@ InetAddress InetAddress::Parse(const String& host_and_port) {
       port += host_and_port[i++];
     }
   } else {
-    //FIXME: 포트가 지정되지 않았을 경우에는 protocol에 사용되는 기본 포트를 배정하면 될듯헌데??
+    // FIXME: 포트가 지정되지 않았을 경우에는 protocol에 사용되는 기본 포트를
+    // 배정하면 될듯헌데??
     throw InvalidArgumentException(StringLiteral("Missing port number"));
   }
 
@@ -130,9 +127,7 @@ uint16 InetAddress::ResolveService(const String& service) {
   }
 }
 
-bool InetAddress::IsAny() const {
-  return host_.IsAny() && port_ == 0;
-}
+bool InetAddress::IsAny() const { return host_.IsAny() && port_ == 0; }
 
 bool InetAddress::IsUnicast() const {
   return host_.IsUnicast() && port_ != 0 && port_ != 0xFFFF;
@@ -142,5 +137,5 @@ bool InetAddress::IsMulticast() const {
   return host_.IsMulticast() && port_ != 0 && port_ != 0xFFFF;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

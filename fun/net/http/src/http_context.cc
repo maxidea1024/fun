@@ -1,65 +1,44 @@
 ﻿#include "fun/net/http/context.h"
 
-
 namespace fun {
 namespace http {
 
-
-//TODO body handling
-bool Context::ParseRequest(Buffer* buf, const Timestamp& received_time)
-{
+// TODO body handling
+bool Context::ParseRequest(Buffer* buf, const Timestamp& received_time) {
   bool ok = true;
   bool has_more = true;
-  while (has_more)
-  {
-    if (state_ == kExpectRequestLine)
-    {
+  while (has_more) {
+    if (state_ == kExpectRequestLine) {
       const char* crlf = buf->FindCRLF();
-      if (crlf)
-      {
+      if (crlf) {
         ok = ProcessRequestLine(buf->Peek(), crlf);
-        if (ok)
-        {
+        if (ok) {
           request_.SetReceiveTime(receiveTime);
           buf->RetrieveUntil(crlf + 2);
           state_ = kExpectHeaders;
-        }
-        else
-        {
+        } else {
           has_more = false;
         }
-      }
-      else
-      {
+      } else {
         has_more = false;
       }
-    }
-    else if (state_ == kExpectHeaders)
-    {
+    } else if (state_ == kExpectHeaders) {
       const char* crlf = buf->FindCRLF();
-      if (crlf)
-      {
+      if (crlf) {
         const char* colon = std::find(buf->Peek(), crlf, ':');
-        if (colon != crlf)
-        {
+        if (colon != crlf) {
           request_.AddHeader(buf->Peek(), colon, crlf);
-        }
-        else
-        {
+        } else {
           // empty line, end of header
           // FIXME:
           state_ = kGotAll;
           has_more = false;
         }
         buf->RetrieveUntil(crlf + 2);
-      }
-      else
-      {
+      } else {
         has_more = false;
       }
-    }
-    else if (state_ == kExpectBody)
-    {
+    } else if (state_ == kExpectBody) {
       // FIXME:
     }
   }
@@ -67,44 +46,31 @@ bool Context::ParseRequest(Buffer* buf, const Timestamp& received_time)
   return ok;
 }
 
-
-bool Context::ProcessRequestLine(const char* begin, const char* end)
-{
+bool Context::ProcessRequestLine(const char* begin, const char* end) {
   bool succeeded = false;
   const char* start = begin;
   const char* space = std::find(start, end, ' ');
-  if (space != end && request_.SetMethod(start, space))
-  {
+  if (space != end && request_.SetMethod(start, space)) {
     start = space + 1;
     space = std::find(start, end, ' ');
-    if (space != end)
-    {
+    if (space != end) {
       const char* question = std::find(start, space, '?');
-      if (question != space)
-      {
+      if (question != space) {
         request_.SetPath(start, question);
         request_.SetQuery(question, space);
-      }
-      else
-      {
+      } else {
         request_.SetPath(start, space);
       }
-      
+
       start = space + 1;
-      
-      succeeded = (end - start) == 8 && std::equal(start, end-1, "HTTP/1.");
-      if (succeeded)
-      {
-        if (*(end-1) == '1')
-        {
+
+      succeeded = (end - start) == 8 && std::equal(start, end - 1, "HTTP/1.");
+      if (succeeded) {
+        if (*(end - 1) == '1') {
           request_.SetVersion(Version::Http11);
-        }
-        else if (*(end-1) == '0')
-        {
+        } else if (*(end - 1) == '0') {
           request_.SetVersion(Version::Http10);
-        }
-        else
-        {
+        } else {
           // unsupported http protoco version.
           succeeded = false;
         }
@@ -115,6 +81,5 @@ bool Context::ProcessRequestLine(const char* begin, const char* end)
   return succeeded;
 }
 
-
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun

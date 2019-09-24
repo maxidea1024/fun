@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
 #include "fun/base/container/set.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -42,13 +42,13 @@ class OptionSet;
  *
  * Option arguments can be specified in three ways. If a Unix short option
  * ("-o") is given, the argument directly follows the option name, without
- * any delimiting character or space ("-ovalue"). In default option mode, or if a
- * Unix long option ("--option") is given, the option argument is
- * delimited from the option name with either an equal sign ('=') or
- * a colon (':'), as in "--option=value" or "/option:value". Finally,
- * a required option argument can be specified on the command line after the
- * option, delimited with a space, as in "--option value" or "-o value".
- * The latter only works for required option arguments, not optional ones.
+ * any delimiting character or space ("-ovalue"). In default option mode, or if
+ * a Unix long option ("--option") is given, the option argument is delimited
+ * from the option name with either an equal sign ('=') or a colon (':'), as in
+ * "--option=value" or "/option:value". Finally, a required option argument can
+ * be specified on the command line after the option, delimited with a space, as
+ * in "--option value" or "-o value". The latter only works for required option
+ * arguments, not optional ones.
  */
 class FUN_FRAMEWORK_API OptionProcessor {
  public:
@@ -101,17 +101,13 @@ class FUN_FRAMEWORK_API OptionProcessor {
   void CheckRequired() const;
 
  private:
-  bool ProcessUnix( const String& argument,
-                    String& option_name,
-                    String& option_arg);
+  bool ProcessUnix(const String& argument, String& option_name,
+                   String& option_arg);
 
-  bool ProcessDefault(const String& argument,
-                      String& option_name,
+  bool ProcessDefault(const String& argument, String& option_name,
                       String& option_arg);
-  bool ProcessCommon( const String& option,
-                      bool is_short,
-                      String& option_name,
-                      String& option_arg);
+  bool ProcessCommon(const String& option, bool is_short, String& option_name,
+                     String& option_arg);
 
   const OptionSet& options_;
   bool unix_style_;
@@ -121,7 +117,6 @@ class FUN_FRAMEWORK_API OptionProcessor {
   String deferred_options_;
 };
 
-
 //
 // inlines
 //
@@ -130,5 +125,5 @@ FUN_ALWAYS_INLINE bool OptionProcessor::IsUnixStyle() const {
   return unix_style_;
 }
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/uuid.h"
-#include "fun/base/random.h"
 #include "fun/base/cryptographic_hash.h"
 #include "fun/base/mutex.h"
+#include "fun/base/random.h"
+#include "fun/base/uuid.h"
 
 namespace fun {
 
@@ -31,7 +31,7 @@ class FUN_BASE_API UuidGenerator {
   /**
    * Creates a new time-based UUID, using the MAC address of
    * one of the system's ethernet adapters.
-   * 
+   *
    * Throws a SystemException if no MAC address can be
    * obtained.
    */
@@ -44,22 +44,19 @@ class FUN_BASE_API UuidGenerator {
 
   /**
    * Creates a name-based UUID, using the given digest engine.
-   * 
+   *
    * Note: in order to create a standard-compliant UUID, the given DigestEngine
    * must be either an instance of MD5Engine or SHA1Engine. The version field of
    * the UUID will be set accordingly.
    */
-  Uuid NewUuidFromName( const Uuid& ns_id,
-                        const String& name,
-                        CryptographicHash& hasher);
+  Uuid NewUuidFromName(const Uuid& ns_id, const String& name,
+                       CryptographicHash& hasher);
 
   /**
    * Creates a name-based UUID, using the given digest engine and version.
    */
-  Uuid NewUuidFromName( const Uuid& ns_id,
-                        const String& name,
-                        CryptographicHash& hasher,
-                        UuidVersion version);
+  Uuid NewUuidFromName(const Uuid& ns_id, const String& name,
+                       CryptographicHash& hasher, UuidVersion version);
 
   /**
    * Creates a random UUID.
@@ -84,8 +81,8 @@ class FUN_BASE_API UuidGenerator {
   Random random_;
   int64 last_time_;
   int32 ticks_;
-  uint8 node_[6]; // mac-address
+  uint8 node_[6];  // mac-address
   bool have_node_;
 };
 
-} // namespace fun
+}  // namespace fun

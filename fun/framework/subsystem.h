@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
 #include "fun/base/ref_counted.h"
+#include "fun/framework/framework.h"
 
 namespace fun {
 namespace framework {
@@ -54,9 +54,9 @@ class FUN_FRAMEWORK_API Subsystem : public RefCountedObject {
   /**
    * Re-initializes the subsystem.
    *
-   * The default implementation just calls Uninitialize() followed by Initialize().
-   * Actual implementations might want to use a less radical and possibly more performant
-   * approach.
+   * The default implementation just calls Uninitialize() followed by
+   * Initialize(). Actual implementations might want to use a less radical and
+   * possibly more performant approach.
    */
   virtual void Reinitialize(Application& app);
 
@@ -73,5 +73,5 @@ class FUN_FRAMEWORK_API Subsystem : public RefCountedObject {
   virtual void DefineOptions(OptionSet& options);
 };
 
-} // namespace framework
-} // namespace fun
+}  // namespace framework
+}  // namespace fun

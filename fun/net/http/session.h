@@ -1,32 +1,29 @@
 ﻿#pragma once
 
 #include "fun/http/http.h"
-#include "fun/http/types.h"
-#include "fun/http/options/uri.h"
 #include "fun/http/options/auth.h"
 #include "fun/http/options/body.h"
 #include "fun/http/options/cookies.h"
 #include "fun/http/options/digest.h"
-#include "fun/http/options/redirect.h"
+#include "fun/http/options/low_speed.h"
 #include "fun/http/options/max_redirects.h"
 #include "fun/http/options/multipart.h"
 #include "fun/http/options/parameters.h"
 #include "fun/http/options/payload.h"
 #include "fun/http/options/proxies.h"
+#include "fun/http/options/redirect.h"
 #include "fun/http/options/timeout.h"
-#include "fun/http/options/low_speed.h"
+#include "fun/http/options/uri.h"
 #include "fun/http/options/verify_ssl.h"
+#include "fun/http/types.h"
 
 #include "fun/http/response.h"
-
 
 namespace fun {
 namespace http {
 
-
-class FUN_HTTP_API Session : public Noncopyable
-{
-public:
+class FUN_HTTP_API Session : public Noncopyable {
+ public:
   Session();
   virtual ~Session();
 
@@ -89,10 +86,9 @@ public:
   Response Post();
   Response Put();
 
-private:
+ private:
   class SessionImpl* impl_;
 };
 
-
-} // namespace http
-} // namespace fun
+}  // namespace http
+}  // namespace fun
