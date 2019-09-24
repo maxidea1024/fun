@@ -1,0 +1,9 @@
+#pragma once
+
+#include "fun/base/base.h"
+
+#if !(FUN_BUILD_SHIPPING || FUN_BUILD_TEST)
+#define FUN_USE_DELEGATE_TRYGETBOUNDFUNCTIONNAME 1
+#else
+#define FUN_USE_DELEGATE_TRYGETBOUNDFUNCTIONNAME 0
+#endif

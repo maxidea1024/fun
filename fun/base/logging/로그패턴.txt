@@ -1,0 +1,52 @@
+﻿
+%d : date
+  
+  %date{dd MMM yyy HH:mm:ss,fff}
+
+  %date{ISO8601}
+  
+  %date{ABSOLUTE}
+  
+  %date{DATE}
+
+
+%exception
+
+%file
+
+%identity
+
+%location
+
+%level
+
+%line
+
+%logger
+
+%message
+
+%newline
+
+%ndc
+
+%property{...}
+
+%stacktrace{level}
+
+%timestamp
+
+%thread
+
+%type{1}
+
+%username
+
+%utcdate
+
+  %utcdate{HH:mm::ss,fff}
+  %utcdate{dd MMM yyyy HH:mm:ss,fff}
+  %utcdate{ISO8601}
+  %utcdate{ABSOLUTE}
+  
+  
