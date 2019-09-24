@@ -1,18 +1,18 @@
 #include "fun/sql/odbc/environment_handle.h"
-#include "fun/sql/odbc/utility.h"
 #include "fun/sql/odbc/odbc_exception.h"
+#include "fun/sql/odbc/utility.h"
 
 namespace fun {
 namespace sql {
 namespace odbc {
 
 EnvironmentHandle::EnvironmentHandle()
-  : henv_(SQL_NULL_HENV), is_owner_(false) {
+    : henv_(SQL_NULL_HENV), is_owner_(false) {
   Init();
 }
 
 EnvironmentHandle::EnvironmentHandle(const SQLHENV* henv)
-  : henv_(SQL_NULL_HENV), is_owner_(false) {
+    : henv_(SQL_NULL_HENV), is_owner_(false) {
   if (!henv || *henv == SQL_NULL_HENV) {
     Init();
   } else {
@@ -21,13 +21,10 @@ EnvironmentHandle::EnvironmentHandle(const SQLHENV* henv)
 }
 
 void EnvironmentHandle::Init() {
-  if (Utility::IsError(SQLAllocHandle(SQL_HANDLE_ENV,
-      SQL_NULL_HANDLE,
-      &henv_)) ||
-      Utility::IsError(SQLSetEnvAttr(henv_,
-      SQL_ATTR_ODBC_VERSION,
-      (SQLPOINTER)SQL_OV_ODBC3,
-      0))) {
+  if (Utility::IsError(
+          SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv_)) ||
+      Utility::IsError(SQLSetEnvAttr(henv_, SQL_ATTR_ODBC_VERSION,
+                                     (SQLPOINTER)SQL_OV_ODBC3, 0))) {
     throw OdbcException("Could not initialize environment.");
   }
 
@@ -46,6 +43,6 @@ EnvironmentHandle::~EnvironmentHandle() {
   }
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

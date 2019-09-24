@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-#include "fun/sql/mysql/mysql.h"
-#include "fun/sql/mysql/session_impl.h"
+#include "fun/base/format.h"
+#include "fun/base/shared_ptr.h"
 #include "fun/sql/mysql/binder.h"
 #include "fun/sql/mysql/extractor.h"
-#include "fun/sql/mysql/statement_executor.h"
+#include "fun/sql/mysql/mysql.h"
 #include "fun/sql/mysql/result_metadata.h"
+#include "fun/sql/mysql/session_impl.h"
+#include "fun/sql/mysql/statement_executor.h"
 #include "fun/sql/statement_impl.h"
-#include "fun/base/shared_ptr.h"
-#include "fun/base/format.h"
 
 namespace fun {
 namespace sql {
@@ -88,11 +88,7 @@ class FUN_MYSQL_API MySqlStatementImpl : public fun::sql::StatementImpl {
   virtual fun::sql::BinderBase::Ptr GetBinder();
 
  private:
-  enum {
-    NEXT_DONTKNOW,
-    NEXT_TRUE,
-    NEXT_FALSE
-  };
+  enum { NEXT_DONTKNOW, NEXT_TRUE, NEXT_FALSE };
 
   StatementExecutor stmt_;
   ResultMetadata metadata_;
@@ -101,6 +97,6 @@ class FUN_MYSQL_API MySqlStatementImpl : public fun::sql::StatementImpl {
   int32 has_next_;
 };
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

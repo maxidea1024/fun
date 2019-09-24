@@ -56,7 +56,6 @@ class FUN_MYSQL_API Utility {
   static MYSQL* GetHandle(fun::sql::Session& session);
 };
 
-
 //
 // inlines
 //
@@ -65,6 +64,6 @@ inline MYSQL* Utility::GetHandle(Session& session) {
   return fun::AnyCast<MYSQL*>(session.GetProperty("handle"));
 }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

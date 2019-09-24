@@ -1,6 +1,6 @@
 #include "fun/sql/session_factory.h"
-#include "fun/uri.h"
 #include "fun/base/string.h"
+#include "fun/uri.h"
 
 namespace fun {
 namespace sql {
@@ -18,7 +18,7 @@ void SessionFactory::Add(Connector::Ptr connector) {
   fun::FastMutex::ScopedLock lock(mutex_);
   SessionInfo info(connector);
   std::pair<Connectors::iterator, bool> res =
-    connectors_.insert(std::make_pair(connector->GetName(), info));
+      connectors_.insert(std::make_pair(connector->GetName(), info));
   if (!res.second) {
     res.first->second.cnt++;
   }
@@ -35,9 +35,9 @@ void SessionFactory::Remove(const String& key) {
   }
 }
 
-Session SessionFactory::Create( const String& key,
-                                const String& connection_string,
-                                size_t timeout) {
+Session SessionFactory::Create(const String& key,
+                               const String& connection_string,
+                               size_t timeout) {
   fun::SharedPtr<Connector> connector;
   {
     fun::FastMutex::ScopedLock lock(mutex_);
@@ -57,7 +57,7 @@ Session SessionFactory::Create(const String& uri, size_t timeout) {
 }
 
 SessionFactory::SessionInfo::SessionInfo(Connector::Ptr connector)
-  : cnt(1), connector(connector) {}
+    : cnt(1), connector(connector) {}
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

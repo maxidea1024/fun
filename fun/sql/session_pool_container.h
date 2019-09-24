@@ -1,10 +1,10 @@
 #pragma once
 
-#include "fun/sql/sql.h"
+#include "fun/base/mutex.h"
+#include "fun/base/string.h"
 #include "fun/sql/session.h"
 #include "fun/sql/session_pool.h"
-#include "fun/base/string.h"
-#include "fun/base/mutex.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -15,7 +15,8 @@ namespace sql {
 class FUN_SQL_API SessionPoolContainer {
  public:
   /**
-   * Creates the SessionPoolContainer for sessions with the given session parameters.
+   * Creates the SessionPoolContainer for sessions with the given session
+   * parameters.
    */
   SessionPoolContainer();
 
@@ -35,10 +36,8 @@ class FUN_SQL_API SessionPoolContainer {
    * newly created pool. If pool already exists, request to add is silently
    * ignored and session is returned from the existing pool.
    */
-  Session Add(const String& session_key,
-              const String& connection_string,
-              int32 min_sessions = 1,
-              int32 max_sessions = 32,
+  Session Add(const String& session_key, const String& connection_string,
+              int32 min_sessions = 1, int32 max_sessions = 32,
               int32 idle_time = 60);
 
   /**
@@ -90,9 +89,8 @@ class FUN_SQL_API SessionPoolContainer {
 
  public:
   SessionPoolContainer(const SessionPoolContainer&) = delete;
-  SessionPoolContainer& operator = (const SessionPoolContainer&) = delete;
+  SessionPoolContainer& operator=(const SessionPoolContainer&) = delete;
 };
-
 
 //
 // inlines
@@ -110,5 +108,5 @@ inline int32 SessionPoolContainer::Count() const {
   return static_cast<int>(session_pools_.size());
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

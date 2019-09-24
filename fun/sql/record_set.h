@@ -1,18 +1,18 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/session.h"
-#include "fun/sql/extraction.h"
-#include "fun/sql/bulk_extraction.h"
-#include "fun/sql/statement.h"
-#include "fun/sql/row_iterator.h"
-#include "fun/sql/row_filter.h"
-#include "fun/sql/lob.h"
-#include "fun/base/string.h"
+#include <limits>
+#include <ostream>
 #include "fun/base/dynamic/var.h"
 #include "fun/base/exception.h"
-#include <ostream>
-#include <limits>
+#include "fun/base/string.h"
+#include "fun/sql/bulk_extraction.h"
+#include "fun/sql/extraction.h"
+#include "fun/sql/lob.h"
+#include "fun/sql/row_filter.h"
+#include "fun/sql/row_iterator.h"
+#include "fun/sql/session.h"
+#include "fun/sql/sql.h"
+#include "fun/sql/statement.h"
 
 namespace fun {
 namespace sql {
@@ -37,9 +37,9 @@ namespace sql {
  *
  *     RecordSet rs(session, "SELECT * FROM Person"[, new SimpleRowFormatter]);
  *
- * The third (optional) argument passed to the Recordset constructor is a RowFormatter
- * implementation. The formatter is used in conjunction with << operator for recordset
- * data formatting.
+ * The third (optional) argument passed to the Recordset constructor is a
+ * RowFormatter implementation. The formatter is used in conjunction with <<
+ * operator for recordset data formatting.
  *
  * The number of rows in the RecordSet can be limited by specifying
  * a limit for the Statement.
@@ -57,32 +57,30 @@ class FUN_SQL_API RecordSet : private Statement {
   /**
    * Creates the RecordSet.
    */
-  explicit RecordSet( const Statement& statement,
-                      RowFormatter::Ptr row_formatter = nullptr);
+  explicit RecordSet(const Statement& statement,
+                     RowFormatter::Ptr row_formatter = nullptr);
 
   /**
    * Creates the RecordSet.
    */
-  RecordSet(Session& session,
-    const String& query,
-    RowFormatter::Ptr row_formatter = nullptr);
+  RecordSet(Session& session, const String& query,
+            RowFormatter::Ptr row_formatter = nullptr);
 
   /**
    * Creates the RecordSet.
    */
-  RecordSet(Session& session,
-    const String& query,
-    const RowFormatter& row_formatter);
+  RecordSet(Session& session, const String& query,
+            const RowFormatter& row_formatter);
 
   /**
    * Creates the RecordSet.
    */
   template <typename RF>
   RecordSet(Session& session, const String& query, const RF& row_formatter)
-    : Statement((session << query, Keywords::now)),
-      current_row_(0),
-      begin_(new RowIterator(this, 0 == ExtractedRowCount())),
-      end_(new RowIterator(this, true)) {
+      : Statement((session << query, Keywords::now)),
+        current_row_(0),
+        begin_(new RowIterator(this, 0 == ExtractedRowCount())),
+        end_(new RowIterator(this, true)) {
     SetRowFormatter(Keywords::format(row_formatter));
   }
 
@@ -109,7 +107,7 @@ class FUN_SQL_API RecordSet : private Statement {
   /**
    * Assignment operator.
    */
-  Statement& operator = (const Statement& stmt);
+  Statement& operator=(const Statement& stmt);
 
   /**
    * Returns the number of rows in the RecordSet.
@@ -140,10 +138,10 @@ class FUN_SQL_API RecordSet : private Statement {
   const Column<C>& ColumnAt(const String& name) const {
     if (IsBulkExtraction()) {
       typedef InternalBulkExtraction<C> E;
-      return ColumnAtImpl<C,E>(name);
+      return ColumnAtImpl<C, E>(name);
     } else {
       typedef InternalExtraction<C> E;
-      return ColumnAtImpl<C,E>(name);
+      return ColumnAtImpl<C, E>(name);
     }
   }
 
@@ -154,10 +152,10 @@ class FUN_SQL_API RecordSet : private Statement {
   const Column<C>& ColumnAt(size_t pos) const {
     if (IsBulkExtraction()) {
       typedef InternalBulkExtraction<C> E;
-      return ColumnAtImpl<C,E>(pos);
+      return ColumnAtImpl<C, E>(pos);
     } else {
       typedef InternalExtraction<C> E;
-      return ColumnAtImpl<C,E>(pos);
+      return ColumnAtImpl<C, E>(pos);
     }
   }
 
@@ -205,7 +203,8 @@ class FUN_SQL_API RecordSet : private Statement {
    * Returns the reference to data value at named column, row location.
    */
   template <typename T>
-  const T& ValueAt(const String& name, size_t data_row, bool use_filter = true) const {
+  const T& ValueAt(const String& name, size_t data_row,
+                   bool use_filter = true) const {
     if (use_filter && IsFiltered() && !IsAllowed(data_row)) {
       throw InvalidAccessException("Row not allowed");
     }
@@ -232,19 +231,22 @@ class FUN_SQL_API RecordSet : private Statement {
   /**
    * Returns the data value at column, row location.
    */
-  fun::dynamic::Var ValueAt(size_t col, size_t row, bool check_filtering = true) const;
+  fun::dynamic::Var ValueAt(size_t col, size_t row,
+                            bool check_filtering = true) const;
 
   /**
    * Returns the data value at named column, row location.
    */
-  fun::dynamic::Var ValueAt(const String& name, size_t row, bool check_filtering = true) const;
+  fun::dynamic::Var ValueAt(const String& name, size_t row,
+                            bool check_filtering = true) const;
 
   /**
    * Returns the value in the named column of the current row
    * if the value is not NULL, or default_value otherwise.
    */
   template <typename T>
-  fun::dynamic::Var NVL(const String& name, const T& default_value = T()) const {
+  fun::dynamic::Var NVL(const String& name,
+                        const T& default_value = T()) const {
     if (IsNull(name)) {
       return fun::dynamic::Var(default_value);
     } else {
@@ -345,12 +347,12 @@ class FUN_SQL_API RecordSet : private Statement {
   /**
    * Returns the value in the named column of the current row.
    */
-  fun::dynamic::Var operator [] (const String& name) const;
+  fun::dynamic::Var operator[](const String& name) const;
 
   /**
    * Returns the value in the named column of the current row.
    */
-  fun::dynamic::Var operator [] (size_t index) const;
+  fun::dynamic::Var operator[](size_t index) const;
 
   /**
    * Returns the type for the column at specified position.
@@ -419,9 +421,8 @@ class FUN_SQL_API RecordSet : private Statement {
    * cause RangeException to be thrown.
    * Copied string is formatted by the current RowFormatter.
    */
-  std::ostream& CopyValues( std::ostream& os,
-                            size_t offset = 0,
-                            size_t length = RowIterator::POSITION_END) const;
+  std::ostream& CopyValues(std::ostream& os, size_t offset = 0,
+                           size_t length = RowIterator::POSITION_END) const;
 
   /**
    * Formats values using the current RowFormatter.
@@ -437,9 +438,8 @@ class FUN_SQL_API RecordSet : private Statement {
    * Copies the column names and values to the target output stream.
    * Copied strings are formatted by the current RowFormatter.
    */
-  std::ostream& Copy( std::ostream& os,
-                      size_t offset = 0,
-                      size_t length = RowIterator::POSITION_END) const;
+  std::ostream& Copy(std::ostream& os, size_t offset = 0,
+                     size_t length = RowIterator::POSITION_END) const;
 
   /**
    * Returns true if recordset is filtered.
@@ -477,8 +477,10 @@ class FUN_SQL_API RecordSet : private Statement {
     if (typeFound) {
       throw NotFoundException(fun::Format("Column name: %s", name));
     } else {
-      throw NotFoundException(fun::Format("Column type: %s, Container type: %s, name: %s",
-        String(typeid(T).name()), String(typeid(ExtractionVecPtr).name()), name));
+      throw NotFoundException(
+          fun::Format("Column type: %s, Container type: %s, name: %s",
+                      String(typeid(T).name()),
+                      String(typeid(ExtractionVecPtr).name()), name));
     }
   }
 
@@ -487,7 +489,7 @@ class FUN_SQL_API RecordSet : private Statement {
    */
   template <typename C, typename E>
   const Column<C>& ColumnAtImpl(const String& name) const {
-    return ColumnAtImpl<C,E>(ColumnPositionAt<C,E>(name));
+    return ColumnAtImpl<C, E>(ColumnPositionAt<C, E>(name));
   }
 
   /**
@@ -505,18 +507,19 @@ class FUN_SQL_API RecordSet : private Statement {
       throw RangeException(fun::Format("Invalid column index: %z", pos));
     }
 
-    ExtractionVecPtr extraction = dynamic_cast<ExtractionVecPtr>(rExtractions[pos].get());
+    ExtractionVecPtr extraction =
+        dynamic_cast<ExtractionVecPtr>(rExtractions[pos].get());
 
     if (extraction) {
       return extraction->column();
     } else {
-      throw fun::BadCastException(fun::Format("RecordSet::ColumnAtImpl(%z) type cast failed!\nTarget type:\t%s"
-        "\nTarget container type:\t%s\nSource container type:\t%s\nSource abstraction type:\t%s",
-        pos,
-        String(typeid(T).name()),
-        String(typeid(ExtractionVecPtr).name()),
-        rExtractions[pos]->type(),
-        String(typeid(rExtractions[pos].get()).name())));
+      throw fun::BadCastException(fun::Format(
+          "RecordSet::ColumnAtImpl(%z) type cast failed!\nTarget type:\t%s"
+          "\nTarget container type:\t%s\nSource container type:\t%s\nSource "
+          "abstraction type:\t%s",
+          pos, String(typeid(T).name()),
+          String(typeid(ExtractionVecPtr).name()), rExtractions[pos]->type(),
+          String(typeid(rExtractions[pos].get()).name())));
     }
   }
 
@@ -548,12 +551,12 @@ class FUN_SQL_API RecordSet : private Statement {
   friend class RowFilter;
 };
 
-
 //
 // inlines
 //
 
-inline FUN_SQL_API std::ostream& operator << (std::ostream &os, const RecordSet& rs) {
+inline FUN_SQL_API std::ostream& operator<<(std::ostream& os,
+                                            const RecordSet& rs) {
   return rs.Copy(os);
 }
 
@@ -565,12 +568,12 @@ inline size_t RecordSet::ColumnCount() const {
   return static_cast<size_t>(extractions().size());
 }
 
-inline Statement& RecordSet::operator = (const Statement& stmt) {
+inline Statement& RecordSet::operator=(const Statement& stmt) {
   reset(stmt);
   return *this;
 }
 
-inline fun::dynamic::Var RecordSet::ValueAt(const String& name)  const {
+inline fun::dynamic::Var RecordSet::ValueAt(const String& name) const {
   return ValueAt(name, current_row_);
 }
 
@@ -578,11 +581,11 @@ inline fun::dynamic::Var RecordSet::ValueAt(size_t index) const {
   return ValueAt(index, current_row_);
 }
 
-inline fun::dynamic::Var RecordSet::operator [] (const String& name) const {
+inline fun::dynamic::Var RecordSet::operator[](const String& name) const {
   return ValueAt(name, current_row_);
 }
 
-inline fun::dynamic::Var RecordSet::operator [] (size_t index) const {
+inline fun::dynamic::Var RecordSet::operator[](size_t index) const {
   return ValueAt(index, current_row_);
 }
 
@@ -595,7 +598,8 @@ inline MetaColumn::ColumnDataType RecordSet::ColumnTypeAt(size_t pos) const {
   return MetaColumnAt(static_cast<uint32>(pos)).Type();
 }
 
-inline MetaColumn::ColumnDataType RecordSet::ColumnTypeAt(const String& name) const {
+inline MetaColumn::ColumnDataType RecordSet::ColumnTypeAt(
+    const String& name) const {
   return MetaColumnAt(name).Type();
 }
 
@@ -627,33 +631,23 @@ inline bool RecordSet::IsNull(size_t& colNo) const {
   return IsNull(colNo, current_row_);
 }
 
-inline RecordSet::ConstIterator& RecordSet::begin() const {
-  return *begin_;
-}
+inline RecordSet::ConstIterator& RecordSet::begin() const { return *begin_; }
 
-inline RecordSet::ConstIterator& RecordSet::end() const {
-  return *end_;
-}
+inline RecordSet::ConstIterator& RecordSet::end() const { return *end_; }
 
-inline RecordSet::Iterator RecordSet::begin() {
-  return *begin_;
-}
+inline RecordSet::Iterator RecordSet::begin() { return *begin_; }
 
-inline RecordSet::Iterator RecordSet::end() {
-  return *end_;
-}
+inline RecordSet::Iterator RecordSet::end() { return *end_; }
 
 inline const fun::RefCountedPtr<RowFilter>& RecordSet::GetFilter() const {
   return filter_;
 }
 
-inline void RecordSet::FormatNames() const {
-  (*begin_)->FormatNames();
-}
+inline void RecordSet::FormatNames() const { (*begin_)->FormatNames(); }
 
 inline size_t RecordSet::StorageRowCount() const {
   return GetImpl()->ExtractedRowCount();
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

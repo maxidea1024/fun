@@ -1,24 +1,24 @@
 #pragma once
 
-#include "fun/sql/constants.h"
-#include "fun/sql/odbc/odbc.h"
-#include "fun/sql/extractor_base.h"
-#include "fun/sql/odbc/preparator.h"
-#include "fun/sql/odbc/odbc_meta_column.h"
-#include "fun/sql/odbc/error.h"
-#include "fun/sql/odbc/utility.h"
-#include "fun/sql/date.h"
-#include "fun/sql/time.h"
-#include "fun/base/date_time.h"
+#include <map>
 #include "fun/base/any.h"
+#include "fun/base/date_time.h"
 #include "fun/base/dynamic/var.h"
+#include "fun/base/exception.h"
 #include "fun/base/nullable.h"
 #include "fun/base/utf_string.h"
-#include "fun/base/exception.h"
-#include <map>
+#include "fun/sql/constants.h"
+#include "fun/sql/date.h"
+#include "fun/sql/extractor_base.h"
+#include "fun/sql/odbc/error.h"
+#include "fun/sql/odbc/odbc.h"
+#include "fun/sql/odbc/odbc_meta_column.h"
+#include "fun/sql/odbc/preparator.h"
+#include "fun/sql/odbc/utility.h"
+#include "fun/sql/time.h"
 
 #ifdef FUN_PLATFORM_WINDOWS_FAMILY
-  #include <windows.h>
+#include <windows.h>
 #endif
 
 #include <sqltypes.h>
@@ -29,7 +29,8 @@ namespace odbc {
 
 /**
  * Extracts and converts data values from the result row returned by ODBC.
- * If NULL is received, the incoming val value is not changed and false is returned
+ * If NULL is received, the incoming val value is not changed and false is
+ * returned
  */
 class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
  public:
@@ -44,7 +45,6 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
    * Destroys the Extractor.
    */
   ~Extractor();
-
 
   bool Extract(size_t pos, int8& val);
   bool Extract(size_t pos, std::vector<int8>& val);
@@ -162,7 +162,8 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
 
  private:
   /**
-   * Amount of data retrieved in one SQLGetData() request when doing manual Extract.
+   * Amount of data retrieved in one SQLGetData() request when doing manual
+   * Extract.
    */
   static const int CHUNK_SIZE = 1024;
 
@@ -216,11 +217,15 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
   bool ExtractBoundImplContainer(size_t pos, std::vector<fun::UString>& values);
   bool ExtractBoundImplContainer(size_t pos, std::deque<fun::UString>& values);
   bool ExtractBoundImplContainer(size_t pos, std::list<fun::UString>& values);
-  bool ExtractBoundImplContainer(size_t pos, std::vector<fun::sql::CLOB>& values);
-  bool ExtractBoundImplContainer(size_t pos, std::deque<fun::sql::CLOB>& values);
+  bool ExtractBoundImplContainer(size_t pos,
+                                 std::vector<fun::sql::CLOB>& values);
+  bool ExtractBoundImplContainer(size_t pos,
+                                 std::deque<fun::sql::CLOB>& values);
   bool ExtractBoundImplContainer(size_t pos, std::list<fun::sql::CLOB>& values);
-  bool ExtractBoundImplContainer(size_t pos, std::vector<fun::sql::BLOB>& values);
-  bool ExtractBoundImplContainer(size_t pos, std::deque<fun::sql::BLOB>& values);
+  bool ExtractBoundImplContainer(size_t pos,
+                                 std::vector<fun::sql::BLOB>& values);
+  bool ExtractBoundImplContainer(size_t pos,
+                                 std::deque<fun::sql::BLOB>& values);
   bool ExtractBoundImplContainer(size_t pos, std::list<fun::sql::BLOB>& values);
 
   template <typename C>
@@ -236,7 +241,8 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
     ItType it = values.begin();
     ItType end = values.end();
     for (int row = 0; it != end; ++it, ++row) {
-      it->Assign(*pc + row * colWidth / sizeof(CharType), preparator_->actualDataSize(pos, row));
+      it->Assign(*pc + row * colWidth / sizeof(CharType),
+                 preparator_->actualDataSize(pos, row));
       // clean up superfluous null chars returned by some drivers
       typename StringType::size_type trimLen = 0;
       typename StringType::reverse_iterator sIt = it->rbegin();
@@ -248,7 +254,8 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
           break;
         }
       }
-      if (trimLen) it->Assign(it->begin(), it->begin() + it->length() - trimLen);
+      if (trimLen)
+        it->Assign(it->begin(), it->begin() + it->length() - trimLen);
     }
 
     return true;
@@ -267,7 +274,8 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
     ItType it = values.begin();
     ItType end = values.end();
     for (int row = 0; it != end; ++it, ++row) {
-      it->AssignRaw(*pc + row * colWidth, preparator_->actualDataSize(pos, row));
+      it->AssignRaw(*pc + row * colWidth,
+                    preparator_->actualDataSize(pos, row));
     }
 
     return true;
@@ -288,16 +296,15 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
   template <typename T>
   bool extractManualImpl(size_t pos, T& val, SQLSMALLINT cType) {
     SQLRETURN rc = 0;
-    T value = (T) 0;
+    T value = (T)0;
 
     ResizeLengths(pos);
 
-    rc = SQLGetData(stmt_,
-      (SQLUSMALLINT) pos + 1,
-      cType,  //C data type
-      &value, //returned value
-      0,      //buffer length (ignored)
-      &lengths_[pos]);  //length indicator
+    rc = SQLGetData(stmt_, (SQLUSMALLINT)pos + 1,
+                    cType,            // C data type
+                    &value,           // returned value
+                    0,                // buffer length (ignored)
+                    &lengths_[pos]);  // length indicator
 
     if (Utility::IsError(rc)) {
       throw StatementException(stmt_, "SQLGetData()");
@@ -306,8 +313,8 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
     if (IsNullLengthIndicator(lengths_[pos])) {
       return false;
     } else {
-      //for fixed-length data, buffer must be large enough
-      //otherwise, driver may write past the end
+      // for fixed-length data, buffer must be large enough
+      // otherwise, driver may write past the end
       fun_check_dbg(lengths_[pos] <= sizeof(T));
       val = value;
     }
@@ -316,7 +323,8 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
   }
 
   template <typename T>
-  bool extractManualLOBImpl(size_t pos, fun::sql::LOB<T>& val, SQLSMALLINT cType);
+  bool extractManualLOBImpl(size_t pos, fun::sql::LOB<T>& val,
+                            SQLSMALLINT cType);
 
   template <typename T>
   bool extractManualStringImpl(size_t pos, T& val, SQLSMALLINT cType);
@@ -341,41 +349,77 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
     OdbcMetaColumn column(stmt_, pos);
 
     switch (column.type()) {
-      case MetaColumn::FDT_INT8: { return extAny<T, int8>(pos, val); }
+      case MetaColumn::FDT_INT8: {
+        return extAny<T, int8>(pos, val);
+      }
 
-      case MetaColumn::FDT_UINT8: { return extAny<T, uint8>(pos, val); }
+      case MetaColumn::FDT_UINT8: {
+        return extAny<T, uint8>(pos, val);
+      }
 
-      case MetaColumn::FDT_INT16: { return extAny<T, int16>(pos, val); }
+      case MetaColumn::FDT_INT16: {
+        return extAny<T, int16>(pos, val);
+      }
 
-      case MetaColumn::FDT_UINT16: { return extAny<T, uint16>(pos, val); }
+      case MetaColumn::FDT_UINT16: {
+        return extAny<T, uint16>(pos, val);
+      }
 
-      case MetaColumn::FDT_INT32: { return extAny<T, int32>(pos, val); }
+      case MetaColumn::FDT_INT32: {
+        return extAny<T, int32>(pos, val);
+      }
 
-      case MetaColumn::FDT_UINT32: { return extAny<T, uint32>(pos, val); }
+      case MetaColumn::FDT_UINT32: {
+        return extAny<T, uint32>(pos, val);
+      }
 
-      case MetaColumn::FDT_INT64: { return extAny<T, int64>(pos, val); }
+      case MetaColumn::FDT_INT64: {
+        return extAny<T, int64>(pos, val);
+      }
 
-      case MetaColumn::FDT_UINT64: { return extAny<T, uint64>(pos, val); }
+      case MetaColumn::FDT_UINT64: {
+        return extAny<T, uint64>(pos, val);
+      }
 
-      case MetaColumn::FDT_BOOL: { return extAny<T, bool>(pos, val); }
+      case MetaColumn::FDT_BOOL: {
+        return extAny<T, bool>(pos, val);
+      }
 
-      case MetaColumn::FDT_FLOAT: { return extAny<T, float>(pos, val); }
+      case MetaColumn::FDT_FLOAT: {
+        return extAny<T, float>(pos, val);
+      }
 
-      case MetaColumn::FDT_DOUBLE: { return extAny<T, double>(pos, val); }
+      case MetaColumn::FDT_DOUBLE: {
+        return extAny<T, double>(pos, val);
+      }
 
-      case MetaColumn::FDT_STRING: { return extAny<T, String>(pos, val); }
+      case MetaColumn::FDT_STRING: {
+        return extAny<T, String>(pos, val);
+      }
 
-      case MetaColumn::FDT_WSTRING: { return extAny<T, fun::UString>(pos, val); }
+      case MetaColumn::FDT_WSTRING: {
+        return extAny<T, fun::UString>(pos, val);
+      }
 
-      case MetaColumn::FDT_BLOB: { return extAny<T, fun::sql::BLOB>(pos, val); }
+      case MetaColumn::FDT_BLOB: {
+        return extAny<T, fun::sql::BLOB>(pos, val);
+      }
 
-      case MetaColumn::FDT_CLOB: { return extAny<T, fun::sql::CLOB>(pos, val); }
+      case MetaColumn::FDT_CLOB: {
+        return extAny<T, fun::sql::CLOB>(pos, val);
+      }
 
-      case MetaColumn::FDT_DATE: { return extAny<T, fun::sql::Date>(pos, val); }
+      case MetaColumn::FDT_DATE: {
+        return extAny<T, fun::sql::Date>(pos, val);
+      }
 
-      case MetaColumn::FDT_TIME: { return extAny<T, fun::sql::Time>(pos, val); }
+      case MetaColumn::FDT_TIME: {
+        return extAny<T, fun::sql::Time>(pos, val);
+      }
 
-      case MetaColumn::FDT_TIMESTAMP: { return extAny<T, fun::DateTime>(pos, val); }
+      case MetaColumn::FDT_TIMESTAMP: {
+        return extAny<T, fun::DateTime>(pos, val);
+      }
 
       default:
         throw DataFormatException("Unsupported data type.");
@@ -399,7 +443,6 @@ class FUN_ODBC_API Extractor : public fun::sql::ExtractorBase {
   std::vector<SQLLEN> lengths_;
 };
 
-
 //
 // inlines
 //
@@ -412,57 +455,63 @@ inline bool Extractor::ExtractBoundImpl(size_t pos, fun::sql::CLOB& val) {
   return ExtractBoundImplLOB<CLOB::ValueType>(pos, val);
 }
 
-inline bool Extractor::ExtractBoundImplContainer(size_t pos, std::vector<String>& values) {
-  return ExtractBoundImplContainerString(pos, values);
-}
-
-inline bool Extractor::ExtractBoundImplContainer(size_t pos, std::deque<String>& values) {
-  return ExtractBoundImplContainerString(pos, values);
-}
-
-inline bool Extractor::ExtractBoundImplContainer(size_t pos, std::list<String>& values) {
-  return ExtractBoundImplContainerString(pos, values);
-}
-
-inline bool Extractor::ExtractBoundImplContainer(size_t pos, std::vector<fun::UString>& values) {
-  return ExtractBoundImplContainerString(pos, values);
-}
-
-inline bool Extractor::ExtractBoundImplContainer(size_t pos, std::deque<fun::UString>& values) {
-  return ExtractBoundImplContainerString(pos, values);
-}
-
-inline bool Extractor::ExtractBoundImplContainer(size_t pos, std::list<fun::UString>& values) {
+inline bool Extractor::ExtractBoundImplContainer(size_t pos,
+                                                 std::vector<String>& values) {
   return ExtractBoundImplContainerString(pos, values);
 }
 
 inline bool Extractor::ExtractBoundImplContainer(size_t pos,
-  std::vector<fun::sql::CLOB>& values) {
+                                                 std::deque<String>& values) {
+  return ExtractBoundImplContainerString(pos, values);
+}
+
+inline bool Extractor::ExtractBoundImplContainer(size_t pos,
+                                                 std::list<String>& values) {
+  return ExtractBoundImplContainerString(pos, values);
+}
+
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::vector<fun::UString>& values) {
+  return ExtractBoundImplContainerString(pos, values);
+}
+
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::deque<fun::UString>& values) {
+  return ExtractBoundImplContainerString(pos, values);
+}
+
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::list<fun::UString>& values) {
+  return ExtractBoundImplContainerString(pos, values);
+}
+
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::vector<fun::sql::CLOB>& values) {
   return ExtractBoundImplContainerLOB(pos, values);
 }
 
-inline bool Extractor::ExtractBoundImplContainer(size_t pos,
-  std::deque<fun::sql::CLOB>& values) {
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::deque<fun::sql::CLOB>& values) {
   return ExtractBoundImplContainerLOB(pos, values);
 }
 
-inline bool Extractor::ExtractBoundImplContainer(size_t pos,
-  std::list<fun::sql::CLOB>& values) {
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::list<fun::sql::CLOB>& values) {
   return ExtractBoundImplContainerLOB(pos, values);
 }
 
-inline bool Extractor::ExtractBoundImplContainer(size_t pos,
-  std::vector<fun::sql::BLOB>& values) {
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::vector<fun::sql::BLOB>& values) {
   return ExtractBoundImplContainerLOB(pos, values);
 }
 
-inline bool Extractor::ExtractBoundImplContainer(size_t pos,
-  std::deque<fun::sql::BLOB>& values) {
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::deque<fun::sql::BLOB>& values) {
   return ExtractBoundImplContainerLOB(pos, values);
 }
 
-inline bool Extractor::ExtractBoundImplContainer(size_t pos,
-  std::list<fun::sql::BLOB>& values) {
+inline bool Extractor::ExtractBoundImplContainer(
+    size_t pos, std::list<fun::sql::BLOB>& values) {
   return ExtractBoundImplContainerLOB(pos, values);
 }
 
@@ -474,18 +523,16 @@ inline Preparator::DataExtraction Extractor::GetDataExtraction() const {
   return data_extraction_;
 }
 
-inline void Extractor::Reset() {
-  lengths_.clear();
-}
+inline void Extractor::Reset() { lengths_.clear(); }
 
 inline void Extractor::ResizeLengths(size_t pos) {
   if (pos >= lengths_.size()) {
-    lengths_.resize(pos + 1, (SQLLEN) 0);
+    lengths_.resize(pos + 1, (SQLLEN)0);
   }
 }
 
 inline bool Extractor::IsNullLengthIndicator(SQLLEN val) const {
-  return SQL_NULL_DATA == (int) val;
+  return SQL_NULL_DATA == (int)val;
 }
 
 inline SQLINTEGER Extractor::columnSize(size_t pos) const {
@@ -494,9 +541,9 @@ inline SQLINTEGER Extractor::columnSize(size_t pos) const {
   if (size > maxSize) {
     size = maxSize;
   }
-  return (SQLINTEGER) size;
+  return (SQLINTEGER)size;
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

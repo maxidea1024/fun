@@ -1,9 +1,9 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/session_impl.h"
-#include "fun/sql/sql_exception.h"
 #include <map>
+#include "fun/sql/session_impl.h"
+#include "fun/sql/sql.h"
+#include "fun/sql/sql_exception.h"
 
 namespace fun {
 namespace sql {
@@ -39,8 +39,9 @@ class SessionImplBase : public SessionImpl {
    * The storage is created by statements automatically whenever a query
    * returning results is executed but external storage is provided by the user.
    * Storage type can be reconfigured at runtime both globally (for the
-   * duration of the session) and locally (for a single statement execution only).
-   * See StatementImpl for details on how this property is used at runtime.
+   * duration of the session) and locally (for a single statement execution
+   * only). See StatementImpl for details on how this property is used at
+   * runtime.
    *
    * Adds "handle" property which, if set by the back end, returns native handle
    * for the back end DB.
@@ -50,46 +51,43 @@ class SessionImplBase : public SessionImpl {
    * Connectors that are capable of it must set this feature prior to attempting
    * bulk operations.
    *
-   * Adds "empty_string_is_null" feature and sets it to false. This feature should be
-   * set to true in order to modify the behavior of the databases that distinguish
-   * between zero-length character strings as nulls. Setting this feature to true
-   * shall disregard any difference between empty character strings and nulls,
-   * causing the framework to treat them the same (i.e. behave like Oracle).
+   * Adds "empty_string_is_null" feature and sets it to false. This feature
+   * should be set to true in order to modify the behavior of the databases that
+   * distinguish between zero-length character strings as nulls. Setting this
+   * feature to true shall disregard any difference between empty character
+   * strings and nulls, causing the framework to treat them the same (i.e.
+   * behave like Oracle).
    *
-   * Adds "force_empty_string" feature and sets it to false. This feature should be set
-   * to true in order to force the databases that do not distinguish empty strings from
-   * nulls (e.g. Oracle) to always report empty string.
+   * Adds "force_empty_string" feature and sets it to false. This feature should
+   * be set to true in order to force the databases that do not distinguish
+   * empty strings from nulls (e.g. Oracle) to always report empty string.
    *
-   * The "empty_string_is_null" and "force_empty_string" features are mutually exclusive.
-   * While these features can not both be true at the same time, they can both be false,
-   * resulting in default underlying database behavior.
+   * The "empty_string_is_null" and "force_empty_string" features are mutually
+   * exclusive. While these features can not both be true at the same time, they
+   * can both be false, resulting in default underlying database behavior.
    */
   SessionImplBase(const String& connection_string,
                   size_t timeout = LOGIN_TIMEOUT_DEFAULT)
-    : SessionImpl(connection_string, timeout),
-      storage_(String("deque")),
-      bulk_(false),
-      empty_string_is_null_(false),
-      force_empty_string_(false) {
-    AddProperty("storage",
-              &SessionImplBase<C>::SetStorage,
-              &SessionImplBase<C>::GetStorage);
+      : SessionImpl(connection_string, timeout),
+        storage_(String("deque")),
+        bulk_(false),
+        empty_string_is_null_(false),
+        force_empty_string_(false) {
+    AddProperty("storage", &SessionImplBase<C>::SetStorage,
+                &SessionImplBase<C>::GetStorage);
 
-    AddProperty("handle",
-              &SessionImplBase<C>::SetHandle,
-              &SessionImplBase<C>::GetHandle);
+    AddProperty("handle", &SessionImplBase<C>::SetHandle,
+                &SessionImplBase<C>::GetHandle);
 
-    AddFeature("bulk",
-              &SessionImplBase<C>::SetBulk,
-              &SessionImplBase<C>::GetBulk);
+    AddFeature("bulk", &SessionImplBase<C>::SetBulk,
+               &SessionImplBase<C>::GetBulk);
 
     AddFeature("empty_string_is_null",
-              &SessionImplBase<C>::SetEmptyStringIsNull,
-              &SessionImplBase<C>::GetEmptyStringIsNull);
+               &SessionImplBase<C>::SetEmptyStringIsNull,
+               &SessionImplBase<C>::GetEmptyStringIsNull);
 
-    AddFeature("force_empty_string",
-              &SessionImplBase<C>::SetForceEmptyString,
-              &SessionImplBase<C>::GetForceEmptyString);
+    AddFeature("force_empty_string", &SessionImplBase<C>::SetForceEmptyString,
+               &SessionImplBase<C>::GetForceEmptyString);
   }
 
   /**
@@ -168,9 +166,7 @@ class SessionImplBase : public SessionImpl {
   /**
    * Sets the storage type.
    */
-  void SetStorage(const String& value) {
-    storage_ = value;
-  }
+  void SetStorage(const String& value) { storage_ = value; }
 
   /**
    * Sets the storage type.
@@ -182,9 +178,7 @@ class SessionImplBase : public SessionImpl {
   /**
    * Returns the storage type
    */
-  fun::Any GetStorage(const String& /*name*/="") const {
-    return storage_;
-  }
+  fun::Any GetStorage(const String& /*name*/ = "") const { return storage_; }
 
   /**
    * Sets the native session handle.
@@ -196,23 +190,17 @@ class SessionImplBase : public SessionImpl {
   /**
    * Returns the native session handle.
    */
-  fun::Any GetHandle(const String& /*name*/ = "") const {
-    return handle_;
-  }
+  fun::Any GetHandle(const String& /*name*/ = "") const { return handle_; }
 
   /**
    * Sets the execution type.
    */
-  void SetBulk(const String& /*name*/, bool bulk) {
-    bulk_ = bulk;
-  }
+  void SetBulk(const String& /*name*/, bool bulk) { bulk_ = bulk; }
 
   /**
    * Returns the execution type
    */
-  bool GetBulk(const String& /*name*/ = "") const {
-    return bulk_;
-  }
+  bool GetBulk(const String& /*name*/ = "") const { return bulk_; }
 
   /**
    * Sets the behavior regarding empty variable length strings.
@@ -268,7 +256,8 @@ class SessionImplBase : public SessionImpl {
    * The setter or getter can be null, in case setting or getting a feature
    * is not supported.
    */
-  void AddFeature(const String& name, FeatureSetter setter, FeatureGetter getter) {
+  void AddFeature(const String& name, FeatureSetter setter,
+                  FeatureGetter getter) {
     Feature feature;
     feature.setter = setter;
     feature.getter = getter;
@@ -281,7 +270,8 @@ class SessionImplBase : public SessionImpl {
    * The setter or getter can be null, in case setting or getting a property
    * is not supported.
    */
-  void AddProperty(const String& name, PropertySetter setter, PropertyGetter getter) {
+  void AddProperty(const String& name, PropertySetter setter,
+                   PropertyGetter getter) {
     Property property;
     property.setter = setter;
     property.getter = getter;
@@ -311,5 +301,5 @@ class SessionImplBase : public SessionImpl {
   fun::Any handle_;
 };
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

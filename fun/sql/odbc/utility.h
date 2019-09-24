@@ -1,13 +1,13 @@
 #pragma once
 
+#include <sqltypes.h>
+#include <map>
+#include <sstream>
+#include "fun/base/date_time.h"
+#include "fun/sql/date.h"
 #include "fun/sql/odbc/odbc.h"
 #include "fun/sql/odbc/typeinfo.h"
-#include "fun/sql/date.h"
 #include "fun/sql/time.h"
-#include "fun/base/date_time.h"
-#include <sstream>
-#include <map>
-#include <sqltypes.h>
 
 namespace fun {
 namespace sql {
@@ -22,43 +22,43 @@ class FUN_ODBC_API Utility {
   typedef DSNMap DriverMap;
 
   static bool IsError(SQLRETURN rc);
-    /// Returns true if return code is error
+  /// Returns true if return code is error
 
   static DriverMap& drivers(DriverMap& driverMap);
-    /// Returns driver-attributes map of available ODBC drivers.
+  /// Returns driver-attributes map of available ODBC drivers.
 
   static DSNMap& dataSources(DSNMap& dsnMap);
-    /// Returns DSN-description map of available ODBC data sources.
+  /// Returns DSN-description map of available ODBC data sources.
 
   template <typename MapType, typename KeyArgType, typename ValueArgType>
-  static typename MapType::iterator mapInsert(MapType& m, const KeyArgType& k, const ValueArgType& v)
-    /// Utility map "insert or replace" function (from S. Meyers: Effective STL, Item 24)
+  static typename MapType::iterator mapInsert(MapType& m, const KeyArgType& k,
+                                              const ValueArgType& v)
+  /// Utility map "insert or replace" function (from S. Meyers: Effective STL,
+  /// Item 24)
   {
     typename MapType::iterator lb = m.lower_bound(k);
-    if (lb != m.end() && !(m.key_comp()(k, lb->first)))
-    {
+    if (lb != m.end() && !(m.key_comp()(k, lb->first))) {
       lb->second = v;
       return lb;
-    }
-    else
-    {
+    } else {
       typedef typename MapType::value_type MVT;
-      return m.insert(lb, MVT(k,v));
+      return m.insert(lb, MVT(k, v));
     }
   }
 
   static int cDataType(int sqlDataType);
-    /// Returns C data type corresponding to supplied sql data type.
+  /// Returns C data type corresponding to supplied sql data type.
 
   static int sqlDataType(int cDataType);
-    /// Returns sql data type corresponding to supplied C data type.
+  /// Returns sql data type corresponding to supplied C data type.
 
   static void DateSync(Date& dt, const SQL_DATE_STRUCT& ts);
-    /// Transfers data from ODBC SQL_DATE_STRUCT to fun::DateTime.
+  /// Transfers data from ODBC SQL_DATE_STRUCT to fun::DateTime.
 
   template <typename T, typename F>
   static void DateSync(T& d, const F& ds)
-    /// Transfers data from ODBC SQL_DATE_STRUCT container to fun::DateTime container.
+  /// Transfers data from ODBC SQL_DATE_STRUCT container to fun::DateTime
+  /// container.
   {
     size_t size = ds.size();
     if (d.size() != size) d.resize(size);
@@ -69,11 +69,12 @@ class FUN_ODBC_API Utility {
   }
 
   static void TimeSync(Time& dt, const SQL_TIME_STRUCT& ts);
-    /// Transfers data from ODBC SQL_TIME_STRUCT to fun::DateTime.
+  /// Transfers data from ODBC SQL_TIME_STRUCT to fun::DateTime.
 
   template <typename T, typename F>
   static void TimeSync(T& t, const F& ts)
-    /// Transfers data from ODBC SQL_TIME_STRUCT container to fun::DateTime container.
+  /// Transfers data from ODBC SQL_TIME_STRUCT container to fun::DateTime
+  /// container.
   {
     size_t size = ts.size();
     if (t.size() != size) t.resize(size);
@@ -84,11 +85,12 @@ class FUN_ODBC_API Utility {
   }
 
   static void DateTimeSync(fun::DateTime& dt, const SQL_TIMESTAMP_STRUCT& ts);
-    /// Transfers data from ODBC SQL_TIMESTAMP_STRUCT to fun::DateTime.
+  /// Transfers data from ODBC SQL_TIMESTAMP_STRUCT to fun::DateTime.
 
   template <typename T, typename F>
   static void DateTimeSync(T& dt, const F& ts)
-    /// Transfers data from ODBC SQL_TIMESTAMP_STRUCT container to fun::DateTime container.
+  /// Transfers data from ODBC SQL_TIMESTAMP_STRUCT container to fun::DateTime
+  /// container.
   {
     size_t size = ts.size();
     if (dt.size() != size) dt.resize(size);
@@ -99,11 +101,12 @@ class FUN_ODBC_API Utility {
   }
 
   static void DateSync(SQL_DATE_STRUCT& ts, const Date& dt);
-    /// Transfers data from fun::sql::Date to ODBC SQL_DATE_STRUCT.
+  /// Transfers data from fun::sql::Date to ODBC SQL_DATE_STRUCT.
 
   template <typename C>
   static void DateSync(std::vector<SQL_DATE_STRUCT>& ds, const C& d)
-    /// Transfers data from fun::sql::Date vector to ODBC SQL_DATE_STRUCT container.
+  /// Transfers data from fun::sql::Date vector to ODBC SQL_DATE_STRUCT
+  /// container.
   {
     size_t size = d.size();
     if (ds.size() != size) ds.resize(size);
@@ -114,11 +117,12 @@ class FUN_ODBC_API Utility {
   }
 
   static void TimeSync(SQL_TIME_STRUCT& ts, const Time& dt);
-    /// Transfers data from fun::sql::Time to ODBC SQL_TIME_STRUCT.
+  /// Transfers data from fun::sql::Time to ODBC SQL_TIME_STRUCT.
 
   template <typename C>
   static void TimeSync(std::vector<SQL_TIME_STRUCT>& ts, const C& t)
-    /// Transfers data from fun::sql::Time container to ODBC SQL_TIME_STRUCT vector.
+  /// Transfers data from fun::sql::Time container to ODBC SQL_TIME_STRUCT
+  /// vector.
   {
     size_t size = t.size();
     if (ts.size() != size) ts.resize(size);
@@ -129,11 +133,11 @@ class FUN_ODBC_API Utility {
   }
 
   static void DateTimeSync(SQL_TIMESTAMP_STRUCT& ts, const fun::DateTime& dt);
-    /// Transfers data from fun::DateTime to ODBC SQL_TIMESTAMP_STRUCT.
+  /// Transfers data from fun::DateTime to ODBC SQL_TIMESTAMP_STRUCT.
 
   template <typename C>
   static void DateTimeSync(std::vector<SQL_TIMESTAMP_STRUCT>& ts, const C& dt)
-    /// Transfers data from fun::DateTime to ODBC SQL_TIMESTAMP_STRUCT.
+  /// Transfers data from fun::DateTime to ODBC SQL_TIMESTAMP_STRUCT.
   {
     size_t size = dt.size();
     if (ts.size() != size) ts.resize(size);
@@ -143,19 +147,16 @@ class FUN_ODBC_API Utility {
     for (; it != end; ++it, ++tIt) DateTimeSync(*tIt, *it);
   }
 
-private:
+ private:
   static const TypeInfo data_types_;
-    /// C <==> sql data type mapping
+  /// C <==> sql data type mapping
 };
-
 
 //
 // inlines
 //
 
-inline bool Utility::IsError(SQLRETURN rc) {
-  return (0 != (rc & (~1)));
-}
+inline bool Utility::IsError(SQLRETURN rc) { return (0 != (rc & (~1))); }
 
 inline int Utility::cDataType(int sqlDataType) {
   return data_types_.cDataType(sqlDataType);
@@ -173,6 +174,6 @@ inline void Utility::TimeSync(Time& t, const SQL_TIME_STRUCT& ts) {
   t.Assign(ts.hour, ts.minute, ts.second);
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

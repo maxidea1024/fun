@@ -5,37 +5,34 @@ namespace sql {
 namespace postgresql {
 
 PostgreSqlException::PostgreSqlException(const String& message)
-  : fun::sql::SqlException(String("[PostgreSQL]: ") + message) {}
+    : fun::sql::SqlException(String("[PostgreSQL]: ") + message) {}
 
 PostgreSqlException::PostgreSqlException(const PostgreSqlException& e)
-  : fun::sql::SqlException(e) {}
+    : fun::sql::SqlException(e) {}
 
 PostgreSqlException::~PostgreSqlException() throw() {}
-
 
 //
 // ConnectionException
 //
 
 ConnectionException::ConnectionException(const String& message)
-  : PostgreSqlException(message) {}
-
+    : PostgreSqlException(message) {}
 
 //
 // TransactionException
 //
 
 TransactionException::TransactionException(const String& message)
-  : ConnectionException(message) {}
-
+    : ConnectionException(message) {}
 
 //
 // StatementException
 //
 
 StatementException::StatementException(const String& message)
-  : PostgreSqlException(message) {}
+    : PostgreSqlException(message) {}
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

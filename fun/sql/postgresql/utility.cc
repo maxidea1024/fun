@@ -1,6 +1,6 @@
 #include "fun/sql/postgresql/utility.h"
-#include "fun/sql/postgresql/session_impl.h"
 #include "fun/base/number_formatter.h"
+#include "fun/sql/postgresql/session_impl.h"
 
 namespace fun {
 namespace sql {
@@ -29,7 +29,7 @@ int Utility::GetServerVersion(Session& session) {
 }
 
 String Utility::GetHostInfo(SessionHandle* handle) {
-  //TODO copy¸¦ ÇØ¾ß¸¸ ÇÏ³ª??
+  // TODO copyï¿½ï¿½ ï¿½Ø¾ß¸ï¿½ ï¿½Ï³ï¿½??
   SessionParametersMap params = handle->GetConnectionParameters();
 
   SessionParametersMap::const_iterator cItr = params.find("host");
@@ -52,6 +52,6 @@ String Utility::GetSessionEncoding(fun::sql::Session& session) {
   return GetSessionEncoding(handle(session));
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

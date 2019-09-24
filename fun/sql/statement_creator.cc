@@ -7,12 +7,12 @@ namespace sql {
 StatementCreator::StatementCreator() {}
 
 StatementCreator::StatementCreator(SessionImpl::Ptr session_impl)
-  : session_impl_(session_impl) {}
+    : session_impl_(session_impl) {}
 
 StatementCreator::StatementCreator(const StatementCreator& other)
-  : session_impl_(other.session_impl_) {}
+    : session_impl_(other.session_impl_) {}
 
-StatementCreator& StatementCreator::operator = (const StatementCreator& other) {
+StatementCreator& StatementCreator::operator=(const StatementCreator& other) {
   if (&other != this) {
     StatementCreator tmp(other);
     Swap(tmp);
@@ -20,7 +20,8 @@ StatementCreator& StatementCreator::operator = (const StatementCreator& other) {
   return *this;
 }
 
-StatementCreator& StatementCreator::operator = (fun::RefCountedPtr<SessionImpl> session_impl) {
+StatementCreator& StatementCreator::operator=(
+    fun::RefCountedPtr<SessionImpl> session_impl) {
   session_impl_ = session_impl;
   return *this;
 }
@@ -31,5 +32,5 @@ void StatementCreator::Swap(StatementCreator& other) {
 
 StatementCreator::~StatementCreator() {}
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

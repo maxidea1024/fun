@@ -1,11 +1,11 @@
 #include "fun/sql/json_row_formatter.h"
+#include "fun/base/format.h"
 #include "fun/base/string.h"
 #include "fun/json_string.h"
-#include "fun/base/format.h"
 
-using fun::trimInPlace;
 using fun::Format;
 using fun::toJSON;
+using fun::trimInPlace;
 
 namespace fun {
 namespace sql {
@@ -16,7 +16,7 @@ const int JsonRowFormatter::JSON_FMT_MODE_COLUMN_NAMES;
 const int JsonRowFormatter::JSON_FMT_MODE_FULL;
 
 JsonRowFormatter::JsonRowFormatter(int mode)
-  : RowFormatter("{", "]}"), first_time_(true) {
+    : RowFormatter("{", "]}"), first_time_(true) {
   if (mode == JSON_FMT_MODE_FULL) {
     mode |= JSON_FMT_MODE_ROW_COUNT;
     mode |= JSON_FMT_MODE_COLUMN_NAMES;
@@ -40,12 +40,12 @@ void JsonRowFormatter::AdjustPrefix() {
 
 void JsonRowFormatter::SetJsonMode(int mode) {
   if (mode < JSON_FMT_MODE_SMALL ||
-      mode > (JSON_FMT_MODE_SMALL | JSON_FMT_MODE_ROW_COUNT | JSON_FMT_MODE_COLUMN_NAMES | JSON_FMT_MODE_FULL)) {
+      mode > (JSON_FMT_MODE_SMALL | JSON_FMT_MODE_ROW_COUNT |
+              JSON_FMT_MODE_COLUMN_NAMES | JSON_FMT_MODE_FULL)) {
     throw fun::InvalidArgumentException(
-          fun::Format("JsonRowFormatter mode must be between "
-          "%d (JSON_FMT_MODE_SMALL) and %d (JSON_FMT_MODE_FULL)",
-          JSON_FMT_MODE_SMALL,
-          JSON_FMT_MODE_FULL));
+        fun::Format("JsonRowFormatter mode must be between "
+                    "%d (JSON_FMT_MODE_SMALL) and %d (JSON_FMT_MODE_FULL)",
+                    JSON_FMT_MODE_SMALL, JSON_FMT_MODE_FULL));
   }
 
   mode_ = mode;
@@ -58,7 +58,8 @@ void JsonRowFormatter::SetJsonMode(int mode) {
   AdjustPrefix();
 }
 
-String& JsonRowFormatter::FormatValues(const ValueVec& vals, String& formatted_values) {
+String& JsonRowFormatter::FormatValues(const ValueVec& vals,
+                                       String& formatted_values) {
   std::ostringstream str;
   if (!first_time_) {
     str << ',';
@@ -125,7 +126,8 @@ String& JsonRowFormatter::FormatValues(const ValueVec& vals, String& formatted_v
   return formatted_values = str.str();
 }
 
-String& JsonRowFormatter::FormatNames(const NameVecPtr names, String& formatted_names) {
+String& JsonRowFormatter::FormatNames(const NameVecPtr names,
+                                      String& formatted_names) {
   if (IsFull()) {
     // names are used in FormatValues
     if (names && !names_) {
@@ -149,5 +151,5 @@ String& JsonRowFormatter::FormatNames(const NameVecPtr names, String& formatted_
   return formatted_names = "";
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

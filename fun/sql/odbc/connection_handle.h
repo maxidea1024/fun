@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fun/sql/odbc/odbc.h"
 #include "fun/sql/odbc/environment_handle.h"
+#include "fun/sql/odbc/odbc.h"
 
 #ifdef FUN_PLATFORM_WINDOWS_FAMILY
 #include <windows.h>
@@ -31,7 +31,7 @@ class FUN_ODBC_API ConnectionHandle {
   /**
    * Const conversion operator into reference to native type.
    */
-  operator const SQLHDBC& () const;
+  operator const SQLHDBC&() const;
 
   /**
    * Returns const reference to handle;
@@ -47,7 +47,7 @@ class FUN_ODBC_API ConnectionHandle {
   /**
    * Conversion operator into reference to native type.
    */
-  operator SQLHDBC& ();
+  operator SQLHDBC&();
 
   /**
    * Returns reference to handle;
@@ -61,31 +61,22 @@ class FUN_ODBC_API ConnectionHandle {
   SQLHDBC hdbc_;
 };
 
-
 //
 // inlines
 //
 
-inline ConnectionHandle::operator const SQLHDBC& () const {
-  return GetHandle();
-}
+inline ConnectionHandle::operator const SQLHDBC&() const { return GetHandle(); }
 
-inline const SQLHDBC& ConnectionHandle::GetHandle() const {
-  return hdbc_;
-}
+inline const SQLHDBC& ConnectionHandle::GetHandle() const { return hdbc_; }
 
-inline ConnectionHandle::operator SQLHDBC& () {
-  return GetHandle();
-}
+inline ConnectionHandle::operator SQLHDBC&() { return GetHandle(); }
 
-inline SQLHDBC& ConnectionHandle::GetHandle() {
-  return hdbc_;
-}
+inline SQLHDBC& ConnectionHandle::GetHandle() { return hdbc_; }
 
-inline ConnectionHandle::operator bool () const {
+inline ConnectionHandle::operator bool() const {
   return hdbc_ != SQL_NULL_HDBC;
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fun/sql/odbc/odbc.h"
 #include "fun/sql/odbc/handle.h"
+#include "fun/sql/odbc/odbc.h"
 
 #ifdef FUN_PLATFORM_WINDOWS_FAMILY
 #include <windows.h>
@@ -66,31 +66,22 @@ class FUN_ODBC_API Parameter {
   size_t number_;
 };
 
-
 //
 // inlines
 //
 
-inline size_t Parameter::number() const {
-  return number_;
-}
+inline size_t Parameter::number() const { return number_; }
 
-inline size_t Parameter::dataType() const {
-  return data_type_;
-}
+inline size_t Parameter::dataType() const { return data_type_; }
 
-inline size_t Parameter::columnSize() const {
-  return column_size_;
-}
+inline size_t Parameter::columnSize() const { return column_size_; }
 
-inline size_t Parameter::decimalDigits() const {
-  return decimal_digits_;
-}
+inline size_t Parameter::decimalDigits() const { return decimal_digits_; }
 
 inline bool Parameter::IsNullable() const {
   return SQL_NULLABLE == is_nullable_;
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

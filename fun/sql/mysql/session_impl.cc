@@ -1,8 +1,8 @@
 ﻿#include "fun/sql/mysql/session_impl.h"
-#include "fun/sql/mysql/mysql_statement_impl.h"
-#include "fun/sql/session.h"
 #include "fun/base/number_parser.h"
 #include "fun/base/string.h"
+#include "fun/sql/mysql/mysql_statement_impl.h"
+#include "fun/sql/session.h"
 
 namespace {
 
@@ -15,8 +15,7 @@ String CopyStripped(String::const_iterator from, String::const_iterator to) {
   return String(from, to);
 }
 
-} // namespace
-
+}  // namespace
 
 namespace fun {
 namespace sql {
@@ -28,11 +27,11 @@ const String SessionImpl::MYSQL_REPEATABLE_READ = "REPEATABLE READ";
 const String SessionImpl::MYSQL_SERIALIZABLE = "SERIALIZABLE";
 
 SessionImpl::SessionImpl(const String& connection_string, size_t login_timeout)
-  : fun::sql::SessionImplBase<SessionImpl>(connection_string, login_timeout),
-    connector_("MySQL"),
-    handle_(0),
-    connected_(false),
-    in_transaction_(false) {
+    : fun::sql::SessionImplBase<SessionImpl>(connection_string, login_timeout),
+      connector_("MySQL"),
+      handle_(0),
+      connected_(false),
+      in_transaction_(false) {
   AddProperty("insertId", &SessionImpl::SetInsertId, &SessionImpl::GetInsertId);
   SetProperty("handle", static_cast<MYSQL*>(handle_));
   Open();
@@ -75,7 +74,8 @@ void SessionImpl::Open(const String& connect) {
     String::const_iterator middle = std::find(start, finish, '=');
 
     if (middle == finish) {
-      throw MySqlException("create session: bad connection string format, can not find '='");
+      throw MySqlException(
+          "create session: bad connection string format, can not find '='");
     }
 
     options[CopyStripped(start, middle)] = CopyStripped(middle + 1, finish);
@@ -97,8 +97,10 @@ void SessionImpl::Open(const String& connect) {
   }
 
   unsigned int port = 0;
-  if (!NumberParser::tryParseUnsigned(options["port"], port) || 0 == port || port > 65535) {
-    throw MySqlException("create session: specify correct port (numeric in decimal notation)");
+  if (!NumberParser::tryParseUnsigned(options["port"], port) || 0 == port ||
+      port > 65535) {
+    throw MySqlException(
+        "create session: specify correct port (numeric in decimal notation)");
   }
 
   if (options["compress"] == "true") {
@@ -106,7 +108,9 @@ void SessionImpl::Open(const String& connect) {
   } else if (options["compress"] == "false") {
     //
   } else if (!options["compress"].IsEmpty()) {
-    throw MySqlException("create session: specify correct compress option (true or false) or skip it");
+    throw MySqlException(
+        "create session: specify correct compress option (true or false) or "
+        "skip it");
   }
 
   if (options["auto-Reconnect"] == "true") {
@@ -114,7 +118,9 @@ void SessionImpl::Open(const String& connect) {
   } else if (options["auto-Reconnect"] == "false") {
     handle_.options(MYSQL_OPT_RECONNECT, false);
   } else if (!options["auto-Reconnect"].IsEmpty()) {
-    throw MySqlException("create session: specify correct auto-Reconnect option (true or false) or skip it");
+    throw MySqlException(
+        "create session: specify correct auto-Reconnect option (true or false) "
+        "or skip it");
   }
 
   if (options["secure-auth"] == "true") {
@@ -122,7 +128,9 @@ void SessionImpl::Open(const String& connect) {
   } else if (options["secure-auth"] == "false") {
     handle_.options(MYSQL_SECURE_AUTH, false);
   } else if (!options["secure-auth"].IsEmpty()) {
-    throw MySqlException("create session: specify correct secure-auth option (true or false) or skip it");
+    throw MySqlException(
+        "create session: specify correct secure-auth option (true or false) or "
+        "skip it");
   }
 
   if (!options["character-set"].IsEmpty()) {
@@ -130,22 +138,16 @@ void SessionImpl::Open(const String& connect) {
   }
 
   // Real connect
-  handle_.Connect(options["host"].c_str(),
-      options["user"].c_str(),
-      options["password"].c_str(),
-      db,
-      port);
+  handle_.Connect(options["host"].c_str(), options["user"].c_str(),
+                  options["password"].c_str(), db, port);
 
-  AddFeature("autoCommit",
-    &SessionImpl::SetAutoCommit,
-    &SessionImpl::IsAutoCommit);
+  AddFeature("autoCommit", &SessionImpl::SetAutoCommit,
+             &SessionImpl::IsAutoCommit);
 
   connected_ = true;
 }
 
-SessionImpl::~SessionImpl() {
-  close();
-}
+SessionImpl::~SessionImpl() { close(); }
 
 StatementImpl::Ptr SessionImpl::CreateStatementImpl() {
   return new MySqlStatementImpl(*this);
@@ -187,19 +189,24 @@ void SessionImpl::SetTransactionIsolation(uint32 ti) {
   String isolation;
   switch (ti) {
     case Session::TRANSACTION_READ_UNCOMMITTED:
-      isolation = MYSQL_READ_UNCOMMITTED; break;
+      isolation = MYSQL_READ_UNCOMMITTED;
+      break;
     case Session::TRANSACTION_READ_COMMITTED:
-      isolation = MYSQL_READ_COMMITTED; break;
+      isolation = MYSQL_READ_COMMITTED;
+      break;
     case Session::TRANSACTION_REPEATABLE_READ:
-      isolation = MYSQL_REPEATABLE_READ; break;
+      isolation = MYSQL_REPEATABLE_READ;
+      break;
     case Session::TRANSACTION_SERIALIZABLE:
-      isolation = MYSQL_SERIALIZABLE; break;
+      isolation = MYSQL_SERIALIZABLE;
+      break;
     default:
       throw fun::InvalidArgumentException("SetTransactionIsolation()");
   }
 
   StatementExecutor ex(handle_);
-  ex.Prepare(fun::Format("SET SESSION TRANSACTION ISOLATION LEVEL %s", isolation));
+  ex.Prepare(
+      fun::Format("SET SESSION TRANSACTION ISOLATION LEVEL %s", isolation));
   ex.Execute();
 }
 
@@ -221,10 +228,10 @@ uint32 SessionImpl::GetTransactionIsolation() const {
 }
 
 bool SessionImpl::HasTransactionIsolation(uint32 ti) const {
-  return  Session::TRANSACTION_READ_UNCOMMITTED == ti ||
-          Session::TRANSACTION_READ_COMMITTED == ti ||
-          Session::TRANSACTION_REPEATABLE_READ == ti ||
-          Session::TRANSACTION_SERIALIZABLE == ti;
+  return Session::TRANSACTION_READ_UNCOMMITTED == ti ||
+         Session::TRANSACTION_READ_COMMITTED == ti ||
+         Session::TRANSACTION_REPEATABLE_READ == ti ||
+         Session::TRANSACTION_SERIALIZABLE == ti;
 }
 
 void SessionImpl::Close() {
@@ -241,11 +248,13 @@ void SessionImpl::Reset() {
 }
 
 void SessionImpl::SetConnectionTimeout(size_t timeout) {
-  handle_.SetOptions(MYSQL_OPT_READ_TIMEOUT, static_cast<unsigned int>(timeout));
-  handle_.SetOptions(MYSQL_OPT_WRITE_TIMEOUT, static_cast<unsigned int>(timeout));
+  handle_.SetOptions(MYSQL_OPT_READ_TIMEOUT,
+                     static_cast<unsigned int>(timeout));
+  handle_.SetOptions(MYSQL_OPT_WRITE_TIMEOUT,
+                     static_cast<unsigned int>(timeout));
   timeout_ = timeout;
 }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

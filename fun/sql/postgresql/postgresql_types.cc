@@ -29,7 +29,8 @@ fun::sql::MetaColumn::ColumnDataType OidToColumnDataType(const Oid oid) {
       cdt = fun::sql::MetaColumn::FDT_DOUBLE;
       break;
     case FLOAT4OID:
-      // cdt = fun::sql::MetaColumn::FDT_FLOAT;  This a bug in fun::sql as a 4 byte "float" can't be cast/ugraded to an 8 byte "double"
+      // cdt = fun::sql::MetaColumn::FDT_FLOAT;  This a bug in fun::sql as a 4
+      // byte "float" can't be cast/ugraded to an 8 byte "double"
       cdt = fun::sql::MetaColumn::FDT_DOUBLE;
       break;
     case NUMERICOID:
@@ -68,7 +69,7 @@ fun::sql::MetaColumn::ColumnDataType OidToColumnDataType(const Oid oid) {
       cdt = fun::sql::MetaColumn::FDT_TIME;
       break;
 
-    //timestamp
+    // timestamp
     case TIMESTAMPOID:
       cdt = fun::sql::MetaColumn::FDT_TIMESTAMP;
       break;
@@ -85,6 +86,6 @@ fun::sql::MetaColumn::ColumnDataType OidToColumnDataType(const Oid oid) {
   return cdt;
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

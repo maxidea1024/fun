@@ -1,12 +1,12 @@
 ﻿#pragma once
 
+#include "fun/base/mutex.h"
 #include "fun/sql/mysql/mysql.h"
-#include "fun/sql/sessionimpl_base.h"
-#include "fun/sql/statement_impl.h"
+#include "fun/sql/mysql/result_metadata.h"
 #include "fun/sql/mysql/session_handle.h"
 #include "fun/sql/mysql/statement_executor.h"
-#include "fun/sql/mysql/result_metadata.h"
-#include "fun/base/mutex.h"
+#include "fun/sql/sessionimpl_base.h"
+#include "fun/sql/statement_impl.h"
 
 namespace fun {
 namespace sql {
@@ -15,7 +15,8 @@ namespace mysql {
 /**
  * Implements SessionImpl interface
  */
-class FUN_MYSQL_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
+class FUN_MYSQL_API SessionImpl
+    : public fun::sql::SessionImplBase<SessionImpl> {
  public:
   static const String MYSQL_READ_UNCOMMITTED;
   static const String MYSQL_READ_COMMITTED;
@@ -28,8 +29,8 @@ class FUN_MYSQL_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> 
    * Connection string format:
    *     <str> == <assignment> | <assignment> ';' <str>
    *     <assignment> == <name> '=' <value>
-   *     <name> == 'host' | 'port' | 'user' | 'password' | 'db' } 'compress' | 'auto-Reconnect'
-   *     <value> == [~;]*
+   *     <name> == 'host' | 'port' | 'user' | 'password' | 'db' } 'compress' |
+   * 'auto-Reconnect' <value> == [~;]*
    *
    * for compress and auto-Reconnect correct values are true/false
    * for port - numeric in decimal notation
@@ -58,7 +59,8 @@ class FUN_MYSQL_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> 
   void Close();
 
   /**
-   * Reset connection with dababase and clears session state, but without disconnecting
+   * Reset connection with dababase and clears session state, but without
+   * disconnecting
    */
   void Reset();
 
@@ -98,7 +100,8 @@ class FUN_MYSQL_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> 
   bool CanTransact() const;
 
   /**
-   * Returns true if a transaction is a transaction is in progress, false otherwise.
+   * Returns true if a transaction is a transaction is in progress, false
+   * otherwise.
    */
   bool IsInTransaction() const;
 
@@ -132,7 +135,7 @@ class FUN_MYSQL_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> 
   /**
    * Returns autocommit property value.
    */
-  bool IsAutoCommit(const String& name="") const;
+  bool IsAutoCommit(const String& name = "") const;
 
   /**
    * Try to set insert id - do nothing.
@@ -178,7 +181,8 @@ class FUN_MYSQL_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> 
       throw InvalidArgumentException("No data returned.");
     }
 
-    ex.Execute(); ex.Fetch();
+    ex.Execute();
+    ex.Fetch();
     MYSQL_BIND* result = metadata.Row();
     return GetValue<T>(result, val);
   }
@@ -191,14 +195,11 @@ class FUN_MYSQL_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> 
   fun::FastMutex mutex_;
 };
 
-
 //
 // inlines
 //
 
-inline bool SessionImpl::CanTransact() const {
-  return true;
-}
+inline bool SessionImpl::CanTransact() const { return true; }
 
 inline void SessionImpl::SetInsertId(const String&, const fun::Any&) {}
 
@@ -206,29 +207,21 @@ inline fun::Any SessionImpl::GetInsertId(const String&) const {
   return fun::Any(uint64(mysql_insert_id(handle_)));
 }
 
-inline SessionHandle& SessionImpl::GetHandle() {
-  return handle_;
-}
+inline SessionHandle& SessionImpl::GetHandle() { return handle_; }
 
 inline const String& SessionImpl::GetConnectorName() const {
   return connector_;
 }
 
-inline bool SessionImpl::IsInTransaction() const {
-  return in_transaction_;
-}
+inline bool SessionImpl::IsInTransaction() const { return in_transaction_; }
 
 inline bool SessionImpl::IsTransactionIsolation(uint32 ti) const {
   return GetTransactionIsolation() == ti;
 }
 
-inline bool SessionImpl::IsConnected() const {
-  return connected_;
-}
+inline bool SessionImpl::IsConnected() const { return connected_; }
 
-inline size_t SessionImpl::GetConnectionTimeout() const {
-  return timeout_;
-}
+inline size_t SessionImpl::GetConnectionTimeout() const { return timeout_; }
 
 template <>
 inline String& SessionImpl::GetValue(MYSQL_BIND* result, String& val) {
@@ -236,6 +229,6 @@ inline String& SessionImpl::GetValue(MYSQL_BIND* result, String& val) {
   return val;
 }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

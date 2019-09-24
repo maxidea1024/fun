@@ -1,24 +1,20 @@
 ﻿#include "fun/sql/row.h"
-#include "fun/sql/simple_row_formatter.h"
-#include "fun/base/string.h"
 #include "fun/base/exception.h"
+#include "fun/base/string.h"
+#include "fun/sql/simple_row_formatter.h"
 
 namespace fun {
 namespace sql {
 
-std::ostream& operator << (std::ostream &os, const Row& row) {
+std::ostream& operator<<(std::ostream& os, const Row& row) {
   os << row.ValuesToString();
   return os;
 }
 
 Row::Row()
-  : names_(0),
-    sort_map_(new SortMap),
-    formatter_(new SimpleRowFormatter) {}
+    : names_(0), sort_map_(new SortMap), formatter_(new SimpleRowFormatter) {}
 
-Row::Row( NameVecPtr names,
-          const RowFormatter::Ptr& formatter)
-  : names_(names) {
+Row::Row(NameVecPtr names, const RowFormatter::Ptr& formatter) : names_(names) {
   if (!names_) {
     throw NullPointerException();
   }
@@ -26,10 +22,9 @@ Row::Row( NameVecPtr names,
   init(0, formatter);
 }
 
-Row::Row( NameVecPtr names,
-          const SortMapPtr& sort_map,
-          const RowFormatter::Ptr& formatter)
-  : names_(names) {
+Row::Row(NameVecPtr names, const SortMapPtr& sort_map,
+         const RowFormatter::Ptr& formatter)
+    : names_(names) {
   if (!names_) {
     throw NullPointerException();
   }
@@ -103,18 +98,18 @@ void Row::AddSortField(size_t pos) {
   ComparisonType ct;
   if (values_[pos].IsEmpty()) {
     ct = COMPARE_AS_EMPTY;
-  } else if ((values_[pos].type() == typeid(int8))   ||
-    (values_[pos].type() == typeid(uint8))  ||
-    (values_[pos].type() == typeid(int16))  ||
-    (values_[pos].type() == typeid(uint16)) ||
-    (values_[pos].type() == typeid(int32))  ||
-    (values_[pos].type() == typeid(uint32)) ||
-    (values_[pos].type() == typeid(int64))  ||
-    (values_[pos].type() == typeid(uint64)) ||
-    (values_[pos].type() == typeid(bool))) {
+  } else if ((values_[pos].type() == typeid(int8)) ||
+             (values_[pos].type() == typeid(uint8)) ||
+             (values_[pos].type() == typeid(int16)) ||
+             (values_[pos].type() == typeid(uint16)) ||
+             (values_[pos].type() == typeid(int32)) ||
+             (values_[pos].type() == typeid(uint32)) ||
+             (values_[pos].type() == typeid(int64)) ||
+             (values_[pos].type() == typeid(uint64)) ||
+             (values_[pos].type() == typeid(bool))) {
     ct = COMPARE_AS_INTEGER;
   } else if ((values_[pos].type() == typeid(float)) ||
-            (values_[pos].type() == typeid(double))) {
+             (values_[pos].type() == typeid(double))) {
     ct = COMPARE_AS_FLOAT;
   } else {
     ct = COMPARE_AS_STRING;
@@ -123,9 +118,7 @@ void Row::AddSortField(size_t pos) {
   sort_map_->push_back(SortTuple(pos, ct));
 }
 
-void Row::AddSortField(const String& name) {
-  AddSortField(GetPosition(name));
-}
+void Row::AddSortField(const String& name) { AddSortField(GetPosition(name)); }
 
 void Row::RemoveSortField(size_t pos) {
   SortMap::iterator it = sort_map_->begin();
@@ -150,20 +143,18 @@ void Row::ReplaceSortField(size_t old_pos, size_t new_pos) {
 
   if (values_[new_pos].IsEmpty()) {
     ct = COMPARE_AS_EMPTY;
-  }
-  else if ((values_[new_pos].type() == typeid(int8)) ||
-    (values_[new_pos].type() == typeid(uint8))     ||
-    (values_[new_pos].type() == typeid(int16))     ||
-    (values_[new_pos].type() == typeid(uint16))    ||
-    (values_[new_pos].type() == typeid(int32))     ||
-    (values_[new_pos].type() == typeid(uint32))    ||
-    (values_[new_pos].type() == typeid(int64))     ||
-    (values_[new_pos].type() == typeid(uint64))    ||
-    (values_[new_pos].type() == typeid(bool))) {
+  } else if ((values_[new_pos].type() == typeid(int8)) ||
+             (values_[new_pos].type() == typeid(uint8)) ||
+             (values_[new_pos].type() == typeid(int16)) ||
+             (values_[new_pos].type() == typeid(uint16)) ||
+             (values_[new_pos].type() == typeid(int32)) ||
+             (values_[new_pos].type() == typeid(uint32)) ||
+             (values_[new_pos].type() == typeid(int64)) ||
+             (values_[new_pos].type() == typeid(uint64)) ||
+             (values_[new_pos].type() == typeid(bool))) {
     ct = COMPARE_AS_INTEGER;
-  }
-  else if ((values_[new_pos].type() == typeid(float)) ||
-            (values_[new_pos].type() == typeid(double))) {
+  } else if ((values_[new_pos].type() == typeid(float)) ||
+             (values_[new_pos].type() == typeid(double))) {
     ct = COMPARE_AS_FLOAT;
   } else {
     ct = COMPARE_AS_STRING;
@@ -171,10 +162,8 @@ void Row::ReplaceSortField(size_t old_pos, size_t new_pos) {
 
   SortMap::iterator it = sort_map_->begin();
   SortMap::iterator end = sort_map_->end();
-  for (; it != end; ++it)
-  {
-    if (it->Get<0>() == old_pos)
-    {
+  for (; it != end; ++it) {
+    if (it->Get<0>() == old_pos) {
       *it = SortTuple(new_pos, ct);
       return;
     }
@@ -210,7 +199,7 @@ bool Row::IsEqualType(const Row& other) const {
   return true;
 }
 
-bool Row::operator == (const Row& other) const {
+bool Row::operator==(const Row& other) const {
   if (!IsEqualSize(other)) return false;
   if (!IsEqualType(other)) return false;
 
@@ -225,13 +214,12 @@ bool Row::operator == (const Row& other) const {
   return true;
 }
 
-bool Row::operator != (const Row& other) const {
-  return !(*this == other);
-}
+bool Row::operator!=(const Row& other) const { return !(*this == other); }
 
-bool Row::operator < (const Row& other) const {
+bool Row::operator<(const Row& other) const {
   if (*sort_map_ != *other.sort_map_) {
-    throw InvalidAccessException("Rows compared have different sorting criteria.");
+    throw InvalidAccessException(
+        "Rows compared have different sorting criteria.");
   }
 
   SortMap::const_iterator it = sort_map_->begin();
@@ -243,28 +231,28 @@ bool Row::operator < (const Row& other) const {
 
       case COMPARE_AS_INTEGER:
         if (values_[it->Get<0>()].convert<int64>() <
-          other.values_[it->Get<0>()].convert<int64>())
+            other.values_[it->Get<0>()].convert<int64>())
           return true;
         else if (values_[it->Get<0>()].convert<int64>() !=
-          other.values_[it->Get<0>()].convert<int64>())
+                 other.values_[it->Get<0>()].convert<int64>())
           return false;
         break;
 
       case COMPARE_AS_FLOAT:
         if (values_[it->Get<0>()].convert<double>() <
-          other.values_[it->Get<0>()].convert<double>())
+            other.values_[it->Get<0>()].convert<double>())
           return true;
         else if (values_[it->Get<0>()].convert<double>() !=
-          other.values_[it->Get<0>()].convert<double>())
+                 other.values_[it->Get<0>()].convert<double>())
           return false;
         break;
 
       case COMPARE_AS_STRING:
         if (values_[it->Get<0>()].convert<String>() <
-          other.values_[it->Get<0>()].convert<String>())
+            other.values_[it->Get<0>()].convert<String>())
           return true;
         else if (values_[it->Get<0>()].convert<String>() !=
-          other.values_[it->Get<0>()].convert<String>())
+                 other.values_[it->Get<0>()].convert<String>())
           return false;
         break;
 
@@ -308,5 +296,5 @@ void Row::FormatNames() const {
   return formatter_->FormatNames(names());
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

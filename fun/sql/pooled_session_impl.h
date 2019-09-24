@@ -1,10 +1,10 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/session_impl.h"
-#include "fun/sql/statement_impl.h"
-#include "fun/sql/pooled_session_holder.h"
 #include "fun/ref_counted_ptr.h"
+#include "fun/sql/pooled_session_holder.h"
+#include "fun/sql/session_impl.h"
+#include "fun/sql/sql.h"
+#include "fun/sql/statement_impl.h"
 
 namespace fun {
 namespace sql {
@@ -73,7 +73,6 @@ class FUN_SQL_API PooledSessionImpl : public SessionImpl {
   mutable PooledSessionHolder::Ptr holder_;
 };
 
-
 //
 // inlines
 //
@@ -82,5 +81,5 @@ inline SessionImpl::Ptr PooledSessionImpl::GetImpl() const {
   return holder_->GetSession();
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

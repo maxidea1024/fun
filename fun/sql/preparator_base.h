@@ -1,14 +1,14 @@
 #pragma once
 
-#include "fun/sql/sql.h"
+#include "fun/base/utf_string.h"
 #include "fun/ref_counted_object.h"
 #include "fun/sql/lob.h"
-#include "fun/base/utf_string.h"
+#include "fun/sql/sql.h"
 
-#include <vector>
+#include <cstddef>
 #include <deque>
 #include <list>
-#include <cstddef>
+#include <vector>
 
 namespace fun {
 
@@ -25,13 +25,14 @@ class Date;
 class Time;
 
 /**
- * Interface used for database preparation where we first have to register all data types
- * (and memory output locations) before extracting data, e.g. ODBC.
- * Extract works as two-phase extract: first we call Prepare once, then extract n-times.
- * There are cases (bulk operations using std::vector storage) when extract is called only once.
- * The value passed to a Prepare() call is not used by the Prepare, serving only as an indication
- * of the data type being prepared, thus all values are passed as const references.
- * Implementing this interface is not mandatory for a connector. Connectors that only extract data
+ * Interface used for database preparation where we first have to register all
+ * data types (and memory output locations) before extracting data, e.g. ODBC.
+ * Extract works as two-phase extract: first we call Prepare once, then extract
+ * n-times. There are cases (bulk operations using std::vector storage) when
+ * extract is called only once. The value passed to a Prepare() call is not used
+ * by the Prepare, serving only as an indication of the data type being
+ * prepared, thus all values are passed as const references. Implementing this
+ * interface is not mandatory for a connector. Connectors that only extract data
  * after sql execution (e.g. SQLite) do not need this functionality at all.
  */
 class FUN_SQL_API PreparatorBase {
@@ -47,7 +48,6 @@ class FUN_SQL_API PreparatorBase {
    * Destroys the PreparatorBase.
    */
   virtual ~PreparatorBase();
-
 
   /**
    * Prepares an int8.
@@ -496,7 +496,6 @@ class FUN_SQL_API PreparatorBase {
    */
   virtual void Prepare(size_t pos, const std::list<fun::dynamic::Var>& val);
 
-
   /**
    * Sets the length of prepared data.
    * Needed only for data lengths greater than 1 (i.e. for
@@ -525,26 +524,17 @@ class FUN_SQL_API PreparatorBase {
   bool bulk_;
 };
 
-
 //
 // inlines
 //
 
-inline void PreparatorBase::SetLength(uint32 length) {
-  length_ = length;
-}
+inline void PreparatorBase::SetLength(uint32 length) { length_ = length; }
 
-inline uint32 PreparatorBase::GetLength() const {
-  return length_;
-}
+inline uint32 PreparatorBase::GetLength() const { return length_; }
 
-inline void PreparatorBase::SetBulk(bool flag) {
-  bulk_ = flag;
-}
+inline void PreparatorBase::SetBulk(bool flag) { bulk_ = flag; }
 
-inline bool PreparatorBase::IsBulk() const {
-  return bulk_;
-}
+inline bool PreparatorBase::IsBulk() const { return bulk_; }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/row.h"
-#include "fun/base/dynamic/var.h"
-#include <iterator>
 #include <algorithm>
+#include <iterator>
+#include "fun/base/dynamic/var.h"
+#include "fun/sql/row.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -55,60 +55,60 @@ class FUN_SQL_API RowIterator {
   /**
    * Assigns the other RowIterator.
    */
-  RowIterator& operator = (const RowIterator& other);
+  RowIterator& operator=(const RowIterator& other);
 
   /**
    * Equality operator.
    */
-  bool operator == (const RowIterator& other) const;
+  bool operator==(const RowIterator& other) const;
 
   /**
    * Inequality operator.
    */
-  bool operator != (const RowIterator& other) const;
+  bool operator!=(const RowIterator& other) const;
 
   /**
    * Returns reference to the current row.
    */
-  Row& operator * () const;
+  Row& operator*() const;
 
   /**
    * Returns pointer to the current row.
    */
-  Row* operator -> () const;
+  Row* operator->() const;
 
   /**
    * Advances by one position and returns current position.
    */
-  const RowIterator& operator ++ () const;
+  const RowIterator& operator++() const;
 
   /**
    * Advances by one position and returns copy of the iterator with
    * previous current position.
    */
-  RowIterator operator ++ (int) const;
+  RowIterator operator++(int) const;
 
   /**
    * Goes back by one position and returns copy of the iterator with
    * previous current position.
    */
-  const RowIterator& operator -- () const;
+  const RowIterator& operator--() const;
 
   /**
    * Goes back by one position and returns previous current position.
    */
-  RowIterator operator -- (int) const;
+  RowIterator operator--(int) const;
 
   /**
    * Returns a copy the RowIterator advanced by diff positions.
    */
-  RowIterator operator + (size_t diff) const;
+  RowIterator operator+(size_t diff) const;
 
   /**
    * Returns a copy the RowIterator backed by diff positions.
    * Throws RangeException if diff is larger than current position.
    */
-  RowIterator operator - (size_t diff) const;
+  RowIterator operator-(size_t diff) const;
 
   /**
    * Swaps the RowIterator with another one.
@@ -140,21 +140,20 @@ class FUN_SQL_API RowIterator {
   mutable size_t position_;
 };
 
-
 //
 // inlines
 //
 
-inline bool RowIterator::operator == (const RowIterator& other) const {
+inline bool RowIterator::operator==(const RowIterator& other) const {
   return record_set_ == other.record_set_ && position_ == other.position_;
 }
 
-inline bool RowIterator::operator != (const RowIterator& other) const {
+inline bool RowIterator::operator!=(const RowIterator& other) const {
   return record_set_ != other.record_set_ || position_ != other.position_;
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun
 
 namespace std {
 
@@ -162,8 +161,9 @@ namespace std {
  * Full template specialization of std:::Swap for RowIterator
  */
 template <>
-inline void Swap<fun::sql::RowIterator>(fun::sql::RowIterator& s1, fun::sql::RowIterator& s2) {
+inline void Swap<fun::sql::RowIterator>(fun::sql::RowIterator& s1,
+                                        fun::sql::RowIterator& s2) {
   s1.Swap(s2);
 }
 
-} // namespace std
+}  // namespace std

@@ -5,12 +5,12 @@ namespace sql {
 namespace postgresql {
 
 PostgreSqlStatementImpl::PostgreSqlStatementImpl(SessionImpl& session_impl)
-  : fun::sql::StatementImpl(session_impl),
-    statement_executor_(session_impl.GetHandle()),
-    binder_(new Binder),
-    bulk_binder_(new Binder),
-    extractor_(new Extractor(statement_executor_)),
-    has_next_(NEXT_DONTKNOW) {}
+    : fun::sql::StatementImpl(session_impl),
+      statement_executor_(session_impl.GetHandle()),
+      binder_(new Binder),
+      bulk_binder_(new Binder),
+      extractor_(new Extractor(statement_executor_)),
+      has_next_(NEXT_DONTKNOW) {}
 
 PostgreSqlStatementImpl::~PostgreSqlStatementImpl() {}
 
@@ -22,7 +22,8 @@ int PostgreSqlStatementImpl::AffectedRowCount() const {
   return (int)statement_executor_.AffectedRowCount();
 }
 
-const MetaColumn& PostgreSqlStatementImpl::metaColumn(size_t position, size_t data_set) const {
+const MetaColumn& PostgreSqlStatementImpl::metaColumn(size_t position,
+                                                      size_t data_set) const {
   // PostgreSql doesn't support multiple result sets
   fun_check_dbg(data_set == 0);
 
@@ -56,7 +57,7 @@ size_t PostgreSqlStatementImpl::Next() {
     throw StatementException("No data received");
   }
 
-  fun::sql::ExtractionBaseVec::iterator it= extractions().begin();
+  fun::sql::ExtractionBaseVec::iterator it = extractions().begin();
   fun::sql::ExtractionBaseVec::iterator itEnd = extractions().end();
 
   size_t position = 0;
@@ -74,8 +75,8 @@ size_t PostgreSqlStatementImpl::Next() {
 bool PostgreSqlStatementImpl::CanBind() const {
   bool ret = false;
 
-  if ((statement_executor_.GetState() >= StatementExecutor::STMT_COMPILED)
-     && !GetBindings().IsEmpty()) {
+  if ((statement_executor_.GetState() >= StatementExecutor::STMT_COMPILED) &&
+      !GetBindings().IsEmpty()) {
     ret = (*GetBindings().begin())->CanBind();
   }
 
@@ -94,7 +95,7 @@ void PostgreSqlStatementImpl::BindImpl() {
   fun::sql::BindingBaseVec& binds = GetBindings();
 
   size_t position = 0;
-  fun::sql::BindingBaseVec::iterator it= binds.begin();
+  fun::sql::BindingBaseVec::iterator it = binds.begin();
   fun::sql::BindingBaseVec::iterator itEnd = binds.end();
 
   for (; it != itEnd && (*it)->CanBind(); ++it) {
@@ -124,6 +125,6 @@ fun::sql::BinderBase::Ptr PostgreSqlStatementImpl::GetBinder() {
   return binder_;
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

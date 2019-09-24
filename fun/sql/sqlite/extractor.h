@@ -1,20 +1,18 @@
 ﻿#pragma once
 
-#include "fun/sql/sqlite/sqlite.h"
-#include "fun/sql/sqlite/utility.h"
+#include <utility>
+#include <vector>
+#include "fun/base/any.h"
+#include "fun/base/dynamic_any.h"
+#include "fun/sql/constants.h"
+#include "fun/sql/date.h"
 #include "fun/sql/extractor_base.h"
 #include "fun/sql/meta_column.h"
 #include "fun/sql/sql_exception.h"
-#include "fun/sql/constants.h"
-#include "fun/sql/date.h"
+#include "fun/sql/sqlite/sqlite.h"
+#include "fun/sql/sqlite/utility.h"
 #include "fun/sql/time.h"
-#include "fun/sql/date.h"
-#include "fun/sql/time.h"
-#include "fun/base/any.h"
-#include "fun/base/dynamic_any.h"
 #include "sqlite3.h"
-#include <vector>
-#include <utility>
 
 namespace fun {
 namespace sql {
@@ -22,7 +20,8 @@ namespace sqlite {
 
 /**
  * Extracts and converts data values form the result row returned by SQLite.
- * If NULL is received, the incoming val value is not changed and false is returned
+ * If NULL is received, the incoming val value is not changed and false is
+ * returned
  */
 class FUN_SQLITE_API Extractor : public fun::sql::ExtractorBase {
  public:
@@ -40,7 +39,6 @@ class FUN_SQLITE_API Extractor : public fun::sql::ExtractorBase {
    * Destroys the Extractor.
    */
   ~Extractor();
-
 
   bool Extract(size_t pos, int8& val);
   bool Extract(size_t pos, uint8& val);
@@ -215,7 +213,8 @@ class FUN_SQLITE_API Extractor : public fun::sql::ExtractorBase {
     }
 
     int size = sqlite3_column_bytes(stmt_, (int)pos);
-    const T* blob = reinterpret_cast<const T*>(sqlite3_column_blob(stmt_, (int)pos));
+    const T* blob =
+        reinterpret_cast<const T*>(sqlite3_column_blob(stmt_, (int)pos));
     val = fun::sql::LOB<T>(blob, size);
     return true;
   }
@@ -224,14 +223,11 @@ class FUN_SQLITE_API Extractor : public fun::sql::ExtractorBase {
   NullIndVec nulls_;
 };
 
-
 //
 // inlines
 //
 
-inline void Extractor::Reset() {
-  nulls_.Clear();
-}
+inline void Extractor::Reset() { nulls_.Clear(); }
 
 inline bool Extractor::Extract(size_t pos, fun::sql::BLOB& val) {
   return ExtractLOB<fun::sql::BLOB::ValueType>(pos, val);
@@ -241,6 +237,6 @@ inline bool Extractor::Extract(size_t pos, fun::sql::CLOB& val) {
   return ExtractLOB<fun::sql::CLOB::ValueType>(pos, val);
 }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

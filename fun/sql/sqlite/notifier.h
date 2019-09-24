@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-#include "fun/sql/sqlite/sqlite.h"
-#include "fun/sql/sqlite/utility.h"
-#include "fun/sql/session.h"
+#include <map>
+#include "fun/base/basic_event.h"
+#include "fun/base/dynamic/var.h"
 #include "fun/base/mutex.h"
 #include "fun/base/types.h"
-#include "fun/base/dynamic/var.h"
-#include "fun/base/basic_event.h"
-#include <map>
+#include "fun/sql/session.h"
+#include "fun/sql/sqlite/sqlite.h"
+#include "fun/sql/sqlite/utility.h"
 
 namespace fun {
 namespace sql {
@@ -19,8 +19,8 @@ namespace sqlite {
  * callbacks is thread-safe, execution of the callbacks themselves are not;
  * it is the user's responsibility to ensure the thread-safey of the functions
  * they provide as callback target. Additionally, commit callbacks may prevent
- * database transactions from succeeding (see SqliteCommitCallbackFn documentation
- * for details).
+ * database transactions from succeeding (see SqliteCommitCallbackFn
+ * documentation for details).
  *
  * There can be only one set of callbacks per session (i.e. registering a new
  * callback automatically unregisters the previous one). All callbacks are
@@ -46,22 +46,26 @@ class FUN_SQLITE_API Notifier {
   Event rollback;
 
   // Event types.
-  static const EnabledEventType SQLITE_NOTIFY_UPDATE   = 1;
-  static const EnabledEventType SQLITE_NOTIFY_COMMIT   = 2;
+  static const EnabledEventType SQLITE_NOTIFY_UPDATE = 1;
+  static const EnabledEventType SQLITE_NOTIFY_COMMIT = 2;
   static const EnabledEventType SQLITE_NOTIFY_ROLLBACK = 4;
 
   /**
    * Creates a Notifier and enables all callbacks.
    */
-  Notifier( const Session& session,
-            EnabledEventType enabled = SQLITE_NOTIFY_UPDATE | SQLITE_NOTIFY_COMMIT | SQLITE_NOTIFY_ROLLBACK);
+  Notifier(const Session& session,
+           EnabledEventType enabled = SQLITE_NOTIFY_UPDATE |
+                                      SQLITE_NOTIFY_COMMIT |
+                                      SQLITE_NOTIFY_ROLLBACK);
 
   /**
-   * Creates a Notifier, assigns the value to the internal storage and and enables all callbacks.
+   * Creates a Notifier, assigns the value to the internal storage and and
+   * enables all callbacks.
    */
-  Notifier( const Session& session,
-            const Any& value,
-            EnabledEventType enabled = SQLITE_NOTIFY_UPDATE | SQLITE_NOTIFY_COMMIT | SQLITE_NOTIFY_ROLLBACK);
+  Notifier(const Session& session, const Any& value,
+           EnabledEventType enabled = SQLITE_NOTIFY_UPDATE |
+                                      SQLITE_NOTIFY_COMMIT |
+                                      SQLITE_NOTIFY_ROLLBACK);
 
   /**
    * Disables all callbacks and destroys the Notifier.
@@ -124,16 +128,18 @@ class FUN_SQLITE_API Notifier {
   bool DisableAll();
 
   /**
-   * Update callback event dispatcher. Determines the type of the event, updates the row number
-   * and triggers the event.
+   * Update callback event dispatcher. Determines the type of the event, updates
+   * the row number and triggers the event.
    */
-  static void SqliteUpdateCallbackFn(void* pVal, int opCode, const char* db, const char* pTable, int64 row);
+  static void SqliteUpdateCallbackFn(void* pVal, int opCode, const char* db,
+                                     const char* pTable, int64 row);
 
   /**
-   * Commit callback event dispatcher. If an exception occurs, it is caught inside this function,
-   * non-zero value is returned, which causes SQLite engine to turn commit into a rollback.
-   * Therefore, callers should check for return value - if it is zero, callback completed successfully
-   * and transaction was committed.
+   * Commit callback event dispatcher. If an exception occurs, it is caught
+   * inside this function, non-zero value is returned, which causes SQLite
+   * engine to turn commit into a rollback. Therefore, callers should check for
+   * return value - if it is zero, callback completed successfully and
+   * transaction was committed.
    */
   static int SqliteCommitCallbackFn(void* pVal);
 
@@ -146,7 +152,7 @@ class FUN_SQLITE_API Notifier {
    * Equality operator. Compares value, row and database handles and
    * returns true if all are equal.
    */
-  bool operator == (const Notifier& other) const;
+  bool operator==(const Notifier& other) const;
 
   /**
    * Returns the row number.
@@ -189,34 +195,24 @@ class FUN_SQLITE_API Notifier {
   fun::Mutex mutex_;
 };
 
-
 //
 // inlines
 //
 
-inline bool Notifier::operator == (const Notifier& other) const {
-  return  value_ == other.value_ &&
-          row_ == other.row_ &&
-          table_ == other.table_ &&
-          Utility::GetDbHandle(session_) == Utility::GetDbHandle(other.session_);
+inline bool Notifier::operator==(const Notifier& other) const {
+  return value_ == other.value_ && row_ == other.row_ &&
+         table_ == other.table_ &&
+         Utility::GetDbHandle(session_) == Utility::GetDbHandle(other.session_);
 }
 
-inline int64 Notifier::GetRow() const {
-  return row_;
-}
+inline int64 Notifier::GetRow() const { return row_; }
 
-inline const String& Notifier::GetTable() const {
-  return table_;
-}
+inline const String& Notifier::GetTable() const { return table_; }
 
-inline void Notifier::SetRow(int64 row) {
-  row_ = row;
-}
+inline void Notifier::SetRow(int64 row) { row_ = row; }
 
-inline const fun::dynamic::Var& Notifier::GetValue() const {
-  return value_;
-}
+inline const fun::dynamic::Var& Notifier::GetValue() const { return value_; }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

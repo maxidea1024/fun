@@ -5,11 +5,11 @@ namespace sql {
 namespace mysql {
 
 MySqlStatementImpl::MySqlStatementImpl(SessionImpl& h)
-  : fun::sql::StatementImpl(h),
-    stmt_(h.handle()),
-    binder_(new Binder),
-    extractor_(new Extractor(stmt_, metadata_)),
-    has_next_(NEXT_DONTKNOW) {}
+    : fun::sql::StatementImpl(h),
+      stmt_(h.handle()),
+      binder_(new Binder),
+      extractor_(new Extractor(stmt_, metadata_)),
+      has_next_(NEXT_DONTKNOW) {}
 
 MySqlStatementImpl::~MySqlStatementImpl() {}
 
@@ -21,7 +21,8 @@ int MySqlStatementImpl::AffectedRowCount() const {
   return stmt_.AffectedRowCount();
 }
 
-const MetaColumn& MySqlStatementImpl::MetaColumnAt(size_t pos, size_t data_set) const {
+const MetaColumn& MySqlStatementImpl::MetaColumnAt(size_t pos,
+                                                   size_t data_set) const {
   // mysql doesn't support multiple result sets
   fun_check_dbg(data_set == 0);
   return metadata_.MetaColumnAt(pos);
@@ -68,7 +69,8 @@ size_t MySqlStatementImpl::Next() {
 bool MySqlStatementImpl::CanBind() const {
   bool ret = false;
 
-  if ((stmt_.state() >= StatementExecutor::STMT_COMPILED) && !bindings().IsEmpty()) {
+  if ((stmt_.state() >= StatementExecutor::STMT_COMPILED) &&
+      !bindings().IsEmpty()) {
     ret = (*bindings().begin())->CanBind();
   }
 
@@ -108,10 +110,8 @@ fun::sql::ExtractorBase::Ptr MySqlStatementImpl::GetExtractor() {
   return extractor_;
 }
 
-fun::sql::BinderBase::Ptr MySqlStatementImpl::GetBinder() {
-  return binder_;
-}
+fun::sql::BinderBase::Ptr MySqlStatementImpl::GetBinder() { return binder_; }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

@@ -35,7 +35,7 @@ class FUN_ODBC_API EnvironmentHandle {
   /**
    * Const conversion operator into reference to native type.
    */
-  operator const SQLHENV& () const;
+  operator const SQLHENV&() const;
 
   /**
    * Returns const reference to handle.
@@ -46,7 +46,7 @@ class FUN_ODBC_API EnvironmentHandle {
   /**
    * Conversion operator into reference to native type.
    */
-  operator SQLHENV& ();
+  operator SQLHENV&();
 
   void Init();
 
@@ -57,23 +57,18 @@ class FUN_ODBC_API EnvironmentHandle {
   bool is_owner_;
 };
 
-
 //
 // inlines
 //
 
-inline EnvironmentHandle::operator const SQLHENV& () const {
+inline EnvironmentHandle::operator const SQLHENV&() const {
   return GetHandle();
 }
 
-inline const SQLHENV& EnvironmentHandle::GetHandle() const {
-  return henv_;
-}
+inline const SQLHENV& EnvironmentHandle::GetHandle() const { return henv_; }
 
-inline EnvironmentHandle::operator SQLHENV& () {
-  return henv_;
-}
+inline EnvironmentHandle::operator SQLHENV&() { return henv_; }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

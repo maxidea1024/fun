@@ -19,17 +19,14 @@ namespace postgresql {
 class SessionParameters {
  public:
   enum HOW_TO_DISPLAY {
-    HTD_ASIS,   // as is
-    HTD_HIDE,   // do not display (e.g. passwords)
-    HID_DEBUG   // debug use only
+    HTD_ASIS,  // as is
+    HTD_HIDE,  // do not display (e.g. passwords)
+    HID_DEBUG  // debug use only
   };
 
-  SessionParameters(const String& keyword,
-                    const String& environment_variable,
-                    const String& compiled_default,
-                    const String& current_value,
-                    const String& display_label,
-                    const String& how_to_display,
+  SessionParameters(const String& keyword, const String& environment_variable,
+                    const String& compiled_default, const String& current_value,
+                    const String& display_label, const String& how_to_display,
                     int display_size);
 
   ~SessionParameters();
@@ -43,13 +40,13 @@ class SessionParameters {
   int displaySize() const;
 
  private:
-  String keyword_; // The keyword of the option
-  String environment_variable_; // Fallback environment variable name
-  String compiled_default_; // Fallback compiled in default value
-  String current_value_; // Option's current value, or NULL
-  String display_label_; // Label for field in a connect dialog
-  HOW_TO_DISPLAY how_to_display_; // Indicates how to display this field
-  int display_size_; // Field size in characters for connect dialog
+  String keyword_;                 // The keyword of the option
+  String environment_variable_;    // Fallback environment variable name
+  String compiled_default_;        // Fallback compiled in default value
+  String current_value_;           // Option's current value, or NULL
+  String display_label_;           // Label for field in a connect dialog
+  HOW_TO_DISPLAY how_to_display_;  // Indicates how to display this field
+  int display_size_;  // Field size in characters for connect dialog
 };
 
 typedef std::map<String, SessionParameters> SessionParametersMap;
@@ -77,7 +74,8 @@ class SessionHandle {
   void Connect(const char* connection_string);
 
   void Connect(const char* host, const char* user, const char* password,
-    const char* database, unsigned short port, unsigned int connection_timeout);
+               const char* database, unsigned short port,
+               unsigned int connection_timeout);
 
   /**
    * is a connection established?
@@ -105,7 +103,8 @@ class SessionHandle {
   void StartTransaction();
 
   /**
-   * Returns true if a transaction is a transaction is in progress, false otherwise.
+   * Returns true if a transaction is a transaction is in progress, false
+   * otherwise.
    */
   bool IsInTransaction();
 
@@ -163,7 +162,8 @@ class SessionHandle {
   /**
    * deallocates a previously prepared statement
    */
-  void DeallocatePreparedStatement(const String& aPreparedStatementToDeAllocate);
+  void DeallocatePreparedStatement(
+      const String& aPreparedStatementToDeAllocate);
 
   /**
    * remote server version
@@ -208,7 +208,7 @@ class SessionHandle {
   /**
    * Get the PostgreSQL connection pointer
    */
-  operator PGconn* ();
+  operator PGconn*();
 
   /**
    * Get the sessionHandle mutex to protect the connection pointer
@@ -216,11 +216,13 @@ class SessionHandle {
   fun::FastMutex& GetMutex();
 
  private:
-  static SessionParametersMap SetConnectionInfoParameters(PQconninfoOption* aConnectionInfoOptionsPtr);
+  static SessionParametersMap SetConnectionInfoParameters(
+      PQconninfoOption* aConnectionInfoOptionsPtr);
 
   void DeallocateStoredPreparedStatements();
 
-  void DeallocatePreparedStatementNoLock(const String& aPreparedStatementToDeAllocate);
+  void DeallocatePreparedStatementNoLock(
+      const String& aPreparedStatementToDeAllocate);
   bool IsConnectedNoLock() const;
   String GetLastErrorNoLock() const;
 
@@ -235,14 +237,13 @@ class SessionHandle {
   bool is_auto_commit_;
   bool is_asynchronous_commit_;
   uint32 transaction_isolation_level_;
-  std::vector <String> prepared_statements_to_be_deallocated_;
+  std::vector<String> prepared_statements_to_be_deallocated_;
 
-  //static const String POSTGRESQL_READ_UNCOMMITTED; // NOT SUPPORTED
+  // static const String POSTGRESQL_READ_UNCOMMITTED; // NOT SUPPORTED
   static const String POSTGRESQL_READ_COMMITTED;
   static const String POSTGRESQL_REPEATABLE_READ;
   static const String POSTGRESQL_SERIALIZABLE;
 };
-
 
 //
 // inlines
@@ -250,20 +251,17 @@ class SessionHandle {
 
 // SessionParameters
 
-inline SessionParameters::SessionParameters(const String& aKeyword,
-                                            const String& environment_variable,
-                                            const String& compiled_default,
-                                            const String& current_value,
-                                            const String& display_label,
-                                            const String& how_to_display,
-                                            int display_size)
-  : keyword_(aKeyword),
-    environment_variable_(environment_variable),
-    compiled_default_(compiled_default),
-    current_value_(current_value),
-    display_label_(display_label),
-    how_to_display_(HTD_ASIS),
-    display_size_(display_size) {
+inline SessionParameters::SessionParameters(
+    const String& aKeyword, const String& environment_variable,
+    const String& compiled_default, const String& current_value,
+    const String& display_label, const String& how_to_display, int display_size)
+    : keyword_(aKeyword),
+      environment_variable_(environment_variable),
+      compiled_default_(compiled_default),
+      current_value_(current_value),
+      display_label_(display_label),
+      how_to_display_(HTD_ASIS),
+      display_size_(display_size) {
   if (how_to_display == "*") {
     how_to_display_ = HTD_HIDE;
   }
@@ -275,9 +273,7 @@ inline SessionParameters::SessionParameters(const String& aKeyword,
 
 inline SessionParameters::~SessionParameters() {}
 
-inline String SessionParameters::GetKeyword() const {
-  return keyword_;
-}
+inline String SessionParameters::GetKeyword() const { return keyword_; }
 
 inline String SessionParameters::GetEnviromentVariable() const {
   return environment_variable_;
@@ -295,41 +291,31 @@ inline String SessionParameters::GetDisplayLabel() const {
   return display_label_;
 }
 
-inline SessionParameters::HOW_TO_DISPLAY SessionParameters::GetHowToDisplay() const {
+inline SessionParameters::HOW_TO_DISPLAY SessionParameters::GetHowToDisplay()
+    const {
   return how_to_display_;
 }
 
-inline int SessionParameters::GetDisplaySize() const {
-  return display_size_;
-}
-
+inline int SessionParameters::GetDisplaySize() const { return display_size_; }
 
 // SessionHandle
 
-inline SessionHandle::operator PGconn * () {
-  return connection_ptr_;
-}
+inline SessionHandle::operator PGconn*() { return connection_ptr_; }
 
-inline fun::FastMutex&SessionHandle::GetMutex() {
-  return session_mutex_;
-}
+inline fun::FastMutex& SessionHandle::GetMutex() { return session_mutex_; }
 
 inline String SessionHandle::GetConnectionString() const {
   return connection_string_;
 }
 
-inline bool SessionHandle::IsInTransaction() {
-  return in_transaction_;
-}
+inline bool SessionHandle::IsInTransaction() { return in_transaction_; }
 
-inline bool SessionHandle::IsAutoCommit() {
-  return is_auto_commit_;
-}
+inline bool SessionHandle::IsAutoCommit() { return is_auto_commit_; }
 
 inline bool SessionHandle::IsAsynchronousCommit() {
   return is_asynchronous_commit_;
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

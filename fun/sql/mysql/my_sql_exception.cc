@@ -1,29 +1,28 @@
-#include "fun/sql/mysql/mysql_exception.h"
 #include <mysql.h>
 #include <stdio.h>
+#include "fun/sql/mysql/mysql_exception.h"
 
 namespace fun {
 namespace sql {
 namespace mysql {
 
 MySqlException::MySqlException(const String& msg, int error_code)
-  : fun::sql::SqlException(String("[MySQL]: ") + msg, error_code) {}
+    : fun::sql::SqlException(String("[MySQL]: ") + msg, error_code) {}
 
 MySqlException::MySqlException(const MySqlException& e)
-  : fun::sql::SqlException(e) {}
+    : fun::sql::SqlException(e) {}
 
 MySqlException::~MySqlException() throw() {}
-
 
 //
 // ConnectionException
 //
 
 ConnectionException::ConnectionException(const String& msg)
-  : MySqlException(msg) {}
+    : MySqlException(msg) {}
 
 ConnectionException::ConnectionException(const String& text, MYSQL* h)
-  : MySqlException(Compose(text, h), mysql_errno(h)) {}
+    : MySqlException(Compose(text, h), mysql_errno(h)) {}
 
 String ConnectionException::Compose(const String& text, MYSQL* h) {
   String str;
@@ -42,29 +41,29 @@ String ConnectionException::Compose(const String& text, MYSQL* h) {
   return str;
 }
 
-
 //
 // TransactionException
 //
 
 TransactionException::TransactionException(const String& msg)
-  : ConnectionException(msg) {}
+    : ConnectionException(msg) {}
 
 TransactionException::TransactionException(const String& text, MYSQL* h)
-  : ConnectionException(text, h) {}
-
+    : ConnectionException(text, h) {}
 
 //
 // StatementException
 //
 
 StatementException::StatementException(const String& msg)
-  : MySqlException(msg) {}
+    : MySqlException(msg) {}
 
-StatementException::StatementException(const String& text, MYSQL_STMT* h, const String& stmt)
-  : MySqlException(Compose(text, h, stmt), mysql_stmt_errno(h)) {}
+StatementException::StatementException(const String& text, MYSQL_STMT* h,
+                                       const String& stmt)
+    : MySqlException(Compose(text, h, stmt), mysql_stmt_errno(h)) {}
 
-String StatementException::Compose(const String& text, MYSQL_STMT* h, const String& stmt) {
+String StatementException::Compose(const String& text, MYSQL_STMT* h,
+                                   const String& stmt) {
   String str;
   str += "[Comment]: ";
   str += text;
@@ -90,6 +89,6 @@ String StatementException::Compose(const String& text, MYSQL_STMT* h, const Stri
   return str;
 }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

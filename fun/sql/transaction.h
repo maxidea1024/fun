@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/session.h"
 #include "fun/logger.h"
+#include "fun/sql/session.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -18,7 +18,8 @@ namespace sql {
 class FUN_SQL_API Transaction {
  public:
   /**
-   * Creates the Transaction and starts it, using the given database session and logger.
+   * Creates the Transaction and starts it, using the given database session and
+   * logger.
    */
   Transaction(fun::sql::Session& session, fun::Logger::Ptr logger = nullptr);
 
@@ -30,14 +31,15 @@ class FUN_SQL_API Transaction {
   Transaction(fun::sql::Session& session, bool start);
 
   /**
-   * Creates the Transaction, using the given database session, transactor and logger.
-   * The transactor type must provide operator () overload taking non-const Session
-   * reference as an argument.
+   * Creates the Transaction, using the given database session, transactor and
+   * logger. The transactor type must provide operator () overload taking
+   * non-const Session reference as an argument.
    *
    * When transaction is created using this constructor, it is executed and
    * committed automatically. If no error occurs, Rollback is disabled and does
-   * not occur at destruction time. If an error occurs resulting in exception being
-   * thrown, the transaction is rolled back and exception propagated to calling code.
+   * not occur at destruction time. If an error occurs resulting in exception
+   * being thrown, the transaction is rolled back and exception propagated to
+   * calling code.
    *
    * Example usage:
    *
@@ -51,8 +53,9 @@ class FUN_SQL_API Transaction {
    * Transaction tn(session, tr);
    */
   template <typename T>
-  Transaction(fun::sql::Session& session, T& t, fun::Logger::Ptr logger = nullptr)
-    : session_(session), logger_(logger) {
+  Transaction(fun::sql::Session& session, T& t,
+              fun::Logger::Ptr logger = nullptr)
+      : session_(session), logger_(logger) {
     try {
       Transact(t);
     } catch (...) {
@@ -160,17 +163,14 @@ class FUN_SQL_API Transaction {
  public:
   Transaction() = delete;
   Transaction(const Transaction&) = delete;
-  Transaction& operator = (const Transaction&) = delete;
+  Transaction& operator=(const Transaction&) = delete;
 };
-
 
 //
 // inlines
 //
 
-inline bool Transaction::IsActive() {
-  return session_.IsInTransaction();
-}
+inline bool Transaction::IsActive() { return session_.IsInTransaction(); }
 
 inline void Transaction::SetIsolation(uint32 ti) {
   session_.SetTransactionIsolation(ti);
@@ -192,5 +192,5 @@ inline void Transaction::SetLogger(fun::Logger::Ptr logger) {
   logger_ = logger;
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

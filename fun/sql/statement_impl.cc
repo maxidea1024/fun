@@ -1,15 +1,14 @@
 ﻿#include "fun/sql/statement_impl.h"
-#include "fun/sql/session_impl.h"
-#include "fun/sql/sql_exception.h"
-#include "fun/sql/binder_base.h"
-#include "fun/sql/extraction.h"
-#include "fun/sql/lob.h"
-#include "fun/sql/date.h"
-#include "fun/sql/time.h"
-#include "fun/base/shared_ptr.h"
 #include "fun/base/date_time.h"
 #include "fun/base/exception.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/sql/binder_base.h"
+#include "fun/sql/date.h"
+#include "fun/sql/extraction.h"
+#include "fun/sql/lob.h"
+#include "fun/sql/session_impl.h"
 #include "fun/sql/sql_exception.h"
+#include "fun/sql/time.h"
 
 using fun::icompare;
 
@@ -23,19 +22,20 @@ const String StatementImpl::LIST = "list";
 const String StatementImpl::DEQUE = "deque";
 const String StatementImpl::UNKNOWN = "unknown";
 
-const size_t StatementImpl::UNKNOWN_TOTAL_ROW_COUNT = std::numeric_limits<size_t>::max();
+const size_t StatementImpl::UNKNOWN_TOTAL_ROW_COUNT =
+    std::numeric_limits<size_t>::max();
 
 StatementImpl::StatementImpl(SessionImpl& session)
-  : state_(ST_INITIALIZED),
-    extr_limit_(upperLimit(Limit::LIMIT_UNLIMITED, false)),
-    lower_limit_(0),
-    session_(session),
-    storage_(STORAGE_UNKNOWN_IMPL),
-    ostr_(),
-    cur_data_set_(0),
-    bulk_binding_(BULK_UNDEFINED),
-    bulk_extraction_(BULK_UNDEFINED),
-    total_row_count_(UNKNOWN_TOTAL_ROW_COUNT) {
+    : state_(ST_INITIALIZED),
+      extr_limit_(upperLimit(Limit::LIMIT_UNLIMITED, false)),
+      lower_limit_(0),
+      session_(session),
+      storage_(STORAGE_UNKNOWN_IMPL),
+      ostr_(),
+      cur_data_set_(0),
+      bulk_binding_(BULK_UNDEFINED),
+      bulk_extraction_(BULK_UNDEFINED),
+      total_row_count_(UNKNOWN_TOTAL_ROW_COUNT) {
   if (!session_.IsConnected()) {
     throw NotConnectedException(session_.GetConnectionString());
   }
@@ -59,7 +59,9 @@ size_t StatementImpl::Execute(const bool& reset_ref) {
 
   size_t lim = 0;
   if (lower_limit_ > extr_limit_.Value()) {
-    throw LimitException("Illegal Statement state. Upper limit must not be smaller than the lower limit.");
+    throw LimitException(
+        "Illegal Statement state. Upper limit must not be smaller than the "
+        "lower limit.");
   }
 
   do {
@@ -92,9 +94,11 @@ void StatementImpl::AssignSubTotal(bool do_reset) {
     for (size_t counter = 0; it != end; ++it, ++counter) {
       if (extractors_[counter].size()) {
         if (do_reset) {
-          *it = CountVec::value_type(extractors_[counter][0]->HandledRowsCount());
+          *it =
+              CountVec::value_type(extractors_[counter][0]->HandledRowsCount());
         } else {
-          *it += CountVec::value_type(extractors_[counter][0]->HandledRowsCount());
+          *it +=
+              CountVec::value_type(extractors_[counter][0]->HandledRowsCount());
         }
       }
     }
@@ -116,7 +120,8 @@ size_t StatementImpl::ExecuteWithLimit() {
   if (!CanBind() && (!HasNext() || limit == 0)) {
     state_ = ST_DONE;
   } else if (limit == count && extr_limit_.IsHardLimit() && HasNext()) {
-    throw LimitException("HardLimit reached (retrieved more data than requested).");
+    throw LimitException(
+        "HardLimit reached (retrieved more data than requested).");
   } else {
     state_ = ST_PAUSED;
   }
@@ -153,9 +158,7 @@ size_t StatementImpl::ExecuteWithoutLimit() {
 }
 
 void StatementImpl::Compile() {
-  if (state_ == ST_INITIALIZED ||
-    state_ == ST_RESET ||
-    state_ == ST_BOUND) {
+  if (state_ == ST_INITIALIZED || state_ == ST_RESET || state_ == ST_BOUND) {
     CompileImpl();
     state_ = ST_COMPILED;
 
@@ -214,24 +217,25 @@ void StatementImpl::FixupExtraction() {
     sub_total_row_count_.Resize(cur_data_set_ + 1, 0);
   }
 
-  fun::sql::ExtractionBaseVec::iterator it    = extractions().begin();
+  fun::sql::ExtractionBaseVec::iterator it = extractions().begin();
   fun::sql::ExtractionBaseVec::iterator itEnd = extractions().end();
   for (; it != itEnd; ++it) {
     (*it)->SetExtractor(extractor());
     (*it)->SetLimit(extr_limit_.Value()),
-    columns_extracted_[cur_data_set_] += (int)(*it)->HandledColumnsCount();
+        columns_extracted_[cur_data_set_] += (int)(*it)->HandledColumnsCount();
   }
 }
 
 void StatementImpl::FixupBinding() {
-  // no need to call binder().Reset(); here will be called before each Bind anyway
-  BindingBaseVec::iterator it    = bindings().begin();
+  // no need to call binder().Reset(); here will be called before each Bind
+  // anyway
+  BindingBaseVec::iterator it = bindings().begin();
   BindingBaseVec::iterator itEnd = bindings().end();
   for (; it != itEnd; ++it) (*it)->SetBinder(binder());
 }
 
 void StatementImpl::ResetBinding() {
-  BindingBaseVec::iterator it    = bindings().begin();
+  BindingBaseVec::iterator it = bindings().begin();
   BindingBaseVec::iterator itEnd = bindings().end();
   for (; it != itEnd; ++it) (*it)->Reset();
 }
@@ -273,41 +277,59 @@ void StatementImpl::MakeExtractors(size_t count, const Position& position) {
     const MetaColumn& mc = metaColumn(i, position.Value());
     switch (mc.Type()) {
       case MetaColumn::FDT_BOOL:
-        AddInternalExtract<bool>(mc, position.Value()); break;
+        AddInternalExtract<bool>(mc, position.Value());
+        break;
       case MetaColumn::FDT_INT8:
-        AddInternalExtract<int8>(mc, position.Value()); break;
+        AddInternalExtract<int8>(mc, position.Value());
+        break;
       case MetaColumn::FDT_UINT8:
-        AddInternalExtract<uint8>(mc, position.Value()); break;
+        AddInternalExtract<uint8>(mc, position.Value());
+        break;
       case MetaColumn::FDT_INT16:
-        AddInternalExtract<int16>(mc, position.Value()); break;
+        AddInternalExtract<int16>(mc, position.Value());
+        break;
       case MetaColumn::FDT_UINT16:
-        AddInternalExtract<uint16>(mc, position.Value()); break;
+        AddInternalExtract<uint16>(mc, position.Value());
+        break;
       case MetaColumn::FDT_INT32:
-        AddInternalExtract<int32>(mc, position.Value()); break;
+        AddInternalExtract<int32>(mc, position.Value());
+        break;
       case MetaColumn::FDT_UINT32:
-        AddInternalExtract<uint32>(mc, position.Value()); break;
+        AddInternalExtract<uint32>(mc, position.Value());
+        break;
       case MetaColumn::FDT_INT64:
-        AddInternalExtract<int64>(mc, position.Value()); break;
+        AddInternalExtract<int64>(mc, position.Value());
+        break;
       case MetaColumn::FDT_UINT64:
-        AddInternalExtract<uint64>(mc, position.Value()); break;
+        AddInternalExtract<uint64>(mc, position.Value());
+        break;
       case MetaColumn::FDT_FLOAT:
-        AddInternalExtract<float>(mc, position.Value()); break;
+        AddInternalExtract<float>(mc, position.Value());
+        break;
       case MetaColumn::FDT_DOUBLE:
-        AddInternalExtract<double>(mc, position.Value()); break;
+        AddInternalExtract<double>(mc, position.Value());
+        break;
       case MetaColumn::FDT_STRING:
-        AddInternalExtract<String>(mc, position.Value()); break;
+        AddInternalExtract<String>(mc, position.Value());
+        break;
       case MetaColumn::FDT_WSTRING:
-        AddInternalExtract<fun::UString>(mc, position.Value()); break;
+        AddInternalExtract<fun::UString>(mc, position.Value());
+        break;
       case MetaColumn::FDT_BLOB:
-        AddInternalExtract<BLOB>(mc, position.Value()); break;
+        AddInternalExtract<BLOB>(mc, position.Value());
+        break;
       case MetaColumn::FDT_CLOB:
-        AddInternalExtract<CLOB>(mc, position.Value()); break;
+        AddInternalExtract<CLOB>(mc, position.Value());
+        break;
       case MetaColumn::FDT_DATE:
-        AddInternalExtract<Date>(mc, position.Value()); break;
+        AddInternalExtract<Date>(mc, position.Value());
+        break;
       case MetaColumn::FDT_TIME:
-        AddInternalExtract<Time>(mc, position.Value()); break;
+        AddInternalExtract<Time>(mc, position.Value());
+        break;
       case MetaColumn::FDT_TIMESTAMP:
-        AddInternalExtract<DateTime>(mc, position.Value()); break;
+        AddInternalExtract<DateTime>(mc, position.Value());
+        break;
       default:
         throw fun::InvalidArgumentException("Data type not supported.");
     }
@@ -349,11 +371,9 @@ void StatementImpl::AddExtract(ExtractionBase::Ptr extraction) {
     extractors_.Resize(pos + 1);
   }
 
-  extraction->SetEmptyStringIsNull(
-    session_.GetFeature("empty_string_is_null"));
+  extraction->SetEmptyStringIsNull(session_.GetFeature("empty_string_is_null"));
 
-  extraction->SetForceEmptyString(
-    session_.GetFeature("force_empty_string"));
+  extraction->SetForceEmptyString(session_.GetFeature("force_empty_string"));
 
   extractors_[pos].push_back(extraction);
 }
@@ -380,7 +400,7 @@ size_t StatementImpl::ExtractedColumnCount(int data_set) const {
   if (USE_CURRENT_DATA_SET == data_set) {
     data_set = static_cast<int>(cur_data_set_);
   }
-  
+
   if (columns_extracted_.size() > 0) {
     fun_check(data_set >= 0 && data_set < columns_extracted_.size());
     return columns_extracted_[data_set];
@@ -393,7 +413,7 @@ size_t StatementImpl::ExtractedRowCount(int data_set) const {
   if (USE_CURRENT_DATA_SET == data_set) {
     data_set = static_cast<int>(cur_data_set_);
   }
-  
+
   if (extractions().size() > 0) {
     fun_check(data_set >= 0 && data_set < extractors_.size());
     if (extractors_[data_set].size() > 0) {
@@ -408,7 +428,7 @@ size_t StatementImpl::SubTotalRowCount(int data_set) const {
   if (USE_CURRENT_DATA_SET == data_set) {
     data_set = static_cast<int>(cur_data_set_);
   }
-  
+
   if (sub_total_row_count_.size() > 0) {
     fun_check(data_set >= 0 && data_set < sub_total_row_count_.size());
     return sub_total_row_count_[data_set];
@@ -428,5 +448,5 @@ void StatementImpl::InsertHint() {
   // NOOP BY DEFAULT..
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

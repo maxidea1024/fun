@@ -1,24 +1,22 @@
 #include "fun/sql/session_pool.h"
+#include <algorithm>
 #include "fun/sql/session_factory.h"
 #include "fun/sql/sql_exception.h"
-#include <algorithm>
 
 namespace fun {
 namespace sql {
 
-SessionPool::SessionPool( const String& connector,
-                          const String& connection_string,
-                          int32 min_sessions,
-                          int32 max_sessions,
-                          int32 idle_time)
-  : connector_(connector),
-    connection_string_(connection_string),
-    min_sessions_(min_sessions),
-    max_sessions_(max_sessions),
-    idle_time_(idle_time),
-    session_count_(0),
-    janitor_timer_(1000*idle_time, 1000*idle_time/4),
-    shutdown_(false) {
+SessionPool::SessionPool(const String& connector,
+                         const String& connection_string, int32 min_sessions,
+                         int32 max_sessions, int32 idle_time)
+    : connector_(connector),
+      connection_string_(connection_string),
+      min_sessions_(min_sessions),
+      max_sessions_(max_sessions),
+      idle_time_(idle_time),
+      session_count_(0),
+      janitor_timer_(1000 * idle_time, 1000 * idle_time / 4),
+      shutdown_(false) {
   fun::TimerCallback<SessionPool> callback(*this, &SessionPool::OnJanitorTimer);
   janitor_timer_.Start(callback);
 }
@@ -33,8 +31,8 @@ SessionPool::~SessionPool() {
 
 Session SessionPool::Get(const String& name, bool value) {
   Session s = Get();
-  add_feature_map_.insert(AddFeatureMap::value_type(s.GetImpl(),
-    std::make_pair(name, s.GetFeature(name))));
+  add_feature_map_.insert(AddFeatureMap::value_type(
+      s.GetImpl(), std::make_pair(name, s.GetFeature(name))));
   s.SetFeature(name, value);
 
   return s;
@@ -50,11 +48,13 @@ Session SessionPool::Get() {
   fun::Mutex::ScopedLock guard(mutex_);
   if (idle_sessions_.IsEmpty()) {
     if (session_count_ < max_sessions_) {
-      Session new_session(SessionFactory::Instance().Create(connector_, connection_string_));
+      Session new_session(
+          SessionFactory::Instance().Create(connector_, connection_string_));
       ApplySettings(new_session.GetImpl());
       CustomizeSession(new_session);
 
-      PooledSessionHolderPtr holder(new PooledSessionHolder(*this, new_session.GetImpl()));
+      PooledSessionHolderPtr holder(
+          new PooledSessionHolder(*this, new_session.GetImpl()));
       idle_sessions_[holder.Get()] = holder;
       ++session_count_;
     } else {
@@ -77,7 +77,7 @@ void SessionPool::PurgeDeadSessions() {
 
   fun::Mutex::ScopedLock guard(mutex_);
   SessionList::iterator it = idle_sessions_.begin();
-  for (; it != idle_sessions_.end(); ) {
+  for (; it != idle_sessions_.end();) {
     PooledSessionHolderPtr holder = it->second;
     if (!holder->GetSession()->IsConnected()) {
       it = idle_sessions_.erase(it);
@@ -88,9 +88,7 @@ void SessionPool::PurgeDeadSessions() {
   }
 }
 
-int32 SessionPool::Capacity() const {
-  return max_sessions_;
-}
+int32 SessionPool::Capacity() const { return max_sessions_; }
 
 int32 SessionPool::UsedCount() const {
   fun::Mutex::ScopedLock guard(mutex_);
@@ -137,7 +135,8 @@ void SessionPool::SetFeature(const String& name, bool state) {
 
   fun::Mutex::ScopedLock guard(mutex_);
   if (session_count_ > 0) {
-    throw InvalidAccessException("Features can not be set after the first session was created.");
+    throw InvalidAccessException(
+        "Features can not be set after the first session was created.");
   }
 
   feature_map_.insert(FeatureMap::value_type(name, state));
@@ -163,7 +162,8 @@ void SessionPool::SetProperty(const String& name, const fun::Any& value) {
 
   fun::Mutex::ScopedLock guard(mutex_);
   if (session_count_ > 0) {
-    throw InvalidAccessException("Properties can not be set after first session was created.");
+    throw InvalidAccessException(
+        "Properties can not be set after first session was created.");
   }
 
   property_map_.insert(PropertyMap::value_type(name, value));
@@ -210,9 +210,11 @@ void SessionPool::PutBack(PooledSessionHolderPtr holder) {
       holder->GetSession()->Reset();
 
       // reverse settings applied at acquisition time, if any
-      AddPropertyMap::iterator pIt = add_property_map_.find(holder->GetSession());
+      AddPropertyMap::iterator pIt =
+          add_property_map_.find(holder->GetSession());
       if (pIt != add_property_map_.end()) {
-        holder->GetSession()->SetProperty(pIt->second.first, pIt->second.second);
+        holder->GetSession()->SetProperty(pIt->second.first,
+                                          pIt->second.second);
       }
 
       AddFeatureMap::iterator fIt = add_feature_map_.find(holder->GetSession());
@@ -249,9 +251,12 @@ void SessionPool::OnJanitorTimer(fun::Timer&) {
   SessionList::iterator it = idle_sessions_.begin();
   while (session_count_ > min_sessions_ && it != idle_sessions_.end()) {
     PooledSessionHolderPtr holder = it->second;
-    if (holder->IdleTime() > idle_time_ || !holder->GetSession()->IsConnected()) {
-      try { holder->GetSession()->Close(); }
-      catch (...) {}
+    if (holder->IdleTime() > idle_time_ ||
+        !holder->GetSession()->IsConnected()) {
+      try {
+        holder->GetSession()->Close();
+      } catch (...) {
+      }
       it = idle_sessions_.erase(it);
       --session_count_;
     } else {
@@ -276,8 +281,10 @@ void SessionPool::CloseAll(SessionList& session_list) {
   SessionList::iterator it = session_list.begin();
   for (; it != session_list.end();) {
     PooledSessionHolderPtr holder = it->second;
-    try { holder->GetSession()->Close(); }
-    catch (...) {}
+    try {
+      holder->GetSession()->Close();
+    } catch (...) {
+    }
     it = session_list.erase(it);
     if (session_count_ > 0) {
       --session_count_;
@@ -285,5 +292,5 @@ void SessionPool::CloseAll(SessionList& session_list) {
   }
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

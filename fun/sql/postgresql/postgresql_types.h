@@ -11,8 +11,9 @@ namespace sql {
 namespace postgresql {
 
 /**
- * Oid constants duplicated from PostgreSQL "include/postgresql/server/catalog/pg_type.h"
- * because PostgreSQL compile time definitions are too onerous to reproduce for this module
+ * Oid constants duplicated from PostgreSQL
+ * "include/postgresql/server/catalog/pg_type.h" because PostgreSQL compile time
+ * definitions are too onerous to reproduce for this module
  */
 const Oid BOOLOID = 16;
 
@@ -20,16 +21,16 @@ const Oid INT2OID = 21;
 const Oid INT4OID = 23;
 const Oid INT8OID = 20;
 
-const Oid FLOAT8OID = 701; // double
+const Oid FLOAT8OID = 701;  // double
 const Oid FLOAT4OID = 700;
 const Oid NUMERICOID = 1700;
 
 const Oid CHAROID = 18;
-const Oid BPCHAROID = 1042; // fixed length char
+const Oid BPCHAROID = 1042;  // fixed length char
 const Oid VARCHAROID = 1043;
 
-const Oid BYTEAOID = 17; // BLOB
-const Oid TEXTOID = 25; // CLOB
+const Oid BYTEAOID = 17;  // BLOB
+const Oid TEXTOID = 25;   // CLOB
 
 const Oid DATEOID = 1082;
 const Oid TIMEOID = 1083;
@@ -77,24 +78,24 @@ class InputParameter {
   void* _pNonStringVersionRepresentation;
 };
 
-typedef std::vector <InputParameter> InputParameterVector;
-
+typedef std::vector<InputParameter> InputParameterVector;
 
 /**
- * PostgreSQL class to record values for output parameters to capture the results
+ * PostgreSQL class to record values for output parameters to capture the
+ * results
  */
 class OutputParameter {
  public:
   typedef fun::sql::MetaColumn::ColumnDataType CDT;
 
   OutputParameter(CDT field_type, Oid internalFieldType, size_t rowNumber,
-    const char* dataPtr, size_t size, bool IsNull);
+                  const char* dataPtr, size_t size, bool IsNull);
 
   OutputParameter();
   ~OutputParameter();
 
   void setValues(CDT field_type, Oid internalFieldType, size_t rowNumber,
-    const char* dataPtr, size_t size, bool IsNull);
+                 const char* dataPtr, size_t size, bool IsNull);
 
   CDT fieldType() const;
   Oid internalFieldType() const;
@@ -112,32 +113,32 @@ class OutputParameter {
   bool is_null_;
 };
 
-typedef std::vector <OutputParameter> OutputParameterVector;
-
+typedef std::vector<OutputParameter> OutputParameterVector;
 
 /**
  * PostgreSQL connection Info Options free (RAII)
  */
 class PQConnectionInfoOptionsFree {
  public:
-  explicit PQConnectionInfoOptionsFree(PQconninfoOption* aConnectionInfoOptionPtr);
+  explicit PQConnectionInfoOptionsFree(
+      PQconninfoOption* aConnectionInfoOptionPtr);
   ~PQConnectionInfoOptionsFree();
 
  private:
   PQConnectionInfoOptionsFree(const PQConnectionInfoOptionsFree&) = delete;
-  PQConnectionInfoOptionsFree& operator=(const PQConnectionInfoOptionsFree&) = delete;
+  PQConnectionInfoOptionsFree& operator=(const PQConnectionInfoOptionsFree&) =
+      delete;
 
  private:
   PQconninfoOption* connection_info_option_;
 };
-
 
 /**
  * PostgreSQL statement result free (RAII)
  */
 class PQResultClear {
  public:
-  explicit PQResultClear(PGresult * aPQResultPtr);
+  explicit PQResultClear(PGresult* aPQResultPtr);
   ~PQResultClear();
 
  private:
@@ -148,13 +149,12 @@ class PQResultClear {
   PGresult* pg_result_;
 };
 
-
 /**
  * PostgreSQL Cancel Info Options free (RAII)
  */
 class PGCancelFree {
  public:
-  explicit PGCancelFree(PGcancel * aStatementCancelPtr);
+  explicit PGCancelFree(PGcancel* aStatementCancelPtr);
   ~PGCancelFree();
 
  private:
@@ -165,60 +165,56 @@ class PGCancelFree {
   PGcancel* pg_cancel_;
 };
 
-
 //
 // inlines
 //
 
 // InputParameter
 
-inline InputParameter::InputParameter(fun::sql::MetaColumn::ColumnDataType  field_type,
-                                      const void* aDataPtr, size_t theSize)
-  : field_type_(field_type),
-    data_(aDataPtr),
-    size_(theSize),
-    is_binary_(false),
-    _pNonStringVersionRepresentation(0) {
-  if (fun::sql::MetaColumn::FDT_BLOB == field_type_
-   || fun::sql::MetaColumn::FDT_CLOB == field_type_) {
+inline InputParameter::InputParameter(
+    fun::sql::MetaColumn::ColumnDataType field_type, const void* aDataPtr,
+    size_t theSize)
+    : field_type_(field_type),
+      data_(aDataPtr),
+      size_(theSize),
+      is_binary_(false),
+      _pNonStringVersionRepresentation(0) {
+  if (fun::sql::MetaColumn::FDT_BLOB == field_type_ ||
+      fun::sql::MetaColumn::FDT_CLOB == field_type_) {
     is_binary_ = true;
   }
 }
 
 inline InputParameter::InputParameter()
-  : field_type_(fun::sql::MetaColumn::FDT_UNKNOWN),
-    data_(0),
-    size_(0),
-    is_binary_(false),
-    _pNonStringVersionRepresentation(0) {}
+    : field_type_(fun::sql::MetaColumn::FDT_UNKNOWN),
+      data_(0),
+      size_(0),
+      is_binary_(false),
+      _pNonStringVersionRepresentation(0) {}
 
 inline InputParameter::~InputParameter() {}
 
-inline const void* InputParameter::pData() const {
-  return data_;
-}
+inline const void* InputParameter::pData() const { return data_; }
 
 inline fun::sql::MetaColumn::ColumnDataType InputParameter::fieldType() const {
   return field_type_;
 }
 
-inline size_t InputParameter::size() const {
-  return size_;
-}
+inline size_t InputParameter::size() const { return size_; }
 
-inline bool InputParameter::IsBinary() const {
-  return is_binary_;
-}
+inline bool InputParameter::IsBinary() const { return is_binary_; }
 
-inline void InputParameter::SetStringVersionRepresentation(const String& aString) {
+inline void InputParameter::SetStringVersionRepresentation(
+    const String& aString) {
   _pNonStringVersionRepresentation = 0;
   _stringVersionRepresentation = aString;
   size_ = _stringVersionRepresentation.size();
 }
 
-inline void InputParameter::SetNonStringVersionRepresentation(const void* aPtr, size_t theDataLength) {
+inline void InputParameter::SetNonStringVersionRepresentation(
+    const void* aPtr, size_t theDataLength) {
   _stringVersionRepresentation = String();
-  _pNonStringVersionRepresentation = const_cast<void *> (aPtr);
+  _pNonStringVersionRepresentation = const_cast<void*>(aPtr);
   size_ = theDataLength;
 }
 
@@ -246,48 +242,42 @@ inline const void* InputParameter::pInternalRepresentation() const {
       return _pNonStringVersionRepresentation;
 
     case fun::sql::MetaColumn::FDT_UNKNOWN:
-    default: return nullptr;
+    default:
+      return nullptr;
   }
 }
 
-
 // OutputParameter
 
-inline OutputParameter::OutputParameter(fun::sql::MetaColumn::ColumnDataType field_type,
-                                        Oid anInternalFieldType,
-                                        size_t aRowNumber,
-                                        const char* aDataPtr,
-                                        size_t theSize,
-                                        bool anIsNull)
-  : field_type_(field_type),
-    internal_field_type_(anInternalFieldType),
-    row_number_(aRowNumber),
-    data_(aDataPtr),
-    size_(theSize),
-    is_null_(anIsNull) {}
+inline OutputParameter::OutputParameter(
+    fun::sql::MetaColumn::ColumnDataType field_type, Oid anInternalFieldType,
+    size_t aRowNumber, const char* aDataPtr, size_t theSize, bool anIsNull)
+    : field_type_(field_type),
+      internal_field_type_(anInternalFieldType),
+      row_number_(aRowNumber),
+      data_(aDataPtr),
+      size_(theSize),
+      is_null_(anIsNull) {}
 
 inline OutputParameter::OutputParameter()
-  : field_type_(fun::sql::MetaColumn::FDT_UNKNOWN),
-    internal_field_type_(static_cast<Oid>(-1)),
-    row_number_(0),
-    data_(0),
-    size_(0),
-    is_null_(true) {}
+    : field_type_(fun::sql::MetaColumn::FDT_UNKNOWN),
+      internal_field_type_(static_cast<Oid>(-1)),
+      row_number_(0),
+      data_(0),
+      size_(0),
+      is_null_(true) {}
 
 inline OutputParameter::~OutputParameter() {}
 
-inline void OutputParameter::setValues( fun::sql::MetaColumn::ColumnDataType field_type,
-                                        Oid anInternalFieldType,
-                                        size_t aRowNumber,
-                                        const char* aDataPtr,
-                                        size_t theSize,
-                                        bool anIsNull) {
-    field_type_ = field_type;
-    internal_field_type_ = anInternalFieldType;
-    row_number_ = aRowNumber;
-    data_ = aDataPtr;
-    size_ = theSize;
-    is_null_ = anIsNull;
+inline void OutputParameter::setValues(
+    fun::sql::MetaColumn::ColumnDataType field_type, Oid anInternalFieldType,
+    size_t aRowNumber, const char* aDataPtr, size_t theSize, bool anIsNull) {
+  field_type_ = field_type;
+  internal_field_type_ = anInternalFieldType;
+  row_number_ = aRowNumber;
+  data_ = aDataPtr;
+  size_ = theSize;
+  is_null_ = anIsNull;
 }
 
 inline fun::sql::MetaColumn::ColumnDataType OutputParameter::fieldType() const {
@@ -298,27 +288,19 @@ inline Oid OutputParameter::internalFieldType() const {
   return internal_field_type_;
 }
 
-inline size_t OutputParameter::rowNumber() const {
-  return row_number_;
-}
+inline size_t OutputParameter::rowNumber() const { return row_number_; }
 
-inline const char* OutputParameter::pData() const {
-  return data_;
-}
+inline const char* OutputParameter::pData() const { return data_; }
 
-inline size_t OutputParameter::size() const {
-  return size_;
-}
+inline size_t OutputParameter::size() const { return size_; }
 
-inline bool OutputParameter::IsNull() const {
-  return is_null_;
-}
-
+inline bool OutputParameter::IsNull() const { return is_null_; }
 
 // PQConnectionInfoOptionsFree
 
-inline PQConnectionInfoOptionsFree::PQConnectionInfoOptionsFree(PQconninfoOption* aConnectionInfoOptionPtr)
-  : connection_info_option_(aConnectionInfoOptionPtr) {}
+inline PQConnectionInfoOptionsFree::PQConnectionInfoOptionsFree(
+    PQconninfoOption* aConnectionInfoOptionPtr)
+    : connection_info_option_(aConnectionInfoOptionPtr) {}
 
 inline PQConnectionInfoOptionsFree::~PQConnectionInfoOptionsFree() {
   if (connection_info_option_) {
@@ -327,11 +309,10 @@ inline PQConnectionInfoOptionsFree::~PQConnectionInfoOptionsFree() {
   }
 }
 
-
 // PQResultClear
 
 inline PQResultClear::PQResultClear(PGresult* aPQResultPtr)
-  : pg_result_(aPQResultPtr) {}
+    : pg_result_(aPQResultPtr) {}
 
 inline PQResultClear::~PQResultClear() {
   if (pg_result_) {
@@ -340,11 +321,10 @@ inline PQResultClear::~PQResultClear() {
   }
 }
 
-
 // PGCancelFree
 
 inline PGCancelFree::PGCancelFree(PGcancel* aStatementCancelPtr)
-  : pg_cancel_(aStatementCancelPtr) {}
+    : pg_cancel_(aStatementCancelPtr) {}
 
 inline PGCancelFree::~PGCancelFree() {
   if (pg_cancel_) {
@@ -353,6 +333,6 @@ inline PGCancelFree::~PGCancelFree() {
   }
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

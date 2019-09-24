@@ -14,7 +14,8 @@ namespace postgresql {
 /**
  * Implements SessionImpl interface
  */
-class FUN_POSTGRESQL_API SessionImpl: public fun::sql::SessionImplBase<SessionImpl> {
+class FUN_POSTGRESQL_API SessionImpl
+    : public fun::sql::SessionImplBase<SessionImpl> {
  public:
   /**
    * Creates the SessionImpl. Opens a connection to the database
@@ -22,8 +23,8 @@ class FUN_POSTGRESQL_API SessionImpl: public fun::sql::SessionImplBase<SessionIm
    * Connection string format:
    * <str> == <assignment> | <assignment> ' ' <str>
    * <assignment> == <name> '=' <value>
-   * <name> == 'host' | 'port' | 'user' | 'password' | 'dbname' | 'connect_timeout'
-   * <value> == [~;]*
+   * <name> == 'host' | 'port' | 'user' | 'password' | 'dbname' |
+   * 'connect_timeout' <value> == [~;]*
    *
    * consult postgres documentation for other parameters
    */
@@ -91,7 +92,8 @@ class FUN_POSTGRESQL_API SessionImpl: public fun::sql::SessionImplBase<SessionIm
   bool CanTransact() const;
 
   /**
-   * Returns true if a transaction is a transaction is in progress, false otherwise.
+   * Returns true if a transaction is a transaction is in progress, false
+   * otherwise.
    */
   bool IsInTransaction() const;
 
@@ -153,18 +155,13 @@ class FUN_POSTGRESQL_API SessionImpl: public fun::sql::SessionImplBase<SessionIm
   size_t timeout_;
 };
 
-
 //
 // inlines
 //
 
-inline bool SessionImpl::CanTransact() const {
-  return true;
-}
+inline bool SessionImpl::CanTransact() const { return true; }
 
-inline SessionHandle& SessionImpl::GetHandle() {
-  return session_handle_;
-}
+inline SessionHandle& SessionImpl::GetHandle() { return session_handle_; }
 
 inline const String& SessionImpl::GetConnectorName() const {
   return connector_name_;
@@ -174,10 +171,8 @@ inline bool SessionImpl::IsTransactionIsolation(uint32 ti) const {
   return GetTransactionIsolation() == ti;
 }
 
-inline size_t SessionImpl::GetConnectionTimeout() const {
-  return timeout_;
-}
+inline size_t SessionImpl::GetConnectionTimeout() const { return timeout_; }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

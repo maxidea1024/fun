@@ -1,11 +1,11 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/base/shared_ptr.h"
+#include <algorithm>
+#include <vector>
 #include "fun/base/dynamic/var_holder.h"
 #include "fun/base/exception.h"
-#include <vector>
-#include <algorithm>
+#include "fun/base/shared_ptr.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -30,33 +30,29 @@ class LOB {
   /**
    * Creates an empty LOB.
    */
-  LOB()
-    : content_(new std::vector<T>()) {}
+  LOB() : content_(new std::vector<T>()) {}
 
   /**
    * Creates the LOB, content is deep-copied.
    */
-  LOB(const std::vector<T>& content)
-    : content_(new std::vector<T>(content)) {}
+  LOB(const std::vector<T>& content) : content_(new std::vector<T>(content)) {}
 
   /**
    * Creates the LOB by deep-copying content.
    */
-  LOB(const T* const content, size_t size):
-    content_(new std::vector<T>(content, content + size)) {
-  }
+  LOB(const T* const content, size_t size)
+      : content_(new std::vector<T>(content, content + size)) {}
 
   /**
    * Creates a LOB from a string.
    */
   LOB(const std::basic_string<T>& content)
-    : content_(new std::vector<T>(content.begin(), content.end())) {}
+      : content_(new std::vector<T>(content.begin(), content.end())) {}
 
   /**
    * Creates a LOB by copying another one.
    */
-  LOB(const LOB& other)
-    : content_(other.content_) {}
+  LOB(const LOB& other) : content_(other.content_) {}
 
   /**
    * Destroys the LOB.
@@ -66,7 +62,7 @@ class LOB {
   /**
    * Assignment operator.
    */
-  LOB& operator = (const LOB& other) {
+  LOB& operator=(const LOB& other) {
     LOB tmp(other);
     Swap(tmp);
     return *this;
@@ -75,30 +71,26 @@ class LOB {
   /**
    * Compares for equality LOB by value.
    */
-  bool operator == (const LOB& other) const {
+  bool operator==(const LOB& other) const {
     return *content_ == *other.content_;
   }
 
   /**
    * Compares for inequality LOB by value.
    */
-  bool operator != (const LOB& other) const {
+  bool operator!=(const LOB& other) const {
     return *content_ != *other.content_;
   }
 
   /**
    * Swaps the LOB with another one.
    */
-  void Swap(LOB& other) {
-    fun::Swap(content_, other.content_);
-  }
+  void Swap(LOB& other) { fun::Swap(content_, other.content_); }
 
   /**
    * Returns the content.
    */
-  const std::vector<T>& GetContent() const {
-    return *content_;
-  }
+  const std::vector<T>& GetContent() const { return *content_; }
 
   /**
    * Returns the raw content.
@@ -135,7 +127,7 @@ class LOB {
    */
   void AppendRaw(const T* pChar, size_t count) {
     fun_check_dbg(pChar);
-    content_->insert(content_->end(), pChar, pChar+count);
+    content_->insert(content_->end(), pChar, pChar + count);
   }
 
   /**
@@ -153,33 +145,23 @@ class LOB {
   /**
    * Trims the internal storage excess capacity.
    */
-  void Compact() {
-    std::vector<T>(*content_).Swap(*content_);
-  }
+  void Compact() { std::vector<T>(*content_).Swap(*content_); }
 
-  Iterator begin() const {
-    return content_->begin();
-  }
+  Iterator begin() const { return content_->begin(); }
 
-  Iterator end() const {
-    return content_->end();
-  }
+  Iterator end() const { return content_->end(); }
 
   /**
    * Returns the size of the LOB in bytes.
    */
-  size_t size() const {
-    return static_cast<size_t>(content_->size());
-  }
+  size_t size() const { return static_cast<size_t>(content_->size()); }
 
  private:
   ContentPtr content_;
 };
 
-
 typedef LOB<unsigned char> BLOB;
-typedef LOB<char         > CLOB;
-
+typedef LOB<char> CLOB;
 
 //
 // inlines
@@ -190,9 +172,8 @@ inline void Swap(LOB<T>& b1, LOB<T>& b2) {
   b1.Swap(b2);
 }
 
-} // namespace sql
-} // namespace fun
-
+}  // namespace sql
+}  // namespace fun
 
 namespace std {
 
@@ -212,8 +193,7 @@ inline void Swap<fun::sql::CLOB>(fun::sql::CLOB& c1, fun::sql::CLOB& c2) {
   c1.Swap(c2);
 }
 
-} // namespace std
-
+}  // namespace std
 
 //
 // VarHolderImpl<LOB>
@@ -228,21 +208,15 @@ class VarHolderImpl<fun::sql::BLOB> : public VarHolder {
   VarHolderImpl(const fun::sql::BLOB& val) : val_(val) {}
   ~VarHolderImpl() {}
 
-  const std::type_info& Type() const {
-    return typeid(fun::sql::BLOB);
-  }
+  const std::type_info& Type() const { return typeid(fun::sql::BLOB); }
 
-  void Convert(String& val) const {
-    val.Assign(val_.begin(), val_.end());
-  }
+  void Convert(String& val) const { val.Assign(val_.begin(), val_.end()); }
 
   VarHolder* Clone(Placeholder<VarHolder>* var_holder = nullptr) const {
     return CloneHolder(var_holder, val_);
   }
 
-  const fun::sql::BLOB& Value() const {
-    return val_;
-  }
+  const fun::sql::BLOB& Value() const { return val_; }
 
  private:
   VarHolderImpl();
@@ -256,21 +230,15 @@ class VarHolderImpl<fun::sql::CLOB> : public VarHolder {
   VarHolderImpl(const fun::sql::CLOB& val) : val_(val) {}
   ~VarHolderImpl() {}
 
-  const std::type_info& Type() const {
-    return typeid(fun::sql::CLOB);
-  }
+  const std::type_info& Type() const { return typeid(fun::sql::CLOB); }
 
-  void Convert(String& val) const {
-    val.Assign(val_.begin(), val_.end());
-  }
+  void Convert(String& val) const { val.Assign(val_.begin(), val_.end()); }
 
   VarHolder* Clone(Placeholder<VarHolder>* var_holder = nullptr) const {
     return CloneHolder(var_holder, val_);
   }
 
-  const fun::sql::CLOB& Value() const {
-    return val_;
-  }
+  const fun::sql::CLOB& Value() const { return val_; }
 
  private:
   VarHolderImpl();
@@ -278,5 +246,5 @@ class VarHolderImpl<fun::sql::CLOB> : public VarHolder {
   fun::sql::CLOB val_;
 };
 
-} // namespace sql
-} // namespace fun
+}  // namespace Dynamic
+}  // namespace fun

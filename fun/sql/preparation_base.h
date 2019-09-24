@@ -1,8 +1,8 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/preparator_base.h"
 #include "fun/base/shared_ptr.h"
+#include "fun/sql/preparator_base.h"
+#include "fun/sql/sql.h"
 
 #include <cstddef>
 
@@ -35,7 +35,7 @@ class FUN_SQL_API PreparationBase {
  protected:
   PreparationBase();
   PreparationBase(const PreparationBase&);
-  PreparationBase& operator = (const PreparationBase&);
+  PreparationBase& operator=(const PreparationBase&);
 
   /**
    * Returns the preparation object
@@ -45,7 +45,6 @@ class FUN_SQL_API PreparationBase {
   PreparatorPtr preparator_;
 };
 
-
 //
 // inlines
 //
@@ -54,5 +53,5 @@ inline PreparationBase::PreparatorPtr PreparationBase::GetPreparation() {
   return preparator_;
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

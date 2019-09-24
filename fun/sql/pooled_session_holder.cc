@@ -3,11 +3,11 @@
 namespace fun {
 namespace sql {
 
-PooledSessionHolder::PooledSessionHolder(SessionPool& owner, SessionImpl::Ptr session_impl)
-  : onwer_(owner),
-    impl_(session_impl) {}
+PooledSessionHolder::PooledSessionHolder(SessionPool& owner,
+                                         SessionImpl::Ptr session_impl)
+    : onwer_(owner), impl_(session_impl) {}
 
 PooledSessionHolder::~PooledSessionHolder() {}
 
-} // namespace sql
-} // namespace fun::sql
+}  // namespace sql
+}  // namespace fun

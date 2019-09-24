@@ -1,12 +1,13 @@
 #include "fun/sql/odbc/odbc_statement_impl.h"
-#include "fun/sql/odbc/connection_handle.h"
-#include "fun/sql/odbc/utility.h"
-#include "fun/sql/odbc/odbc_exception.h"
-#include "fun/sql/preparation_base.h"
 #include "fun/base/exception.h"
+#include "fun/sql/odbc/connection_handle.h"
+#include "fun/sql/odbc/odbc_exception.h"
+#include "fun/sql/odbc/utility.h"
+#include "fun/sql/preparation_base.h"
 
 #ifdef FUN_PLATFORM_WINDOWS_FAMILY
-#pragma warning(disable:4312)// 'type cast' : conversion from 'size_t' to 'SQLPOINTER' of greater size
+#pragma warning(disable : 4312)  // 'type cast' : conversion from 'size_t' to
+                                 // 'SQLPOINTER' of greater size
 #endif
 
 using fun::DataFormatException;
@@ -18,15 +19,15 @@ namespace odbc {
 const String OdbcStatementImpl::INVALID_CURSOR_STATE = "24000";
 
 OdbcStatementImpl::OdbcStatementImpl(SessionImpl& session)
-  : fun::sql::StatementImpl(session),
-    connection_(session.dbc()),
-    stmt_(session.dbc()),
-    step_called_(false),
-    next_response_(0),
-    prepared_(false),
-    affected_row_count_(0),
-    can_compile_(true),
-    insert_hint_(false) {
+    : fun::sql::StatementImpl(session),
+      connection_(session.dbc()),
+      stmt_(session.dbc()),
+      step_called_(false),
+      next_response_(0),
+      prepared_(false),
+      affected_row_count_(0),
+      can_compile_(true),
+      insert_hint_(false) {
   int query_timeout = session.GetQueryTimeout();
   if (query_timeout >= 0) {
     SQLULEN uqt = static_cast<SQLULEN>(query_timeout);
@@ -34,11 +35,15 @@ OdbcStatementImpl::OdbcStatementImpl(SessionImpl& session)
   }
 
   SQLSMALLINT t;
-  SQLRETURN r = fun::sql::odbc::SQLGetInfo(connection_, SQL_DRIVER_NAME, NULL, 0, &t);
+  SQLRETURN r =
+      fun::sql::odbc::SQLGetInfo(connection_, SQL_DRIVER_NAME, NULL, 0, &t);
   if (!Utility::IsError(r) && t > 0) {
     String server_string;
     server_string.resize(static_cast<size_t>(t) + 2);
-    r = fun::sql::odbc::SQLGetInfo(connection_, SQL_DRIVER_NAME, &server_string[0], SQLSMALLINT((server_string.length() - 1) * sizeof(server_string[0])), &t);
+    r = fun::sql::odbc::SQLGetInfo(
+        connection_, SQL_DRIVER_NAME, &server_string[0],
+        SQLSMALLINT((server_string.length() - 1) * sizeof(server_string[0])),
+        &t);
   }
 }
 
@@ -68,16 +73,19 @@ void OdbcStatementImpl::CompileImpl() {
 
   AddPreparator();
 
-  Binder::ParameterBinding bind = GetSession().GetFeature("autoBind") ?
-    Binder::PB_IMMEDIATE : Binder::PB_AT_EXEC;
+  Binder::ParameterBinding bind = GetSession().GetFeature("autoBind")
+                                      ? Binder::PB_IMMEDIATE
+                                      : Binder::PB_AT_EXEC;
 
   TypeInfo* pDT = nullptr;
   try {
     fun::Any dti = GetSession().GetProperty("dataTypeInfo");
     pDT = AnyCast<TypeInfo*>(dti);
-  } catch (NotSupportedException&) {}
+  } catch (NotSupportedException&) {
+  }
 
-  const size_t maxFieldSize = AnyCast<size_t>(GetSession().GetProperty("maxFieldSize"));
+  const size_t maxFieldSize =
+      AnyCast<size_t>(GetSession().GetProperty("maxFieldSize"));
 
   binder_ = new Binder(stmt_, maxFieldSize, bind, pDT, insert_hint_);
 
@@ -85,7 +93,8 @@ void OdbcStatementImpl::CompileImpl() {
 }
 
 bool OdbcStatementImpl::CanMakeExtractors() {
-  return StatementImpl::CanMakeExtractors() && GetSession().GetFeature("MakeExtractorsBeforeExecute");
+  return StatementImpl::CanMakeExtractors() &&
+         GetSession().GetFeature("MakeExtractorsBeforeExecute");
 }
 
 void OdbcStatementImpl::MakeExtractors(size_t count) {
@@ -112,10 +121,12 @@ bool OdbcStatementImpl::AddPreparator(bool add_always) {
     if (statement.IsEmpty())
       throw OdbcException("Empty statements are illegal");
 
-    Preparator::DataExtraction ext = GetSession().GetFeature("autoExtract") ?
-          Preparator::DE_BOUND : Preparator::DE_MANUAL;
+    Preparator::DataExtraction ext = GetSession().GetFeature("autoExtract")
+                                         ? Preparator::DE_BOUND
+                                         : Preparator::DE_MANUAL;
 
-    size_t maxFieldSize = AnyCast<size_t>(GetSession().GetProperty("maxFieldSize"));
+    size_t maxFieldSize =
+        AnyCast<size_t>(GetSession().GetProperty("maxFieldSize"));
 
     prep = new Preparator(stmt_, statement, maxFieldSize, ext);
   } else {
@@ -143,10 +154,12 @@ void OdbcStatementImpl::DoPrepare() {
     if (it != itEnd && (*it)->IsBulk()) {
       size_t limit = GetExtractionLimit();
       if (limit == Limit::LIMIT_UNLIMITED) {
-        throw InvalidArgumentException("Bulk operation not allowed without limit.");
+        throw InvalidArgumentException(
+            "Bulk operation not allowed without limit.");
       }
-      CheckError(fun::sql::odbc::SQLSetStmtAttr(stmt_, SQL_ATTR_ROW_ARRAY_SIZE, (SQLPOINTER) limit, 0),
-                  "SQLSetStmtAttr(SQL_ATTR_ROW_ARRAY_SIZE)");
+      CheckError(fun::sql::odbc::SQLSetStmtAttr(stmt_, SQL_ATTR_ROW_ARRAY_SIZE,
+                                                (SQLPOINTER)limit, 0),
+                 "SQLSetStmtAttr(SQL_ATTR_ROW_ARRAY_SIZE)");
     }
 
     PreparationBase::Ptr pAP = 0;
@@ -191,8 +204,10 @@ void OdbcStatementImpl::BindImpl() {
   DoBind();
   SQLRETURN rc = SQLExecute(stmt_);
 
-  if (SQL_NEED_DATA == rc) PutData();
-  else CheckError(rc, "SQLExecute()");
+  if (SQL_NEED_DATA == rc)
+    PutData();
+  else
+    CheckError(rc, "SQLExecute()");
 
   binder_->synchronize();
 }
@@ -204,12 +219,12 @@ void OdbcStatementImpl::PutData() {
 
   while (SQL_NEED_DATA == (rc = SQLParamData(stmt_, &param))) {
     if (param) {
-      dataSize = (SQLINTEGER) binder_->GetParameterSize(param);
+      dataSize = (SQLINTEGER)binder_->GetParameterSize(param);
 
       if (Utility::IsError(SQLPutData(stmt_, param, dataSize))) {
         throw StatementException(stmt_, "SQLPutData()");
       }
-    } else { // if param is null pointer, do a dummy call
+    } else {  // if param is null pointer, do a dummy call
       char dummy = 0;
       if (Utility::IsError(SQLPutData(stmt_, &dummy, 0))) {
         throw StatementException(stmt_, "SQLPutData()");
@@ -230,10 +245,11 @@ void OdbcStatementImpl::Clear() {
     bool ignore_error = false;
 
     const StatementDiagnostics& diagnostics = err.diagnostics();
-    //ignore "Invalid cursor state" error
+    // ignore "Invalid cursor state" error
     //(returned by 3.x drivers when cursor is not opened)
     for (int i = 0; i < diagnostics.count(); ++i) {
-      if ((ignore_error = (INVALID_CURSOR_STATE == String(diagnostics.sqlState(i))))) {
+      if ((ignore_error =
+               (INVALID_CURSOR_STATE == String(diagnostics.sqlState(i))))) {
         break;
       }
     }
@@ -290,12 +306,15 @@ bool OdbcStatementImpl::HasNext() {
           AddPreparator();
         } else {
           if (NextResultSet()) {
-            if (!AddPreparator(false)) { // skip the result set if it has no columns
+            if (!AddPreparator(
+                    false)) {  // skip the result set if it has no columns
               continue;
             }
 
             FillColumns(GetCurrentDataSet() + 1);
-            StatementImpl::MakeExtractors(preparations_.back()->columns(), static_cast<Position::Type>(GetCurrentDataSet() + 1));
+            StatementImpl::MakeExtractors(
+                preparations_.back()->columns(),
+                static_cast<Position::Type>(GetCurrentDataSet() + 1));
             ActivateNextDataSet();
           } else {
             return false;
@@ -349,7 +368,7 @@ size_t OdbcStatementImpl::Next() {
 String OdbcStatementImpl::GetNativeSQL() {
   String statement = ToString();
 
-  SQLINTEGER length = (SQLINTEGER) statement.size() * 2;
+  SQLINTEGER length = (SQLINTEGER)statement.size() * 2;
 
   char* native_ptr = nullptr;
   SQLINTEGER retlen = length;
@@ -358,16 +377,13 @@ String OdbcStatementImpl::GetNativeSQL() {
     native_ptr = new char[retlen];
     UnsafeMemory::Memset(pNative, 0, retlen);
     length = retlen;
-    if (Utility::IsError(SQLNativeSql(connection_,
-        (SQLCHAR*) statement.c_str(),
-        (SQLINTEGER) statement.size(),
-        (SQLCHAR*) native_ptr,
-        length,
-        &retlen))) {
+    if (Utility::IsError(SQLNativeSql(connection_, (SQLCHAR*)statement.c_str(),
+                                      (SQLINTEGER)statement.size(),
+                                      (SQLCHAR*)native_ptr, length, &retlen))) {
       delete[] native_ptr;
       throw ConnectionException(connection_, "SQLNativeSql()");
     }
-    ++retlen;//accommodate for terminating '\0'
+    ++retlen;  // accommodate for terminating '\0'
   } while (retlen > length);
 
   String sql(native_ptr);
@@ -384,7 +400,8 @@ void OdbcStatementImpl::CheckError(SQLRETURN rc, const String& msg) {
     std::ostringstream os;
     os << std::endl << "Requested sql statement: " << ToString() << std::endl;
     os << "Native sql statement: " << GetNativeSQL() << std::endl;
-    String str(msg); str += os.str();
+    String str(msg);
+    str += os.str();
 
     throw StatementException(stmt_, str);
   }
@@ -393,7 +410,8 @@ void OdbcStatementImpl::CheckError(SQLRETURN rc, const String& msg) {
 void OdbcStatementImpl::FillColumns(size_t data_set_pos) {
   fun_check_dbg(data_set_pos < preparations_.size());
   fun_check_dbg(preparations_[data_set_pos]);
-  size_t col_count = static_cast<size_t>(preparations_[data_set_pos]->columns());
+  size_t col_count =
+      static_cast<size_t>(preparations_[data_set_pos]->columns());
   if (data_set_pos >= column_ptrs_.size()) {
     column_ptrs_.resize(data_set_pos + 1);
   }
@@ -404,8 +422,10 @@ void OdbcStatementImpl::FillColumns(size_t data_set_pos) {
 }
 
 bool OdbcStatementImpl::IsStoredProcedure() const {
-  static const std::set<String> tagsProc = { "exec " };
-  static const std::set<String> tagsNonProc = { "select ", "insert ", "update ", "delete ", "create ", "drop ", "alter ", "truncate " };
+  static const std::set<String> tagsProc = {"exec "};
+  static const std::set<String> tagsNonProc = {"select ", "insert ",  "update ",
+                                               "delete ", "create ",  "drop ",
+                                               "alter ",  "truncate "};
 
   String str = ToString();
   if (trimInPlace(str).size() < 2) {
@@ -431,7 +451,8 @@ bool OdbcStatementImpl::IsStoredProcedure() const {
   return true;
 }
 
-const MetaColumn& OdbcStatementImpl::metaColumn(size_t pos, size_t data_set) const {
+const MetaColumn& OdbcStatementImpl::metaColumn(size_t pos,
+                                                size_t data_set) const {
   fun_check_dbg(data_set < column_ptrs_.size());
 
   size_t sz = column_ptrs_[data_set].size();
@@ -454,10 +475,8 @@ int OdbcStatementImpl::AffectedRowCount() const {
   return static_cast<int>(affected_row_count_);
 }
 
-void OdbcStatementImpl::InsertHint() {
-  insert_hint_ = true;
-}
+void OdbcStatementImpl::InsertHint() { insert_hint_ = true; }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

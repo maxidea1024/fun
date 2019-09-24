@@ -1,25 +1,25 @@
 ﻿#pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/binding_base.h"
-#include "fun/sql/extraction_base.h"
-#include "fun/sql/range.h"
-#include "fun/sql/bulk.h"
-#include "fun/sql/column.h"
-#include "fun/sql/extraction.h"
-#include "fun/sql/bulk_extraction.h"
-#include "fun/sql/session_impl.h"
-#include "fun/ref_counted_object.h"
+#include "fun/base/exception.h"
+#include "fun/base/format.h"
 #include "fun/base/shared_ptr.h"
 #include "fun/base/string.h"
-#include "fun/base/format.h"
-#include "fun/base/exception.h"
+#include "fun/ref_counted_object.h"
+#include "fun/sql/binding_base.h"
+#include "fun/sql/bulk.h"
+#include "fun/sql/bulk_extraction.h"
+#include "fun/sql/column.h"
+#include "fun/sql/extraction.h"
+#include "fun/sql/extraction_base.h"
+#include "fun/sql/range.h"
+#include "fun/sql/session_impl.h"
+#include "fun/sql/sql.h"
 
-#include <vector>
-#include <list>
 #include <deque>
-#include <string>
+#include <list>
 #include <sstream>
+#include <string>
+#include <vector>
 
 namespace fun {
 namespace sql {
@@ -27,7 +27,8 @@ namespace sql {
 class RecordSet;
 
 /**
- * StatementImpl interface that subclasses must implement to define database dependent query execution.
+ * StatementImpl interface that subclasses must implement to define database
+ * dependent query execution.
  *
  * StatementImpl's are noncopyable.
  */
@@ -143,7 +144,8 @@ class FUN_SQL_API StatementImpl {
   size_t Execute(const bool& reset = true);
 
   /**
-   * Resets the statement, so that we can reuse all bindings and re-execute again.
+   * Resets the statement, so that we can reuse all bindings and re-execute
+   * again.
    */
   void Reset();
 
@@ -204,7 +206,7 @@ class FUN_SQL_API StatementImpl {
    */
   virtual int AffectedRowCount() const = 0;
 
-  //TODO 함수명을 어떤식으로하는게 좋을까??
+  // TODO 함수명을 어떤식으로하는게 좋을까??
   /**
    * Returns column meta data.
    */
@@ -300,7 +302,7 @@ class FUN_SQL_API StatementImpl {
    */
   size_t SubTotalRowCount(int data_set = USE_CURRENT_DATA_SET) const;
 
-    //@ deprecated
+  //@ deprecated
   /**
    * Replaced with SubTotalRowCount() and GetTotalRowCount().
    */
@@ -413,7 +415,7 @@ class FUN_SQL_API StatementImpl {
    */
   size_t ActivatePreviousDataSet();
 
-  //TODO 이름을 좀더 의미 있게 바꿔주어야하지 않을까??
+  // TODO 이름을 좀더 의미 있게 바꿔주어야하지 않을까??
   /**
    * Activate first data set
    */
@@ -455,22 +457,21 @@ class FUN_SQL_API StatementImpl {
   void ResetExtraction();
 
   template <typename C>
-  SharedPtr<InternalExtraction<C> >
-  CreateExtract(const MetaColumn& mc, size_t position) {
+  SharedPtr<InternalExtraction<C> > CreateExtract(const MetaColumn& mc,
+                                                  size_t position) {
     C* data = new C;
     Column<C>* col = new Column<C>(mc, data);
     return new InternalExtraction<C>(*data, col, uint32(position));
   }
 
   template <typename C>
-  SharedPtr<InternalBulkExtraction<C> >
-  CreateBulkExtract(const MetaColumn& mc, size_t position) {
+  SharedPtr<InternalBulkExtraction<C> > CreateBulkExtract(const MetaColumn& mc,
+                                                          size_t position) {
     C* data = new C;
     Column<C>* col = new Column<C>(mc, data);
-    return new InternalBulkExtraction<C>(*data,
-      col,
-      static_cast<uint32>(GetExtractionLimit()),
-      Position(static_cast<uint32>(position)));
+    return new InternalBulkExtraction<C>(
+        *data, col, static_cast<uint32>(GetExtractionLimit()),
+        Position(static_cast<uint32>(position)));
   }
 
   /**
@@ -491,11 +492,14 @@ class FUN_SQL_API StatementImpl {
 
     switch (storage_) {
       case STORAGE_DEQUE_IMPL:
-        storage = DEQUE; break;
+        storage = DEQUE;
+        break;
       case STORAGE_VECTOR_IMPL:
-        storage = VECTOR; break;
+        storage = VECTOR;
+        break;
       case STORAGE_LIST_IMPL:
-        storage = LIST; break;
+        storage = LIST;
+        break;
       case STORAGE_UNKNOWN_IMPL:
         storage = AnyCast<String>(GetSession().GetProperty("storage"));
         break;
@@ -581,14 +585,15 @@ class FUN_SQL_API StatementImpl {
   bool IsBulkSupported() const;
 
   /**
-   * Formats the sql string by filling in placeholders with values from supplied vector.
+   * Formats the sql string by filling in placeholders with values from supplied
+   * vector.
    */
   void FormatSql(std::vector<Any>& arguments);
 
   void AssignSubTotal(bool reset);
 
   StatementImpl(const StatementImpl& stmt);
-  StatementImpl& operator = (const StatementImpl& stmt);
+  StatementImpl& operator=(const StatementImpl& stmt);
 
   typedef std::vector<size_t> CountVec;
 
@@ -611,7 +616,6 @@ class FUN_SQL_API StatementImpl {
   friend class RecordSet;
 };
 
-
 //
 // inlines
 //
@@ -621,17 +625,13 @@ inline void StatementImpl::AddBind(BindingBase::Ptr binding) {
   bindings_.push_back(binding);
 }
 
-inline String StatementImpl::ToString() const {
-  return ostr_.str();
-}
+inline String StatementImpl::ToString() const { return ostr_.str(); }
 
 inline const BindingBaseVec& StatementImpl::GetBindings() const {
   return bindings_;
 }
 
-inline BindingBaseVec& StatementImpl::GetBindings() {
-  return bindings_;
-}
+inline BindingBaseVec& StatementImpl::GetBindings() { return bindings_; }
 
 inline const ExtractionBaseVec& StatementImpl::GetExtractions() const {
   fun_check(cur_data_set_ < extractors_.size());
@@ -643,17 +643,11 @@ inline ExtractionBaseVec& StatementImpl::GetExtractions() {
   return extractors_[cur_data_set_];
 }
 
-inline StatementImpl::State StatementImpl::GetState() const {
-  return state_;
-}
+inline StatementImpl::State StatementImpl::GetState() const { return state_; }
 
-inline SessionImpl& StatementImpl::GetSession() {
-  return session_;
-}
+inline SessionImpl& StatementImpl::GetSession() { return session_; }
 
-inline void StatementImpl::SetStorage(Storage storage) {
-  storage_ = storage;
-}
+inline void StatementImpl::SetStorage(Storage storage) { storage_ = storage; }
 
 inline StatementImpl::Storage StatementImpl::GetStorage() const {
   return storage_;
@@ -682,21 +676,17 @@ inline size_t StatementImpl::DataSetCount() const {
   return static_cast<size_t>(extractors_.size());
 }
 
-inline bool StatementImpl::IsStoredProcedure() const {
-  return false;
-}
+inline bool StatementImpl::IsStoredProcedure() const { return false; }
 
 inline bool StatementImpl::IsNull(size_t col, size_t row) const {
   try {
     return extractions().at(col)->IsNull(row);
-  } catch (std::out_of_range& ex) { //TODO corrent exception handling...
+  } catch (std::out_of_range& ex) {  // TODO corrent exception handling...
     throw RangeException(ex.what());
   }
 }
 
-inline size_t StatementImpl::GetCurrentDataSet() const {
-  return cur_data_set_;
-}
+inline size_t StatementImpl::GetCurrentDataSet() const { return cur_data_set_; }
 
 inline Limit::SizeT StatementImpl::GetExtractionLimit() {
   return extr_limit_.value();
@@ -711,18 +701,15 @@ inline void StatementImpl::ForbidBulk() {
   bulk_extraction_ = BULK_FORBIDDEN;
 }
 
-inline void StatementImpl::SetBulkBinding() {
-  bulk_binding_ = BULK_BINDING;
-}
+inline void StatementImpl::SetBulkBinding() { bulk_binding_ = BULK_BINDING; }
 
 inline bool StatementImpl::BulkBindingAllowed() const {
-  return BULK_UNDEFINED == bulk_binding_ ||
-    BULK_BINDING == bulk_binding_;
+  return BULK_UNDEFINED == bulk_binding_ || BULK_BINDING == bulk_binding_;
 }
 
 inline bool StatementImpl::BulkExtractionAllowed() const {
   return BULK_UNDEFINED == bulk_extraction_ ||
-    BULK_EXTRACTION == bulk_extraction_;
+         BULK_EXTRACTION == bulk_extraction_;
 }
 
 inline bool StatementImpl::IsBulkBinding() const {
@@ -736,7 +723,8 @@ inline bool StatementImpl::IsBulkExtraction() const {
 inline void StatementImpl::ResetBulk() {
   bulk_extraction_ = BULK_UNDEFINED;
   bulk_binding_ = BULK_UNDEFINED;
-  SetExtractionLimit(Limit(static_cast<Limit::SizeT>(Limit::LIMIT_UNLIMITED), false, false));
+  SetExtractionLimit(
+      Limit(static_cast<Limit::SizeT>(Limit::LIMIT_UNLIMITED), false, false));
 }
 
 inline bool StatementImpl::IsBulkSupported() const {
@@ -747,9 +735,7 @@ inline bool StatementImpl::HasMoreDataSets() const {
   return GetCurrentDataSet() + 1 < DataSetCount();
 }
 
-inline void StatementImpl::FirstDataSet() {
-  cur_data_set_ = 0;
-}
+inline void StatementImpl::FirstDataSet() { cur_data_set_ = 0; }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

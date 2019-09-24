@@ -1,49 +1,43 @@
 #include "fun/sql/odbc/session_impl.h"
-#include "fun/sql/odbc/utility.h"
-#include "fun/sql/odbc/odbc_statement_impl.h"
+#include <sqlext.h>
+#include "fun/base/string.h"
 #include "fun/sql/odbc/error.h"
 #include "fun/sql/odbc/odbc_exception.h"
+#include "fun/sql/odbc/odbc_statement_impl.h"
+#include "fun/sql/odbc/utility.h"
 #include "fun/sql/session.h"
-#include "fun/base/string.h"
-#include <sqlext.h>
 
 namespace fun {
 namespace sql {
 namespace odbc {
 
-SessionImpl::SessionImpl(const String& connect,
-                        size_t login_timeout,
-                        size_t maxFieldSize,
-                        bool autoBind,
-                        bool autoExtract,
-                        bool MakeExtractorsBeforeExecute)
-  : fun::sql::SessionImplBase<SessionImpl>(connect, login_timeout),
-    connector_(Connector::KEY),
-    max_field_size_(maxFieldSize),
-    auto_bind_(autoBind),
-    auto_extract_(autoExtract),
-    make_extractor_before_execute_(MakeExtractorsBeforeExecute),
-    can_transact_(ODBC_TXN_CAPABILITY_UNKNOWN),
-    in_transaction_(false),
-    query_timeout_(-1) {
+SessionImpl::SessionImpl(const String& connect, size_t login_timeout,
+                         size_t maxFieldSize, bool autoBind, bool autoExtract,
+                         bool MakeExtractorsBeforeExecute)
+    : fun::sql::SessionImplBase<SessionImpl>(connect, login_timeout),
+      connector_(Connector::KEY),
+      max_field_size_(maxFieldSize),
+      auto_bind_(autoBind),
+      auto_extract_(autoExtract),
+      make_extractor_before_execute_(MakeExtractorsBeforeExecute),
+      can_transact_(ODBC_TXN_CAPABILITY_UNKNOWN),
+      in_transaction_(false),
+      query_timeout_(-1) {
   Init();
 }
 
-SessionImpl::SessionImpl( const String& connect,
-                          fun::Any maxFieldSize,
-                          bool /*enforceCapability*/,
-                          bool autoBind,
-                          bool autoExtract,
-                          bool MakeExtractorsBeforeExecute)
-  : fun::sql::SessionImplBase<SessionImpl>(connect),
-    connector_(Connector::KEY),
-    max_field_size_(maxFieldSize),
-    auto_bind_(autoBind),
-    auto_extract_(autoExtract),
-    make_extractor_before_execute_(MakeExtractorsBeforeExecute),
-    can_transact_(ODBC_TXN_CAPABILITY_UNKNOWN),
-    in_transaction_(false),
-    query_timeout_(-1) {
+SessionImpl::SessionImpl(const String& connect, fun::Any maxFieldSize,
+                         bool /*enforceCapability*/, bool autoBind,
+                         bool autoExtract, bool MakeExtractorsBeforeExecute)
+    : fun::sql::SessionImplBase<SessionImpl>(connect),
+      connector_(Connector::KEY),
+      max_field_size_(maxFieldSize),
+      auto_bind_(autoBind),
+      auto_extract_(autoExtract),
+      make_extractor_before_execute_(MakeExtractorsBeforeExecute),
+      can_transact_(ODBC_TXN_CAPABILITY_UNKNOWN),
+      in_transaction_(false),
+      query_timeout_(-1) {
   Init();
 }
 
@@ -56,9 +50,12 @@ void SessionImpl::Init() {
 
 SessionImpl::~SessionImpl() {
   try {
-    if (static_cast<bool>(db_) && IsInTransaction() && !GetFeature("autoCommit")) {
-      try { Rollback(); }
-      catch (...) { }
+    if (static_cast<bool>(db_) && IsInTransaction() &&
+        !GetFeature("autoCommit")) {
+      try {
+        Rollback();
+      } catch (...) {
+      }
     }
 
     Close();
@@ -85,8 +82,10 @@ void SessionImpl::Open(const String& connect) {
   fun_check_dbg(!GetConnectionString().IsEmpty());
 
   SQLULEN tout = static_cast<SQLULEN>(GetLoginTimeout());
-  if (Utility::IsError(fun::sql::odbc::SQLSetConnectAttr(db_, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER)tout, 0))) {
-    if (Utility::IsError(fun::sql::odbc::SQLGetConnectAttr(db_, SQL_ATTR_LOGIN_TIMEOUT, &tout, 0, 0)) ||
+  if (Utility::IsError(fun::sql::odbc::SQLSetConnectAttr(
+          db_, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER)tout, 0))) {
+    if (Utility::IsError(fun::sql::odbc::SQLGetConnectAttr(
+            db_, SQL_ATTR_LOGIN_TIMEOUT, &tout, 0, 0)) ||
         GetLoginTimeout() != tout) {
       ConnectionException e(db_);
       throw ConnectionFailedException(e.errorString(), e);
@@ -96,48 +95,38 @@ void SessionImpl::Open(const String& connect) {
   SQLCHAR connectOutput[512] = {0};
   SQLSMALLINT result;
 
-  if (Utility::IsError(fun::sql::odbc::SQLDriverConnect(db_,
-                NULL,
-                SQLCHAR*) GetConnectionString().c_str(),
-                SQLSMALLINT) SQL_NTS,
-                connectOutput,
-                sizeof(connectOutput),
-                &result,
-                SQL_DRIVER_NOPROMPT))) {
-    ConnectionException e(db_);
-    close();
-    throw ConnectionFailedException(e.errorString(), e);
-  }
+  if (Utility::IsError(fun::sql::odbc::SQLDriverConnect(db_, NULL, SQLCHAR*)
+                           GetConnectionString()
+                               .c_str(),
+                       SQLSMALLINT) SQL_NTS,
+      connectOutput, sizeof(connectOutput), &result, SQL_DRIVER_NOPROMPT))) {
+      ConnectionException e(db_);
+      close();
+      throw ConnectionFailedException(e.errorString(), e);
+    }
 
   data_types_.fillTypeInfo(db_);
 
-  AddProperty("dataTypeInfo",
-    &SessionImpl::SetDataTypeInfo,
-    &SessionImpl::dataTypeInfo);
+  AddProperty("dataTypeInfo", &SessionImpl::SetDataTypeInfo,
+              &SessionImpl::dataTypeInfo);
 
-  AddFeature("autoCommit",
-    &SessionImpl::SetAutoCommit,
-    &SessionImpl::IsAutoCommit);
+  AddFeature("autoCommit", &SessionImpl::SetAutoCommit,
+             &SessionImpl::IsAutoCommit);
 
-  AddFeature("autoBind",
-    &SessionImpl::SetAutoBind,
-    &SessionImpl::IsAutoBind);
+  AddFeature("autoBind", &SessionImpl::SetAutoBind, &SessionImpl::IsAutoBind);
 
-  AddFeature("autoExtract",
-    &SessionImpl::SetAutoExtract,
-    &SessionImpl::IsAutoExtract);
+  AddFeature("autoExtract", &SessionImpl::SetAutoExtract,
+             &SessionImpl::IsAutoExtract);
 
   AddFeature("MakeExtractorsBeforeExecute",
-    &SessionImpl::MakeExtractorsBeforeExecute,
-    &SessionImpl::IsMakeExtractorsBeforeExecute);
+             &SessionImpl::MakeExtractorsBeforeExecute,
+             &SessionImpl::IsMakeExtractorsBeforeExecute);
 
-  AddProperty("maxFieldSize",
-    &SessionImpl::SetMaxFieldSize,
-    &SessionImpl::GetMaxFieldSize);
+  AddProperty("maxFieldSize", &SessionImpl::SetMaxFieldSize,
+              &SessionImpl::GetMaxFieldSize);
 
-  AddProperty("queryTimeout",
-    &SessionImpl::SetQueryTimeout,
-    &SessionImpl::GetQueryTimeout);
+  AddProperty("queryTimeout", &SessionImpl::SetQueryTimeout,
+              &SessionImpl::GetQueryTimeout);
 
   fun::sql::odbc::SQLSetConnectAttr(db_, SQL_ATTR_QUIET_MODE, 0, 0);
 
@@ -150,11 +139,8 @@ bool SessionImpl::IsConnected() const {
   SQLULEN value = 0;
 
   if (!static_cast<bool>(db_) ||
-      Utility::IsError(fun::sql::odbc::SQLGetConnectAttr(db_,
-            SQL_ATTR_CONNECTION_DEAD,
-            &value,
-            0,
-            0))) {
+      Utility::IsError(fun::sql::odbc::SQLGetConnectAttr(
+          db_, SQL_ATTR_CONNECTION_DEAD, &value, 0, 0))) {
     return false;
   }
 
@@ -164,20 +150,17 @@ bool SessionImpl::IsConnected() const {
 void SessionImpl::SetConnectionTimeout(size_t timeout) {
   SQLUINTEGER value = static_cast<SQLUINTEGER>(timeout);
 
-  CheckError(fun::sql::odbc::SQLSetConnectAttr(db_,
-    SQL_ATTR_CONNECTION_TIMEOUT,
-    &value,
-    SQL_IS_UINTEGER), "Failed to set connection timeout.");
+  CheckError(fun::sql::odbc::SQLSetConnectAttr(db_, SQL_ATTR_CONNECTION_TIMEOUT,
+                                               &value, SQL_IS_UINTEGER),
+             "Failed to set connection timeout.");
 }
 
 size_t SessionImpl::GetConnectionTimeout() const {
   SQLULEN value = 0;
 
-  CheckError(fun::sql::odbc::SQLGetConnectAttr(db_,
-    SQL_ATTR_CONNECTION_TIMEOUT,
-    &value,
-    0,
-    0), "Failed to Get connection timeout.");
+  CheckError(fun::sql::odbc::SQLGetConnectAttr(db_, SQL_ATTR_CONNECTION_TIMEOUT,
+                                               &value, 0, 0),
+             "Failed to Get connection timeout.");
 
   return value;
 }
@@ -185,9 +168,12 @@ size_t SessionImpl::GetConnectionTimeout() const {
 bool SessionImpl::CanTransact() const {
   if (ODBC_TXN_CAPABILITY_UNKNOWN == can_transact_) {
     SQLUSMALLINT ret;
-    SQLRETURN res = fun::sql::odbc::SQLGetInfo(db_, SQL_TXN_CAPABLE, &ret, 0, 0);
+    SQLRETURN res =
+        fun::sql::odbc::SQLGetInfo(db_, SQL_TXN_CAPABLE, &ret, 0, 0);
     if (!Utility::IsError(res)) {
-      can_transact_ = static_cast<char>((SQL_TC_NONE != ret) ? ODBC_TXN_CAPABILITY_TRUE : ODBC_TXN_CAPABILITY_FALSE);
+      can_transact_ =
+          static_cast<char>((SQL_TC_NONE != ret) ? ODBC_TXN_CAPABILITY_TRUE
+                                                 : ODBC_TXN_CAPABILITY_FALSE);
     } else {
       Error<SQLHDBC, SQL_HANDLE_DBC> err(db_);
       can_transact_ = ODBC_TXN_CAPABILITY_FALSE;
@@ -220,15 +206,14 @@ void SessionImpl::SetTransactionIsolationImpl(uint32 ti) const {
     isolation |= SQL_TXN_SERIALIZABLE;
   }
 
-  CheckError(fun::sql::odbc::SQLSetConnectAttr(db_, SQL_ATTR_TXN_ISOLATION, (SQLPOINTER)isolation, 0));
+  CheckError(fun::sql::odbc::SQLSetConnectAttr(db_, SQL_ATTR_TXN_ISOLATION,
+                                               (SQLPOINTER)isolation, 0));
 }
 
 uint32 SessionImpl::GetTransactionIsolation() const {
   SQLULEN isolation = 0;
   CheckError(fun::sql::odbc::SQLGetConnectAttr(db_, SQL_ATTR_TXN_ISOLATION,
-    &isolation,
-    0,
-    0));
+                                               &isolation, 0, 0));
 
   return transactionIsolation(isolation);
 }
@@ -240,8 +225,11 @@ bool SessionImpl::HasTransactionIsolation(uint32 ti) const {
 
   bool retval = true;
   uint32 old = GetTransactionIsolation();
-  try { SetTransactionIsolationImpl(ti); }
-  catch (fun::Exception&) { retval = false; }
+  try {
+    SetTransactionIsolationImpl(ti);
+  } catch (fun::Exception&) {
+    retval = false;
+  }
   SetTransactionIsolationImpl(old);
   return retval;
 }
@@ -249,9 +237,7 @@ bool SessionImpl::HasTransactionIsolation(uint32 ti) const {
 uint32 SessionImpl::GetDefaultTransactionIsolation() const {
   SQLUINTEGER isolation = 0;
   CheckError(fun::sql::odbc::SQLGetInfo(db_, SQL_DEFAULT_TXN_ISOLATION,
-    &isolation,
-    0,
-    0));
+                                        &isolation, 0, 0));
 
   return transactionIsolation(isolation);
 }
@@ -287,21 +273,19 @@ uint32 SessionImpl::transactionIsolation(SQLULEN isolation) const {
 }
 
 void SessionImpl::SetAutoCommit(const String&, bool val) {
-  CheckError(fun::sql::odbc::SQLSetConnectAttr(db_,
-    SQL_ATTR_AUTOCOMMIT,
-    val ? (SQLPOINTER) SQL_AUTOCOMMIT_ON :
-      (SQLPOINTER) SQL_AUTOCOMMIT_OFF,
-    SQL_IS_UINTEGER), "Failed to set automatic commit.");
+  CheckError(
+      fun::sql::odbc::SQLSetConnectAttr(
+          db_, SQL_ATTR_AUTOCOMMIT,
+          val ? (SQLPOINTER)SQL_AUTOCOMMIT_ON : (SQLPOINTER)SQL_AUTOCOMMIT_OFF,
+          SQL_IS_UINTEGER),
+      "Failed to set automatic commit.");
 }
 
 bool SessionImpl::IsAutoCommit(const String&) const {
   SQLULEN value = 0;
 
-  CheckError(fun::sql::odbc::SQLGetConnectAttr(db_,
-    SQL_ATTR_AUTOCOMMIT,
-    &value,
-    0,
-    0));
+  CheckError(fun::sql::odbc::SQLGetConnectAttr(db_, SQL_ATTR_AUTOCOMMIT, &value,
+                                               0, 0));
 
   return (0 != value);
 }
@@ -312,11 +296,8 @@ bool SessionImpl::IsInTransaction() const {
   }
 
   SQLULEN value = 0;
-  CheckError(fun::sql::odbc::SQLGetConnectAttr(db_,
-    SQL_ATTR_AUTOCOMMIT,
-    &value,
-    0,
-    0));
+  CheckError(fun::sql::odbc::SQLGetConnectAttr(db_, SQL_ATTR_AUTOCOMMIT, &value,
+                                               0, 0));
 
   if (0 == value) {
     return in_transaction_;
@@ -329,7 +310,7 @@ void SessionImpl::Begin() {
   if (IsAutoCommit()) {
     throw InvalidAccessException("Session in auto commit mode.");
   }
- {
+  {
     fun::FastMutex::ScopedLock l(mutex_);
 
     if (in_transaction_) {
@@ -356,8 +337,7 @@ void SessionImpl::Rollback() {
   in_transaction_ = false;
 }
 
-void SessionImpl::Reset() {
-}
+void SessionImpl::Reset() {}
 
 void SessionImpl::Close() {
   if (!IsConnected()) {
@@ -366,9 +346,10 @@ void SessionImpl::Close() {
 
   try {
     Commit();
-  } catch (ConnectionException&) {}
+  } catch (ConnectionException&) {
+  }
 
-  SQLCHAR sql_state[5+1];
+  SQLCHAR sql_state[5 + 1];
   SQLCHAR sql_error_message[SQL_MAX_MESSAGE_LENGTH];
   SQLINTEGER native_error_code;
   SQLSMALLINT sql_error_message_length;
@@ -376,13 +357,11 @@ void SessionImpl::Close() {
   do {
     SQLRETURN rc = SQLDisconnect(db_);
     if (SQL_SUCCESS != rc && SQL_SUCCESS_WITH_INFO != rc) {
-      SQLGetDiagRec(SQL_HANDLE_DBC, db_,
-              1,
-              sql_state,
-              &native_error_code,
-              sql_error_message, SQL_MAX_MESSAGE_LENGTH, &sql_error_message_length);
-      if (String(reinterpret_cast<const char *>(sql_state)) == "25000"
-        || String(reinterpret_cast<const char *>(sql_state)) == "25501") {
+      SQLGetDiagRec(SQL_HANDLE_DBC, db_, 1, sql_state, &native_error_code,
+                    sql_error_message, SQL_MAX_MESSAGE_LENGTH,
+                    &sql_error_message_length);
+      if (String(reinterpret_cast<const char*>(sql_state)) == "25000" ||
+          String(reinterpret_cast<const char*>(sql_state)) == "25501") {
         --retry_count;
         fun::Thread::sleep(100);
       } else {
@@ -391,26 +370,24 @@ void SessionImpl::Close() {
     } else {
       return;
     }
-  } while(retry_count > 0);
+  } while (retry_count > 0);
 
-  throw OdbcException
-    (String(reinterpret_cast<const char *>(sql_error_message)), native_error_code);
+  throw OdbcException(String(reinterpret_cast<const char*>(sql_error_message)),
+                      native_error_code);
 }
 
 int SessionImpl::maxStatementLength() const {
   SQLUINTEGER info;
   SQLRETURN rc = 0;
-  if (Utility::IsError(rc = fun::sql::odbc::SQLGetInfo(db_,
-    SQL_MAXIMUM_STATEMENT_LENGTH,
-    (SQLPOINTER) &info,
-    0,
-    0))) {
+  if (Utility::IsError(
+          rc = fun::sql::odbc::SQLGetInfo(db_, SQL_MAXIMUM_STATEMENT_LENGTH,
+                                          (SQLPOINTER)&info, 0, 0))) {
     throw ConnectionException(db_, "SQLGetInfo(SQL_MAXIMUM_STATEMENT_LENGTH)");
   }
 
   return info;
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

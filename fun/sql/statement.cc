@@ -1,25 +1,21 @@
 #include "fun/sql/statement.h"
-#include "fun/sql/sql_exception.h"
+#include <algorithm>
+#include "fun/base/any.h"
+#include "fun/base/async_method.h"
+#include "fun/base/tuple.h"
+#include "fun/sql/bulk.h"
 #include "fun/sql/extraction.h"
 #include "fun/sql/session.h"
-#include "fun/sql/bulk.h"
-#include "fun/base/any.h"
-#include "fun/base/tuple.h"
-#include "fun/base/async_method.h"
-#include <algorithm>
+#include "fun/sql/sql_exception.h"
 
 namespace fun {
 namespace sql {
 
-Statement::Statement(StatementImpl::Ptr impl)
-  : impl_(impl), async_(false) {
+Statement::Statement(StatementImpl::Ptr impl) : impl_(impl), async_(false) {
   fun_check_ptr(impl);
 }
 
-Statement::Statement(Session& session)
-  : async_(false) {
-  Reset(session);
-}
+Statement::Statement(Session& session) : async_(false) { Reset(session); }
 
 Statement::Statement(const Statement& stmt) {
   if (stmt.IsAsync() && !stmt.IsDone()) {
@@ -34,13 +30,11 @@ Statement::Statement(const Statement& stmt) {
   row_formatter_ = stmt.row_formatter_;
 }
 
-Statement::Statement(Statement&& stmt) {
-  this->Move(MoveTemp(stmt));
-}
+Statement::Statement(Statement&& stmt) { this->Move(MoveTemp(stmt)); }
 
 Statement::~Statement() {}
 
-Statement& Statement::operator = (const Statement& stmt) {
+Statement& Statement::operator=(const Statement& stmt) {
   if (stmt.IsAsync() && !stmt.IsDone()) {
     stmt.Wait();
   }
@@ -63,7 +57,7 @@ void Statement::Swap(Statement& other) {
   }
 }
 
-Statement& Statement::operator = (Statement&& stmt) {
+Statement& Statement::operator=(Statement&& stmt) {
   this->Move(MoveTemp(stmt));
   return *this;
 }
@@ -73,12 +67,18 @@ void Statement::Move(Statement&& stmt) {
     stmt.Wait();
   }
 
-  impl_ = stmt.impl_; stmt.impl_ = nullptr;
-  async_ = stmt.async_; stmt.async_ = false;
-  result_ = stmt.result_; stmt.result_ = nullptr;
-  async_exec_ = stmt.async_exec_; stmt.async_exec_ = nullptr;
-  arguments_ = MoveTemp(stmt.arguments_); stmt.arguments_.Clear();
-  row_formatter_ = stmt.row_formatter_; stmt.row_formatter_ = nullptr;
+  impl_ = stmt.impl_;
+  stmt.impl_ = nullptr;
+  async_ = stmt.async_;
+  stmt.async_ = false;
+  result_ = stmt.result_;
+  stmt.result_ = nullptr;
+  async_exec_ = stmt.async_exec_;
+  stmt.async_exec_ = nullptr;
+  arguments_ = MoveTemp(stmt.arguments_);
+  stmt.arguments_.Clear();
+  row_formatter_ = stmt.row_formatter_;
+  stmt.row_formatter_ = nullptr;
 }
 
 Statement& Statement::Reset(Session& session) {
@@ -173,7 +173,7 @@ const String& Statement::GetStorage() const {
   throw IllegalStateException("Invalid storage setting.");
 }
 
-Statement& Statement::operator , (Manipulator manip) {
+Statement &Statement::operator,(Manipulator manip) {
   manip(*this);
   return *this;
 }
@@ -184,10 +184,11 @@ Statement& Statement::AddBind(BindingBase::Ptr bind) {
       throw InvalidAccessException("Bulk not supported by this session.");
     }
 
-    if(impl_->BulkBindingAllowed()) {
+    if (impl_->BulkBindingAllowed()) {
       impl_->SetBulkBinding();
     } else {
-      throw InvalidAccessException("Bulk and non-bulk binding modes can not be mixed.");
+      throw InvalidAccessException(
+          "Bulk and non-bulk binding modes can not be mixed.");
     }
   } else {
     impl_->ForbidBulk();
@@ -203,11 +204,12 @@ Statement& Statement::AddExtract(ExtractionBase::Ptr extract) {
       throw InvalidAccessException("Bulk not supported by this session.");
     }
 
-    if(impl_->BulkExtractionAllowed()) {
+    if (impl_->BulkExtractionAllowed()) {
       Bulk b(extract->GetLimit());
       impl_->SetBulkExtraction(b);
     } else {
-      throw InvalidAccessException("Bulk and non-bulk extraction modes can not be mixed.");
+      throw InvalidAccessException(
+          "Bulk and non-bulk extraction modes can not be mixed.");
     }
   } else {
     impl_->ForbidBulk();
@@ -217,7 +219,7 @@ Statement& Statement::AddExtract(ExtractionBase::Ptr extract) {
   return *this;
 }
 
-Statement& Statement::operator , (const Limit& extr_limit) {
+Statement &Statement::operator,(const Limit&extr_limit) {
   if (impl_->IsBulkExtraction() && impl_->extractionLimit() != extr_limit) {
     throw InvalidArgumentException("Limit for bulk extraction already set.");
   }
@@ -226,7 +228,7 @@ Statement& Statement::operator , (const Limit& extr_limit) {
   return *this;
 }
 
-Statement& Statement::operator , (const Range& extr_range) {
+Statement &Statement::operator,(const Range&extr_range) {
   if (impl_->IsBulkExtraction()) {
     throw InvalidAccessException("Can not set range for bulk extraction.");
   }
@@ -236,15 +238,13 @@ Statement& Statement::operator , (const Range& extr_range) {
   return *this;
 }
 
-Statement& Statement::operator , (const Bulk& bulk) {
+Statement &Statement::operator,(const Bulk&bulk) {
   if (!impl_->IsBulkSupported()) {
-      throw InvalidAccessException("Bulk not supported by this session.");
+    throw InvalidAccessException("Bulk not supported by this session.");
   }
 
-  if (0 == impl_->extractions().size() &&
-      0 == impl_->bindings().size() &&
-      impl_->BulkExtractionAllowed() &&
-      impl_->BulkBindingAllowed()) {
+  if (0 == impl_->extractions().size() && 0 == impl_->bindings().size() &&
+      impl_->BulkExtractionAllowed() && impl_->BulkBindingAllowed()) {
     impl_->SetBulkExtraction(bulk);
     impl_->SetBulkBinding();
   } else {
@@ -254,13 +254,13 @@ Statement& Statement::operator , (const Bulk& bulk) {
   return *this;
 }
 
-Statement& Statement::operator , (BulkFnType) {
+Statement &Statement::operator,(BulkFnType) {
   const Limit& limit(impl_->GetExtractionLimit());
-  if (limit.IsHardLimit() ||
-      limit.IsLowerLimit() ||
+  if (limit.IsHardLimit() || limit.IsLowerLimit() ||
       Limit::LIMIT_UNLIMITED == limit.Value()) {
-    throw InvalidAccessException("Bulk is only allowed with limited extraction,"
-      "non-hard and zero-based limits.");
+    throw InvalidAccessException(
+        "Bulk is only allowed with limited extraction,"
+        "non-hard and zero-based limits.");
   }
 
   Bulk bulk(limit);
@@ -277,11 +277,9 @@ Session Statement::GetSession() {
 
 void Statement::SetTotalRowCount(const String& sql) {
   size_t count;
-  GetSession() << sql,
-      fun::sql::Keywords::into(count),
-      fun::sql::Keywords::now;
+  GetSession() << sql, fun::sql::Keywords::into(count), fun::sql::Keywords::now;
   impl_->SetTotalRowCount(count);
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

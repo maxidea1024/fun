@@ -1,24 +1,21 @@
 ﻿#include "fun/sql/row_filter.h"
-#include "fun/sql/record_set.h"
-#include "fun/base/string.h"
-#include "fun/base/exception.h"
 #include <functional>
+#include "fun/base/exception.h"
+#include "fun/base/string.h"
+#include "fun/sql/record_set.h"
 
 namespace fun {
 namespace sql {
 
 RowFilter::RowFilter(RecordSet& recordSet)
-  : record_set_(&recordSet),
-    not_(false) {
+    : record_set_(&recordSet), not_(false) {
   Init();
   Ptr this_ptr(this, true);
   record_set_->Filter(this_ptr);
 }
 
 RowFilter::RowFilter(Ptr parent, LogicOperator op)
-  : record_set_(nullptr),
-    parent_(parent),
-    not_(false) {
+    : record_set_(nullptr), parent_(parent), not_(false) {
   fun_check_ptr(parent_.Get());
   Init();
   Ptr this_ptr(this, true);
@@ -31,7 +28,8 @@ void RowFilter::Init() {
   comparisons_.insert(Comparisons::value_type("=", VALUE_EQUAL));
   comparisons_.insert(Comparisons::value_type("==", VALUE_EQUAL));
   comparisons_.insert(Comparisons::value_type(">", VALUE_GREATER_THAN));
-  comparisons_.insert(Comparisons::value_type(">=", VALUE_GREATER_THAN_OR_EQUAL));
+  comparisons_.insert(
+      Comparisons::value_type(">=", VALUE_GREATER_THAN_OR_EQUAL));
   comparisons_.insert(Comparisons::value_type("<>", VALUE_NOT_EQUAL));
   comparisons_.insert(Comparisons::value_type("!=", VALUE_NOT_EQUAL));
   comparisons_.insert(Comparisons::value_type("IS NULL", VALUE_IS_NULL));
@@ -48,7 +46,8 @@ bool RowFilter::IsAllowed(size_t row) const {
   ComparisonMap::const_iterator end = comparison_map_.end();
   for (; it != end; ++it) {
     for (size_t col = 0; col < columns; ++col) {
-      const String name = toUpper(rs.MetaColumnAt(static_cast<uint32>(col)).name());
+      const String name =
+          toUpper(rs.MetaColumnAt(static_cast<uint32>(col)).name());
       if (comparison_map_.find(name) == comparison_map_.end()) {
         continue;
       }
@@ -59,19 +58,26 @@ bool RowFilter::IsAllowed(size_t row) const {
 
       switch (it->second.Get<1>()) {
         case VALUE_LESS_THAN:
-          comp_op = less; break;
+          comp_op = less;
+          break;
         case VALUE_LESS_THAN_OR_EQUAL:
-          comp_op = lessOrEqual; break;
+          comp_op = lessOrEqual;
+          break;
         case VALUE_EQUAL:
-          comp_op = equal; break;
+          comp_op = equal;
+          break;
         case VALUE_GREATER_THAN:
-          comp_op = greater; break;
+          comp_op = greater;
+          break;
         case VALUE_GREATER_THAN_OR_EQUAL:
-          comp_op = greaterOrEqual; break;
+          comp_op = greaterOrEqual;
+          break;
         case VALUE_NOT_EQUAL:
-          comp_op = notEqual; break;
+          comp_op = notEqual;
+          break;
         case VALUE_IS_NULL:
-          comp_op = IsNull; break;
+          comp_op = IsNull;
+          break;
         default:
           throw IllegalStateException("Unsupported comparison criteria.");
       }
@@ -107,7 +113,7 @@ bool RowFilter::IsAllowed(size_t row) const {
   }
 
   if (ret.IsEmpty()) {
-    ret = true; // no filtering found
+    ret = true;  // no filtering found
   }
 
   return (!not_) && ret.extract<bool>();
@@ -145,10 +151,8 @@ void RowFilter::removeFilter(Ptr filter) {
   filter->parent_ = 0;
 }
 
-void RowFilter::DoCompare(fun::dynamic::Var& ret,
-                          fun::dynamic::Var& val,
-                          CompT comp,
-                          const ComparisonEntry& ce) {
+void RowFilter::DoCompare(fun::dynamic::Var& ret, fun::dynamic::Var& val,
+                          CompT comp, const ComparisonEntry& ce) {
   if (ret.IsEmpty()) {
     ret = comp(val, ce.Get<0>());
   } else {
@@ -179,5 +183,5 @@ void RowFilter::RewindRecordSet() {
   }
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

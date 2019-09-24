@@ -1,12 +1,12 @@
 ﻿#include "fun/sql/sqlite/session_impl.h"
-#include "fun/sql/sqlite/utility.h"
-#include "fun/sql/sqlite/sqlite_statement_impl.h"
-#include "fun/sql/sqlite/sqlite-exception.h"
-#include "fun/sql/session.h"
+#include "fun/base/mutex.h"
 #include "fun/base/stopwatch.h"
 #include "fun/base/string.h"
-#include "fun/base/mutex.h"
+#include "fun/sql/session.h"
 #include "fun/sql/sql_exception.h"
+#include "fun/sql/sqlite/sqlite-exception.h"
+#include "fun/sql/sqlite/sqlite_statement_impl.h"
+#include "fun/sql/sqlite/utility.h"
 
 #if defined(FUN_UNBUNDLED)
 #include <sqlite3.h>
@@ -30,18 +30,18 @@ const String SessionImpl::COMMIT_TRANSACTION("COMMIT");
 const String SessionImpl::ABORT_TRANSACTION("ROLLBACK");
 
 SessionImpl::SessionImpl(const String& filename, size_t login_timeout)
-  : fun::sql::SessionImplBase<SessionImpl>(filename, login_timeout),
-    connector_(Connector::KEY),
-    db_(0),
-    connected_(false),
-    is_transaction_(false) {
+    : fun::sql::SessionImplBase<SessionImpl>(filename, login_timeout),
+      connector_(Connector::KEY),
+      db_(0),
+      connected_(false),
+      is_transaction_(false) {
   Open();
   SetConnectionTimeout(login_timeout);
   SetProperty("handle", db_);
-  AddFeature("autoCommit",
-    &SessionImpl::SetAutoCommit,
-    &SessionImpl::IsAutoCommit);
-  AddProperty("connectionTimeout", &SessionImpl::SetConnectionTimeout, &SessionImpl::GetConnectionTimeout);
+  AddFeature("autoCommit", &SessionImpl::SetAutoCommit,
+             &SessionImpl::IsAutoCommit);
+  AddProperty("connectionTimeout", &SessionImpl::SetConnectionTimeout,
+              &SessionImpl::GetConnectionTimeout);
 }
 
 SessionImpl::~SessionImpl() {
@@ -123,10 +123,12 @@ void SessionImpl::Open(const String& connect) {
   try {
     int rc = 0;
     size_t tout = GetLoginTimeout();
-    Stopwatch sw; sw.Start();
+    Stopwatch sw;
+    sw.Start();
     while (true) {
-      rc = sqlite3_open_v2(GetConnectionString().c_str(), &db_,
-        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_URI, NULL);
+      rc = sqlite3_open_v2(
+          GetConnectionString().c_str(), &db_,
+          SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_URI, NULL);
       if (rc == SQLITE_OK) {
         break;
       }
@@ -158,7 +160,7 @@ void SessionImpl::Close() {
 
     if (SQLITE_BUSY == result && times == 0) {
       times = 10;
-      sqlite3_stmt *stmt = NULL;
+      sqlite3_stmt* stmt = NULL;
       do {
         stmt = sqlite3_next_stmt(db_, NULL);
         if (stmt && sqlite3_stmt_busy(stmt)) {
@@ -177,12 +179,10 @@ void SessionImpl::Reset() {
   // NOOP
 }
 
-bool SessionImpl::IsConnected() const {
-  return connected_;
-}
+bool SessionImpl::IsConnected() const { return connected_; }
 
 void SessionImpl::SetConnectionTimeout(size_t timeout) {
-  if(timeout <= std::numeric_limits<int>::max()/1000) {
+  if (timeout <= std::numeric_limits<int>::max() / 1000) {
     int tout = 1000 * static_cast<int>(timeout);
     int rc = sqlite3_busy_timeout(db_, tout);
     if (rc != 0) Utility::ThrowException(db_, rc);
@@ -192,12 +192,13 @@ void SessionImpl::SetConnectionTimeout(size_t timeout) {
   }
 }
 
-void SessionImpl::SetConnectionTimeout(const String& /*prop*/, const fun::Any& value) {
+void SessionImpl::SetConnectionTimeout(const String& /*prop*/,
+                                       const fun::Any& value) {
   SetConnectionTimeout(fun::RefAnyCast<size_t>(value));
 }
 
 fun::Any SessionImpl::GetConnectionTimeout(const String& /*prop*/) const {
-  return fun::Any(timeout_/1000);
+  return fun::Any(timeout_ / 1000);
 }
 
 void SessionImpl::SetAutoCommit(const String&, bool) {
@@ -205,7 +206,7 @@ void SessionImpl::SetAutoCommit(const String&, bool) {
   // when autocommit is set to true. Hence, it is best not to implement
   // this explicit call and only implicitly support autocommit setting.
   throw NotImplementedException(
-    "SQLite autocommit is implicit with begin/commit/rollback.");
+      "SQLite autocommit is implicit with begin/commit/rollback.");
 }
 
 bool SessionImpl::IsAutoCommit(const String&) const {
@@ -221,6 +222,6 @@ sqlite3* Utility::GetDbHandle(const Session& session) {
   return AnyCast<sqlite3*>(session.GetProperty("handle"));
 }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

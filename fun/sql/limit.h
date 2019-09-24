@@ -12,16 +12,15 @@ class FUN_SQL_API Limit {
  public:
   typedef uint32 SizeT;
 
-  enum Type {
-    LIMIT_UNLIMITED = ~((SizeT)0)
-  };
+  enum Type { LIMIT_UNLIMITED = ~((SizeT)0) };
 
   /**
    * Creates the Limit.
    *
-   * Value contains the upper row hint, if hard_limit is set to true, the limit acts as a hard
-   * border, ie. every query must return exactly value rows, returning more than value objects will throw an exception!
-   * LowerLimits always act as hard-limits!
+   * Value contains the upper row hint, if hard_limit is set to true, the limit
+   * acts as a hard border, ie. every query must return exactly value rows,
+   * returning more than value objects will throw an exception! LowerLimits
+   * always act as hard-limits!
    *
    * A value of LIMIT_UNLIMITED disables the limit.
    */
@@ -50,12 +49,12 @@ class FUN_SQL_API Limit {
   /**
    * Equality operator.
    */
-  bool operator == (const Limit& other) const;
+  bool operator==(const Limit& other) const;
 
   /**
    * Inequality operator.
    */
-  bool operator != (const Limit& other) const;
+  bool operator!=(const Limit& other) const;
 
  private:
   SizeT value_;
@@ -63,34 +62,25 @@ class FUN_SQL_API Limit {
   bool is_lower_limit_;
 };
 
-
 //
 // inlines
 //
 
-inline uint32 Limit::Value() const {
-  return value_;
+inline uint32 Limit::Value() const { return value_; }
+
+inline bool Limit::IsHardLimit() const { return hard_limit_; }
+
+inline bool Limit::IsLowerLimit() const { return is_lower_limit_; }
+
+inline bool Limit::operator==(const Limit& other) const {
+  return other.value_ == value_ && other.hard_limit_ == hard_limit_ &&
+         other.is_lower_limit_ == is_lower_limit_;
 }
 
-inline bool Limit::IsHardLimit() const {
-  return hard_limit_;
+inline bool Limit::operator!=(const Limit& other) const {
+  return other.value_ != value_ || other.hard_limit_ != hard_limit_ ||
+         other.is_lower_limit_ != is_lower_limit_;
 }
 
-inline bool Limit::IsLowerLimit() const {
-  return is_lower_limit_;
-}
-
-inline bool Limit::operator == (const Limit& other) const {
-  return  other.value_ == value_ &&
-          other.hard_limit_ == hard_limit_ &&
-          other.is_lower_limit_ == is_lower_limit_;
-}
-
-inline bool Limit::operator != (const Limit& other) const {
-  return  other.value_ != value_ ||
-          other.hard_limit_ != hard_limit_ ||
-          other.is_lower_limit_ != is_lower_limit_;
-}
-
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

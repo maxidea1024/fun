@@ -1,11 +1,11 @@
 #include "fun/sql/sql_sink.h"
-#include "fun/sql/session_factory.h"
 #include "fun/base/date_time.h"
-#include "fun/base/logging_factory.h"
-#include "fun/base/instantiator.h"
-#include "fun/base/number_parser.h"
-#include "fun/base/number_formatter.h"
 #include "fun/base/format.h"
+#include "fun/base/instantiator.h"
+#include "fun/base/logging_factory.h"
+#include "fun/base/number_formatter.h"
+#include "fun/base/number_parser.h"
+#include "fun/sql/session_factory.h"
 
 namespace fun {
 namespace sql {
@@ -21,28 +21,27 @@ const String SqlSink::PROP_TIMEOUT("timeout");
 const String SqlSink::PROP_THROW("throw");
 
 SqlSink::SqlSink()
-  : name_("-"),
-    table_("FUN_LOG"),
-    timeout_(1000),
-    throw_(true),
-    async_(true),
-    pid_(),
-    tid_(),
-    level_() {}
+    : name_("-"),
+      table_("FUN_LOG"),
+      timeout_(1000),
+      throw_(true),
+      async_(true),
+      pid_(),
+      tid_(),
+      level_() {}
 
-SqlSink::SqlSink( const String& connector,
-                  const String& connect,
-                  const String& name)
-  : connector_(connector),
-    connect_(connect),
-    name_(name),
-    table_("FUN_LOG"),
-    timeout_(1000),
-    throw_(true),
-    async_(true),
-    pid_(),
-    tid_(),
-    level_() {
+SqlSink::SqlSink(const String& connector, const String& connect,
+                 const String& name)
+    : connector_(connector),
+      connect_(connect),
+      name_(name),
+      table_("FUN_LOG"),
+      timeout_(1000),
+      throw_(true),
+      async_(true),
+      pid_(),
+      tid_(),
+      level_() {
   Open();
 }
 
@@ -56,16 +55,15 @@ SqlSink::~SqlSink() {
 
 void SqlSink::Open() {
   if (connector_.IsEmpty() || connect_.IsEmpty()) {
-    throw IllegalStateException("Connector and connect string must be non-empty.");
+    throw IllegalStateException(
+        "Connector and connect string must be non-empty.");
   }
 
   session_ = new Session(connector_, connect_);
   InitLogStatement();
 }
 
-void SqlSink::Close() {
-  Wait();
-}
+void SqlSink::Close() { Wait(); }
 
 void SqlSink::Log(const LogMessage& msg) {
   if (async_) {
@@ -77,9 +75,11 @@ void SqlSink::Log(const LogMessage& msg) {
 
 void SqlSink::LogAsync(const LogMessage& msg) {
   fun_check_ptr(log_statement_);
-  if (0 == wait() && !log_statement_->IsDone() && !log_statement_->IsInitialized()) {
+  if (0 == wait() && !log_statement_->IsDone() &&
+      !log_statement_->IsInitialized()) {
     if (throw_) {
-      throw TimeoutException("Timed out waiting for previous statement completion");
+      throw TimeoutException(
+          "Timed out waiting for previous statement completion");
     } else {
       return;
     }
@@ -125,10 +125,12 @@ void SqlSink::SetProperty(const String& name, const String& value) {
     }
   } else if (icompare(name, PROP_CONNECTOR) == 0) {
     connector_ = value;
-    Close(); Open();
+    Close();
+    Open();
   } else if (icompare(name, PROP_CONNECT) == 0) {
     connect_ = value;
-    Close(); Open();
+    Close();
+    Open();
   } else if (icompare(name, PROP_TABLE) == 0) {
     table_ = value;
     InitLogStatement();
@@ -138,7 +140,8 @@ void SqlSink::SetProperty(const String& name, const String& value) {
     } else if (archive_strategy_) {
       archive_strategy_->SetDestination(value);
     } else {
-      archive_strategy_ = new ArchiveByAgeStrategy(connector_, connect_, table_, value);
+      archive_strategy_ =
+          new ArchiveByAgeStrategy(connector_, connect_, table_, value);
     }
   } else if (icompare(name, PROP_MAX_AGE) == 0) {
     if (value.IsEmpty() || icompare(value, "forever") == 0) {
@@ -146,7 +149,8 @@ void SqlSink::SetProperty(const String& name, const String& value) {
     } else if (archive_strategy_) {
       archive_strategy_->SetThreshold(value);
     } else {
-      ArchiveByAgeStrategy* p = new ArchiveByAgeStrategy(connector_, connect_, table_);
+      ArchiveByAgeStrategy* p =
+          new ArchiveByAgeStrategy(connector_, connect_, table_);
       p->SetThreshold(value);
       archive_strategy_ = p;
     }
@@ -180,7 +184,7 @@ String SqlSink::GetProperty(const String& name) const {
   } else if (icompare(name, PROP_TABLE) == 0) {
     return table_;
   } else if (icompare(name, PROP_ARCHIVE_TABLE) == 0) {
-    return archive_strategy_ ? archive_strategy_->GetDestination() : "" ;
+    return archive_strategy_ ? archive_strategy_->GetDestination() : "";
   } else if (icompare(name, PROP_MAX_AGE) == 0) {
     return archive_strategy_ ? archive_strategy_->GetThreshold() : "forever";
   } else if (icompare(name, PROP_TIMEOUT) == 0) {
@@ -200,15 +204,8 @@ void SqlSink::InitLogStatement() {
   String sql;
   fun::Format(sql, "INSERT INTO %s VALUES (?,?,?,?,?,?,?,?)", table_);
 
-  *log_statement_ << sql,
-        use(source_),
-        use(name_),
-        use(pid_),
-        use(thread_),
-        use(tid_),
-        use(level_),
-        use(text_),
-        use(datetime_);
+  *log_statement_ << sql, use(source_), use(name_), use(pid_), use(thread_),
+      use(tid_), use(level_), use(text_), use(datetime_);
 
   if (async_) {
     log_statement_->SetAsync();
@@ -216,9 +213,9 @@ void SqlSink::InitLogStatement() {
 }
 
 void SqlSink::RegisterSink() {
-  fun::LoggingFactory::DefaultFactory().RegisterSinkClass("SqlSink",
-        new fun::Instantiator<SqlSink, fun::LogSink>);
+  fun::LoggingFactory::DefaultFactory().RegisterSinkClass(
+      "SqlSink", new fun::Instantiator<SqlSink, fun::LogSink>);
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

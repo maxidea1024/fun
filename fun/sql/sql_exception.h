@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fun/sql/sql.h"
 #include "fun/base/exception.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -23,5 +23,5 @@ FUN_DECLARE_EXCEPTION(FUN_SQL_API, LengthExceededException, SqlException)
 FUN_DECLARE_EXCEPTION(FUN_SQL_API, ConnectionFailedException, SqlException)
 FUN_DECLARE_EXCEPTION(FUN_SQL_API, NotConnectedException, SqlException)
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

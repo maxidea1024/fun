@@ -1,8 +1,8 @@
 #pragma once
 
-#include "fun/sql/odbc/odbc.h"
-#include "fun/sql/odbc/environment_handle.h"
 #include "fun/sql/odbc/connection_handle.h"
+#include "fun/sql/odbc/environment_handle.h"
+#include "fun/sql/odbc/odbc.h"
 #include "fun/sql/odbc/odbc_exception.h"
 #include "fun/sql/odbc/utility.h"
 
@@ -26,10 +26,8 @@ class Handle {
    * Creates the Handle.
    */
   Handle(const ConnectionHandle& connection)
-    : connection_(connection), handle_(0) {
-    if (Utility::IsError(SQLAllocHandle(handle_type,
-              connection_,
-              &handle_))) {
+      : connection_(connection), handle_(0) {
+    if (Utility::IsError(SQLAllocHandle(handle_type, connection_, &handle_))) {
       throw OdbcException("Could not allocate statement handle.");
     }
   }
@@ -42,7 +40,7 @@ class Handle {
 #if defined(_DEBUG)
       SQLRETURN rc =
 #endif
-      SQLFreeHandle(handle_type, handle_);
+          SQLFreeHandle(handle_type, handle_);
       // N.B. Destructors should not throw, but neither do we want to
       // leak resources. So, we throw here in debug mode if things go bad.
       fun_check_dbg(!Utility::IsError(rc));
@@ -54,16 +52,12 @@ class Handle {
   /**
    * Const conversion operator into reference to native type.
    */
-  operator const H& () const {
-    return handle();
-  }
+  operator const H&() const { return handle(); }
 
   /**
    * Returns const reference to native type.
    */
-  const H& GetHandle() const {
-    return handle_;
-  }
+  const H& GetHandle() const { return handle_; }
 
  private:
   Handle(const Handle&);
@@ -72,16 +66,12 @@ class Handle {
   /**
    * Conversion operator into reference to native type.
    */
-  operator H& () {
-    return GetHandle();
-  }
+  operator H&() { return GetHandle(); }
 
   /**
    * Returns reference to native type.
    */
-  H& GetHandle() {
-    return handle_;
-  }
+  H& GetHandle() { return handle_; }
 
   const ConnectionHandle& connection_;
   H handle_;
@@ -92,6 +82,6 @@ class Handle {
 typedef Handle<SQLHSTMT, SQL_HANDLE_STMT> StatementHandle;
 typedef Handle<SQLHDESC, SQL_HANDLE_DESC> DescriptorHandle;
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

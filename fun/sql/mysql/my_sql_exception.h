@@ -1,9 +1,9 @@
 ﻿#pragma once
 
+#include <string>
+#include <typeinfo>
 #include "fun/sql/mysql/mysql.h"
 #include "fun/sql/sql_exception.h"
-#include <typeinfo>
-#include <string>
 
 typedef struct st_mysql MYSQL;
 typedef struct st_mysql_stmt MYSQL_STMT;
@@ -12,8 +12,8 @@ namespace fun {
 namespace sql {
 namespace mysql {
 
-// End-user include this file and use in code ConnectionException/StatementException
-// So it need not know
+// End-user include this file and use in code
+// ConnectionException/StatementException So it need not know
 
 /**
  * Base class for all MySQL exceptions
@@ -116,12 +116,12 @@ class StatementException : public MySqlException {
   /**
    * Creates StatementException from string and handle.
    */
-  StatementException(const String& text, MYSQL_STMT* h, const String& stmt = "");
+  StatementException(const String& text, MYSQL_STMT* h,
+                     const String& stmt = "");
 
  private:
   static String Compose(const String& text, MYSQL_STMT* h, const String& stmt);
 };
-
 
 //
 // inlines
@@ -132,9 +132,7 @@ inline MySqlException& MySqlException::operator=(const MySqlException& e) {
   return *this;
 }
 
-inline const char* MySqlException::GetName() const throw() {
-  return "MySQL";
-}
+inline const char* MySqlException::GetName() const throw() { return "MySQL"; }
 
 inline const char* MySqlException::GetClassName() const throw() {
   return typeid(*this).name();
@@ -144,10 +142,8 @@ inline fun::Exception* MySqlException::Clone() const {
   return new MySqlException(*this);
 }
 
-inline void MySqlException::Rethrow() const {
-  throw *this;
-}
+inline void MySqlException::Rethrow() const { throw *this; }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

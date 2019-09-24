@@ -1,12 +1,12 @@
 #pragma once
 
-#include "fun/sql/odbc/odbc.h"
-#include "fun/named_tuple.h"
-#include "fun/base/dynamic_any.h"
-#include "fun/sql/binder_base.h"
-#include <vector>
 #include <map>
 #include <typeinfo>
+#include <vector>
+#include "fun/base/dynamic_any.h"
+#include "fun/named_tuple.h"
+#include "fun/sql/binder_base.h"
+#include "fun/sql/odbc/odbc.h"
 
 #ifdef FUN_PLATFORM_WINDOWS_FAMILY
 #include <windows.h>
@@ -34,32 +34,20 @@ class FUN_ODBC_API TypeInfo {
  public:
   typedef std::map<int, int> DataTypeMap;
   typedef DataTypeMap::value_type ValueType;
-  typedef fun::NamedTuple<String,
-    SQLSMALLINT,
-    SQLINTEGER,
-    String,
-    String,
-    String,
-    SQLSMALLINT,
-    SQLSMALLINT,
-    SQLSMALLINT,
-    SQLSMALLINT,
-    SQLSMALLINT,
-    SQLSMALLINT,
-    String,
-    SQLSMALLINT,
-    SQLSMALLINT,
-    SQLSMALLINT,
-    SQLSMALLINT,
-    SQLINTEGER,
-    SQLSMALLINT> TypeInfoTup;
+  typedef fun::NamedTuple<String, SQLSMALLINT, SQLINTEGER, String, String,
+                          String, SQLSMALLINT, SQLSMALLINT, SQLSMALLINT,
+                          SQLSMALLINT, SQLSMALLINT, SQLSMALLINT, String,
+                          SQLSMALLINT, SQLSMALLINT, SQLSMALLINT, SQLSMALLINT,
+                          SQLINTEGER, SQLSMALLINT>
+      TypeInfoTup;
   typedef std::vector<TypeInfoTup> TypeInfoVec;
   typedef const std::type_info* TypeInfoPtr;
 
-  struct TypeInfoComp : public std::binary_function<TypeInfoPtr, TypeInfoPtr, bool> {
+  struct TypeInfoComp
+      : public std::binary_function<TypeInfoPtr, TypeInfoPtr, bool> {
     bool operator()(const TypeInfoPtr& left, const TypeInfoPtr& right) const {
       // apply operator< to operands
-      return ( left->before( *right ) );
+      return (left->before(*right));
     }
   };
 
@@ -68,7 +56,7 @@ class FUN_ODBC_API TypeInfo {
   /**
    * Creates the TypeInfo.
    */
-  explicit TypeInfo(SQLHDBC* pHDBC=0);
+  explicit TypeInfo(SQLHDBC* pHDBC = 0);
 
   /**
    * Destroys the TypeInfo.
@@ -91,18 +79,20 @@ class FUN_ODBC_API TypeInfo {
   void fillTypeInfo(SQLHDBC pHDBC);
 
   /**
-   * Returns information about specified data type as specified by parameter 'type'.
-   * The requested information is specified by parameter 'param'.
-   * Will fail with a fun::NotFoundException thrown if the param is not found
+   * Returns information about specified data type as specified by parameter
+   * 'type'. The requested information is specified by parameter 'param'. Will
+   * fail with a fun::NotFoundException thrown if the param is not found
    */
   DynamicAny getInfo(SQLSMALLINT type, const String& param) const;
 
   /**
-   * Returns information about specified data type as specified by parameter 'type' in param result.
-   * The requested information is specified by parameter 'param'.
-   * Will return false if the param is not found. The value of result will be not changed in this case.
+   * Returns information about specified data type as specified by parameter
+   * 'type' in param result. The requested information is specified by parameter
+   * 'param'. Will return false if the param is not found. The value of result
+   * will be not changed in this case.
    */
-  bool tryGetInfo(SQLSMALLINT type, const String& param, DynamicAny& result) const;
+  bool tryGetInfo(SQLSMALLINT type, const String& param,
+                  DynamicAny& result) const;
 
   /**
    * Prints all the types (as reported by the underlying database)
@@ -114,7 +104,8 @@ class FUN_ODBC_API TypeInfo {
    * try to find mapping of the given C++ typeid to the ODBC C-Type Code
    * will return the defaultVal if no match is found
    */
-  SQLSMALLINT tryTypeidToCType(const std::type_info& ti, SQLSMALLINT defaultVal = SQL_C_TINYINT) const;
+  SQLSMALLINT tryTypeidToCType(const std::type_info& ti,
+                               SQLSMALLINT defaultVal = SQL_C_TINYINT) const;
 
   /**
    * Map the null value type to ODBC buffer type
@@ -129,9 +120,9 @@ class FUN_ODBC_API TypeInfo {
   DataTypeMap sql_data_types_;
   TypeInfoVec type_info_;
   CppTypeInfoMap cpp_data_types_;
-  SQLHDBC*    hdbc_;
+  SQLHDBC* hdbc_;
 };
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

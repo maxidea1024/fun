@@ -1,15 +1,15 @@
 ﻿#pragma once
 
-#include "fun/sql/sqlite/sqlite.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/sql/meta_column.h"
 #include "fun/sql/sqlite/binder.h"
 #include "fun/sql/sqlite/extractor.h"
+#include "fun/sql/sqlite/sqlite.h"
 #include "fun/sql/statement_impl.h"
-#include "fun/sql/meta_column.h"
-#include "fun/base/shared_ptr.h"
 
 extern "C" {
-  typedef struct sqlite3 sqlite3;
-  typedef struct sqlite3_stmt sqlite3_stmt;
+typedef struct sqlite3 sqlite3;
+typedef struct sqlite3_stmt sqlite3_stmt;
 }
 
 namespace fun {
@@ -40,8 +40,9 @@ class FUN_SQLITE_API SQLiteStatementImpl : public fun::sql::StatementImpl {
   /**
    * Returns the number of affected rows.
    * Used to find out the number of rows affected by insert, delete or update.
-   * All changes are counted, even if they are later undone by a ROLLBACK or ABORT.
-   * Changes associated with creating and dropping tables are not counted.
+   * All changes are counted, even if they are later undone by a ROLLBACK or
+   * ABORT. Changes associated with creating and dropping tables are not
+   * counted.
    */
   int AffectedRowCount() const;
 
@@ -128,7 +129,6 @@ class FUN_SQLITE_API SQLiteStatementImpl : public fun::sql::StatementImpl {
   static const int FUN_SQLITE_INV_ROW_CNT;
 };
 
-
 //
 // inlines
 //
@@ -141,14 +141,10 @@ inline BindingBase::BinderPtr SQLiteStatementImpl::GetBinder() {
   return binder_;
 }
 
-inline bool SQLiteStatementImpl::CanBind() const {
-  return can_bind_;
-}
+inline bool SQLiteStatementImpl::CanBind() const { return can_bind_; }
 
-inline bool SQLiteStatementImpl::CanCompile() const {
-  return can_compile_;
-}
+inline bool SQLiteStatementImpl::CanCompile() const { return can_compile_; }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

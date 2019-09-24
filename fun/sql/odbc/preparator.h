@@ -1,18 +1,18 @@
 #pragma once
 
+#include <vector>
+#include "fun/base/any.h"
+#include "fun/base/date_time.h"
+#include "fun/base/dynamic_any.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/base/utf_string.h"
 #include "fun/sql/constants.h"
-#include "fun/sql/odbc/odbc.h"
+#include "fun/sql/lob.h"
 #include "fun/sql/odbc/handle.h"
+#include "fun/sql/odbc/odbc.h"
 #include "fun/sql/odbc/odbc_meta_column.h"
 #include "fun/sql/odbc/utility.h"
 #include "fun/sql/preparator_base.h"
-#include "fun/sql/lob.h"
-#include "fun/base/any.h"
-#include "fun/base/dynamic_any.h"
-#include "fun/base/date_time.h"
-#include "fun/base/shared_ptr.h"
-#include "fun/base/utf_string.h"
-#include <vector>
 
 #ifdef FUN_PLATFORM_WINDOWS_FAMILY
 #include <windows.h>
@@ -29,25 +29,29 @@ class Time;
 namespace odbc {
 
 /**
- * Class used for database preparation where we first have to register all data types
- * with respective memory output locations before extracting data.
- * Extraction works in two-phases: first Prepare is called once, then extract n-times.
- * In ODBC, SQLBindCol/SQLFetch is the preferred method of data retrieval (SQLGetData is available,
- * however with numerous driver implementation dependent limitations and inferior performance).
- * In order to fit this functionality into fun DataConnectors framework, every ODBC sql statement
- * instantiates its own Preparator object.
- * This is done once per statement execution (from StatementImpl::BindImpl()).
+ * Class used for database preparation where we first have to register all data
+ * types with respective memory output locations before extracting data.
+ * Extraction works in two-phases: first Prepare is called once, then extract
+ * n-times. In ODBC, SQLBindCol/SQLFetch is the preferred method of data
+ * retrieval (SQLGetData is available, however with numerous driver
+ * implementation dependent limitations and inferior performance). In order to
+ * fit this functionality into fun DataConnectors framework, every ODBC sql
+ * statement instantiates its own Preparator object. This is done once per
+ * statement execution (from StatementImpl::BindImpl()).
  *
  * Preparator object is used to :
  *
  *   1) Prepare sql statement.
- *   2) Provide and contain the memory locations where retrieved values are placed during recordset iteration.
- *   3) Keep count of returned number of columns with their respective datatypes and sizes.
+ *   2) Provide and contain the memory locations where retrieved values are
+ * placed during recordset iteration. 3) Keep count of returned number of
+ * columns with their respective datatypes and sizes.
  *
  * Notes:
  *
- * - Value datatypes in this interface Prepare() calls serve only for the purpose of type distinction.
- * - Preparator keeps its own std::vector<Any> buffer for fetched data to be later retrieved by Extractor.
+ * - Value datatypes in this interface Prepare() calls serve only for the
+ * purpose of type distinction.
+ * - Preparator keeps its own std::vector<Any> buffer for fetched data to be
+ * later retrieved by Extractor.
  * - Prepare() methods should not be called when extraction mode is DE_MANUAL
  */
 class FUN_ODBC_API Preparator : public PreparatorBase {
@@ -55,10 +59,7 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
   typedef std::vector<char*> CharArray;
   typedef SharedPtr<Preparator> Ptr;
 
-  enum DataExtraction {
-    DE_MANUAL,
-    DE_BOUND
-  };
+  enum DataExtraction { DE_MANUAL, DE_BOUND };
 
   enum DataType {
     DT_BOOL,
@@ -77,10 +78,8 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
   /**
    * Creates the Preparator.
    */
-  Preparator( const StatementHandle& stmt,
-              const String& statement,
-              size_t maxFieldSize,
-              DataExtraction dataExtraction);
+  Preparator(const StatementHandle& stmt, const String& statement,
+             size_t maxFieldSize, DataExtraction dataExtraction);
 
   /**
    * Copy constructs the Preparator.
@@ -195,7 +194,7 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
   /**
    * Returns reference to column data.
    */
-  fun::Any& operator [] (size_t pos);
+  fun::Any& operator[](size_t pos);
 
   /**
    * Returns reference to column data.
@@ -256,7 +255,7 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
   typedef std::map<size_t, DataType> IndexMap;
 
   Preparator();
-  Preparator& operator = (const Preparator&);
+  Preparator& operator=(const Preparator&);
 
   /**
    * Utility function to Prepare Any and DynamicAny.
@@ -334,32 +333,40 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
 
       case MetaColumn::FDT_STRING:
         if (pVal)
-          return PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_CHAR, maxDataSize(pos), pVal->size());
+          return PrepareCharArray<char, DT_CHAR_ARRAY>(
+              pos, SQL_C_CHAR, maxDataSize(pos), pVal->size());
         else
-          return prepareVariableLen<char>(pos, SQL_C_CHAR, maxDataSize(pos), DT_CHAR);
+          return prepareVariableLen<char>(pos, SQL_C_CHAR, maxDataSize(pos),
+                                          DT_CHAR);
 
       case MetaColumn::FDT_WSTRING: {
         typedef UString::value_type CharType;
         if (pVal)
-          return PrepareCharArray<CharType, DT_WCHAR_ARRAY>(pos, SQL_C_WCHAR, maxDataSize(pos), pVal->size());
+          return PrepareCharArray<CharType, DT_WCHAR_ARRAY>(
+              pos, SQL_C_WCHAR, maxDataSize(pos), pVal->size());
         else
-          return prepareVariableLen<CharType>(pos, SQL_C_WCHAR, maxDataSize(pos), DT_WCHAR);
+          return prepareVariableLen<CharType>(pos, SQL_C_WCHAR,
+                                              maxDataSize(pos), DT_WCHAR);
       }
 
       case MetaColumn::FDT_BLOB: {
         typedef fun::sql::BLOB::ValueType CharType;
         if (pVal)
-          return PrepareCharArray<CharType, DT_UCHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos), pVal->size());
+          return PrepareCharArray<CharType, DT_UCHAR_ARRAY>(
+              pos, SQL_C_BINARY, maxDataSize(pos), pVal->size());
         else
-          return prepareVariableLen<CharType>(pos, SQL_C_BINARY, maxDataSize(pos), DT_UCHAR);
+          return prepareVariableLen<CharType>(pos, SQL_C_BINARY,
+                                              maxDataSize(pos), DT_UCHAR);
       }
 
       case MetaColumn::FDT_CLOB: {
         typedef fun::sql::CLOB::ValueType CharType;
         if (pVal)
-          return PrepareCharArray<CharType, DT_CHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos), pVal->size());
+          return PrepareCharArray<CharType, DT_CHAR_ARRAY>(
+              pos, SQL_C_BINARY, maxDataSize(pos), pVal->size());
         else
-          return prepareVariableLen<CharType>(pos, SQL_C_BINARY, maxDataSize(pos), DT_CHAR);
+          return prepareVariableLen<CharType>(pos, SQL_C_BINARY,
+                                              maxDataSize(pos), DT_CHAR);
       }
 
       case MetaColumn::FDT_DATE:
@@ -376,7 +383,8 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
 
       case MetaColumn::FDT_TIMESTAMP:
         if (pVal)
-          return PrepareFixedSize<DateTime>(pos, SQL_C_TYPE_TIMESTAMP, pVal->size());
+          return PrepareFixedSize<DateTime>(pos, SQL_C_TYPE_TIMESTAMP,
+                                            pVal->size());
         else
           return PrepareFixedSize<DateTime>(pos, SQL_C_TYPE_TIMESTAMP);
 
@@ -402,12 +410,9 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
     values_[pos] = fun::Any(T());
 
     T* pVal = AnyCast<T>(&values_[pos]);
-    if (Utility::IsError(SQLBindCol(stmt_,
-      (SQLUSMALLINT) pos + 1,
-      valueType,
-      (SQLPOINTER) pVal,
-      (SQLINTEGER) dataSize,
-      &lengths_[pos]))) {
+    if (Utility::IsError(SQLBindCol(stmt_, (SQLUSMALLINT)pos + 1, valueType,
+                                    (SQLPOINTER)pVal, (SQLINTEGER)dataSize,
+                                    &lengths_[pos]))) {
       throw StatementException(stmt_, "SQLBindCol()");
     }
   }
@@ -431,12 +436,9 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
     std::vector<T>& cache = RefAnyCast<std::vector<T> >(values_[pos]);
     cache.resize(length);
 
-    if (Utility::IsError(SQLBindCol(stmt_,
-      (SQLUSMALLINT) pos + 1,
-      valueType,
-      (SQLPOINTER) &cache[0],
-      (SQLINTEGER) dataSize,
-      &len_lengths_[pos][0]))) {
+    if (Utility::IsError(SQLBindCol(stmt_, (SQLUSMALLINT)pos + 1, valueType,
+                                    (SQLPOINTER)&cache[0], (SQLINTEGER)dataSize,
+                                    &len_lengths_[pos][0]))) {
       throw StatementException(stmt_, "SQLBindCol()");
     }
   }
@@ -445,7 +447,8 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
    * Utility function for preparation of variable length columns.
    */
   template <typename T>
-  void prepareVariableLen(size_t pos, SQLSMALLINT valueType, size_t size, DataType dt) {
+  void prepareVariableLen(size_t pos, SQLSMALLINT valueType, size_t size,
+                          DataType dt) {
     fun_check(DE_BOUND == data_extraction_);
     fun_check(pos < values_.size());
 
@@ -457,42 +460,38 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
       UnsafeMemory::Memset(pCache, 0, size);
 
       values_[pos] = Any(pCache);
-      lengths_[pos] = (SQLLEN) size;
+      lengths_[pos] = (SQLLEN)size;
       var_length_arrays_.insert(IndexMap::value_type(pos, dt));
 
-      if (Utility::IsError(SQLBindCol(stmt_,
-        (SQLUSMALLINT) pos + 1,
-        valueType,
-        (SQLPOINTER) pCache,
-        (SQLINTEGER) size*sizeof(T),
-        &lengths_[pos]))) {
+      if (Utility::IsError(SQLBindCol(
+              stmt_, (SQLUSMALLINT)pos + 1, valueType, (SQLPOINTER)pCache,
+              (SQLINTEGER)size * sizeof(T), &lengths_[pos]))) {
         throw StatementException(stmt_, "SQLBindCol()");
       }
     }
   }
 
   /**
-   * Utility function for preparation of bulk variable length character and LOB columns.
+   * Utility function for preparation of bulk variable length character and LOB
+   * columns.
    */
   template <typename T, DataType DT>
-  void PrepareCharArray(size_t pos, SQLSMALLINT valueType, size_t size, size_t length) {
+  void PrepareCharArray(size_t pos, SQLSMALLINT valueType, size_t size,
+                        size_t length) {
     fun_check_dbg(DE_BOUND == data_extraction_);
     fun_check_dbg(pos < values_.size());
     fun_check_dbg(pos < lengths_.size());
     fun_check_dbg(pos < len_lengths_.size());
 
-    T* pArray = (T*) std::calloc(length * size, sizeof(T));
+    T* pArray = (T*)std::calloc(length * size, sizeof(T));
 
     values_[pos] = Any(pArray);
     lengths_[pos] = 0;
     len_lengths_[pos].resize(length);
     var_length_arrays_.insert(IndexMap::value_type(pos, DT));
 
-    if (Utility::IsError(SQLBindCol(stmt_,
-                                    (SQLUSMALLINT) pos + 1,
-                                    valueType,
-                                    (SQLPOINTER) pArray,
-                                    (SQLINTEGER) size,
+    if (Utility::IsError(SQLBindCol(stmt_, (SQLUSMALLINT)pos + 1, valueType,
+                                    (SQLPOINTER)pArray, (SQLINTEGER)size,
                                     &len_lengths_[pos][0]))) {
       throw StatementException(stmt_, "SQLBindCol()");
     }
@@ -512,7 +511,7 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
   void DeleteCachedArray(size_t pos) const {
     T** p = fun::AnyCast<T*>(&values_[pos]);
     if (p) {
-      delete[] *p;
+      delete[] * p;
     }
   }
 
@@ -525,7 +524,6 @@ class FUN_ODBC_API Preparator : public PreparatorBase {
   size_t max_field_size_;
   DataExtraction data_extraction_;
 };
-
 
 //
 // inlines
@@ -750,78 +748,102 @@ inline void Preparator::Prepare(size_t pos, const String&) {
 }
 
 inline void Preparator::Prepare(size_t pos, const std::vector<String>& val) {
-  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_CHAR, maxDataSize(pos), val.size());
+  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_CHAR, maxDataSize(pos),
+                                        val.size());
 }
 
 inline void Preparator::Prepare(size_t pos, const std::deque<String>& val) {
-  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_CHAR, maxDataSize(pos), val.size());
+  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_CHAR, maxDataSize(pos),
+                                        val.size());
 }
 
 inline void Preparator::Prepare(size_t pos, const std::list<String>& val) {
-  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_CHAR, maxDataSize(pos), val.size());
+  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_CHAR, maxDataSize(pos),
+                                        val.size());
 }
 
 inline void Preparator::Prepare(size_t pos, const UString&) {
-  prepareVariableLen<UString::value_type>(pos, SQL_C_WCHAR, maxDataSize(pos), DT_WCHAR);
+  prepareVariableLen<UString::value_type>(pos, SQL_C_WCHAR, maxDataSize(pos),
+                                          DT_WCHAR);
 }
 
 inline void Preparator::Prepare(size_t pos, const std::vector<UString>& val) {
-  PrepareCharArray<UString::value_type, DT_WCHAR_ARRAY>(pos, SQL_C_WCHAR, maxDataSize(pos), val.size());
+  PrepareCharArray<UString::value_type, DT_WCHAR_ARRAY>(
+      pos, SQL_C_WCHAR, maxDataSize(pos), val.size());
 }
 
 inline void Preparator::Prepare(size_t pos, const std::deque<UString>& val) {
-  PrepareCharArray<UString::value_type, DT_WCHAR_ARRAY>(pos, SQL_C_WCHAR, maxDataSize(pos), val.size());
+  PrepareCharArray<UString::value_type, DT_WCHAR_ARRAY>(
+      pos, SQL_C_WCHAR, maxDataSize(pos), val.size());
 }
 
 inline void Preparator::Prepare(size_t pos, const std::list<UString>& val) {
-  PrepareCharArray<UString::value_type, DT_WCHAR_ARRAY>(pos, SQL_C_WCHAR, maxDataSize(pos), val.size());
+  PrepareCharArray<UString::value_type, DT_WCHAR_ARRAY>(
+      pos, SQL_C_WCHAR, maxDataSize(pos), val.size());
 }
 
 inline void Preparator::Prepare(size_t pos, const fun::sql::BLOB&) {
-  prepareVariableLen<fun::sql::BLOB::ValueType>(pos, SQL_C_BINARY, maxDataSize(pos), DT_UCHAR);
+  prepareVariableLen<fun::sql::BLOB::ValueType>(pos, SQL_C_BINARY,
+                                                maxDataSize(pos), DT_UCHAR);
 }
 
-inline void Preparator::Prepare(size_t pos, const std::vector<fun::sql::BLOB>& val) {
-  PrepareCharArray<char, DT_UCHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos), val.size());
+inline void Preparator::Prepare(size_t pos,
+                                const std::vector<fun::sql::BLOB>& val) {
+  PrepareCharArray<char, DT_UCHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos),
+                                         val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::deque<fun::sql::BLOB>& val) {
-  PrepareCharArray<char, DT_UCHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos), val.size());
+inline void Preparator::Prepare(size_t pos,
+                                const std::deque<fun::sql::BLOB>& val) {
+  PrepareCharArray<char, DT_UCHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos),
+                                         val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::list<fun::sql::BLOB>& val) {
-  PrepareCharArray<char, DT_UCHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos), val.size());
+inline void Preparator::Prepare(size_t pos,
+                                const std::list<fun::sql::BLOB>& val) {
+  PrepareCharArray<char, DT_UCHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos),
+                                         val.size());
 }
 
 inline void Preparator::Prepare(size_t pos, const fun::sql::CLOB&) {
-  prepareVariableLen<fun::sql::CLOB::ValueType>(pos, SQL_C_BINARY, maxDataSize(pos), DT_CHAR);
+  prepareVariableLen<fun::sql::CLOB::ValueType>(pos, SQL_C_BINARY,
+                                                maxDataSize(pos), DT_CHAR);
 }
 
-inline void Preparator::Prepare(size_t pos, const std::vector<fun::sql::CLOB>& val) {
-  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos), val.size());
+inline void Preparator::Prepare(size_t pos,
+                                const std::vector<fun::sql::CLOB>& val) {
+  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos),
+                                        val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::deque<fun::sql::CLOB>& val) {
-  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos), val.size());
+inline void Preparator::Prepare(size_t pos,
+                                const std::deque<fun::sql::CLOB>& val) {
+  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos),
+                                        val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::list<fun::sql::CLOB>& val) {
-  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos), val.size());
+inline void Preparator::Prepare(size_t pos,
+                                const std::list<fun::sql::CLOB>& val) {
+  PrepareCharArray<char, DT_CHAR_ARRAY>(pos, SQL_C_BINARY, maxDataSize(pos),
+                                        val.size());
 }
 
 inline void Preparator::Prepare(size_t pos, const fun::sql::Date&) {
   PrepareFixedSize<SQL_DATE_STRUCT>(pos, SQL_C_TYPE_DATE);
 }
 
-inline void Preparator::Prepare(size_t pos, const std::vector<fun::sql::Date>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::vector<fun::sql::Date>& val) {
   PrepareFixedSize<SQL_DATE_STRUCT>(pos, SQL_C_TYPE_DATE, val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::deque<fun::sql::Date>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::deque<fun::sql::Date>& val) {
   PrepareFixedSize<SQL_DATE_STRUCT>(pos, SQL_C_TYPE_DATE, val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::list<fun::sql::Date>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::list<fun::sql::Date>& val) {
   PrepareFixedSize<SQL_DATE_STRUCT>(pos, SQL_C_TYPE_DATE, val.size());
 }
 
@@ -829,15 +851,18 @@ inline void Preparator::Prepare(size_t pos, const fun::sql::Time&) {
   PrepareFixedSize<SQL_TIME_STRUCT>(pos, SQL_C_TYPE_TIME);
 }
 
-inline void Preparator::Prepare(size_t pos, const std::vector<fun::sql::Time>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::vector<fun::sql::Time>& val) {
   PrepareFixedSize<SQL_TIME_STRUCT>(pos, SQL_C_TYPE_TIME, val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::deque<fun::sql::Time>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::deque<fun::sql::Time>& val) {
   PrepareFixedSize<SQL_TIME_STRUCT>(pos, SQL_C_TYPE_TIME, val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::list<fun::sql::Time>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::list<fun::sql::Time>& val) {
   PrepareFixedSize<SQL_TIME_STRUCT>(pos, SQL_C_TYPE_TIME, val.size());
 }
 
@@ -845,15 +870,18 @@ inline void Preparator::Prepare(size_t pos, const fun::DateTime&) {
   PrepareFixedSize<SQL_TIMESTAMP_STRUCT>(pos, SQL_C_TYPE_TIMESTAMP);
 }
 
-inline void Preparator::Prepare(size_t pos, const std::vector<fun::DateTime>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::vector<fun::DateTime>& val) {
   PrepareFixedSize<SQL_TIMESTAMP_STRUCT>(pos, SQL_C_TYPE_TIMESTAMP, val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::deque<fun::DateTime>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::deque<fun::DateTime>& val) {
   PrepareFixedSize<SQL_TIMESTAMP_STRUCT>(pos, SQL_C_TYPE_TIMESTAMP, val.size());
 }
 
-inline void Preparator::Prepare(size_t pos, const std::list<fun::DateTime>& val) {
+inline void Preparator::Prepare(size_t pos,
+                                const std::list<fun::DateTime>& val) {
   PrepareFixedSize<SQL_TIMESTAMP_STRUCT>(pos, SQL_C_TYPE_TIMESTAMP, val.size());
 }
 
@@ -862,31 +890,34 @@ inline void Preparator::Prepare(size_t pos, const fun::Any& val) {
 }
 
 inline void Preparator::Prepare(size_t pos, const std::vector<fun::Any>& val) {
-  PrepareImpl<std::vector<fun::Any> >(pos, & val);
+  PrepareImpl<std::vector<fun::Any> >(pos, &val);
 }
 
 inline void Preparator::Prepare(size_t pos, const std::deque<fun::Any>& val) {
-  PrepareImpl<std::deque<fun::Any> >(pos, & val);
+  PrepareImpl<std::deque<fun::Any> >(pos, &val);
 }
 
 inline void Preparator::Prepare(size_t pos, const std::list<fun::Any>& val) {
-  PrepareImpl<std::list<fun::Any> >(pos, & val);
+  PrepareImpl<std::list<fun::Any> >(pos, &val);
 }
 
 inline void Preparator::Prepare(size_t pos, const fun::dynamicAny& val) {
   PrepareImpl<std::vector<fun::dynamicAny> >(pos);
 }
 
-inline void Preparator::Prepare(size_t pos, const std::vector<fun::dynamicAny>& val) {
-  PrepareImpl<std::vector<fun::dynamicAny> >(pos, & val);
+inline void Preparator::Prepare(size_t pos,
+                                const std::vector<fun::dynamicAny>& val) {
+  PrepareImpl<std::vector<fun::dynamicAny> >(pos, &val);
 }
 
-inline void Preparator::Prepare(size_t pos, const std::deque<fun::dynamicAny>& val) {
-  PrepareImpl<std::deque<fun::dynamicAny> >(pos, & val);
+inline void Preparator::Prepare(size_t pos,
+                                const std::deque<fun::dynamicAny>& val) {
+  PrepareImpl<std::deque<fun::dynamicAny> >(pos, &val);
 }
 
-inline void Preparator::Prepare(size_t pos, const std::list<fun::dynamicAny>& val) {
-  PrepareImpl<std::list<fun::dynamicAny> >(pos, & val);
+inline void Preparator::Prepare(size_t pos,
+                                const std::list<fun::dynamicAny>& val) {
+  PrepareImpl<std::list<fun::dynamicAny> >(pos, &val);
 }
 
 inline size_t Preparator::GetBulkSize(size_t col) const {
@@ -895,13 +926,9 @@ inline size_t Preparator::GetBulkSize(size_t col) const {
   return len_lengths_[col].size();
 }
 
-inline void Preparator::SetMaxFieldSize(size_t size) {
-  max_field_size_ = size;
-}
+inline void Preparator::SetMaxFieldSize(size_t size) { max_field_size_ = size; }
 
-inline size_t Preparator::GetMaxFieldSize() const {
-  return max_field_size_;
-}
+inline size_t Preparator::GetMaxFieldSize() const { return max_field_size_; }
 
 inline bool Preparator::IsPotentiallyHuge(size_t col) const {
   return huge_flags_[col];
@@ -915,14 +942,10 @@ inline Preparator::DataExtraction Preparator::GetDataExtraction() const {
   return data_extraction_;
 }
 
-inline fun::Any& Preparator::operator [] (size_t pos) {
-  return At(pos);
-}
+inline fun::Any& Preparator::operator[](size_t pos) { return At(pos); }
 
-inline fun::Any& Preparator::At(size_t pos) {
-  return values_.At(pos);
-}
+inline fun::Any& Preparator::At(size_t pos) { return values_.At(pos); }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

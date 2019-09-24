@@ -1,15 +1,14 @@
 #include "fun/sql/pooled_session_impl.h"
-#include "fun/sql/sql_exception.h"
 #include "fun/sql/session_pool.h"
+#include "fun/sql/sql_exception.h"
 
 namespace fun {
 namespace sql {
 
 PooledSessionImpl::PooledSessionImpl(PooledSessionHolder::Ptr holder)
-  : SessionImpl(holder->GetSession()->connection_string(),
-    holder->GetSession()->GetLoginTimeout()),
-  holder_(holder) {
-}
+    : SessionImpl(holder->GetSession()->connection_string(),
+                  holder->GetSession()->GetLoginTimeout()),
+      holder_(holder) {}
 
 PooledSessionImpl::~PooledSessionImpl() {
   try {
@@ -23,17 +22,11 @@ StatementImpl::Ptr PooledSessionImpl::CreateStatementImpl() {
   return Access()->CreateStatementImpl();
 }
 
-void PooledSessionImpl::Begin() {
-  return Access()->Begin();
-}
+void PooledSessionImpl::Begin() { return Access()->Begin(); }
 
-void PooledSessionImpl::Commit() {
-  return Access()->Commit();
-}
+void PooledSessionImpl::Commit() { return Access()->Commit(); }
 
-bool PooledSessionImpl::IsConnected() const {
-  return Access()->IsConnected();
-}
+bool PooledSessionImpl::IsConnected() const { return Access()->IsConnected(); }
 
 void PooledSessionImpl::SetConnectionTimeout(size_t timeout) {
   return Access()->SetConnectionTimeout(timeout);
@@ -43,9 +36,7 @@ size_t PooledSessionImpl::GetConnectionTimeout() const {
   return Access()->GetConnectionTimeout();
 }
 
-bool PooledSessionImpl::CanTransact() const {
-  return Access()->CanTransact();
-}
+bool PooledSessionImpl::CanTransact() const { return Access()->CanTransact(); }
 
 bool PooledSessionImpl::IsInTransaction() const {
   return Access()->IsInTransaction();
@@ -67,13 +58,9 @@ bool PooledSessionImpl::IsTransactionIsolation(uint32 ti) const {
   return Access()->IsTransactionIsolation(ti);
 }
 
-void PooledSessionImpl::Rollback() {
-  return Access()->Rollback();
-}
+void PooledSessionImpl::Rollback() { return Access()->Rollback(); }
 
-void PooledSessionImpl::Open(const String& connect) {
-  Access()->Open(connect);
-}
+void PooledSessionImpl::Open(const String& connect) { Access()->Open(connect); }
 
 void PooledSessionImpl::PutBack() {
   if (holder_) {
@@ -96,9 +83,7 @@ void PooledSessionImpl::Close() {
   }
 }
 
-void PooledSessionImpl::Reset() {
-  Access()->Reset();
-}
+void PooledSessionImpl::Reset() { Access()->Reset(); }
 
 const String& PooledSessionImpl::GetConnectorName() const {
   return Access()->GetConnectorName();
@@ -129,5 +114,5 @@ SessionImpl::Ptr PooledSessionImpl::Access() const {
   }
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

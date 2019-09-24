@@ -1,28 +1,33 @@
 ﻿#include "fun/sql/postgresql/session_impl.h"
+#include "fun/base/number_parser.h"
+#include "fun/base/string.h"
 #include "fun/sql/postgresql/postgresql_exception.h"
 #include "fun/sql/postgresql/postgresql_statement_impl.h"
 #include "fun/sql/postgresql/postgresql_types.h"
 #include "fun/sql/session.h"
-#include "fun/base/number_parser.h"
-#include "fun/base/string.h"
 
 #include <map>
 
 namespace {
 
-String CopyStripped(String::const_iterator aFromStringCItr, String::const_iterator aToStringCItr) {
+String CopyStripped(String::const_iterator aFromStringCItr,
+                    String::const_iterator aToStringCItr) {
   // skip leading spaces
-  while ((aFromStringCItr != aToStringCItr) && isspace(*aFromStringCItr)) aFromStringCItr++;
+  while ((aFromStringCItr != aToStringCItr) && isspace(*aFromStringCItr))
+    aFromStringCItr++;
   // skip trailing spaces
-  while ((aFromStringCItr != aToStringCItr) && isspace(*(aToStringCItr - 1))) aToStringCItr--;
+  while ((aFromStringCItr != aToStringCItr) && isspace(*(aToStringCItr - 1)))
+    aToStringCItr--;
 
   return String(aFromStringCItr, aToStringCItr);
 }
 
-String CreateConnectionStringFromOptionsMap(const std::map <String, String> options_map) {
+String CreateConnectionStringFromOptionsMap(
+    const std::map<String, String> options_map) {
   String connection_string;
 
-  for (std::map<String, String>::const_iterator citr = options_map.begin(); citr != options_map.end(); ++citr) {
+  for (std::map<String, String>::const_iterator citr = options_map.begin();
+       citr != options_map.end(); ++citr) {
     connection_string.Append(citr->first);
     connection_string.Append("=");
     connection_string.Append(citr->second);
@@ -32,14 +37,14 @@ String CreateConnectionStringFromOptionsMap(const std::map <String, String> opti
   return connection_string;
 }
 
-} // namespace
+}  // namespace
 
 namespace fun {
 namespace sql {
 namespace postgresql {
 
 SessionImpl::SessionImpl(const String& connection_string, size_t login_timeout)
-  : fun::sql::SessionImplBase<SessionImpl>(connection_string, login_timeout) {
+    : fun::sql::SessionImplBase<SessionImpl>(connection_string, login_timeout) {
   SetFeature("bulk", true);
   SetProperty("handle", static_cast<SessionHandle*>(&session_handle_));
   SetConnectionTimeout(CONNECTION_TIMEOUT_DEFAULT);
@@ -49,12 +54,11 @@ SessionImpl::SessionImpl(const String& connection_string, size_t login_timeout)
 SessionImpl::~SessionImpl() {
   try {
     Close();
-  } catch (...) {}
+  } catch (...) {
+  }
 }
 
-void SessionImpl::SetConnectionTimeout(size_t timeout) {
-  timeout_ = timeout;
-}
+void SessionImpl::SetConnectionTimeout(size_t timeout) { timeout_ = timeout; }
 
 void SessionImpl::Open(const String& connection_string) {
   if (GetConnectionString() != connection_string) {
@@ -71,10 +75,11 @@ void SessionImpl::Open(const String& connection_string) {
 
   unsigned int timeout = static_cast<unsigned int>(GetLoginTimeout());
 
-  // PostgreSQL connections can use environment variables for connection parameters.
-  // As such it is not an error if they are not part of the connection string
+  // PostgreSQL connections can use environment variables for connection
+  // parameters. As such it is not an error if they are not part of the
+  // connection string
 
-  std::map <String, String> options_map;
+  std::map<String, String> options_map;
 
   // Default values
   options_map["connect_timeout"] = fun::NumberFormatter::Format(timeout);
@@ -82,11 +87,14 @@ void SessionImpl::Open(const String& connection_string) {
   const String& conn_string = GetConnectionString();
 
   for (String::const_iterator start = conn_string.begin();;) {
-    String::const_iterator finish = std::find(start, conn_string.end(), ' '); // space is the separator between keyword=value pairs
+    String::const_iterator finish =
+        std::find(start, conn_string.end(),
+                  ' ');  // space is the separator between keyword=value pairs
     String::const_iterator middle = std::find(start, finish, '=');
 
     if (middle == finish) {
-      throw PostgreSqlException("create session: bad connection string format, cannot find '='");
+      throw PostgreSqlException(
+          "create session: bad connection string format, cannot find '='");
     }
 
     options_map[CopyStripped(start, middle)] = CopyStripped(middle + 1, finish);
@@ -101,13 +109,11 @@ void SessionImpl::Open(const String& connection_string) {
   // Real connect
   session_handle_.Connect(CreateConnectionStringFromOptionsMap(options_map));
 
-  AddFeature("autoCommit",
-    &SessionImpl::SetAutoCommit,
-    &SessionImpl::IsAutoCommit);
+  AddFeature("autoCommit", &SessionImpl::SetAutoCommit,
+             &SessionImpl::IsAutoCommit);
 
-  AddFeature("asynchronousCommit",
-    &SessionImpl::SetAutoCommit,
-    &SessionImpl::IsAutoCommit);
+  AddFeature("asynchronousCommit", &SessionImpl::SetAutoCommit,
+             &SessionImpl::IsAutoCommit);
 }
 
 void SessionImpl::Close() {
@@ -116,12 +122,9 @@ void SessionImpl::Close() {
   }
 }
 
-void SessionImpl::Reset() {
-}
+void SessionImpl::Reset() {}
 
-bool SessionImpl::IsConnected() const {
-  return session_handle_.IsConnected();
-}
+bool SessionImpl::IsConnected() const { return session_handle_.IsConnected(); }
 
 StatementImpl::Ptr SessionImpl::CreateStatementImpl() {
   return new PostgreSqlStatementImpl(*this);
@@ -157,7 +160,7 @@ bool SessionImpl::IsAutoCommit(const String&) const {
   return session_handle_.IsAutoCommit();
 }
 
-void SessionImpl::SetAsynchronousCommit(const String&,  bool value) {
+void SessionImpl::SetAsynchronousCommit(const String&, bool value) {
   session_handle_.SetAsynchronousCommit(value);
 }
 
@@ -177,6 +180,6 @@ bool SessionImpl::HasTransactionIsolation(uint32 ti) const {
   return session_handle_.HasTransactionIsolation(ti);
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

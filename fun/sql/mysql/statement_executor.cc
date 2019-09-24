@@ -1,5 +1,5 @@
-﻿#include <mysql.h>
-#include "fun/sql/mysql/statement_executor.h"
+﻿#include "fun/sql/mysql/statement_executor.h"
+#include <mysql.h>
 #include "fun/base/format.h"
 
 namespace fun {
@@ -7,8 +7,7 @@ namespace sql {
 namespace mysql {
 
 StatementExecutor::StatementExecutor(MYSQL* mysql)
-  : session_handle_(mysql),
-    affected_row_count_(0) {
+    : session_handle_(mysql), affected_row_count_(0) {
   if ((handle_ = mysql_stmt_init(mysql)) == 0) {
     throw StatementException("mysql_stmt_init error");
   }
@@ -16,13 +15,9 @@ StatementExecutor::StatementExecutor(MYSQL* mysql)
   state_ = STMT_INITED;
 }
 
-StatementExecutor::~StatementExecutor() {
-  mysql_stmt_close(handle_);
-}
+StatementExecutor::~StatementExecutor() { mysql_stmt_close(handle_); }
 
-int StatementExecutor::GetState() const {
-  return state_;
-}
+int StatementExecutor::GetState() const { return state_; }
 
 void StatementExecutor::Prepare(const String& query) {
   if (state_ >= STMT_COMPILED) {
@@ -30,12 +25,15 @@ void StatementExecutor::Prepare(const String& query) {
     return;
   }
 
-  int rc = mysql_stmt_prepare(handle_, query.c_str(), static_cast<unsigned int>(query.length()));
+  int rc = mysql_stmt_prepare(handle_, query.c_str(),
+                              static_cast<unsigned int>(query.length()));
   if (rc != 0) {
     // retry if connection lost
     int err = mysql_errno(session_handle_);
-    if (err == 2006 /* CR_SERVER_GONE_ERROR */ || err == 2013 /* CR_SERVER_LOST */) {
-      rc = mysql_stmt_prepare(handle_, query.c_str(), static_cast<unsigned int>(query.length()));
+    if (err == 2006 /* CR_SERVER_GONE_ERROR */ ||
+        err == 2013 /* CR_SERVER_LOST */) {
+      rc = mysql_stmt_prepare(handle_, query.c_str(),
+                              static_cast<unsigned int>(query.length()));
     }
   }
   if (rc != 0) {
@@ -87,7 +85,8 @@ void StatementExecutor::Execute() {
 
   my_ulonglong affected_row_count = mysql_affected_rows(session_handle_);
   if (affected_row_count != ((my_ulonglong)-1)) {
-    affected_row_count_ = static_cast<int>(affected_row_count); // Was really a DELETE, UPDATE or INSERT statement
+    affected_row_count_ = static_cast<int>(
+        affected_row_count);  // Was really a DELETE, UPDATE or INSERT statement
   }
 }
 
@@ -98,7 +97,8 @@ bool StatementExecutor::Fetch() {
 
   int res = mysql_stmt_fetch(handle_);
 
-  // we have specified zero buffers for BLOBs, so DATA_TRUNCATED is normal in this case
+  // we have specified zero buffers for BLOBs, so DATA_TRUNCATED is normal in
+  // this case
   if ((res != 0) && (res != MYSQL_NO_DATA) && (res != MYSQL_DATA_TRUNCATED)) {
     throw StatementException("mysql_stmt_fetch error", handle_, query_);
   }
@@ -111,19 +111,19 @@ bool StatementExecutor::FetchColumn(size_t n, MYSQL_BIND* bind) {
     throw StatementException("Statement is not executed yet");
   }
 
-  int res = mysql_stmt_fetch_column(handle_, bind, static_cast<unsigned int>(n), 0);
+  int res =
+      mysql_stmt_fetch_column(handle_, bind, static_cast<unsigned int>(n), 0);
 
   if ((res != 0) && (res != MYSQL_NO_DATA)) {
-    throw StatementException(fun::Format("mysql_stmt_fetch_column(%z) error", n), handle_, query_);
+    throw StatementException(
+        fun::Format("mysql_stmt_fetch_column(%z) error", n), handle_, query_);
   }
 
   return (res == 0);
 }
 
-int StatementExecutor::AffectedRowCount() const {
-  return affected_row_count_;
-}
+int StatementExecutor::AffectedRowCount() const { return affected_row_count_; }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

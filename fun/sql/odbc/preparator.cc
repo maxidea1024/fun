@@ -1,6 +1,6 @@
 #include "fun/sql/odbc/preparator.h"
-#include "fun/sql/odbc/odbc_meta_column.h"
 #include "fun/base/exception.h"
+#include "fun/sql/odbc/odbc_meta_column.h"
 
 using fun::InvalidArgumentException;
 
@@ -8,15 +8,14 @@ namespace fun {
 namespace sql {
 namespace odbc {
 
-Preparator::Preparator( const StatementHandle& stmt,
-                        const String& statement,
-                        size_t maxFieldSize,
-                        DataExtraction dataExtraction)
-  : stmt_(stmt),
-    max_field_size_(maxFieldSize),
-    data_extraction_(dataExtraction) {
-  SQLCHAR* pStr = (SQLCHAR*) statement.c_str();
-  if (Utility::IsError(fun::sql::odbc::SQLPrepare(stmt_, pStr, (SQLINTEGER) statement.length()))) {
+Preparator::Preparator(const StatementHandle& stmt, const String& statement,
+                       size_t maxFieldSize, DataExtraction dataExtraction)
+    : stmt_(stmt),
+      max_field_size_(maxFieldSize),
+      data_extraction_(dataExtraction) {
+  SQLCHAR* pStr = (SQLCHAR*)statement.c_str();
+  if (Utility::IsError(fun::sql::odbc::SQLPrepare(
+          stmt_, pStr, (SQLINTEGER)statement.length()))) {
     throw StatementException(stmt_);
   }
 
@@ -33,9 +32,9 @@ Preparator::Preparator( const StatementHandle& stmt,
 }
 
 Preparator::Preparator(const Preparator& other)
-  : stmt_(other.stmt_),
-    max_field_size_(other.max_field_size_),
-    data_extraction_(other.data_extraction_) {
+    : stmt_(other.stmt_),
+      max_field_size_(other.max_field_size_),
+      data_extraction_(other.data_extraction_) {
   Resize();
 }
 
@@ -77,7 +76,8 @@ void Preparator::FreeMemory() const {
       }
 
       case DT_WCHAR_ARRAY: {
-        UString::value_type** pc = AnyCast<UString::value_type*>(&values_[it->first]);
+        UString::value_type** pc =
+            AnyCast<UString::value_type*>(&values_[it->first]);
         if (pc) {
           std::free(*pc);
         }
@@ -121,7 +121,7 @@ void Preparator::Resize() const {
     huge_flags_.Resize(col_count, false);
     lengths_.Resize(col_count, 0);
     len_lengths_.Resize(col_count);
-    if(var_length_arrays_.size()) {
+    if (var_length_arrays_.size()) {
       FreeMemory();
       var_length_arrays_.clear();
     }
@@ -140,10 +140,12 @@ size_t Preparator::maxDataSize(size_t pos) const {
 
     // accommodate for terminating zero (non-bulk only!)
     MetaColumn::ColumnDataType type = mc.type();
-    if (!IsBulk() && ((OdbcMetaColumn::FDT_WSTRING == type) || (OdbcMetaColumn::FDT_STRING == type))) {
+    if (!IsBulk() && ((OdbcMetaColumn::FDT_WSTRING == type) ||
+                      (OdbcMetaColumn::FDT_STRING == type))) {
       ++sz;
     }
-  } catch (StatementException&) {}
+  } catch (StatementException&) {
+  }
 
   if (!sz || sz > maxsz) {
     sz = maxsz;
@@ -153,7 +155,8 @@ size_t Preparator::maxDataSize(size_t pos) const {
 }
 
 size_t Preparator::actualDataSize(size_t col, size_t row) const {
-  SQLLEN size = (FUN_DATA_INVALID_ROW == row) ? lengths_.at(col) : len_lengths_.at(col).at(row);
+  SQLLEN size = (FUN_DATA_INVALID_ROW == row) ? lengths_.at(col)
+                                              : len_lengths_.at(col).at(row);
 
   // workaround for drivers returning negative length
   if (size < 0 && SQL_NULL_DATA != size) {
@@ -163,7 +166,8 @@ size_t Preparator::actualDataSize(size_t col, size_t row) const {
   return size;
 }
 
-void Preparator::PrepareBoolArray(size_t pos, SQLSMALLINT valueType, size_t length) {
+void Preparator::PrepareBoolArray(size_t pos, SQLSMALLINT valueType,
+                                  size_t length) {
   fun_check_dbg(DE_BOUND == data_extraction_);
   fun_check_dbg(pos < values_.size());
   fun_check_dbg(pos < lengths_.size());
@@ -176,16 +180,13 @@ void Preparator::PrepareBoolArray(size_t pos, SQLSMALLINT valueType, size_t leng
   len_lengths_[pos].Resize(length);
   var_length_arrays_.insert(IndexMap::value_type(pos, DT_BOOL_ARRAY));
 
-  if (Utility::IsError(SQLBindCol(stmt_,
-                                  (SQLUSMALLINT) pos + 1,
-                                  valueType,
-                                  (SQLPOINTER) pArray,
-                                  (SQLINTEGER) sizeof(bool),
+  if (Utility::IsError(SQLBindCol(stmt_, (SQLUSMALLINT)pos + 1, valueType,
+                                  (SQLPOINTER)pArray, (SQLINTEGER)sizeof(bool),
                                   &len_lengths_[pos][0]))) {
     throw StatementException(stmt_, "SQLBindCol()");
   }
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

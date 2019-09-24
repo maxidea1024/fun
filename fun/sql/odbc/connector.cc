@@ -14,9 +14,10 @@ Connector::Connector() {}
 
 Connector::~Connector() {}
 
-fun::RefCountedPtr<fun::sql::SessionImpl>
-Connector::CreateSession(const String& connection_string, size_t timeout) {
-  return fun::RefCountedPtr<fun::sql::SessionImpl>(new SessionImpl(connection_string, timeout));
+fun::RefCountedPtr<fun::sql::SessionImpl> Connector::CreateSession(
+    const String& connection_string, size_t timeout) {
+  return fun::RefCountedPtr<fun::sql::SessionImpl>(
+      new SessionImpl(connection_string, timeout));
 }
 
 void Connector::RegisterConnector() {
@@ -27,6 +28,6 @@ void Connector::UnregisterConnector() {
   fun::sql::SessionFactory::Instance().Remove(FUN_DATA_ODBC_CONNECTOR_NAME);
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

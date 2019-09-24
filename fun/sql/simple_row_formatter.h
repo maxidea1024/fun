@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fun/sql/sql.h"
 #include "fun/sql/row_formatter.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -15,10 +15,11 @@ class FUN_SQL_API SimpleRowFormatter : public RowFormatter {
   static const int32 DEFAULT_SPACING = 1;
 
   /**
-   * Creates the SimpleRowFormatter and sets the column width to specified value.
+   * Creates the SimpleRowFormatter and sets the column width to specified
+   * value.
    */
-  SimpleRowFormatter( std::streamsize column_width = DEFAULT_COLUMN_WIDTH,
-                      std::streamsize spacing = DEFAULT_SPACING);
+  SimpleRowFormatter(std::streamsize column_width = DEFAULT_COLUMN_WIDTH,
+                     std::streamsize spacing = DEFAULT_SPACING);
 
   /**
    * Creates the copy of the supplied SimpleRowFormatter.
@@ -28,7 +29,7 @@ class FUN_SQL_API SimpleRowFormatter : public RowFormatter {
   /**
    * Assignment operator.
    */
-  SimpleRowFormatter& operator = (const SimpleRowFormatter& row);
+  SimpleRowFormatter& operator=(const SimpleRowFormatter& row);
 
   /**
    * Destroys the SimpleRowFormatter.
@@ -76,14 +77,11 @@ class FUN_SQL_API SimpleRowFormatter : public RowFormatter {
   int32 row_count_;
 };
 
-
 //
 // inlines
 //
 
-inline int32 SimpleRowFormatter::RowCount() const {
-  return row_count_;
-}
+inline int32 SimpleRowFormatter::RowCount() const { return row_count_; }
 
 inline void SimpleRowFormatter::SetColumnWidth(std::streamsize column_width) {
   col_width_ = column_width;
@@ -97,8 +95,8 @@ inline std::streamsize SimpleRowFormatter::GetSpacing() const {
   return spacing_;
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun
 
 namespace std {
 
@@ -106,8 +104,9 @@ namespace std {
  * Full template specialization of std:::Swap for SimpleRowFormatter
  */
 template <>
-inline void Swap<fun::sql::SimpleRowFormatter>(fun::sql::SimpleRowFormatter& s1, fun::sql::SimpleRowFormatter& s2) {
+inline void Swap<fun::sql::SimpleRowFormatter>(
+    fun::sql::SimpleRowFormatter& s1, fun::sql::SimpleRowFormatter& s2) {
   s1.Swap(s2);
 }
 
-} // namespace std
+}  // namespace std

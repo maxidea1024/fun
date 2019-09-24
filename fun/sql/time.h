@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/sql/sql.h"
 #include "fun/base/dynamic/var_holder.h"
 #include "fun/base/exception.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 
@@ -10,7 +10,7 @@ namespace Dynamic {
 
 class Var;
 
-} // namespace Dynamic
+}  // namespace Dynamic
 
 class DateTime;
 
@@ -66,37 +66,37 @@ class FUN_SQL_API Time {
   /**
    * Assignment operator for Time.
    */
-  Time& operator = (const Time& t);
+  Time& operator=(const Time& t);
 
   /**
    * Assignment operator for DateTime.
    */
-  Time& operator = (const DateTime& dt);
+  Time& operator=(const DateTime& dt);
 
   /**
    * Assignment operator for Var.
    */
-  Time& operator = (const fun::dynamic::Var& var);
+  Time& operator=(const fun::dynamic::Var& var);
 
   /**
    * Equality operator.
    */
-  bool operator == (const Time& time) const;
+  bool operator==(const Time& time) const;
 
   /**
    * Inequality operator.
    */
-  bool operator != (const Time& time) const;
+  bool operator!=(const Time& time) const;
 
   /**
    * Less then operator.
    */
-  bool operator < (const Time& time) const;
+  bool operator<(const Time& time) const;
 
   /**
    * Greater then operator.
    */
-  bool operator > (const Time& time) const;
+  bool operator>(const Time& time) const;
 
  private:
   int32 hour_;
@@ -104,50 +104,41 @@ class FUN_SQL_API Time {
   int32 second_;
 };
 
-
 //
 // inlines
 //
 
-inline int32 Time::Hour() const {
-  return hour_;
-}
+inline int32 Time::Hour() const { return hour_; }
 
-inline int32 Time::Minute() const {
-  return minute_;
-}
+inline int32 Time::Minute() const { return minute_; }
 
-inline int32 Time::Second() const {
-  return second_;
-}
+inline int32 Time::Second() const { return second_; }
 
-inline Time& Time::operator = (const Time& t) {
+inline Time& Time::operator=(const Time& t) {
   Assign(t.Hour(), t.Minute(), t.Second());
   return *this;
 }
 
-inline Time& Time::operator = (const DateTime& dt) {
+inline Time& Time::operator=(const DateTime& dt) {
   Assign(dt.Hour(), dt.Minute(), dt.Second());
   return *this;
 }
 
-inline bool Time::operator == (const Time& time) const {
-  return  hour_ == time.Hour() &&
-          minute_ == time.Minute() &&
-          second_ == time.Second();
+inline bool Time::operator==(const Time& time) const {
+  return hour_ == time.Hour() && minute_ == time.Minute() &&
+         second_ == time.Second();
 }
 
-inline bool Time::operator != (const Time& time) const {
+inline bool Time::operator!=(const Time& time) const {
   return !(*this == time);
 }
 
-inline bool Time::operator > (const Time& time) const {
+inline bool Time::operator>(const Time& time) const {
   return !(*this == time) && !(*this < time);
 }
 
-} // namespace sql
-} // namespace fun
-
+}  // namespace sql
+}  // namespace fun
 
 //
 // VarHolderImpl<Time>
@@ -159,22 +150,22 @@ namespace Dynamic {
 template <>
 class VarHolderImpl<fun::sql::Time> : public VarHolder {
  public:
-  VarHolderImpl(const fun::sql::Time& val): val_(val) {}
+  VarHolderImpl(const fun::sql::Time& val) : val_(val) {}
   ~VarHolderImpl() {}
 
-  const std::type_info& Type() const {
-    return typeid(fun::sql::Time);
-  }
+  const std::type_info& Type() const { return typeid(fun::sql::Time); }
 
   void Convert(fun::Timestamp& val) const {
     fun::DateTime dt;
-    dt.Assign(dt.Year(), dt.Month(), dt.Day(), val_.Hour(), val_.Minute(), val_.Second());
+    dt.Assign(dt.Year(), dt.Month(), dt.Day(), val_.Hour(), val_.Minute(),
+              val_.Second());
     val = dt.Timestamp();
   }
 
   void Convert(fun::DateTime& val) const {
     fun::DateTime dt;
-    dt.Assign(dt.Year(), dt.Month(), dt.Day(), val_.Hour(), val_.Minute(), val_.Second());
+    dt.Assign(dt.Year(), dt.Month(), dt.Day(), val_.Hour(), val_.Minute(),
+              val_.Second());
     val = dt;
   }
 
@@ -187,26 +178,18 @@ class VarHolderImpl<fun::sql::Time> : public VarHolder {
     return CloneHolder(var_holder, val_);
   }
 
-  const fun::sql::Time& Value() const {
-    return val_;
-  }
+  const fun::sql::Time& Value() const { return val_; }
 
-  bool IsDate() const {
-    return false;
-  }
+  bool IsDate() const { return false; }
 
-  bool IsTime() const {
-    return true;
-  }
+  bool IsTime() const { return true; }
 
-  bool IsDateTime() const {
-    return false;
-  }
+  bool IsDateTime() const { return false; }
 
  private:
   VarHolderImpl();
   fun::sql::Time val_;
 };
 
-} // namespace Dynamic
-} // namespace fun
+}  // namespace Dynamic
+}  // namespace fun

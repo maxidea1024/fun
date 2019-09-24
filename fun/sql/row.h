@@ -1,13 +1,13 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/row_formatter.h"
-#include "fun/base/dynamic/var.h"
-#include "fun/tuple.h"
-#include "fun/base/shared_ptr.h"
-#include <vector>
-#include <string>
 #include <ostream>
+#include <string>
+#include <vector>
+#include "fun/base/dynamic/var.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/sql/row_formatter.h"
+#include "fun/sql/sql.h"
+#include "fun/tuple.h"
 
 namespace fun {
 namespace sql {
@@ -27,13 +27,13 @@ class RecordSet;
  * have lower sorting precedence).
  * These features make Row suitable for use with standard sorted
  * containers and algorithms. The main constraint is that all the rows from
- * a Set that is being sorted must have the same sorting criteria (i.e., the same
- * Set of fields must be in sorting criteria in the same order). Since rows don't
- * know about each other, it is the programmer's responsibility to ensure this
- * constraint is satisfied.
- * Field names are a shared pointer to a vector of strings. For efficiency sake,
- * a constructor taking a shared pointer to names vector argument is provided.
- * The stream operator is provided for Row data type as a free-standing function.
+ * a Set that is being sorted must have the same sorting criteria (i.e., the
+ * same Set of fields must be in sorting criteria in the same order). Since rows
+ * don't know about each other, it is the programmer's responsibility to ensure
+ * this constraint is satisfied. Field names are a shared pointer to a vector of
+ * strings. For efficiency sake, a constructor taking a shared pointer to names
+ * vector argument is provided. The stream operator is provided for Row data
+ * type as a free-standing function.
  */
 class FUN_SQL_API Row {
  public:
@@ -72,8 +72,7 @@ class FUN_SQL_API Row {
   /**
    * Creates the Row.
    */
-  Row(NameVecPtr names,
-      const SortMapPtr& sort_map,
+  Row(NameVecPtr names, const SortMapPtr& sort_map,
       const RowFormatter::Ptr& formatter = nullptr);
 
   /**
@@ -89,12 +88,12 @@ class FUN_SQL_API Row {
   /**
    * Returns the reference to data value at column location.
    */
-  fun::dynamic::Var& operator [] (size_t col);
+  fun::dynamic::Var& operator[](size_t col);
 
   /**
    * Returns the reference to data value at named column location.
    */
-  fun::dynamic::Var& operator [] (const String& name);
+  fun::dynamic::Var& operator[](const String& name);
 
   /**
    * Returns the reference to data value at column location.
@@ -104,12 +103,12 @@ class FUN_SQL_API Row {
   /**
    * Returns the reference to data value at column location.
    */
-  const fun::dynamic::Var& operator [] (size_t col) const;
+  const fun::dynamic::Var& operator[](size_t col) const;
 
   /**
    * Returns the reference to data value at named column location.
    */
-  const fun::dynamic::Var& operator [] (const String& name) const;
+  const fun::dynamic::Var& operator[](const String& name) const;
 
   /**
    * Appends the value to the row.
@@ -133,7 +132,8 @@ class FUN_SQL_API Row {
   void Set(size_t pos, const T& val) {
     try {
       values_.at(pos) = val;
-    } catch (std::out_of_range&) { //TODO std::vector¸¦ »ç¿ëÇÏÁö ¾ÊÀ¸¹Ç·Î º°µµÀÇ ¿¹¿Ü Ã³¸®¸¦ ÇØ¾ßÇÔ.
+    } catch (std::out_of_range&) {  // TODO std::vectorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                                    // ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½Ø¾ï¿½ï¿½ï¿½.
       throw RangeException("Invalid column number.");
     }
   }
@@ -229,17 +229,17 @@ class FUN_SQL_API Row {
   /**
    * Equality operator.
    */
-  bool operator == (const Row& other) const;
+  bool operator==(const Row& other) const;
 
   /**
    * Inequality operator.
    */
-  bool operator != (const Row& other) const;
+  bool operator!=(const Row& other) const;
 
   /**
    * Less-than operator.
    */
-  bool operator < (const Row& other) const;
+  bool operator<(const Row& other) const;
 
   /**
    * Returns the shared pointer to names vector.
@@ -293,8 +293,7 @@ class FUN_SQL_API Row {
   mutable String value_str_;
 };
 
-FUN_SQL_API std::ostream& operator << (std::ostream &os, const Row& row);
-
+FUN_SQL_API std::ostream& operator<<(std::ostream& os, const Row& row);
 
 //
 // inlines
@@ -309,41 +308,29 @@ inline void Row::Reset() {
   values_.Clear();
 }
 
-inline const Row::NameVecPtr Row::Names() const {
-  return names_;
-}
+inline const Row::NameVecPtr Row::Names() const { return names_; }
 
-inline const Row::ValueVec& Row::Values() const {
-  return values_;
-}
+inline const Row::ValueVec& Row::Values() const { return values_; }
 
-inline Row::ValueVec& Row::Values() {
-  return values_;
-}
+inline Row::ValueVec& Row::Values() { return values_; }
 
-inline fun::dynamic::Var& Row::operator [] (size_t col) {
-  return Get(col);
-}
+inline fun::dynamic::Var& Row::operator[](size_t col) { return Get(col); }
 
-inline fun::dynamic::Var& Row::operator [] (const String& name) {
+inline fun::dynamic::Var& Row::operator[](const String& name) {
   return Get(GetPosition(name));
 }
 
-inline const fun::dynamic::Var& Row::operator [] (size_t col) const {
+inline const fun::dynamic::Var& Row::operator[](size_t col) const {
   return Get(col);
 }
 
-inline const fun::dynamic::Var& Row::operator [] (const String& name) const {
+inline const fun::dynamic::Var& Row::operator[](const String& name) const {
   return Get(GetPosition(name));
 }
 
-inline const RowFormatter& Row::GetFormatter() const {
-  return *formatter_;
-}
+inline const RowFormatter& Row::GetFormatter() const { return *formatter_; }
 
-inline const Row::SortMapPtr& Row::GetSortMap() const {
-  return sort_map_;
-}
+inline const Row::SortMapPtr& Row::GetSortMap() const { return sort_map_; }
 
 inline const String& Row::ValuesToString() const {
   return formatter_->FormatValues(Values(), value_str_);
@@ -353,5 +340,5 @@ inline void Row::FormatValues() const {
   return formatter_->FormatValues(Values());
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

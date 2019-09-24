@@ -1,29 +1,39 @@
 #include "fun/sql/odbc/type_info.h"
-#include "fun/sql/odbc/odbc_exception.h"
-#include "fun/sql/lob.h"
-#include "fun/base/format.h"
-#include "fun/base/exception.h"
 #include <iostream>
+#include "fun/base/exception.h"
+#include "fun/base/format.h"
+#include "fun/sql/lob.h"
+#include "fun/sql/odbc/odbc_exception.h"
 
 namespace fun {
 namespace sql {
 namespace odbc {
 
-TypeInfo::TypeInfo(SQLHDBC* pHDBC): hdbc_(pHDBC) {
+TypeInfo::TypeInfo(SQLHDBC* pHDBC) : hdbc_(pHDBC) {
   fillCTypes();
   fillSQLTypes();
   if (hdbc_) fillTypeInfo(*hdbc_);
 
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(String), static_cast<SQLSMALLINT>(SQL_C_CHAR)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(std::wstring), static_cast<SQLSMALLINT>(SQL_C_WCHAR)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(fun::UString), static_cast<SQLSMALLINT>(SQL_C_WCHAR)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(Date), static_cast<SQLSMALLINT>(SQL_TYPE_DATE)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(Time), static_cast<SQLSMALLINT>(SQL_TYPE_TIME)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(DateTime), static_cast<SQLSMALLINT>(SQL_TYPE_TIMESTAMP)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(BLOB), static_cast<SQLSMALLINT>(SQL_BINARY)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(float), static_cast<SQLSMALLINT>(SQL_REAL)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(double), static_cast<SQLSMALLINT>(SQL_DOUBLE)));
-  cpp_data_types_.insert(CppTypeInfoMap::value_type(&typeid(bool), static_cast<SQLSMALLINT>(SQL_BIT)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(String), static_cast<SQLSMALLINT>(SQL_C_CHAR)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(std::wstring), static_cast<SQLSMALLINT>(SQL_C_WCHAR)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(fun::UString), static_cast<SQLSMALLINT>(SQL_C_WCHAR)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(Date), static_cast<SQLSMALLINT>(SQL_TYPE_DATE)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(Time), static_cast<SQLSMALLINT>(SQL_TYPE_TIME)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(DateTime), static_cast<SQLSMALLINT>(SQL_TYPE_TIMESTAMP)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(BLOB), static_cast<SQLSMALLINT>(SQL_BINARY)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(float), static_cast<SQLSMALLINT>(SQL_REAL)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(double), static_cast<SQLSMALLINT>(SQL_DOUBLE)));
+  cpp_data_types_.insert(CppTypeInfoMap::value_type(
+      &typeid(bool), static_cast<SQLSMALLINT>(SQL_BIT)));
 }
 
 TypeInfo::~TypeInfo() {}
@@ -90,57 +100,64 @@ void TypeInfo::fillTypeInfo(SQLHDBC pHDBC) {
     rc = fun::sql::odbc::SQLGetTypeInfo(hstmt, SQL_ALL_TYPES);
     if (SQL_SUCCEEDED(rc)) {
       while (SQLFetch(hstmt) != SQL_NO_DATA_FOUND) {
-        char typeName[stringSize] = { 0 };
-        char literalPrefix[stringSize] = { 0 };
-        char literalSuffix[stringSize] = { 0 };
-        char createParams[stringSize] = { 0 };
-        char localTypeName[stringSize] = { 0 };
+        char typeName[stringSize] = {0};
+        char literalPrefix[stringSize] = {0};
+        char literalSuffix[stringSize] = {0};
+        char createParams[stringSize] = {0};
+        char localTypeName[stringSize] = {0};
 
-        TypeInfoTup ti("TYPE_NAME", "",
-          "DATA_TYPE", 0,
-          "COLUMN_SIZE", 0,
-          "LITERAL_PREFIX", "",
-          "LITERAL_SUFFIX", "",
-          "CREATE_PARAMS", "",
-          "NULLABLE", 0,
-          "CASE_SENSITIVE", 0,
-          "SEARCHABLE", 0,
-          "UNSIGNED_ATTRIBUTE", 0,
-          "FIXED_PREC_SCALE", 0,
-          "AUTO_UNIQUE_VALUE", 0,
-          "LOCAL_TYPE_NAME", "",
-          "MINIMUM_SCALE", 0,
-          "MAXIMUM_SCALE", 0,
-          "SQL_DATA_TYPE", 0,
-          "SQL_DATETIME_SUB", 0,
-          "NUM_PREC_RADIX", 0,
-          "INTERVAL_PRECISION", 0);
+        TypeInfoTup ti(
+            "TYPE_NAME", "", "DATA_TYPE", 0, "COLUMN_SIZE", 0, "LITERAL_PREFIX",
+            "", "LITERAL_SUFFIX", "", "CREATE_PARAMS", "", "NULLABLE", 0,
+            "CASE_SENSITIVE", 0, "SEARCHABLE", 0, "UNSIGNED_ATTRIBUTE", 0,
+            "FIXED_PREC_SCALE", 0, "AUTO_UNIQUE_VALUE", 0, "LOCAL_TYPE_NAME",
+            "", "MINIMUM_SCALE", 0, "MAXIMUM_SCALE", 0, "SQL_DATA_TYPE", 0,
+            "SQL_DATETIME_SUB", 0, "NUM_PREC_RADIX", 0, "INTERVAL_PRECISION",
+            0);
 
         SQLLEN ind = 0;
         rc = SQLGetData(hstmt, 1, SQL_C_CHAR, typeName, sizeof(typeName), &ind);
         ti.set<0>(typeName);
-        rc = SQLGetData(hstmt, 2, SQL_C_SSHORT, &ti.Get<1>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 3, SQL_C_SLONG, &ti.Get<2>(), sizeof(SQLINTEGER), &ind);
-        rc = SQLGetData(hstmt, 4, SQL_C_CHAR, literalPrefix, sizeof(literalPrefix), &ind);
+        rc = SQLGetData(hstmt, 2, SQL_C_SSHORT, &ti.Get<1>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 3, SQL_C_SLONG, &ti.Get<2>(), sizeof(SQLINTEGER),
+                        &ind);
+        rc = SQLGetData(hstmt, 4, SQL_C_CHAR, literalPrefix,
+                        sizeof(literalPrefix), &ind);
         ti.set<3>(literalPrefix);
-        rc = SQLGetData(hstmt, 5, SQL_C_CHAR, literalSuffix, sizeof(literalSuffix), &ind);
+        rc = SQLGetData(hstmt, 5, SQL_C_CHAR, literalSuffix,
+                        sizeof(literalSuffix), &ind);
         ti.set<4>(literalSuffix);
-        rc = SQLGetData(hstmt, 6, SQL_C_CHAR, createParams, sizeof(createParams), &ind);
+        rc = SQLGetData(hstmt, 6, SQL_C_CHAR, createParams,
+                        sizeof(createParams), &ind);
         ti.set<5>(createParams);
-        rc = SQLGetData(hstmt, 7, SQL_C_SSHORT, &ti.Get<6>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 8, SQL_C_SSHORT, &ti.Get<7>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 9, SQL_C_SSHORT, &ti.Get<8>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 10, SQL_C_SSHORT, &ti.Get<9>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 11, SQL_C_SSHORT, &ti.Get<10>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 12, SQL_C_SSHORT, &ti.Get<11>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 13, SQL_C_CHAR, localTypeName, sizeof(localTypeName), &ind);
+        rc = SQLGetData(hstmt, 7, SQL_C_SSHORT, &ti.Get<6>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 8, SQL_C_SSHORT, &ti.Get<7>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 9, SQL_C_SSHORT, &ti.Get<8>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 10, SQL_C_SSHORT, &ti.Get<9>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 11, SQL_C_SSHORT, &ti.Get<10>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 12, SQL_C_SSHORT, &ti.Get<11>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 13, SQL_C_CHAR, localTypeName,
+                        sizeof(localTypeName), &ind);
         ti.set<12>(localTypeName);
-        rc = SQLGetData(hstmt, 14, SQL_C_SSHORT, &ti.Get<13>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 15, SQL_C_SSHORT, &ti.Get<14>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 16, SQL_C_SSHORT, &ti.Get<15>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 17, SQL_C_SSHORT, &ti.Get<16>(), sizeof(SQLSMALLINT), &ind);
-        rc = SQLGetData(hstmt, 18, SQL_C_SLONG, &ti.Get<17>(), sizeof(SQLINTEGER), &ind);
-        rc = SQLGetData(hstmt, 19, SQL_C_SSHORT, &ti.Get<18>(), sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 14, SQL_C_SSHORT, &ti.Get<13>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 15, SQL_C_SSHORT, &ti.Get<14>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 16, SQL_C_SSHORT, &ti.Get<15>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 17, SQL_C_SSHORT, &ti.Get<16>(),
+                        sizeof(SQLSMALLINT), &ind);
+        rc = SQLGetData(hstmt, 18, SQL_C_SLONG, &ti.Get<17>(),
+                        sizeof(SQLINTEGER), &ind);
+        rc = SQLGetData(hstmt, 19, SQL_C_SSHORT, &ti.Get<18>(),
+                        sizeof(SQLSMALLINT), &ind);
 
         type_info_.push_back(ti);
       }
@@ -162,7 +179,8 @@ DynamicAny TypeInfo::getInfo(SQLSMALLINT type, const String& param) const {
   throw NotFoundException(param);
 }
 
-bool TypeInfo::tryGetInfo(SQLSMALLINT type, const String& param, DynamicAny& result) const {
+bool TypeInfo::tryGetInfo(SQLSMALLINT type, const String& param,
+                          DynamicAny& result) const {
   TypeInfoVec::const_iterator it = type_info_.begin();
   TypeInfoVec::const_iterator end = type_info_.end();
   for (; it != end; ++it) {
@@ -179,7 +197,8 @@ int TypeInfo::cDataType(int sqlDataType) const {
   DataTypeMap::const_iterator it = c_data_types_.find(sqlDataType);
 
   if (c_data_types_.end() == it) {
-    throw NotFoundException(format("C data type not found for sql data type: %d", sqlDataType));
+    throw NotFoundException(
+        format("C data type not found for sql data type: %d", sqlDataType));
   }
 
   return it->second;
@@ -189,7 +208,8 @@ int TypeInfo::sqlDataType(int cDataType) const {
   DataTypeMap::const_iterator it = sql_data_types_.find(cDataType);
 
   if (sql_data_types_.end() == it) {
-    throw NotFoundException(format("sql data type not found for C data type: %d", cDataType));
+    throw NotFoundException(
+        format("sql data type not found for C data type: %d", cDataType));
   }
 
   return it->second;
@@ -213,29 +233,18 @@ void TypeInfo::print(std::ostream& ostr) {
   TypeInfoVec::const_iterator end = type_info_.end();
 
   for (; it != end; ++it) {
-    ostr << it->Get<0>() << "\t"
-      << it->Get<1>() << "\t"
-      << it->Get<2>() << "\t"
-      << it->Get<3>() << "\t"
-      << it->Get<4>() << "\t"
-      << it->Get<5>() << "\t"
-      << it->Get<6>() << "\t"
-      << it->Get<7>() << "\t"
-      << it->Get<8>() << "\t"
-      << it->Get<9>() << "\t"
-      << it->Get<10>() << "\t"
-      << it->Get<11>() << "\t"
-      << it->Get<12>() << "\t"
-      << it->Get<13>() << "\t"
-      << it->Get<14>() << "\t"
-      << it->Get<15>() << "\t"
-      << it->Get<16>() << "\t"
-      << it->Get<17>() << "\t"
-      << it->Get<18>() << std::endl;
+    ostr << it->Get<0>() << "\t" << it->Get<1>() << "\t" << it->Get<2>() << "\t"
+         << it->Get<3>() << "\t" << it->Get<4>() << "\t" << it->Get<5>() << "\t"
+         << it->Get<6>() << "\t" << it->Get<7>() << "\t" << it->Get<8>() << "\t"
+         << it->Get<9>() << "\t" << it->Get<10>() << "\t" << it->Get<11>()
+         << "\t" << it->Get<12>() << "\t" << it->Get<13>() << "\t"
+         << it->Get<14>() << "\t" << it->Get<15>() << "\t" << it->Get<16>()
+         << "\t" << it->Get<17>() << "\t" << it->Get<18>() << std::endl;
   }
 }
 
-SQLSMALLINT TypeInfo::tryTypeidToCType(const std::type_info& ti, SQLSMALLINT defaultVal) const {
+SQLSMALLINT TypeInfo::tryTypeidToCType(const std::type_info& ti,
+                                       SQLSMALLINT defaultVal) const {
   CppTypeInfoMap::const_iterator res = cpp_data_types_.find(&ti);
   if (res == cpp_data_types_.end()) {
     return defaultVal;
@@ -272,6 +281,6 @@ SQLSMALLINT TypeInfo::nullDataType(const NullData val) const {
   return SQL_C_TINYINT;
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

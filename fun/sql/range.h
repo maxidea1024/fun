@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fun/sql/sql.h"
 #include "fun/sql/limit.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -36,19 +36,13 @@ class FUN_SQL_API Range {
   Limit upper_;
 };
 
-
 //
 // inlines
 //
 
-inline const Limit& Range::lower() const {
-  return lower_;
-}
+inline const Limit& Range::lower() const { return lower_; }
 
-inline const Limit& Range::upper() const {
-  return upper_;
-}
-
+inline const Limit& Range::upper() const { return upper_; }
 
 namespace Keywords {
 
@@ -72,10 +66,11 @@ Limit lowerLimit(T lim) {
 
 template <typename T>
 Range range(T low, T upp, bool hard = false) {
-  return Range(static_cast<Limit::SizeT>(low), static_cast<Limit::SizeT>(upp), hard);
+  return Range(static_cast<Limit::SizeT>(low), static_cast<Limit::SizeT>(upp),
+               hard);
 }
 
-} // namespace Keywords
+}  // namespace Keywords
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

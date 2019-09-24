@@ -7,5 +7,5 @@ Position::Position(uint32 pos) : value_(pos) {}
 
 Position::~Position() {}
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

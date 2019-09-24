@@ -10,20 +10,17 @@ namespace sql {
 const size_t RowIterator::POSITION_END = std::numeric_limits<size_t>::max();
 
 RowIterator::RowIterator(RecordSet* record_set, bool position_end)
-  : record_set_(record_set),
-    position_(position_end ? POSITION_END : 0) {}
+    : record_set_(record_set), position_(position_end ? POSITION_END : 0) {}
 
 RowIterator::RowIterator(RecordSet& record_set, bool position_end)
-  : record_set_(&record_set),
-    position_(position_end ? POSITION_END : 0) {}
+    : record_set_(&record_set), position_(position_end ? POSITION_END : 0) {}
 
 RowIterator::RowIterator(const RowIterator& other)
-  : record_set_(other.record_set_),
-    position_(other.position_) {}
+    : record_set_(other.record_set_), position_(other.position_) {}
 
 RowIterator::~RowIterator() {}
 
-RowIterator& RowIterator::operator = (const RowIterator& other) {
+RowIterator& RowIterator::operator=(const RowIterator& other) {
   RowIterator tmp(other);
   Swap(tmp);
   return *this;
@@ -111,7 +108,7 @@ void RowIterator::SetPosition(size_t pos) const {
   }
 }
 
-Row& RowIterator::operator * () const {
+Row& RowIterator::operator*() const {
   if (POSITION_END == position_) {
     throw InvalidAccessException("End of iterator reached.");
   }
@@ -119,7 +116,7 @@ Row& RowIterator::operator * () const {
   return record_set_->row(position_);
 }
 
-Row* RowIterator::operator -> () const {
+Row* RowIterator::operator->() const {
   if (POSITION_END == position_) {
     throw InvalidAccessException("End of iterator reached.");
   }
@@ -127,35 +124,35 @@ Row* RowIterator::operator -> () const {
   return &record_set_->row(position_);
 }
 
-const RowIterator& RowIterator::operator ++ () const {
+const RowIterator& RowIterator::operator++() const {
   Increment();
   return *this;
 }
 
-RowIterator RowIterator::operator ++ (int) const {
+RowIterator RowIterator::operator++(int) const {
   RowIterator old(*this);
   Increment();
   return old;
 }
 
-const RowIterator& RowIterator::operator -- () const {
+const RowIterator& RowIterator::operator--() const {
   Decrement();
   return *this;
 }
 
-RowIterator RowIterator::operator -- (int) const {
+RowIterator RowIterator::operator--(int) const {
   RowIterator old(*this);
   Decrement();
   return old;
 }
 
-RowIterator RowIterator::operator + (size_t diff) const {
+RowIterator RowIterator::operator+(size_t diff) const {
   RowIterator ri(*this);
   ri.SetPosition(position_ + diff);
   return ri;
 }
 
-RowIterator RowIterator::operator - (size_t diff) const {
+RowIterator RowIterator::operator-(size_t diff) const {
   if (diff > position_) {
     throw RangeException("Invalid position argument.");
   }
@@ -165,5 +162,5 @@ RowIterator RowIterator::operator - (size_t diff) const {
   return ri;
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

@@ -1,12 +1,12 @@
-//TODO SessionPoolContainer -> SessionPoolSet À¸·Î º¯°æÇØÁÖ´Â°Ô ÁÁÀ»µí..?
+// TODO SessionPoolContainer -> SessionPoolSet ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½..?
 
 #include "fun/sql/session_pool_container.h"
+#include <algorithm>
+#include "fun/base/exception.h"
+#include "fun/base/string.h"
 #include "fun/sql/session_factory.h"
 #include "fun/sql/sql_exception.h"
 #include "fun/uri.h"
-#include "fun/base/string.h"
-#include "fun/base/exception.h"
-#include <algorithm>
 
 using fun::FastMutex;
 
@@ -22,7 +22,8 @@ void SessionPoolContainer::add(SessionPool::Ptr pool) {
 
   FastMutex::ScopedLock lock(mutex_);
   if (session_pools_.find(pool->name()) != session_pools_.end()) {
-    throw SessionPoolExistsException("Session pool already exists: " + pool->name());
+    throw SessionPoolExistsException("Session pool already exists: " +
+                                     pool->name());
   }
 
   session_pools_.insert(SessionPoolMap::value_type(pool->name(), pool));
@@ -30,8 +31,7 @@ void SessionPoolContainer::add(SessionPool::Ptr pool) {
 
 Session SessionPoolContainer::Add(const String& session_key,
                                   const String& connection_string,
-                                  int32 min_sessions,
-                                  int32 max_sessions,
+                                  int32 min_sessions, int32 max_sessions,
                                   int32 idle_time) {
   String name = SessionPool::GetName(session_key, connection_string);
 
@@ -43,19 +43,20 @@ Session SessionPoolContainer::Add(const String& session_key,
     return it->second->Get();
   }
 
-  SessionPool::Ptr session =
-    new SessionPool(session_key, connection_string, min_sessions, max_sessions, idle_time);
+  SessionPool::Ptr session = new SessionPool(
+      session_key, connection_string, min_sessions, max_sessions, idle_time);
 
   std::pair<SessionPoolMap::iterator, bool> ins =
-    session_pools_.insert(SessionPoolMap::value_type(name, session));
+      session_pools_.insert(SessionPoolMap::value_type(name, session));
 
   return ins.first->second->Get();
 }
 
 bool SessionPoolContainer::IsActive(const String& session_key,
                                     const String& connection_string) const {
-  String name = connection_string.IsEmpty() ?
-    session_key : SessionPool::GetName(session_key, connection_string);
+  String name = connection_string.IsEmpty()
+                    ? session_key
+                    : SessionPool::GetName(session_key, connection_string);
 
   SessionPoolMap::const_iterator it = session_pools_.find(name);
   if (it != session_pools_.end() && it->second->IsActive()) {
@@ -91,5 +92,5 @@ void SessionPoolContainer::Shutdown() {
   }
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

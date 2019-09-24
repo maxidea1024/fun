@@ -1,10 +1,10 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/session_impl.h"
-#include "fun/ref_counted_ptr.h"
-#include "fun/timestamp.h"
 #include "fun/base/mutex.h"
+#include "fun/ref_counted_ptr.h"
+#include "fun/sql/session_impl.h"
+#include "fun/sql/sql.h"
+#include "fun/timestamp.h"
 
 namespace fun {
 namespace sql {
@@ -55,18 +55,13 @@ class FUN_SQL_API PooledSessionHolder : public fun::RefCountedObject {
   mutable fun::FastMutex mutex_;
 };
 
-
 //
 // inlines
 //
 
-inline SessionImpl::Ptr PooledSessionHolder::GetSession() {
-  return impl_;
-}
+inline SessionImpl::Ptr PooledSessionHolder::GetSession() { return impl_; }
 
-inline SessionPool& PooledSessionHolder::GetOwner() {
-  return onwer_;
-}
+inline SessionPool& PooledSessionHolder::GetOwner() { return onwer_; }
 
 inline void PooledSessionHolder::Access() {
   fun::FastMutex::ScopedLock l(mutex_);
@@ -80,5 +75,5 @@ inline int32 PooledSessionHolder::Idle() const {
   return (int32)(last_used_.Elapsed() / fun::Timestamp::Resolution());
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

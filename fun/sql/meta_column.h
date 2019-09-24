@@ -1,9 +1,9 @@
-//TODO accessor ÀÌ¸§À» ¾îÂîÇØ¾ßÇÒ±î??
+// TODO accessor ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½Ò±ï¿½??
 
 #pragma once
 
-#include "fun/sql/sql.h"
 #include <cstddef>
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
@@ -43,12 +43,9 @@ class FUN_SQL_API MetaColumn {
   /**
    * Creates the MetaColumn.
    */
-  explicit MetaColumn(size_t position,
-                      const String& name = "",
-                      ColumnDataType type = FDT_UNKNOWN,
-                      size_t length = 0,
-                      size_t precision = 0,
-                      bool nullable = false);
+  explicit MetaColumn(size_t position, const String& name = "",
+                      ColumnDataType type = FDT_UNKNOWN, size_t length = 0,
+                      size_t precision = 0, bool nullable = false);
 
   /**
    * Destroys the MetaColumn.
@@ -122,54 +119,33 @@ class FUN_SQL_API MetaColumn {
   bool nullable_;
 };
 
-
 //
 // inlines
 //
 
-inline const String& MetaColumn::name() const {
-  return name_;
-}
+inline const String& MetaColumn::name() const { return name_; }
 
-inline size_t MetaColumn::length() const {
-  return length_;
-}
+inline size_t MetaColumn::length() const { return length_; }
 
-inline size_t MetaColumn::precision() const {
-  return precision_;
-}
+inline size_t MetaColumn::precision() const { return precision_; }
 
-inline size_t MetaColumn::position() const {
-  return position_;
-}
+inline size_t MetaColumn::position() const { return position_; }
 
-inline MetaColumn::ColumnDataType MetaColumn::type() const {
-  return type_;
-}
+inline MetaColumn::ColumnDataType MetaColumn::type() const { return type_; }
 
-inline bool MetaColumn::IsNullable() const {
-  return nullable_;
-}
+inline bool MetaColumn::IsNullable() const { return nullable_; }
 
-inline void MetaColumn::SetName(const String& name) {
-  name_ = name;
-}
+inline void MetaColumn::SetName(const String& name) { name_ = name; }
 
-inline void MetaColumn::SetLength(size_t length) {
-  length_ = length;
-}
+inline void MetaColumn::SetLength(size_t length) { length_ = length; }
 
 inline void MetaColumn::SetPrecision(size_t precision) {
   precision_ = precision;
 }
 
-inline void MetaColumn::SetType(ColumnDataType type) {
-  type_ = type;
-}
+inline void MetaColumn::SetType(ColumnDataType type) { type_ = type; }
 
-inline void MetaColumn::SetNullable(bool nullable) {
-  nullable_ = nullable;
-}
+inline void MetaColumn::SetNullable(bool nullable) { nullable_ = nullable; }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

@@ -64,15 +64,14 @@ class FUN_POSTGRESQL_API Utility {
   static SessionHandle* GetHandle(fun::sql::Session& session);
 };
 
-
 //
 // inlines
 //
 
 inline SessionHandle* Utility::GetHandle(Session& session) {
-  return fun::AnyCast< SessionHandle* >(session.GetProperty("handle"));
+  return fun::AnyCast<SessionHandle*>(session.GetProperty("handle"));
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/sql/meta_column.h"
 #include <mysql.h>
 #include <vector>
+#include "fun/sql/meta_column.h"
 
 namespace fun {
 namespace sql {
@@ -61,6 +61,6 @@ class ResultMetadata {
   std::vector<my_bool> is_null_;
 };
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

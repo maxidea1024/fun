@@ -1,7 +1,7 @@
 ﻿#include "fun/sql/time.h"
-#include "fun/sql/dynamic_date_time.h"
 #include "fun/base/date_time.h"
 #include "fun/base/dynamic/var.h"
+#include "fun/sql/dynamic_date_time.h"
 
 using fun::DateTime;
 using fun::dynamic::Var;
@@ -18,12 +18,9 @@ Time::Time(int32 hour, int32 minute, int32 second) {
   Assign(hour, minute, second);
 }
 
-Time::Time(const DateTime& dt) {
-  Assign(dt.Hour(), dt.Minute(), dt.Second());
-}
+Time::Time(const DateTime& dt) { Assign(dt.Hour(), dt.Minute(), dt.Second()); }
 
-Time::~Time() {
-}
+Time::~Time() {}
 
 void Time::Assign(int32 hour, int32 minute, int32 second) {
   if (hour < 0 || hour > 23) {
@@ -43,28 +40,32 @@ void Time::Assign(int32 hour, int32 minute, int32 second) {
   second_ = second;
 }
 
-bool Time::operator < (const Time& time) const {
+bool Time::operator<(const Time& time) const {
   int32 hour = time.Hour();
 
-  if (hour_ < hour) return true;
-  else if (hour_ > hour) return false;
-  else // hours equal
+  if (hour_ < hour)
+    return true;
+  else if (hour_ > hour)
+    return false;
+  else  // hours equal
   {
     int32 minute = time.Minute();
-    if (minute_ < minute) return true;
-    else
-    if (minute_ > minute) return false;
-    else // minutes equal
-    if (second_ < time.Second()) return true;
+    if (minute_ < minute)
+      return true;
+    else if (minute_ > minute)
+      return false;
+    else  // minutes equal
+        if (second_ < time.Second())
+      return true;
   }
 
   return false;
 }
 
-Time& Time::operator = (const Var& var) {
+Time& Time::operator=(const Var& var) {
 #ifndef __GNUC__
-// g++ used to choke on this, newer versions seem to digest it fine
-// TODO: determine the version able to handle it properly
+  // g++ used to choke on this, newer versions seem to digest it fine
+  // TODO: determine the version able to handle it properly
   *this = var.Extract<Time>();
 #else
   *this = var.operator Time();
@@ -72,9 +73,8 @@ Time& Time::operator = (const Var& var) {
   return *this;
 }
 
-} // namespace sql
-} // namespace fun
-
+}  // namespace sql
+}  // namespace fun
 
 #ifdef __GNUC__
 // only needed for g++ (see comment in Time::operator = above)
@@ -82,11 +82,11 @@ Time& Time::operator = (const Var& var) {
 namespace fun {
 namespace Dynamic {
 
-using fun::sql::Time;
 using fun::DateTime;
+using fun::sql::Time;
 
 template <>
-Var::operator Time () const {
+Var::operator Time() const {
   VarHolder* holder = GetContent();
 
   if (!holder) {
@@ -102,7 +102,7 @@ Var::operator Time () const {
   }
 }
 
-} // namespace Dynamic
-} // namespace fun
+}  // namespace Dynamic
+}  // namespace fun
 
-#endif // __GNUC__
+#endif  // __GNUC__

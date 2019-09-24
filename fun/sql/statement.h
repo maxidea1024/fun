@@ -1,18 +1,18 @@
 ﻿#pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/statement_impl.h"
-#include "fun/sql/binding.h"
-#include "fun/sql/range.h"
-#include "fun/sql/bulk.h"
-#include "fun/sql/row.h"
-#include "fun/sql/simple_row_formatter.h"
-#include "fun/base/shared_ptr.h"
-#include "fun/base/mutex.h"
+#include <algorithm>
 #include "fun/async_method.h"
 #include "fun/async_result.h"
 #include "fun/base/format.h"
-#include <algorithm>
+#include "fun/base/mutex.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/sql/binding.h"
+#include "fun/sql/bulk.h"
+#include "fun/sql/range.h"
+#include "fun/sql/row.h"
+#include "fun/sql/simple_row_formatter.h"
+#include "fun/sql/sql.h"
+#include "fun/sql/statement_impl.h"
 
 namespace fun {
 namespace sql {
@@ -25,30 +25,31 @@ class Limit;
 /**
  * A Statement is used to execute sql statements.
  * It does not contain code of its own.
- * Its main purpose is to forward calls to the concrete StatementImpl stored inside.
- * Statement execution can be synchronous or asynchronous.
- * Synchronous execution is achieved through Execute() call, while asynchronous is
- * achieved through ExecuteAsync() method call.
- * An asynchronously executing statement should not be copied during the execution.
+ * Its main purpose is to forward calls to the concrete StatementImpl stored
+ * inside. Statement execution can be synchronous or asynchronous. Synchronous
+ * execution is achieved through Execute() call, while asynchronous is achieved
+ * through ExecuteAsync() method call. An asynchronously executing statement
+ * should not be copied during the execution.
  *
  * Note:
  *
  * Once set as asynchronous through 'async' manipulator, statement remains
- * asynchronous for all subsequent execution calls, both Execute() and ExecuteAsync().
- * However, calling ExecutAsync() on a synchronous statement shall execute
- * asynchronously but without altering the underlying statement's synchronous nature.
+ * asynchronous for all subsequent execution calls, both Execute() and
+ * ExecuteAsync(). However, calling ExecutAsync() on a synchronous statement
+ * shall execute asynchronously but without altering the underlying statement's
+ * synchronous nature.
  *
- * Once asynchronous, a statement can be reverted back to synchronous state in two ways:
+ * Once asynchronous, a statement can be reverted back to synchronous state in
+ * two ways:
  *
  *   1) By calling SetAsync(false)
  *   2) By means of 'sync' or 'reset' manipulators
  *
  * See individual functions documentation for more details.
  *
- * Statement owns the RowFormatter, which can be provided externally through SetFormatter()
- * member function.
- * If no formatter is externally supplied to the statement, the SimpleRowFormatter is lazy
- * created and used.
+ * Statement owns the RowFormatter, which can be provided externally through
+ * SetFormatter() member function. If no formatter is externally supplied to the
+ * statement, the SimpleRowFormatter is lazy created and used.
  */
 class FUN_SQL_API Statement {
  public:
@@ -62,9 +63,9 @@ class FUN_SQL_API Statement {
   static const int WAIT_FOREVER = -1;
 
   enum Storage {
-    STORAGE_DEQUE   = StatementImpl::STORAGE_DEQUE_IMPL,
-    STORAGE_VECTOR  = StatementImpl::STORAGE_VECTOR_IMPL,
-    STORAGE_LIST    = StatementImpl::STORAGE_LIST_IMPL,
+    STORAGE_DEQUE = StatementImpl::STORAGE_DEQUE_IMPL,
+    STORAGE_VECTOR = StatementImpl::STORAGE_VECTOR_IMPL,
+    STORAGE_LIST = StatementImpl::STORAGE_LIST_IMPL,
     STORAGE_UNKNOWN = StatementImpl::STORAGE_UNKNOWN_IMPL
   };
 
@@ -113,10 +114,10 @@ class FUN_SQL_API Statement {
   /**
    * Assignment operator.
    * If the statement has been executed asynchronously and has not been
-   * synchronized prior to assignment operation (i.e. is assigned while executing),
-   * this operator shall synchronize it.
+   * synchronized prior to assignment operation (i.e. is assigned while
+   * executing), this operator shall synchronize it.
    */
-  Statement& operator = (const Statement& stmt);
+  Statement& operator=(const Statement& stmt);
 
   /**
    * Swaps the statement with another one.
@@ -126,10 +127,10 @@ class FUN_SQL_API Statement {
   /**
    * Move assignment operator.
    * If the statement has been executed asynchronously and has not been
-   * synchronized prior to assignment operation (i.e. is assigned while executing),
-   * this operator shall synchronize it.
+   * synchronized prior to assignment operation (i.e. is assigned while
+   * executing), this operator shall synchronize it.
    */
-  Statement& operator = (Statement&& stmt);
+  Statement& operator=(Statement&& stmt);
 
   /**
    * Swaps the statement with another one.
@@ -140,7 +141,7 @@ class FUN_SQL_API Statement {
    * Concatenates data with the sql statement string.
    */
   template <typename T>
-  Statement& operator << (const T& t) {
+  Statement& operator<<(const T& t) {
     impl_->Add(t);
     return *this;
   }
@@ -148,12 +149,12 @@ class FUN_SQL_API Statement {
   /**
    * Handles manipulators, such as now, async, etc.
    */
-  Statement& operator , (Manipulator manip);
+  Statement& operator,(Manipulator manip);
 
   /**
    * Registers the Binding with the Statement by calling AddBind().
    */
-  Statement& operator , (BindingBase::Ptr bind);
+  Statement& operator,(BindingBase::Ptr bind);
 
   /**
    * Registers a single binding with the statement.
@@ -168,7 +169,7 @@ class FUN_SQL_API Statement {
   /**
    * Registers the Binding vector with the Statement.
    */
-  Statement& operator , (BindingBaseVec& bindVec);
+  Statement& operator,(BindingBaseVec& bindVec);
 
   /**
    * Registers binding container with the Statement.
@@ -193,7 +194,7 @@ class FUN_SQL_API Statement {
    */
   template <typename C>
   Statement& Bind(const C& value) {
-    (*this) , Keywords::Bind(value);
+    (*this), Keywords::Bind(value);
     return *this;
   }
 
@@ -201,18 +202,19 @@ class FUN_SQL_API Statement {
    * Registers objects used for extracting data with the Statement by
    * calling AddExtract().
    */
-  Statement& operator , (ExtractionBase::Ptr extract);
+  Statement& operator,(ExtractionBase::Ptr extract);
 
   /**
    * Registers the extraction vector with the Statement.
-   * The vector is registered at position 0 (i.e. for the first returned data set).
+   * The vector is registered at position 0 (i.e. for the first returned data
+   * set).
    */
-  Statement& operator , (ExtractionBaseVec& extVec);
+  Statement& operator,(ExtractionBaseVec& extVec);
 
   /**
    * Registers the vector of extraction vectors with the Statement.
    */
-  Statement& operator , (ExtractionBaseVecVec& extVecVec);
+  Statement& operator,(ExtractionBaseVecVec& extVecVec);
 
   /**
    * Registers extraction container with the Statement.
@@ -250,7 +252,7 @@ class FUN_SQL_API Statement {
    * Failure to adhere to the above constraint shall result in
    * InvalidAccessException.
    */
-  Statement& operator , (const Bulk& bulk);
+  Statement& operator,(const Bulk& bulk);
 
   /**
    * Sets the bulk execution mode (both binding and extraction) for this
@@ -261,110 +263,129 @@ class FUN_SQL_API Statement {
    * Failure to adhere to the above constraints shall result in
    * InvalidAccessException.
    */
-  Statement& operator , (BulkFnType);
+  Statement& operator,(BulkFnType);
 
   /**
    * Sets a limit on the maximum number of rows a select is allowed to return.
    *
-   * Set per default to zero to Limit::LIMIT_UNLIMITED, which disables the limit.
+   * Set per default to zero to Limit::LIMIT_UNLIMITED, which disables the
+   * limit.
    */
-  Statement& operator , (const Limit& extrLimit);
+  Statement& operator,(const Limit& extrLimit);
 
   /**
    * Sets the row formatter for the statement.
    */
-  Statement& operator , (RowFormatter::Ptr row_formatter);
+  Statement& operator,(RowFormatter::Ptr row_formatter);
 
   /**
-   * Sets a an extraction range for the maximum number of rows a select is allowed to return.
+   * Sets a an extraction range for the maximum number of rows a select is
+   * allowed to return.
    *
    * Set per default to Limit::LIMIT_UNLIMITED which disables the range.
    */
-  Statement& operator , (const Range& extrRange);
+  Statement& operator,(const Range& extrRange);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (char value);
+  Statement& operator,(char value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (uint8 value);
+  Statement& operator,(uint8 value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (int8 value);
+  Statement& operator,(int8 value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (uint16 value);
+  Statement& operator,(uint16 value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (int16 value);
+  Statement& operator,(int16 value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (uint32 value);
+  Statement& operator,(uint32 value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (int32 value);
+  Statement& operator,(int32 value);
 
 #ifndef FUN_LONG_IS_64_BIT
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (long value);
+  Statement& operator,(long value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (unsigned long value);
+  Statement& operator,(unsigned long value);
 #endif
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (uint64 value);
+  Statement& operator,(uint64 value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (int64 value);
+  Statement& operator,(int64 value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (double value);
+  Statement& operator,(double value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (float value);
+  Statement& operator,(float value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (bool value);
+  Statement& operator,(bool value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (const String& value);
+  Statement& operator,(const String& value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
-  Statement& operator , (const char* value);
+  Statement& operator,(const char* value);
 
   /**
-   * Adds the value to the list of values to be supplied to the sql string formatting function.
+   * Adds the value to the list of values to be supplied to the sql string
+   * formatting function.
    */
   const String& ToString() const;
 
@@ -375,8 +396,8 @@ class FUN_SQL_API Statement {
    * returning data) or number of rows affected (for all other statements).
    * If reset is true (default), associated storage is reset and reused.
    * Otherwise, the results from this execution step are appended.
-   * Reset argument has no meaning for unlimited statements that return all rows.
-   * If IsAsync() returns  true, the statement is executed asynchronously
+   * Reset argument has no meaning for unlimited statements that return all
+   * rows. If IsAsync() returns  true, the statement is executed asynchronously
    * and the return value from this function is zero.
    * The result of execution (i.e. number of returned or affected rows) can be
    * obtained by calling Wait() on the statement at a later point in time.
@@ -386,11 +407,11 @@ class FUN_SQL_API Statement {
   /**
    * Executes the statement asynchronously.
    * Stops when either a limit is hit or the whole statement was executed.
-   * Returns immediately. Calling Wait() (on either the result returned from this
-   * call or the statement itself) returns the number of rows extracted or number
-   * of rows affected by the statement execution.
-   * When executed on a synchronous statement, this method does not alter the
-   * statement's synchronous nature.
+   * Returns immediately. Calling Wait() (on either the result returned from
+   * this call or the statement itself) returns the number of rows extracted or
+   * number of rows affected by the statement execution. When executed on a
+   * synchronous statement, this method does not alter the statement's
+   * synchronous nature.
    */
   const Result& ExecuteAsync(bool reset = true);
 
@@ -426,8 +447,9 @@ class FUN_SQL_API Statement {
   bool IsPaused();
 
   /**
-   * Returns true if the statement was completely executed or false if a range limit stopped it
-   * and there is more work to do. When no limit is set, it will always return true after calling Execute().
+   * Returns true if the statement was completely executed or false if a range
+   * limit stopped it and there is more work to do. When no limit is set, it
+   * will always return true after calling Execute().
    */
   bool IsDone() const;
 
@@ -437,7 +459,8 @@ class FUN_SQL_API Statement {
   Statement& Reset(Session& session);
 
   /**
-   * Returns true if statement is in a state that allows the internal storage to be modified.
+   * Returns true if statement is in a state that allows the internal storage to
+   * be modified.
    */
   bool CanModifyStorage();
 
@@ -460,21 +483,24 @@ class FUN_SQL_API Statement {
    * Returns the number of columns returned for current data set.
    * Default value indicates current data set (if any).
    */
-  size_t ExtractedColumnCount(int data_set = StatementImpl::USE_CURRENT_DATA_SET) const;
+  size_t ExtractedColumnCount(
+      int data_set = StatementImpl::USE_CURRENT_DATA_SET) const;
 
   /**
-   * Returns the number of rows returned for current data set during last statement
-   * execution. Default value indicates current data set (if any).
+   * Returns the number of rows returned for current data set during last
+   * statement execution. Default value indicates current data set (if any).
    */
-  size_t ExtractedRowCount(int data_set = StatementImpl::USE_CURRENT_DATA_SET) const;
+  size_t ExtractedRowCount(
+      int data_set = StatementImpl::USE_CURRENT_DATA_SET) const;
 
   /**
    * Returns the number of rows extracted so far for the data set.
    * Default value indicates current data set (if any).
    */
-  size_t SubTotalRowCount(int data_set = StatementImpl::USE_CURRENT_DATA_SET) const;
+  size_t SubTotalRowCount(
+      int data_set = StatementImpl::USE_CURRENT_DATA_SET) const;
 
-    //@ deprecated
+  //@ deprecated
   /**
    * Replaced with SubTotalRowCount() and GetTotalRowCount().
    */
@@ -618,7 +644,6 @@ class FUN_SQL_API Statement {
   mutable String stmt_string_;
 };
 
-
 //
 // inlines
 
@@ -630,14 +655,11 @@ inline size_t Statement::GetTotalRowCount() const {
   return impl_->GetTotalRowCount();
 }
 
-inline size_t Statement::TotalRowCount() const {
-  return GetTotalRowCount();
-}
+inline size_t Statement::TotalRowCount() const { return GetTotalRowCount(); }
 
 inline void Statement::SetTotalRowCount(size_t count) {
   impl_->SetTotalRowCount(count);
 }
-
 
 namespace Keywords {
 
@@ -649,9 +671,7 @@ namespace Keywords {
  * Enforces immediate execution of the statement.
  * If async_ flag has been set, execution is invoked asynchronously.
  */
-inline void FUN_SQL_API now(Statement& statement) {
-  statement.Execute();
-}
+inline void FUN_SQL_API now(Statement& statement) { statement.Execute(); }
 
 /**
  * Sets the async_ flag to false, signalling synchronous execution.
@@ -716,81 +736,80 @@ inline void FUN_SQL_API reset(Statement& statement) {
   statement.SetAsync(false);
 }
 
-} // namespace Keywords
-
+}  // namespace Keywords
 
 //
 // inlines
 //
 
-inline Statement& Statement::operator , (RowFormatter::Ptr row_formatter) {
+inline Statement &Statement::operator,(RowFormatter::Ptr row_formatter) {
   row_formatter_ = row_formatter;
   return *this;
 }
 
-inline Statement& Statement::operator , (char value) {
+inline Statement &Statement::operator,(char value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (uint8 value) {
+inline Statement &Statement::operator,(uint8 value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (int8 value) {
+inline Statement &Statement::operator,(int8 value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (uint16 value) {
+inline Statement &Statement::operator,(uint16 value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (int16 value) {
+inline Statement &Statement::operator,(int16 value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (uint32 value) {
+inline Statement &Statement::operator,(uint32 value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (int32 value) {
+inline Statement &Statement::operator,(int32 value) {
   return CommaPODImpl(value);
 }
 
 #ifndef FUN_LONG_IS_64_BIT
-inline Statement& Statement::operator , (long value) {
+inline Statement &Statement::operator,(long value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (unsigned long value) {
+inline Statement &Statement::operator,(unsigned long value) {
   return CommaPODImpl(value);
 }
 #endif
 
-inline Statement& Statement::operator , (uint64 value) {
+inline Statement &Statement::operator,(uint64 value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (int64 value) {
+inline Statement &Statement::operator,(int64 value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (double value) {
+inline Statement &Statement::operator,(double value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (float value) {
+inline Statement &Statement::operator,(float value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (bool value) {
+inline Statement &Statement::operator,(bool value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (const String& value) {
+inline Statement &Statement::operator,(const String&value) {
   return CommaPODImpl(value);
 }
 
-inline Statement& Statement::operator , (const char* value) {
+inline Statement &Statement::operator,(const char*value) {
   return CommaPODImpl(String(value));
 }
 
@@ -798,29 +817,27 @@ inline void Statement::RemoveBind(const String& name) {
   impl_->RemoveBind(name);
 }
 
-inline Statement& Statement::operator , (BindingBase::Ptr Bind) {
+inline Statement &Statement::operator,(BindingBase::Ptr Bind) {
   return AddBind(Bind);
 }
 
-inline Statement& Statement::operator , (BindingBaseVec& bindVec) {
+inline Statement &Statement::operator,(BindingBaseVec&bindVec) {
   return AddBinding(bindVec, false);
 }
 
-inline Statement& Statement::operator , (ExtractionBase::Ptr extract) {
+inline Statement &Statement::operator,(ExtractionBase::Ptr extract) {
   return AddExtract(extract);
 }
 
-inline Statement& Statement::operator , (ExtractionBaseVec& extVec) {
+inline Statement &Statement::operator,(ExtractionBaseVec&extVec) {
   return AddExtraction(extVec, false);
 }
 
-inline Statement& Statement::operator , (ExtractionBaseVecVec& extVecVec) {
+inline Statement &Statement::operator,(ExtractionBaseVecVec&extVecVec) {
   return AddExtractions(extVecVec);
 }
 
-inline Statement::ImplPtr Statement::GetImpl() const {
-  return impl_;
-}
+inline Statement::ImplPtr Statement::GetImpl() const { return impl_; }
 
 inline const String& Statement::ToString() const {
   return stmt_string_ = impl_->ToString();
@@ -854,13 +871,9 @@ inline size_t Statement::ExtractedRowCount(int data_set) const {
   return impl_->ExtractedRowCount(data_set);
 }
 
-inline size_t Statement::DataSetCount() const {
-  return impl_->DataSetCount();
-}
+inline size_t Statement::DataSetCount() const { return impl_->DataSetCount(); }
 
-inline size_t Statement::NextDataSet() {
-  return impl_->ActivateNextDataSet();
-}
+inline size_t Statement::NextDataSet() { return impl_->ActivateNextDataSet(); }
 
 inline size_t Statement::PreviousDataSet() {
   return impl_->ActivatePreviousDataSet();
@@ -907,9 +920,7 @@ inline size_t Statement::GetCurrentDataSet() const {
   return impl_->GetCurrentDataSet();
 }
 
-inline bool Statement::IsAsync() const {
-  return async_;
-}
+inline bool Statement::IsAsync() const { return async_; }
 
 inline void Statement::SetRowFormatter(RowFormatter::Ptr row_formatter) {
   row_formatter_ = row_formatter;
@@ -922,17 +933,12 @@ inline const RowFormatter::Ptr& Statement::GetRowFormatter() {
   return row_formatter_;
 }
 
-inline void Statement::InsertHint() {
-  impl_->InsertHint();
-}
+inline void Statement::InsertHint() { impl_->InsertHint(); }
 
-inline void Swap(Statement& s1, Statement& s2) {
-  s1.Swap(s2);
-}
+inline void Swap(Statement& s1, Statement& s2) { s1.Swap(s2); }
 
-} // namespace sql
-} // namespace fun
-
+}  // namespace sql
+}  // namespace fun
 
 namespace std {
 
@@ -940,8 +946,9 @@ namespace std {
  * Full template specialization of std:::Swap for Statement
  */
 template <>
-inline void Swap<fun::sql::Statement>(fun::sql::Statement& s1, fun::sql::Statement& s2) {
+inline void Swap<fun::sql::Statement>(fun::sql::Statement& s1,
+                                      fun::sql::Statement& s2) {
   s1.Swap(s2);
 }
 
-} // namespace std
+}  // namespace std

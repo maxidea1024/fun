@@ -1,15 +1,15 @@
 #pragma once
 
-#include "fun/sql/odbc/odbc.h"
-#include "fun/sql/odbc/connector.h"
-#include "fun/sql/odbc/type_info.h"
+#include "fun/base/mutex.h"
+#include "fun/base/shared_ptr.h"
 #include "fun/sql/odbc/binder.h"
+#include "fun/sql/odbc/connector.h"
 #include "fun/sql/odbc/handle.h"
+#include "fun/sql/odbc/odbc.h"
 #include "fun/sql/odbc/odbc_exception.h"
+#include "fun/sql/odbc/type_info.h"
 #include "fun/sql/session_impl_base.h"
 #include "fun/sql/statement_impl.h"
-#include "fun/base/shared_ptr.h"
-#include "fun/base/mutex.h"
 
 #ifdef FUN_PLATFORM_WINDOWS_FAMILY
 #include <windows.h>
@@ -38,10 +38,8 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
    * Creates the SessionImpl. Opens a connection to the database.
    * Throws NotConnectedException if connection was not successful.
    */
-  SessionImpl(const String& connect,
-              size_t login_timeout,
-              size_t maxFieldSize = ODBC_MAX_FIELD_SIZE,
-              bool autoBind = true,
+  SessionImpl(const String& connect, size_t login_timeout,
+              size_t maxFieldSize = ODBC_MAX_FIELD_SIZE, bool autoBind = true,
               bool autoExtract = true,
               bool MakeExtractorsBeforeExecute = false);
 
@@ -50,11 +48,10 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
    * Creates the SessionImpl. Opens a connection to the database.
    */
   SessionImpl(const String& connect,
-    fun::Any maxFieldSize = ODBC_MAX_FIELD_SIZE,
-    bool enforceCapability=false,
-    bool autoBind = true,
-    bool autoExtract = true,
-    bool MakeExtractorsBeforeExecute = false);
+              fun::Any maxFieldSize = ODBC_MAX_FIELD_SIZE,
+              bool enforceCapability = false, bool autoBind = true,
+              bool autoExtract = true,
+              bool MakeExtractorsBeforeExecute = false);
 
   /**
    * Destroys the SessionImpl.
@@ -157,7 +154,7 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
   /**
    * Returns autocommit property value.
    */
-  bool IsAutoCommit(const String& name="") const;
+  bool IsAutoCommit(const String& name = "") const;
 
   /**
    * Sets automatic binding for the session.
@@ -167,7 +164,7 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
   /**
    * Returns true if binding is automatic for this session.
    */
-  bool IsAutoBind(const String& name="") const;
+  bool IsAutoBind(const String& name = "") const;
 
   /**
    * Sets automatic extraction for the session.
@@ -177,7 +174,7 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
   /**
    * Returns true if extraction is automatic for this session.
    */
-  bool IsAutoExtract(const String& name="") const;
+  bool IsAutoExtract(const String& name = "") const;
 
   /**
    * Sets internal extractor creation flag for the session.
@@ -185,9 +182,10 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
   void MakeExtractorsBeforeExecute(const String&, bool val);
 
   /**
-   * Returns true if internal extractor creator is done before execution of statement.
+   * Returns true if internal extractor creator is done before execution of
+   * statement.
    */
-  bool IsMakeExtractorsBeforeExecute(const String& name="") const;
+  bool IsMakeExtractorsBeforeExecute(const String& name = "") const;
 
   /**
    * Sets the max field size (the default used when column size is unknown).
@@ -197,7 +195,7 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
   /**
    * Returns the max field size (the default used when column size is unknown).
    */
-  fun::Any GetMaxFieldSize(const String& name="") const;
+  fun::Any GetMaxFieldSize(const String& name = "") const;
 
   /**
    * Returns maximum length of sql statement allowed by driver.
@@ -242,7 +240,7 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
 
   static const int FUNCTIONS = SQL_API_ODBC3_ALL_FUNCTIONS_SIZE;
 
-  void CheckError(SQLRETURN rc, const String& msg="") const;
+  void CheckError(SQLRETURN rc, const String& msg = "") const;
 
   uint32 GetDefaultTransactionIsolation() const;
 
@@ -263,7 +261,6 @@ class FUN_ODBC_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
   fun::FastMutex mutex_;
 };
 
-
 //
 // inlines
 //
@@ -274,11 +271,10 @@ inline void SessionImpl::CheckError(SQLRETURN rc, const String& msg) const {
   }
 }
 
-inline const ConnectionHandle& SessionImpl::dbc() const {
-  return db_;
-}
+inline const ConnectionHandle& SessionImpl::dbc() const { return db_; }
 
-inline void SessionImpl::SetMaxFieldSize(const String& /*name*/, const fun::Any& value) {
+inline void SessionImpl::SetMaxFieldSize(const String& /*name*/,
+                                         const fun::Any& value) {
   max_field_size_ = value;
 }
 
@@ -286,7 +282,8 @@ inline fun::Any SessionImpl::GetMaxFieldSize(const String& /*name*/) const {
   return max_field_size_;
 }
 
-inline void SessionImpl::SetDataTypeInfo(const String& /*name*/, const fun::Any& /*value*/) {
+inline void SessionImpl::SetDataTypeInfo(const String& /*name*/,
+                                         const fun::Any& /*value*/) {
   throw InvalidAccessException();
 }
 
@@ -314,7 +311,8 @@ inline void SessionImpl::MakeExtractorsBeforeExecute(const String&, bool val) {
   make_extractor_before_execute_ = val;
 }
 
-inline bool SessionImpl::IsMakeExtractorsBeforeExecute(const String& name) const {
+inline bool SessionImpl::IsMakeExtractorsBeforeExecute(
+    const String& name) const {
   return make_extractor_before_execute_;
 }
 
@@ -338,10 +336,8 @@ inline fun::Any SessionImpl::GetQueryTimeout(const String&) const {
   return query_timeout_;
 }
 
-inline int SessionImpl::queryTimeout() const {
-  return query_timeout_;
-}
+inline int SessionImpl::queryTimeout() const { return query_timeout_; }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

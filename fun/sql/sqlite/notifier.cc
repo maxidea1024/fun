@@ -5,21 +5,17 @@ namespace sql {
 namespace sqlite {
 
 Notifier::Notifier(const Session& session, EnabledEventType enabled)
-  : session_(session),
-    row_(),
-    enabled_events_() {
-  if (enabled & SQLITE_NOTIFY_UPDATE)   EnableUpdate();
-  if (enabled & SQLITE_NOTIFY_COMMIT)   EnableCommit();
+    : session_(session), row_(), enabled_events_() {
+  if (enabled & SQLITE_NOTIFY_UPDATE) EnableUpdate();
+  if (enabled & SQLITE_NOTIFY_COMMIT) EnableCommit();
   if (enabled & SQLITE_NOTIFY_ROLLBACK) EnableRollback();
 }
 
-Notifier::Notifier(const Session& session, const Any& value, EnabledEventType enabled)
-  : session_(session),
-    value_(value),
-    row_(),
-    enabled_events_() {
-  if (enabled & SQLITE_NOTIFY_UPDATE)   EnableUpdate();
-  if (enabled & SQLITE_NOTIFY_COMMIT)   EnableCommit();
+Notifier::Notifier(const Session& session, const Any& value,
+                   EnabledEventType enabled)
+    : session_(session), value_(value), row_(), enabled_events_() {
+  if (enabled & SQLITE_NOTIFY_UPDATE) EnableUpdate();
+  if (enabled & SQLITE_NOTIFY_COMMIT) EnableCommit();
   if (enabled & SQLITE_NOTIFY_ROLLBACK) EnableRollback();
 }
 
@@ -34,7 +30,8 @@ Notifier::~Notifier() {
 bool Notifier::EnableUpdate() {
   fun::Mutex::ScopedLock l(mutex_);
 
-  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_), &SqliteUpdateCallbackFn, this)) {
+  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_),
+                                     &SqliteUpdateCallbackFn, this)) {
     enabled_events_ |= SQLITE_NOTIFY_UPDATE;
   }
 
@@ -44,7 +41,8 @@ bool Notifier::EnableUpdate() {
 bool Notifier::DisableUpdate() {
   fun::Mutex::ScopedLock l(mutex_);
 
-  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_), (Utility::UpdateCallbackType) 0, this)) {
+  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_),
+                                     (Utility::UpdateCallbackType)0, this)) {
     enabled_events_ &= ~SQLITE_NOTIFY_UPDATE;
   }
 
@@ -58,7 +56,8 @@ bool Notifier::UpdateEnabled() const {
 bool Notifier::EnableCommit() {
   fun::Mutex::ScopedLock l(mutex_);
 
-  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_), &SqliteCommitCallbackFn, this)) {
+  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_),
+                                     &SqliteCommitCallbackFn, this)) {
     enabled_events_ |= SQLITE_NOTIFY_COMMIT;
   }
 
@@ -68,7 +67,8 @@ bool Notifier::EnableCommit() {
 bool Notifier::DisableCommit() {
   fun::Mutex::ScopedLock l(mutex_);
 
-  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_), (Utility::CommitCallbackType) 0, this)) {
+  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_),
+                                     (Utility::CommitCallbackType)0, this)) {
     enabled_events_ &= ~SQLITE_NOTIFY_COMMIT;
   }
 
@@ -82,7 +82,8 @@ bool Notifier::CommitEnabled() const {
 bool Notifier::EnableRollback() {
   fun::Mutex::ScopedLock l(mutex_);
 
-  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_), &SqliteRollbackCallbackFn, this)) {
+  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_),
+                                     &SqliteRollbackCallbackFn, this)) {
     enabled_events_ |= SQLITE_NOTIFY_ROLLBACK;
   }
 
@@ -92,7 +93,8 @@ bool Notifier::EnableRollback() {
 bool Notifier::DisableRollback() {
   fun::Mutex::ScopedLock l(mutex_);
 
-  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_), (Utility::RollbackCallbackType) 0, this)) {
+  if (Utility::RegisterUpdateHandler(Utility::GetDbHandle(session_),
+                                     (Utility::RollbackCallbackType)0, this)) {
     enabled_events_ &= ~SQLITE_NOTIFY_ROLLBACK;
   }
 
@@ -111,7 +113,9 @@ bool Notifier::DisableAll() {
   return DisableUpdate() && DisableCommit() && DisableRollback();
 }
 
-void Notifier::SqliteUpdateCallbackFn(void* pVal, int opCode, const char* /*db*/, const char* pTable, int64 row) {
+void Notifier::SqliteUpdateCallbackFn(void* pVal, int opCode,
+                                      const char* /*db*/, const char* pTable,
+                                      int64 row) {
   fun_check_ptr(pVal);
   Notifier* pV = reinterpret_cast<Notifier*>(pVal);
   if (opCode == Utility::OPERATION_INSERT) {
@@ -146,6 +150,6 @@ void Notifier::SqliteRollbackCallbackFn(void* pVal) {
   pV->rollback.Notify(pV);
 }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "fun/sql/odbc/odbc.h"
-#include "fun/sql/odbc/utility.h"
+#include "fun/base/format.h"
 #include "fun/sql/odbc/diagnostics.h"
 #include "fun/sql/odbc/error.h"
+#include "fun/sql/odbc/odbc.h"
+#include "fun/sql/odbc/utility.h"
 #include "fun/sql/sql_exception.h"
-#include "fun/base/format.h"
 
 namespace fun {
 namespace sql {
@@ -23,7 +23,7 @@ class HandleException : public OdbcException {
    * Creates HandleException
    */
   HandleException(const H& handle, int code = 0)
-    : OdbcException(code), error_(handle) {
+      : OdbcException(code), error_(handle) {
     message(error_.ToString());
   }
 
@@ -31,7 +31,7 @@ class HandleException : public OdbcException {
    * Creates HandleException
    */
   HandleException(const H& handle, const String& msg)
-    : OdbcException(msg), error_(handle) {
+      : OdbcException(msg), error_(handle) {
     extendedMessage(error_.ToString());
   }
 
@@ -39,19 +39,19 @@ class HandleException : public OdbcException {
    * Creates HandleException
    */
   HandleException(const H& handle, const String& msg, const String& arg)
-    : OdbcException(msg, arg), error_(handle) {}
+      : OdbcException(msg, arg), error_(handle) {}
 
   /**
    * Creates HandleException
    */
   HandleException(const H& handle, const String& msg, const fun::Exception& e)
-    : OdbcException(msg, e), error_(handle) {}
+      : OdbcException(msg, e), error_(handle) {}
 
   /**
    * Creates HandleException
    */
   HandleException(const HandleException& e)
-    : OdbcException(e), error_(e.error_) {}
+      : OdbcException(e), error_(e.error_) {}
 
   /**
    * Destroys HandleException
@@ -61,7 +61,7 @@ class HandleException : public OdbcException {
   /**
    * Assignment operator
    */
-  HandleException& operator = (const HandleException& e) {
+  HandleException& operator=(const HandleException& e) {
     if (&e != this) {
       error_ = e.error_;
     }
@@ -72,30 +72,22 @@ class HandleException : public OdbcException {
   /**
    * Returns the name of the exception
    */
-  const char* GetName() const throw() {
-    return "ODBC handle exception";
-  }
+  const char* GetName() const throw() { return "ODBC handle exception"; }
 
   /**
    * Returns the HandleException class name.
    */
-  const char* GetClassName() const throw() {
-    return typeid(*this).name();
-  }
+  const char* GetClassName() const throw() { return typeid(*this).name(); }
 
   /**
    * Clones the HandleException
    */
-  fun::Exception* Clone() const {
-    return new HandleException(*this);
-  }
+  fun::Exception* Clone() const { return new HandleException(*this); }
 
   /**
    * Re-throws the HandleException.
    */
-  void Rethrow() const {
-    throw *this;
-  }
+  void Rethrow() const { throw *this; }
 
   /**
    * Returns error diagnostics.
@@ -109,16 +101,13 @@ class HandleException : public OdbcException {
    */
   String ToString() const {
     return fun::Format("ODBC Error: %s\n===================\n%s\n",
-                        String(what()),
-                        error_.ToString());
+                       String(what()), error_.ToString());
   }
 
   /**
    * Returns the error diagnostics string
    */
-  String errorString() const {
-    return error_.ToString();
-  }
+  String errorString() const { return error_.ToString(); }
 
   /**
    * Returns the error diagnostics string for the handle.
@@ -128,19 +117,17 @@ class HandleException : public OdbcException {
   }
 
  protected:
-  const Error<H, handleType>& error() const {
-    return error_;
-  }
+  const Error<H, handleType>& error() const { return error_; }
 
  private:
   Error<H, handleType> error_;
 };
 
-typedef HandleException<SQLHENV, SQL_HANDLE_ENV>   EnvironmentException;
-typedef HandleException<SQLHDBC, SQL_HANDLE_DBC>   ConnectionException;
+typedef HandleException<SQLHENV, SQL_HANDLE_ENV> EnvironmentException;
+typedef HandleException<SQLHDBC, SQL_HANDLE_DBC> ConnectionException;
 typedef HandleException<SQLHSTMT, SQL_HANDLE_STMT> StatementException;
 typedef HandleException<SQLHDESC, SQL_HANDLE_DESC> DescriptorException;
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

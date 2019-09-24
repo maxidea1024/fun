@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fun/sql/sql.h"
 #include "fun/sql/preparation_base.h"
+#include "fun/sql/sql.h"
 #include "fun/sql/type_handler.h"
 
 #include <cstddef>
@@ -20,7 +20,7 @@ class Preparation : public PreparationBase {
    * Creates the Preparation.
    */
   Preparation(PreparatorBase::Ptr& preparator, size_t pos, T& val)
-    : PreparationBase(preparator), pos_(pos), val_(val) {}
+      : PreparationBase(preparator), pos_(pos), val_(val) {}
 
   /**
    * Destroys the Preparation.
@@ -30,9 +30,7 @@ class Preparation : public PreparationBase {
   /**
    * Prepares data.
    */
-  void Prepare() {
-    TypeHandler<T>::Prepare(pos_, val_, GetPreparation());
-  }
+  void Prepare() { TypeHandler<T>::Prepare(pos_, val_, GetPreparation()); }
 
  private:
   size_t pos_;
@@ -50,8 +48,9 @@ class Preparation<std::vector<T>> : public PreparationBase {
   /**
    * Creates the Preparation.
    */
-  Preparation(PreparatorBase::Ptr preparator, size_t pos, std::vector<T>& val = std::vector<T>()):
-    PreparationBase(preparator), pos_(pos), val_(val) {}
+  Preparation(PreparatorBase::Ptr preparator, size_t pos,
+              std::vector<T>& val = std::vector<T>())
+      : PreparationBase(preparator), pos_(pos), val_(val) {}
 
   /**
    * Destroys the Preparation.
@@ -62,7 +61,7 @@ class Preparation<std::vector<T>> : public PreparationBase {
    * Prepares data.
    */
   void Prepare() {
-    TypeHandler<std::vector<T> >::Prepare(pos_, val_, GetPreparation());
+    TypeHandler<std::vector<T>>::Prepare(pos_, val_, GetPreparation());
   }
 
  private:
@@ -81,8 +80,9 @@ class Preparation<std::deque<T>> : public PreparationBase {
   /**
    * Creates the Preparation.
    */
-  Preparation(PreparatorBase::Ptr preparator, size_t pos, std::deque<T>& val = std::deque<T>())
-    : PreparationBase(preparator), pos_(pos), val_(val) {}
+  Preparation(PreparatorBase::Ptr preparator, size_t pos,
+              std::deque<T>& val = std::deque<T>())
+      : PreparationBase(preparator), pos_(pos), val_(val) {}
 
   /**
    * Destroys the Preparation.
@@ -93,7 +93,7 @@ class Preparation<std::deque<T>> : public PreparationBase {
    * Prepares data.
    */
   void Prepare() {
-    TypeHandler<std::deque<T> >::Prepare(pos_, val_, GetPreparation());
+    TypeHandler<std::deque<T>>::Prepare(pos_, val_, GetPreparation());
   }
 
  private:
@@ -112,8 +112,9 @@ class Preparation<std::list<T>> : public PreparationBase {
   /**
    * Creates the Preparation.
    */
-  Preparation(PreparatorBase::Ptr preparator, size_t pos, std::list<T>& val = std::list<T>())
-    : PreparationBase(preparator), pos_(pos), val_(val) {}
+  Preparation(PreparatorBase::Ptr preparator, size_t pos,
+              std::list<T>& val = std::list<T>())
+      : PreparationBase(preparator), pos_(pos), val_(val) {}
 
   /**
    * Destroys the Preparation.
@@ -132,5 +133,5 @@ class Preparation<std::list<T>> : public PreparationBase {
   std::list<T>& val_;
 };
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

@@ -1,9 +1,9 @@
 ﻿#include "fun/sql/sqlite/sqlite_statement_impl.h"
-#include "fun/sql/sqlite/utility.h"
-#include "fun/sql/sqlite/sqlite_exception.h"
-#include "fun/base/string.h"
 #include <cstdlib>
 #include <cstring>
+#include "fun/base/string.h"
+#include "fun/sql/sqlite/sqlite_exception.h"
+#include "fun/sql/sqlite/utility.h"
 
 #if defined(FUN_UNBUNDLED)
 #include <sqlite3.h>
@@ -17,16 +17,17 @@ namespace sqlite {
 
 const int SQLiteStatementImpl::FUN_SQLITE_INV_ROW_CNT = -1;
 
-SQLiteStatementImpl::SQLiteStatementImpl(fun::sql::SessionImpl& session, sqlite3* db)
-  : StatementImpl(session),
-    db_(db),
-    stmt_(0),
-    step_called_(false),
-    next_response_(0),
-    affected_row_count_(FUN_SQLITE_INV_ROW_CNT),
-    can_bind_(false),
-    is_extracted_(false),
-    can_compile_(true) {
+SQLiteStatementImpl::SQLiteStatementImpl(fun::sql::SessionImpl& session,
+                                         sqlite3* db)
+    : StatementImpl(session),
+      db_(db),
+      stmt_(0),
+      step_called_(false),
+      next_response_(0),
+      affected_row_count_(FUN_SQLITE_INV_ROW_CNT),
+      can_bind_(false),
+      is_extracted_(false),
+      can_compile_(true) {
   columns_.Resize(1);
 }
 
@@ -63,22 +64,23 @@ void SQLiteStatementImpl::CompileImpl() {
       stmt = 0;
       String errMsg = sqlite3_errmsg(db_);
       Utility::ThrowException(db_, rc, errMsg);
-    }
-    else if (rc == SQLITE_OK && stmt) {
+    } else if (rc == SQLITE_OK && stmt) {
       queryFound = true;
-    } else if (rc == SQLITE_OK && !stmt) { // comment/whitespace ignore
+    } else if (rc == SQLITE_OK && !stmt) {  // comment/whitespace ignore
       pSql = pLeftover;
       if (std::strlen(pSql) == 0) {
-        // empty statement or an conditional statement! like CREATE IF NOT EXISTS
-        // this is valid
+        // empty statement or an conditional statement! like CREATE IF NOT
+        // EXISTS this is valid
         queryFound = true;
       }
     }
   } while (rc == SQLITE_OK && !stmt && !queryFound);
 
-  //Finalization call in Clear() invalidates the pointer, so the value is remembered here.
-  //For last statement in a batch (or a single statement), pLeftover == "", so the next call
-  // to CompileImpl() shall return false immediately when there are no more statements left.
+  // Finalization call in Clear() invalidates the pointer, so the value is
+  // remembered here. For last statement in a batch (or a single statement),
+  // pLeftover == "", so the next call
+  // to CompileImpl() shall return false immediately when there are no more
+  // statements left.
   String leftOver(pLeftover);
   trimInPlace(leftOver);
   Clear();
@@ -86,15 +88,15 @@ void SQLiteStatementImpl::CompileImpl() {
   if (!leftOver.IsEmpty()) {
     leftover_ = new String(leftOver);
     can_compile_ = true;
-  }
-  else can_compile_ = false;
+  } else
+    can_compile_ = false;
 
   binder_ = new Binder(stmt_);
   extractor_ = new Extractor(stmt_);
 
   if (SQLITE_DONE == next_response_ && is_extracted_) {
-    //if this is not the first compile and there has already been extraction
-    //during previous step, switch to the next set if there is one provided
+    // if this is not the first compile and there has already been extraction
+    // during previous step, switch to the next set if there is one provided
     if (HasMoreDataSets()) {
       ActivateNextDataSet();
       is_extracted_ = false;
@@ -107,7 +109,8 @@ void SQLiteStatementImpl::CompileImpl() {
     size_t curDataSet = currentDataSet();
     if (curDataSet >= columns_.size()) columns_.Resize(curDataSet + 1);
     for (int i = 0; i < col_count; ++i) {
-      MetaColumn mc(i, sqlite3_column_name(stmt_, i), Utility::GetColumnType(stmt_, i));
+      MetaColumn mc(i, sqlite3_column_name(stmt_, i),
+                    Utility::GetColumnType(stmt_, i));
       columns_[curDataSet].push_back(mc);
     }
   }
@@ -158,14 +161,17 @@ void SQLiteStatementImpl::BindImpl() {
     boundRowCount = (*bind_begin_)->HandledRowsCount();
 
     Bindings::iterator old_begin = bind_begin_;
-    for (size_t pos = 1; bind_begin_ != bind_end && (*bind_begin_)->CanBind(); ++bind_begin_) {
+    for (size_t pos = 1; bind_begin_ != bind_end && (*bind_begin_)->CanBind();
+         ++bind_begin_) {
       if (boundRowCount != (*bind_begin_)->HandledRowsCount()) {
-        throw BindingException("Size mismatch in Bindings. All Bindings MUST have the same size");
+        throw BindingException(
+            "Size mismatch in Bindings. All Bindings MUST have the same size");
       }
 
       size_t named_bind_pos = 0;
       if (!(*bind_begin_)->name().IsEmpty()) {
-        named_bind_pos = (size_t)sqlite3_bind_parameter_index(stmt_, (*bind_begin_)->name().c_str());
+        named_bind_pos = (size_t)sqlite3_bind_parameter_index(
+            stmt_, (*bind_begin_)->name().c_str());
       }
 
       (*bind_begin_)->bind((named_bind_pos != 0) ? named_bind_pos : pos);
@@ -173,7 +179,7 @@ void SQLiteStatementImpl::BindImpl() {
     }
 
     if ((*old_begin)->CanBind()) {
-      //container binding will come back for more, so we must rewind
+      // container binding will come back for more, so we must rewind
       bind_begin_ = old_begin;
       can_bind_ = true;
     } else {
@@ -188,7 +194,7 @@ void SQLiteStatementImpl::Clear() {
 
   if (stmt_) {
     sqlite3_finalize(stmt_);
-    stmt_=0;
+    stmt_ = 0;
   }
   leftover_ = 0;
 }
@@ -216,11 +222,12 @@ bool SQLiteStatementImpl::HasNext() {
     affected_row_count_ += sqlite3_changes(db_);
   }
 
-  if (next_response_ != SQLITE_ROW && next_response_ != SQLITE_OK && next_response_ != SQLITE_DONE) {
+  if (next_response_ != SQLITE_ROW && next_response_ != SQLITE_OK &&
+      next_response_ != SQLITE_DONE) {
     Utility::ThrowException(db_, next_response_);
   }
 
-  extractor_->Reset();//Clear the cached null indicators
+  extractor_->Reset();  // Clear the cached null indicators
 
   return (next_response_ == SQLITE_ROW);
 }
@@ -232,7 +239,7 @@ size_t SQLiteStatementImpl::next() {
     Extractions& extracts = GetExtractions();
     Extractions::iterator it = extracts.begin();
     Extractions::iterator itEnd = extracts.end();
-    size_t pos = 0; // sqlite starts with pos 0 for results!
+    size_t pos = 0;  // sqlite starts with pos 0 for results!
     for (; it != itEnd; ++it) {
       (*it)->Extract(pos);
       pos += (*it)->HandledColumnsCount();
@@ -244,14 +251,18 @@ size_t SQLiteStatementImpl::next() {
     }
 
     if (extracts.size()) {
-      affected_row_count_ += static_cast<int>((*extracts.begin())->HandledRowsCount());
+      affected_row_count_ +=
+          static_cast<int>((*extracts.begin())->HandledRowsCount());
     } else {
-      affected_row_count_ += static_cast<int>((*extracts.begin())->HandledRowsCount());
+      affected_row_count_ +=
+          static_cast<int>((*extracts.begin())->HandledRowsCount());
     }
   } else if (SQLITE_DONE == next_response_) {
     throw fun::sql::SqlException("No data received");
   } else {
-    Utility::ThrowException(db_, next_response_, String("Iterator Error: trying to access the next value"));
+    Utility::ThrowException(
+        db_, next_response_,
+        String("Iterator Error: trying to access the next value"));
   }
 
   return 1u;
@@ -261,7 +272,8 @@ size_t SQLiteStatementImpl::ReturnedColumnCount() const {
   return (size_t)columns_[currentDataSet()].size();
 }
 
-const MetaColumn& SQLiteStatementImpl::metaColumn(size_t pos, size_t data_set) const {
+const MetaColumn& SQLiteStatementImpl::metaColumn(size_t pos,
+                                                  size_t data_set) const {
   fun_check(pos >= 0 && pos <= columns_[data_set].size());
   return columns_[data_set][pos];
 }
@@ -274,6 +286,6 @@ int SQLiteStatementImpl::AffectedRowCount() const {
   return stmt_ == 0 || sqlite3_stmt_readonly(stmt_) ? 0 : sqlite3_changes(db_);
 }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

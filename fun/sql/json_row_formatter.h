@@ -43,27 +43,31 @@ namespace sql {
  *      {
  *       "count":2,
  *        [
- *         {"LastName": "Simpson", "FirstName": "Bart", "Address": "Springfield", "Age": 12},
- *         {"LastName": "Simpson", "FirstName": "Lisa", "Address": "Springfield", "Age": 10}
+ *         {"LastName": "Simpson", "FirstName": "Bart", "Address":
+ * "Springfield", "Age": 12},
+ *         {"LastName": "Simpson", "FirstName": "Lisa", "Address":
+ * "Springfield", "Age": 10}
  *        ]
  *      }
  *
- * Total row count will be specified by the fun::SQLRecordSet. Note, however, that this is
- * not possible to do accurately in case of result set paging. For those cases, there is
- * SetTotalRowCount() member function, which allows to explicitly set the total row count.
- * If the total row count is preset on the formatter, the Data framework shall not interfere.
+ * Total row count will be specified by the fun::SQLRecordSet. Note, however,
+ * that this is not possible to do accurately in case of result set paging. For
+ * those cases, there is SetTotalRowCount() member function, which allows to
+ * explicitly set the total row count. If the total row count is preset on the
+ * formatter, the Data framework shall not interfere.
  */
 class FUN_SQL_API JsonRowFormatter : public fun::sql::RowFormatter {
  public:
-  static const int JSON_FMT_MODE_SMALL        = 1;
-  static const int JSON_FMT_MODE_ROW_COUNT    = 2;
+  static const int JSON_FMT_MODE_SMALL = 1;
+  static const int JSON_FMT_MODE_ROW_COUNT = 2;
   static const int JSON_FMT_MODE_COLUMN_NAMES = 4;
-  static const int JSON_FMT_MODE_FULL         = 8;
+  static const int JSON_FMT_MODE_FULL = 8;
 
   /**
    * Creates a new JsonRowFormatter.
    */
-  JsonRowFormatter(int mode = (JSON_FMT_MODE_COLUMN_NAMES | JSON_FMT_MODE_SMALL));
+  JsonRowFormatter(int mode = (JSON_FMT_MODE_COLUMN_NAMES |
+                               JSON_FMT_MODE_SMALL));
 
   /**
    * Destroys the JsonRowFormatter.
@@ -121,7 +125,6 @@ class FUN_SQL_API JsonRowFormatter : public fun::sql::RowFormatter {
   bool first_time_;
 };
 
-
 //
 // inlines
 //
@@ -142,5 +145,5 @@ inline bool JsonRowFormatter::IsFull() {
   return (mode_ & JSON_FMT_MODE_FULL) != 0;
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

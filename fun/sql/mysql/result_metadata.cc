@@ -1,12 +1,12 @@
 ﻿#include "fun/sql/mysql/result_metadata.h"
-#include "fun/sql/mysql/mysql_exception.h"
 #include <cstring>
+#include "fun/sql/mysql/mysql_exception.h"
 
 namespace {
 
 /**
-  * Simple exception-safe wrapper
-  */
+ * Simple exception-safe wrapper
+ */
 class ResultMetadataHandle {
  public:
   explicit ResultMetadataHandle(MYSQL_STMT* stmt) {
@@ -19,9 +19,7 @@ class ResultMetadataHandle {
     }
   }
 
-  operator MYSQL_RES* () {
-    return h;
-  }
+  operator MYSQL_RES*() { return h; }
 
  private:
   MYSQL_RES* h;
@@ -32,13 +30,19 @@ class ResultMetadataHandle {
  */
 size_t GetFieldLength(const MYSQL_FIELD& field) {
   switch (field.type) {
-    case MYSQL_TYPE_TINY:     return sizeof(char);
-    case MYSQL_TYPE_SHORT:    return sizeof(short);
+    case MYSQL_TYPE_TINY:
+      return sizeof(char);
+    case MYSQL_TYPE_SHORT:
+      return sizeof(short);
     case MYSQL_TYPE_INT24:
-    case MYSQL_TYPE_LONG:     return sizeof(int32);
-    case MYSQL_TYPE_FLOAT:    return sizeof(float);
-    case MYSQL_TYPE_DOUBLE:   return sizeof(double);
-    case MYSQL_TYPE_LONGLONG: return sizeof(int64);
+    case MYSQL_TYPE_LONG:
+      return sizeof(int32);
+    case MYSQL_TYPE_FLOAT:
+      return sizeof(float);
+    case MYSQL_TYPE_DOUBLE:
+      return sizeof(double);
+    case MYSQL_TYPE_LONGLONG:
+      return sizeof(int64);
 
     case MYSQL_TYPE_DATE:
     case MYSQL_TYPE_TIME:
@@ -115,7 +119,7 @@ fun::sql::MetaColumn::ColumnDataType GetFieldType(const MYSQL_FIELD& field) {
   }
 }
 
-} // namespace
+}  // namespace
 
 namespace fun {
 namespace sql {
@@ -152,14 +156,13 @@ void ResultMetadata::Init(MYSQL_STMT* stmt) {
         size = 0;
       }
 
-      columns_.push_back(MetaColumn(
-        i,                                // position
-        fields[i].name,                   // name
-        GetFieldType(fields[i]),          // type
-        size,                             // length
-        0,                                // TODO: precision
-        !IS_NOT_NULL(fields[i].flags)     // nullable
-        ));
+      columns_.push_back(MetaColumn(i,                        // position
+                                    fields[i].name,           // name
+                                    GetFieldType(fields[i]),  // type
+                                    size,                     // length
+                                    0,                        // TODO: precision
+                                    !IS_NOT_NULL(fields[i].flags)  // nullable
+                                    ));
 
       column_size += columns_[i].length();
     }
@@ -175,12 +178,12 @@ void ResultMetadata::Init(MYSQL_STMT* stmt) {
   for (size_t i = 0; i < count; i++) {
     UnsafeMemory::Memset(&row_[i], 0, sizeof(MYSQL_BIND));
     unsigned int len = static_cast<unsigned int>(columns_[i].length());
-    row_[i].buffer_type   = fields[i].type;
+    row_[i].buffer_type = fields[i].type;
     row_[i].buffer_length = len;
-    row_[i].buffer        = (len > 0) ? (&buffer_[0] + offset) : 0;
-    row_[i].length        = &lengths_[i];
-    row_[i].is_null       = &is_null_[i];
-    row_[i].is_unsigned   = (fields[i].flags & UNSIGNED_FLAG) > 0;
+    row_[i].buffer = (len > 0) ? (&buffer_[0] + offset) : 0;
+    row_[i].length = &lengths_[i];
+    row_[i].is_null = &is_null_[i];
+    row_[i].is_unsigned = (fields[i].flags & UNSIGNED_FLAG) > 0;
 
     offset += row_[i].buffer_length;
   }
@@ -194,22 +197,16 @@ const MetaColumn& ResultMetadata::metaColumn(size_t pos) const {
   return columns_[pos];
 }
 
-MYSQL_BIND* ResultMetadata::row() {
-  return &row_[0];
-}
+MYSQL_BIND* ResultMetadata::row() { return &row_[0]; }
 
-size_t ResultMetadata::length(size_t pos) const {
-  return lengths_[pos];
-}
+size_t ResultMetadata::length(size_t pos) const { return lengths_[pos]; }
 
 const unsigned char* ResultMetadata::rawData(size_t pos) const {
   return reinterpret_cast<const unsigned char*>(row_[pos].buffer);
 }
 
-bool ResultMetadata::IsNull(size_t pos) const {
-  return (is_null_[pos] != 0);
-}
+bool ResultMetadata::IsNull(size_t pos) const { return (is_null_[pos] != 0); }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

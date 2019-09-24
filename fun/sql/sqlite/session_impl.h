@@ -1,15 +1,15 @@
 ﻿#pragma once
 
-#include "fun/sql/sqlite/sqlite.h"
-#include "fun/sql/sqlite/connector.h"
-#include "fun/sql/sqlite/binder.h"
-#include "fun/sql/session_impl_base.h"
-#include "fun/sql/statement_impl.h"
-#include "fun/base/shared_ptr.h"
 #include "fun/base/mutex.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/sql/session_impl_base.h"
+#include "fun/sql/sqlite/binder.h"
+#include "fun/sql/sqlite/connector.h"
+#include "fun/sql/sqlite/sqlite.h"
+#include "fun/sql/statement_impl.h"
 
 extern "C" {
-  typedef struct sqlite3 sqlite3;
+typedef struct sqlite3 sqlite3;
 }
 
 namespace fun {
@@ -19,13 +19,14 @@ namespace sqlite {
 /**
  * Implements SessionImpl interface.
  */
-class FUN_SQLITE_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl> {
+class FUN_SQLITE_API SessionImpl
+    : public fun::sql::SessionImplBase<SessionImpl> {
  public:
   /**
    * Creates the SessionImpl. Opens a connection to the database.
    */
   SessionImpl(const String& filename,
-    size_t login_timeout = LOGIN_TIMEOUT_DEFAULT);
+              size_t login_timeout = LOGIN_TIMEOUT_DEFAULT);
 
   /**
    * Destroys the SessionImpl.
@@ -102,7 +103,8 @@ class FUN_SQLITE_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl>
   bool CanTransact() const;
 
   /**
-   * Returns true if a transaction is a transaction is in progress, false otherwise.
+   * Returns true if a transaction is a transaction is in progress, false
+   * otherwise.
    */
   bool IsInTransaction() const;
 
@@ -136,7 +138,7 @@ class FUN_SQLITE_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl>
   /**
    * Returns autocommit property value.
    */
-  bool IsAutoCommit(const String& name="") const;
+  bool IsAutoCommit(const String& name = "") const;
 
   /**
    * Returns the name of the connector.
@@ -160,27 +162,20 @@ class FUN_SQLITE_API SessionImpl : public fun::sql::SessionImplBase<SessionImpl>
   static const String ABORT_TRANSACTION;
 };
 
-
 //
 // inlines
 //
 
-inline bool SessionImpl::CanTransact() const {
-  return true;
-}
+inline bool SessionImpl::CanTransact() const { return true; }
 
-inline  bool SessionImpl::IsInTransaction() const {
-  return is_transaction_;
-}
+inline bool SessionImpl::IsInTransaction() const { return is_transaction_; }
 
-inline const String& SessionImpl::connectorName() const {
-  return connector_;
-}
+inline const String& SessionImpl::connectorName() const { return connector_; }
 
 inline size_t SessionImpl::GetConnectionTimeout() const {
-  return static_cast<size_t>(timeout_/1000);
+  return static_cast<size_t>(timeout_ / 1000);
 }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

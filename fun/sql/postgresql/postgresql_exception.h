@@ -3,15 +3,15 @@
 #include "fun/sql/postgresql/postgresql.h"
 #include "fun/sql/sql_exception.h"
 
-#include <typeinfo>
 #include <string>
+#include <typeinfo>
 
 namespace fun {
 namespace sql {
 namespace postgresql {
 
-// End-user include this file and use in code ConnectionException/StatementException
-// So it need not know
+// End-user include this file and use in code
+// ConnectionException/StatementException So it need not know
 
 /**
  * Base class for all PostgreSQL exceptions
@@ -99,12 +99,12 @@ class StatementException : public PostgreSqlException {
   StatementException(const String& message);
 };
 
-
 //
 // inlines
 //
 
-inline PostgreSqlException& PostgreSqlException::operator=(const PostgreSqlException& e) {
+inline PostgreSqlException& PostgreSqlException::operator=(
+    const PostgreSqlException& e) {
   fun::sql::SqlException::operator=(e);
   return *this;
 }
@@ -121,10 +121,8 @@ inline fun::Exception* PostgreSqlException::Clone() const {
   return new PostgreSqlException(*this);
 }
 
-inline void PostgreSqlException::Rethrow() const {
-  throw *this;
-}
+inline void PostgreSqlException::Rethrow() const { throw *this; }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

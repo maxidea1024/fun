@@ -1,16 +1,16 @@
 #pragma once
 
-#include "fun/sql/odbc/odbc.h"
-#include "fun/sql/odbc/session_impl.h"
+#include <sstream>
+#include "fun/base/format.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/sql/column.h"
 #include "fun/sql/odbc/binder.h"
 #include "fun/sql/odbc/extractor.h"
-#include "fun/sql/odbc/preparator.h"
+#include "fun/sql/odbc/odbc.h"
 #include "fun/sql/odbc/odbc_meta_column.h"
+#include "fun/sql/odbc/preparator.h"
+#include "fun/sql/odbc/session_impl.h"
 #include "fun/sql/statement_impl.h"
-#include "fun/sql/column.h"
-#include "fun/base/shared_ptr.h"
-#include "fun/base/format.h"
-#include <sstream>
 
 #ifdef FUN_PLATFORM_WINDOWS_FAMILY
 #include <windows.h>
@@ -177,7 +177,7 @@ class FUN_ODBC_API OdbcStatementImpl : public fun::sql::StatementImpl {
 
   bool AddPreparator(bool add_always = true);
   void FillColumns(size_t data_set_pos);
-  void CheckError(SQLRETURN rc, const String& msg="");
+  void CheckError(SQLRETURN rc, const String& msg = "");
   bool NextResultSet();
 
   const SQLHDBC& connection_;
@@ -193,7 +193,6 @@ class FUN_ODBC_API OdbcStatementImpl : public fun::sql::StatementImpl {
   bool can_compile_;
   bool insert_hint_;
 };
-
 
 //
 // inlines
@@ -224,10 +223,8 @@ inline bool OdbcStatementImpl::NextRowReady() const {
   return (!Utility::IsError(static_cast<SQLRETURN>(next_response_)));
 }
 
-inline bool OdbcStatementImpl::CanCompile() const {
-  return can_compile_;
-}
+inline bool OdbcStatementImpl::CanCompile() const { return can_compile_; }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

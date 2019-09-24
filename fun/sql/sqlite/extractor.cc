@@ -1,11 +1,11 @@
 ﻿#include "fun/sql/sqlite/extractor.h"
-#include "fun/sql/sqlite/utility.h"
+#include "fun/base/exception.h"
+#include "fun/date_time_parser.h"
 #include "fun/sql/date.h"
-#include "fun/sql/time.h"
 #include "fun/sql/lob.h"
 #include "fun/sql/sql_exception.h"
-#include "fun/date_time_parser.h"
-#include "fun/base/exception.h"
+#include "fun/sql/sqlite/utility.h"
+#include "fun/sql/time.h"
 
 #if defined(FUN_UNBUNDLED)
 #include <sqlite3.h>
@@ -77,7 +77,8 @@ bool Extractor::Extract(size_t pos, String& val) {
     return false;
   }
 
-  const char* buf = reinterpret_cast<const char*>(sqlite3_column_text(stmt_, (int)pos));
+  const char* buf =
+      reinterpret_cast<const char*>(sqlite3_column_text(stmt_, (int)pos));
   if (!buf) {
     val.Clear();
   } else {
@@ -220,12 +221,13 @@ bool Extractor::IsNull(size_t pos, size_t) {
 
   if (!nulls_[pos].first) {
     nulls_[pos].first = true;
-    nulls_[pos].second = (SQLITE_NULL == sqlite3_column_type(stmt_, static_cast<int>(pos)));
+    nulls_[pos].second =
+        (SQLITE_NULL == sqlite3_column_type(stmt_, static_cast<int>(pos)));
   }
 
   return nulls_[pos].second;
 }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

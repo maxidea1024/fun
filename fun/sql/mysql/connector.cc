@@ -1,8 +1,8 @@
 ﻿#include "fun/sql/mysql/connector.h"
+#include <mysql.h>
+#include "fun/base/exception.h"
 #include "fun/sql/mysql/session_impl.h"
 #include "fun/sql/session_factory.h"
-#include "fun/base/exception.h"
-#include <mysql.h>
 
 const MySqlConnectorRegistrator funMySqlConnectorRegistrator;
 
@@ -22,8 +22,8 @@ const String& Connector::GetName() const {
   return n;
 }
 
-fun::RefCountedPtr<fun::sql::SessionImpl>
-Connector::CreateSession(const String& connection_string, size_t timeout) {
+fun::RefCountedPtr<fun::sql::SessionImpl> Connector::CreateSession(
+    const String& connection_string, size_t timeout) {
   static bool init_done = false;
   {
     fun::FastMutex::ScopedLock l(mutex_);
@@ -36,7 +36,8 @@ Connector::CreateSession(const String& connection_string, size_t timeout) {
     }
   }
 
-  return fun::RefCountedPtr<fun::sql::SessionImpl>(new fun::sql::MySql::SessionImpl(connection_string, timeout));
+  return fun::RefCountedPtr<fun::sql::SessionImpl>(
+      new fun::sql::MySql::SessionImpl(connection_string, timeout));
 }
 
 void Connector::RegisterConnector() {
@@ -48,6 +49,6 @@ void Connector::UnregisterConnector() {
   mysql_library_end();
 }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

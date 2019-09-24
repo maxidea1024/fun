@@ -1,12 +1,12 @@
 #pragma once
 
-#include "fun/sql/odbc/odbc.h"
 #include "fun/sql/connector.h"
+#include "fun/sql/odbc/odbc.h"
 
 // Note: to avoid static (de)initialization problems,
 // during connector automatic (un)registration, it is
 // best to have this as a macro.
-#define FUN_DATA_ODBC_CONNECTOR_NAME  "odbc"
+#define FUN_DATA_ODBC_CONNECTOR_NAME "odbc"
 
 namespace fun {
 namespace sql {
@@ -38,23 +38,25 @@ class FUN_ODBC_API Connector : public fun::sql::Connector {
   const String& GetName() const;
 
   /**
-   * Creates a ODBC SessionImpl object and initializes it with the given connection_string.
+   * Creates a ODBC SessionImpl object and initializes it with the given
+   * connection_string.
    */
-  fun::RefCountedPtr<fun::sql::SessionImpl>
-  CreateSession(const String& connection_string,
-                size_t timeout = fun::sql::SessionImpl::LOGIN_TIMEOUT_DEFAULT);
+  fun::RefCountedPtr<fun::sql::SessionImpl> CreateSession(
+      const String& connection_string,
+      size_t timeout = fun::sql::SessionImpl::LOGIN_TIMEOUT_DEFAULT);
 
   /**
-   * Registers the Connector under the Keyword Connector::KEY at the fun::sql::SessionFactory
+   * Registers the Connector under the Keyword Connector::KEY at the
+   * fun::sql::SessionFactory
    */
   static void RegisterConnector();
 
   /**
-   * Unregisters the Connector under the Keyword Connector::KEY at the fun::sql::SessionFactory
+   * Unregisters the Connector under the Keyword Connector::KEY at the
+   * fun::sql::SessionFactory
    */
   static void UnregisterConnector();
 };
-
 
 //
 // inlines
@@ -65,10 +67,9 @@ inline const String& Connector::GetName() const {
   return n;
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
-
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun
 
 //
 // Automatic Connector registration
@@ -84,9 +85,7 @@ struct FUN_ODBC_API OdbcConnectorRegistrator {
   /**
    * Calls fun::sql::odbc::RegisterConnector();
    */
-  OdbcConnectorRegistrator() {
-    fun::sql::odbc::Connector::RegisterConnector();
-  }
+  OdbcConnectorRegistrator() { fun::sql::odbc::Connector::RegisterConnector(); }
 
   /**
    * Calls fun::sql::odbc::UnregisterConnector();
@@ -100,28 +99,29 @@ struct FUN_ODBC_API OdbcConnectorRegistrator {
   }
 };
 
-
 #if !defined(FUN_NO_AUTOMATIC_LIB_INIT)
-  #if defined(FUN_PLATFORM_WINDOWS_FAMILY) && !defined(__GNUC__)
-    extern "C" const struct FUN_ODBC_API OdbcConnectorRegistrator funOdbcConnectorRegistrator;
-    #if defined(FUN_ODBC_EXPORTS)
-      #if defined(_WIN64)
-        #define FUN_DATA_ODBC_FORCE_SYMBOL(s) __pragma(comment (linker, "/export:"#s))
-      #elif defined(_WIN32)
-        #define FUN_DATA_ODBC_FORCE_SYMBOL(s) __pragma(comment (linker, "/export:_"#s))
-      #endif
-    #else  // !FUN_ODBC_EXPORTS
-      #if defined(_WIN64)
-        #define FUN_DATA_ODBC_FORCE_SYMBOL(s) __pragma(comment (linker, "/include:"#s))
-      #elif defined(_WIN32)
-        #define FUN_DATA_ODBC_FORCE_SYMBOL(s) __pragma(comment (linker, "/include:_"#s))
-      #endif
-    #endif // FUN_ODBC_EXPORTS
-  #else // !FUN_PLATFORM_WINDOWS_FAMILY
-    #define FUN_DATA_ODBC_FORCE_SYMBOL(s) extern "C" const struct OdbcConnectorRegistrator s;
-  #endif // FUN_PLATFORM_WINDOWS_FAMILY
-  FUN_DATA_ODBC_FORCE_SYMBOL(funOdbcConnectorRegistrator)
-#endif // FUN_NO_AUTOMATIC_LIB_INIT
+#if defined(FUN_PLATFORM_WINDOWS_FAMILY) && !defined(__GNUC__)
+extern "C" const struct FUN_ODBC_API OdbcConnectorRegistrator
+    funOdbcConnectorRegistrator;
+#if defined(FUN_ODBC_EXPORTS)
+#if defined(_WIN64)
+#define FUN_DATA_ODBC_FORCE_SYMBOL(s) __pragma(comment(linker, "/export:" #s))
+#elif defined(_WIN32)
+#define FUN_DATA_ODBC_FORCE_SYMBOL(s) __pragma(comment(linker, "/export:_" #s))
+#endif
+#else  // !FUN_ODBC_EXPORTS
+#if defined(_WIN64)
+#define FUN_DATA_ODBC_FORCE_SYMBOL(s) __pragma(comment(linker, "/include:" #s))
+#elif defined(_WIN32)
+#define FUN_DATA_ODBC_FORCE_SYMBOL(s) __pragma(comment(linker, "/include:_" #s))
+#endif
+#endif  // FUN_ODBC_EXPORTS
+#else   // !FUN_PLATFORM_WINDOWS_FAMILY
+#define FUN_DATA_ODBC_FORCE_SYMBOL(s) \
+  extern "C" const struct OdbcConnectorRegistrator s;
+#endif  // FUN_PLATFORM_WINDOWS_FAMILY
+FUN_DATA_ODBC_FORCE_SYMBOL(funOdbcConnectorRegistrator)
+#endif  // FUN_NO_AUTOMATIC_LIB_INIT
 
 //
 // End automatic Connector registration

@@ -50,7 +50,8 @@ class SessionHandle {
   /**
    * Connect to server
    */
-  void Connect(const char* host, const char* user, const char* password, const char* db, unsigned int port);
+  void Connect(const char* host, const char* user, const char* password,
+               const char* db, unsigned int port);
 
   /**
    * Close connection
@@ -73,11 +74,12 @@ class SessionHandle {
   void Rollback();
 
   /**
-   * Reset connection with dababase and clears session state, but without disconnecting
+   * Reset connection with dababase and clears session state, but without
+   * disconnecting
    */
   void Reset();
 
-  operator MYSQL* ();
+  operator MYSQL*();
 
  private:
   MYSQL* handle_;
@@ -87,15 +89,12 @@ class SessionHandle {
   SessionHandle& operator=(const SessionHandle&) = delete;
 };
 
-
 //
 // inlines
 //
 
-inline SessionHandle::operator MYSQL* () {
-  return handle_;
-}
+inline SessionHandle::operator MYSQL*() { return handle_; }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

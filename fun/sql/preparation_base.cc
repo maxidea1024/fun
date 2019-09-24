@@ -4,11 +4,11 @@ namespace fun {
 namespace sql {
 
 PreparationBase::PreparationBase(PreparatorPtr preparator)
-  : preparator_(preparator) {
+    : preparator_(preparator) {
   fun_check_ptr(preparator_);
 }
 
 PreparationBase::~PreparationBase() {}
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

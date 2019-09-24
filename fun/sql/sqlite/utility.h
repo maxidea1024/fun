@@ -1,16 +1,16 @@
 ﻿#pragma once
 
-#include "fun/sql/sqlite/sqlite.h"
+#include <map>
+#include "fun/base/mutex.h"
 #include "fun/sql/meta_column.h"
 #include "fun/sql/session.h"
-#include "fun/base/mutex.h"
+#include "fun/sql/sqlite/sqlite.h"
 #include "fun/types.h"
-#include <map>
 
 extern "C" {
-  typedef struct sqlite3 sqlite3;
-  typedef struct sqlite3_stmt sqlite3_stmt;
-  typedef struct sqlite3_mutex* mutex_;
+typedef struct sqlite3 sqlite3;
+typedef struct sqlite3_stmt sqlite3_stmt;
+typedef struct sqlite3_mutex* mutex_;
 }
 
 namespace fun {
@@ -42,7 +42,8 @@ class FUN_SQLITE_API Utility {
    * any value fun_type value but MetaColumn::FDT_UNKNOWN.
    * A fun::sql::NotSupportedException is thrown if fun_type is invalid.
    */
-  static void AddColumnType(String sqlite_type, MetaColumn::ColumnDataType fun_type);
+  static void AddColumnType(String sqlite_type,
+                            MetaColumn::ColumnDataType fun_type);
 
   /**
    * Returns native DB handle.
@@ -62,12 +63,14 @@ class FUN_SQLITE_API Utility {
   /**
    * Throws for an error code the appropriate exception
    */
-  static void ThrowException(sqlite3* db, int rc, const String& error_msg = String());
+  static void ThrowException(sqlite3* db, int rc,
+                             const String& error_msg = String());
 
   /**
    * Returns column data type.
    */
-  static MetaColumn::ColumnDataType GetColumnType(sqlite3_stmt* stmt, size_t pos);
+  static MetaColumn::ColumnDataType GetColumnType(sqlite3_stmt* stmt,
+                                                  size_t pos);
 
   /**
    * Loads the contents of a database file on disk into an opened
@@ -125,17 +128,18 @@ class FUN_SQLITE_API Utility {
   /**
    * Update callback function type.
    */
-  typedef void(*UpdateCallbackType)(void*, int, const char*, const char*, int64);
+  typedef void (*UpdateCallbackType)(void*, int, const char*, const char*,
+                                     int64);
 
   /**
    * Commit callback function type.
    */
-  typedef int(*CommitCallbackType)(void*);
+  typedef int (*CommitCallbackType)(void*);
 
   /**
    * Rollback callback function type.
    */
-  typedef void(*RollbackCallbackType)(void*);
+  typedef void (*RollbackCallbackType)(void*);
 
   /**
    * Registers the callback for (1)(insert, delete, update), (2)(commit) or
@@ -171,7 +175,8 @@ class FUN_SQLITE_API Utility {
           return true;
         }
 
-        if ((callback_fn == it->second.first) && (*pRet == *it->second.second)) {
+        if ((callback_fn == it->second.first) &&
+            (*pRet == *it->second.second)) {
           it->second.second = param;
           return true;
         }
@@ -185,7 +190,8 @@ class FUN_SQLITE_API Utility {
    * Registers the callback by calling RegisterUpdateHandler(sqlite3*, CBT, T*).
    */
   template <typename T, typename CBT>
-  static bool RegisterUpdateHandler(const Session& session, CBT callback_fn, T* param) {
+  static bool RegisterUpdateHandler(const Session& session, CBT callback_fn,
+                                    T* param) {
     return RegisterUpdateHandler(GetDbHandle(session), callback_fn, param);
   }
 
@@ -213,19 +219,21 @@ class FUN_SQLITE_API Utility {
   Utility();
 
   Utility(const Utility&);
-  Utility& operator = (const Utility&);
+  Utility& operator=(const Utility&);
 
   static void InitializeDefaultTypes();
 
-  static void* EventHookRegister(sqlite3* db, UpdateCallbackType callback_fn, void* param);
-  static void* EventHookRegister(sqlite3* db, CommitCallbackType callback_fn, void* param);
-  static void* EventHookRegister(sqlite3* db, RollbackCallbackType callback_fn, void* param);
+  static void* EventHookRegister(sqlite3* db, UpdateCallbackType callback_fn,
+                                 void* param);
+  static void* EventHookRegister(sqlite3* db, CommitCallbackType callback_fn,
+                                 void* param);
+  static void* EventHookRegister(sqlite3* db, RollbackCallbackType callback_fn,
+                                 void* param);
 
   static TypeMap types_;
   static fun::Mutex mutex_;
   static int thread_mode_;
 };
-
 
 //
 // inlines
@@ -236,16 +244,18 @@ inline String Utility::GetLastError(const Session& session) {
   return GetLastError(GetDbHandle(session));
 }
 
-inline bool Utility::MemoryToFile(const String& filename, const Session& session) {
+inline bool Utility::MemoryToFile(const String& filename,
+                                  const Session& session) {
   fun_check_dbg((0 == icompare(session.GetConnector(), 0, 6, "sqlite")));
   return MemoryToFile(filename, GetDbHandle(session));
 }
 
-inline bool Utility::FileToMemory(const Session& session, const String& filename) {
+inline bool Utility::FileToMemory(const Session& session,
+                                  const String& filename) {
   fun_check_dbg((0 == icompare(session.GetConnector(), 0, 6, "sqlite")));
   return FileToMemory(GetDbHandle(session), filename);
 }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

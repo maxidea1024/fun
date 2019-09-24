@@ -5,12 +5,12 @@ namespace fun {
 namespace sql {
 
 Transaction::Transaction(fun::sql::Session& session, fun::Logger::Ptr logger)
-  : session_(session), logger_(logger) {
+    : session_(session), logger_(logger) {
   Begin();
 }
 
 Transaction::Transaction(fun::sql::Session& session, bool start)
-  : session_(session), logger_(nullptr) {
+    : session_(session), logger_(nullptr) {
   if (start) {
     Begin();
   }
@@ -27,7 +27,8 @@ Transaction::~Transaction() {
         session_.Rollback();
       } catch (fun::Exception& e) {
         if (logger_) {
-          logger_->LogError("Error while rolling back database transaction: %s", e.GetDisplayText());
+          logger_->LogError("Error while rolling back database transaction: %s",
+                            e.GetDisplayText());
         }
       } catch (...) {
         if (logger_) {
@@ -93,5 +94,5 @@ void Transaction::Rollback() {
   session_.Rollback();
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

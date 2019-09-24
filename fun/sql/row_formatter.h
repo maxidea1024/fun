@@ -1,19 +1,19 @@
 #pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/base/shared_ptr.h"
-#include "fun/ref_counted_object.h"
-#include "fun/base/dynamic/var.h"
 #include <sstream>
 #include <vector>
+#include "fun/base/dynamic/var.h"
+#include "fun/base/shared_ptr.h"
+#include "fun/ref_counted_object.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
 namespace sql {
 
 /**
- * Row formatter is an abstract class providing definition for row formatting functionality.
- * For custom formatting strategies, inherit from this class and override FormatNames()
- * and FormatValues() member functions.
+ * Row formatter is an abstract class providing definition for row formatting
+ * functionality. For custom formatting strategies, inherit from this class and
+ * override FormatNames() and FormatValues() member functions.
  *
  * Row formatter can be either passed to the RecordSet at construction time,
  * like in the following example:
@@ -25,26 +25,27 @@ namespace sql {
  * MyRowFormatter rf
  * session << "SELECT * FROM Table", format(rf);
  *
- * If no formatter is externally supplied to the statement, the SimpleRowFormatter is used.
- * Statement always has the ownership of the row formatter and shares
- * it with rows through RecordSet.
+ * If no formatter is externally supplied to the statement, the
+ * SimpleRowFormatter is used. Statement always has the ownership of the row
+ * formatter and shares it with rows through RecordSet.
  *
- * To accommodate for various formatting needs, a formatter can operate in two modes:
+ * To accommodate for various formatting needs, a formatter can operate in two
+ * modes:
  *
- *    - progressive: formatted individual row strings are generated and returned from each
- *     call to FormatValues;
- *     String& FormatNames(const NameVecPtr, String&) and
- *     String& FormatValues(const ValueVec&, String&) member calls should be
- *     used in this case; this is the default mode
+ *    - progressive: formatted individual row strings are generated and returned
+ * from each call to FormatValues; String& FormatNames(const NameVecPtr,
+ * String&) and String& FormatValues(const ValueVec&, String&) member calls
+ * should be used in this case; this is the default mode
  *
- *   - bulk: formatted resulting string is accumulated internally and obtained at
- *     the end of iteration via ToString() member function;
- *     void FormatNames(const NameVecPtr) and
- *     void FormatValues(const ValueVec&) member calls should be used in this case
+ *   - bulk: formatted resulting string is accumulated internally and obtained
+ * at the end of iteration via ToString() member function; void
+ * FormatNames(const NameVecPtr) and void FormatValues(const ValueVec&) member
+ * calls should be used in this case
  *
- * When formatter is used in conjunction with Row/RecordSet, the formatting members corresponding
- * to the formatter mode are expected to be implemented. If a call is propagated to this parent
- * class, the functions do nothing or silently return empty string respectively.
+ * When formatter is used in conjunction with Row/RecordSet, the formatting
+ * members corresponding to the formatter mode are expected to be implemented.
+ * If a call is propagated to this parent class, the functions do nothing or
+ * silently return empty string respectively.
  */
 class FUN_SQL_API RowFormatter {
  public:
@@ -55,17 +56,14 @@ class FUN_SQL_API RowFormatter {
 
   static const int32 INVALID_ROW_COUNT = -1;
 
-  enum Mode {
-    FORMAT_PROGRESSIVE,
-    FORMAT_BULK
-  };
+  enum Mode { FORMAT_PROGRESSIVE, FORMAT_BULK };
 
   /**
-   * Creates the RowFormatter and sets the prefix and postfix to specified values.
+   * Creates the RowFormatter and sets the prefix and postfix to specified
+   * values.
    */
-  RowFormatter( const String& prefix = "",
-                const String& postfix = "",
-                Mode mode = FORMAT_PROGRESSIVE);
+  RowFormatter(const String& prefix = "", const String& postfix = "",
+               Mode mode = FORMAT_PROGRESSIVE);
 
   /**
    * Destroys the RowFormatter.
@@ -73,8 +71,9 @@ class FUN_SQL_API RowFormatter {
   virtual ~RowFormatter();
 
   /**
-   * Should be implemented to format the row fields names and return the formatted string.
-   * The default implementation clears the names string and returns it.
+   * Should be implemented to format the row fields names and return the
+   * formatted string. The default implementation clears the names string and
+   * returns it.
    */
   virtual String& FormatNames(const NameVecPtr names, String& formatted_names);
 
@@ -85,8 +84,9 @@ class FUN_SQL_API RowFormatter {
   virtual void FormatNames(const NameVecPtr names);
 
   /**
-   * Should be implemented to format the row fields values and return the formatted string.
-   * The default implementation clears the values string and returns it.
+   * Should be implemented to format the row fields values and return the
+   * formatted string. The default implementation clears the values string and
+   * returns it.
    */
   virtual String& FormatValues(const ValueVec& vals, String& formatted_values);
 
@@ -98,7 +98,8 @@ class FUN_SQL_API RowFormatter {
 
   /**
    * Throws NotImplementedException. Formatters operating in bulk mode should
-   * implement this member function to return valid pointer to the formatted result.
+   * implement this member function to return valid pointer to the formatted
+   * result.
    */
   virtual const String& ToString();
 
@@ -172,50 +173,34 @@ class FUN_SQL_API RowFormatter {
   int32 total_row_count_;
 };
 
-
 //
 // inlines
 //
 
-inline int32 RowFormatter::RowCount() const {
-  return INVALID_ROW_COUNT;
-}
+inline int32 RowFormatter::RowCount() const { return INVALID_ROW_COUNT; }
 
-inline int32 RowFormatter::GetTotalRowCount() const {
-  return total_row_count_;
-}
+inline int32 RowFormatter::GetTotalRowCount() const { return total_row_count_; }
 
 inline void RowFormatter::SetTotalRowCount(int32 count) {
   total_row_count_ = count;
   AdjustPrefix();
 }
 
-inline void RowFormatter::SetPrefix(const String& prefix) {
-  prefix_ = prefix;
-}
+inline void RowFormatter::SetPrefix(const String& prefix) { prefix_ = prefix; }
 
 inline void RowFormatter::SetPostfix(const String& postfix) {
   postfix_ = postfix;
 }
 
-inline const String& RowFormatter::GetPrefix() const {
-  return prefix_;
-}
+inline const String& RowFormatter::GetPrefix() const { return prefix_; }
 
-inline const String& RowFormatter::GetPostfix() const {
-  return postfix_;
-}
+inline const String& RowFormatter::GetPostfix() const { return postfix_; }
 
-inline RowFormatter::Mode RowFormatter::GetMode() const {
-  return mode_;
-}
+inline RowFormatter::Mode RowFormatter::GetMode() const { return mode_; }
 
-inline void RowFormatter::SetMode(Mode mode) {
-  mode_ = mode;
-}
+inline void RowFormatter::SetMode(Mode mode) { mode_ = mode; }
 
 inline void RowFormatter::AdjustPrefix() {}
-
 
 namespace Keywords {
 
@@ -227,7 +212,7 @@ inline RowFormatter::Ptr format(const T& formatter) {
   return new T(formatter);
 }
 
-} // namespace Keywords
+}  // namespace Keywords
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

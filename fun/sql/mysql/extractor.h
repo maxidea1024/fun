@@ -1,17 +1,17 @@
 ﻿#pragma once
 
-#include "fun/sql/mysql/mysql.h"
-#include "fun/sql/mysql/statement_executor.h"
-#include "fun/sql/mysql/result_metadata.h"
+#include "fun/sql/date.h"
 #include "fun/sql/extractor_base.h"
 #include "fun/sql/lob.h"
-#include "fun/sql/date.h"
+#include "fun/sql/mysql/mysql.h"
+#include "fun/sql/mysql/result_metadata.h"
+#include "fun/sql/mysql/statement_executor.h"
 #include "fun/sql/time.h"
 
 namespace fun {
 
 namespace Dynamic {
-  class Var;
+class Var;
 }
 
 namespace sql {
@@ -19,7 +19,8 @@ namespace mysql {
 
 /**
  * Extracts and converts data values from the result row returned by MySQL.
- * If NULL is received, the incoming val value is not changed and false is returned
+ * If NULL is received, the incoming val value is not changed and false is
+ * returned
  */
 class FUN_MYSQL_API Extractor : public fun::sql::ExtractorBase {
  public:
@@ -70,7 +71,6 @@ class FUN_MYSQL_API Extractor : public fun::sql::ExtractorBase {
    * Resets any information internally cached by the extractor.
    */
   virtual void Reset();
-
 
   //
   // Not implemented Extract functions
@@ -146,8 +146,10 @@ class FUN_MYSQL_API Extractor : public fun::sql::ExtractorBase {
   virtual bool Extract(size_t pos, std::list<Dynamic::Var>& val);
 
  private:
-  bool RealExtractFixed(size_t pos, enum_field_types type, void* buffer, bool is_unsigned = false);
-  bool RealExtractFixedBlob(size_t pos, enum_field_types type, void* buffer, size_t len);
+  bool RealExtractFixed(size_t pos, enum_field_types type, void* buffer,
+                        bool is_unsigned = false);
+  bool RealExtractFixedBlob(size_t pos, enum_field_types type, void* buffer,
+                            size_t len);
 
   template <typename T>
   T ExtractAny(size_t pos, bool& success) {
@@ -168,8 +170,9 @@ class FUN_MYSQL_API Extractor : public fun::sql::ExtractorBase {
 };
 
 template <typename T>
-bool Extractor::ExtractToDynamic(size_t pos, T & val) {
-  MetaColumn::ColumnDataType column_type = metadata_.MetaColumnAt(static_cast<uint32>(pos)).Type();
+bool Extractor::ExtractToDynamic(size_t pos, T& val) {
+  MetaColumn::ColumnDataType column_type =
+      metadata_.MetaColumnAt(static_cast<uint32>(pos)).Type();
 
   T result_value;
   bool success = false;
@@ -257,6 +260,6 @@ bool Extractor::ExtractToDynamic(size_t pos, T & val) {
   return success;
 }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

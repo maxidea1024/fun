@@ -33,6 +33,6 @@ String Utility::GetHostInfo(Session& session) {
   return info;
 }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

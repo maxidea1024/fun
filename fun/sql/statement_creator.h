@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "fun/sql/sql.h"
-#include "fun/sql/session_impl.h"
-#include "fun/sql/statement.h"
 #include "fun/ref_counted_ptr.h"
+#include "fun/sql/session_impl.h"
+#include "fun/sql/sql.h"
+#include "fun/sql/statement.h"
 
 namespace fun {
 namespace sql {
@@ -36,12 +36,12 @@ class FUN_SQL_API StatementCreator {
   /**
    * Assignment operator.
    */
-  StatementCreator& operator = (const StatementCreator& other);
+  StatementCreator& operator=(const StatementCreator& other);
 
   /**
    * Assignment operator.
    */
-  StatementCreator& operator = (fun::RefCountedPtr<SessionImpl> session_impl);
+  StatementCreator& operator=(fun::RefCountedPtr<SessionImpl> session_impl);
 
   /**
    * Swaps the StatementCreator with another one.
@@ -52,7 +52,7 @@ class FUN_SQL_API StatementCreator {
    * Creates a Statement.
    */
   template <typename T>
-  Statement operator << (const T& t) {
+  Statement operator<<(const T& t) {
     if (!session_impl_->IsConnected()) {
       throw NotConnectedException(session_impl_->GetConnectionString());
     }
@@ -66,5 +66,5 @@ class FUN_SQL_API StatementCreator {
   fun::RefCountedPtr<SessionImpl> session_impl_;
 };
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

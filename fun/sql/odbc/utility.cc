@@ -1,9 +1,9 @@
 #include "fun/sql/odbc/utility.h"
+#include <cmath>
+#include "fun/base/date_time.h"
+#include "fun/base/number_formatter.h"
 #include "fun/sql/odbc/handle.h"
 #include "fun/sql/odbc/odbc_exception.h"
-#include "fun/base/number_formatter.h"
-#include "fun/base/date_time.h"
-#include <cmath>
 
 namespace fun {
 namespace sql {
@@ -23,28 +23,18 @@ Utility::DriverMap& Utility::drivers(Utility::DriverMap& driverMap) {
   SQLSMALLINT len2 = length;
   RETCODE rc = 0;
 
-  if (!Utility::IsError(rc = fun::sql::odbc::SQLDrivers(henv,
-                            SQL_FETCH_FIRST,
-                            desc,
-                            length,
-                            &len1,
-                            attr,
-                            len2,
-                            &len2))) {
+  if (!Utility::IsError(rc = fun::sql::odbc::SQLDrivers(henv, SQL_FETCH_FIRST,
+                                                        desc, length, &len1,
+                                                        attr, len2, &len2))) {
     do {
-      driverMap.insert(DSNMap::value_type(String((char *) desc),
-        String((char *) attr)));
+      driverMap.insert(
+          DSNMap::value_type(String((char*)desc), String((char*)attr)));
       UnsafeMemory::Memset(desc, 0, length);
       UnsafeMemory::Memset(attr, 0, length);
       len2 = length;
-    } while (!Utility::IsError(rc = fun::sql::odbc::SQLDrivers(henv,
-                      SQL_FETCH_NEXT,
-                      desc,
-                      length,
-                      &len1,
-                      attr,
-                      len2,
-                      &len2)));
+    } while (!Utility::IsError(
+        rc = fun::sql::odbc::SQLDrivers(henv, SQL_FETCH_NEXT, desc, length,
+                                        &len1, attr, len2, &len2)));
   }
 
   if (SQL_NO_DATA != rc) {
@@ -67,15 +57,10 @@ Utility::DSNMap& Utility::dataSources(Utility::DSNMap& dsnMap) {
   SQLSMALLINT len2 = length;
   RETCODE rc = 0;
 
-  while (!Utility::IsError(rc = fun::sql::odbc::SQLDataSources(henv,
-                    SQL_FETCH_NEXT,
-                    dsn,
-                    SQL_MAX_DSN_LENGTH,
-                    &len1,
-                    desc,
-                    len2,
-                    &len2))) {
-    dsnMap.insert(DSNMap::value_type(String((char *) dsn), String((char *) desc)));
+  while (!Utility::IsError(rc = fun::sql::odbc::SQLDataSources(
+                               henv, SQL_FETCH_NEXT, dsn, SQL_MAX_DSN_LENGTH,
+                               &len1, desc, len2, &len2))) {
+    dsnMap.insert(DSNMap::value_type(String((char*)dsn), String((char*)desc)));
     UnsafeMemory::Memset(dsn, 0, dsnLength);
     UnsafeMemory::Memset(desc, 0, length);
     len2 = length;
@@ -89,17 +74,11 @@ Utility::DSNMap& Utility::dataSources(Utility::DSNMap& dsnMap) {
 }
 
 void Utility::DateTimeSync(fun::DateTime& dt, const SQL_TIMESTAMP_STRUCT& ts) {
-  double msec = ts.fraction/1000000.0;
+  double msec = ts.fraction / 1000000.0;
   double usec = 1000 * (msec - std::floor(msec));
 
-  dt.Assign(ts.year,
-            ts.month,
-            ts.day,
-            ts.hour,
-            ts.minute,
-            ts.second,
-            (int) std::floor(msec),
-            (int) std::floor(usec));
+  dt.Assign(ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second,
+            (int)std::floor(msec), (int)std::floor(usec));
 }
 
 void Utility::DateSync(SQL_DATE_STRUCT& ds, const Date& d) {
@@ -123,9 +102,9 @@ void Utility::DateTimeSync(SQL_TIMESTAMP_STRUCT& ts, const fun::DateTime& dt) {
   ts.second = static_cast<SQLUSMALLINT>(dt.Second());
   // Fraction support is limited to milliseconds due to MS sql Server limitation
   // see http://support.microsoft.com/kb/263872
-  ts.fraction = (dt.Millisecond() * 1000000);// + (dt.Microsecond() * 1000);
+  ts.fraction = (dt.Millisecond() * 1000000);  // + (dt.Microsecond() * 1000);
 }
 
-} // namespace odbc
-} // namespace sql
-} // namespace fun
+}  // namespace odbc
+}  // namespace sql
+}  // namespace fun

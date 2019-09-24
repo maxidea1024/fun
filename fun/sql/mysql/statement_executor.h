@@ -12,11 +12,7 @@ namespace mysql {
  */
 class StatementExecutor {
  public:
-  enum State {
-    STMT_INITED,
-    STMT_COMPILED,
-    STMT_EXECUTED
-  };
+  enum State { STMT_INITED, STMT_COMPILED, STMT_EXECUTED };
 
   /**
    * Creates the StatementExecutor.
@@ -61,7 +57,7 @@ class StatementExecutor {
   /**
    * Fetches the column.
    */
-  bool FetchColumn(size_t n, MYSQL_BIND *bind);
+  bool FetchColumn(size_t n, MYSQL_BIND* bind);
 
   /**
    * Returns number of affected rows.
@@ -71,7 +67,7 @@ class StatementExecutor {
   /**
    * Cast operator to native handle type.
    */
-  operator MYSQL_STMT* ();
+  operator MYSQL_STMT*();
 
  private:
   MYSQL* session_handle_;
@@ -85,15 +81,12 @@ class StatementExecutor {
   StatementExecutor& operator=(const StatementExecutor&) = delete;
 };
 
-
 //
 // inlines
 //
 
-inline StatementExecutor::operator MYSQL_STMT* () {
-  return handle_;
-}
+inline StatementExecutor::operator MYSQL_STMT*() { return handle_; }
 
-} // namespace mysql
-} // namespace sql
-} // namespace fun
+}  // namespace mysql
+}  // namespace sql
+}  // namespace fun

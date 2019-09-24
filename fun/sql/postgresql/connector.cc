@@ -19,9 +19,10 @@ const String& Connector::GetName() const {
   return n;
 }
 
-SessionImpl::Ptr
-Connector::CreateSession(const String& connection_string, size_t timeout) {
-  return fun::RefCountedPtr<fun::sql::SessionImpl>(new SessionImpl(connection_string, timeout));
+SessionImpl::Ptr Connector::CreateSession(const String& connection_string,
+                                          size_t timeout) {
+  return fun::RefCountedPtr<fun::sql::SessionImpl>(
+      new SessionImpl(connection_string, timeout));
 }
 
 void Connector::RegisterConnector() {
@@ -29,9 +30,10 @@ void Connector::RegisterConnector() {
 }
 
 void Connector::UnregisterConnector() {
-  fun::sql::SessionFactory::Instance().Remove(FUN_DATA_POSTGRESQL_CONNECTOR_NAME);
+  fun::sql::SessionFactory::Instance().Remove(
+      FUN_DATA_POSTGRESQL_CONNECTOR_NAME);
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

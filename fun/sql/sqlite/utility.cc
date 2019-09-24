@@ -1,9 +1,9 @@
 ﻿#include "fun/sql/sqlite/utility.h"
-#include "fun/sql/sqlite/sqlite_exception.h"
-#include "fun/base/number_formatter.h"
-#include "fun/base/string.h"
 #include "fun/base/any.h"
 #include "fun/base/exception.h"
+#include "fun/base/number_formatter.h"
+#include "fun/base/string.h"
+#include "fun/sql/sqlite/sqlite_exception.h"
 
 #if defined(FUN_UNBUNDLED)
 #include <sqlite3.h>
@@ -12,7 +12,7 @@
 #endif
 
 #ifndef SQLITE_OPEN_URI
-#define SQLITE_OPEN_URI  0
+#define SQLITE_OPEN_URI 0
 #endif
 
 namespace fun {
@@ -24,11 +24,11 @@ const int Utility::THREAD_MODE_MULTI = SQLITE_CONFIG_MULTITHREAD;
 const int Utility::THREAD_MODE_SERIAL = SQLITE_CONFIG_SERIALIZED;
 int Utility::thread_mode_ =
 #if (SQLITE_THREADSAFE == 0)
-  SQLITE_CONFIG_SINGLETHREAD;
+    SQLITE_CONFIG_SINGLETHREAD;
 #elif (SQLITE_THREADSAFE == 1)
-  SQLITE_CONFIG_SERIALIZED;
+    SQLITE_CONFIG_SERIALIZED;
 #elif (SQLITE_THREADSAFE == 2)
-  SQLITE_CONFIG_MULTITHREAD;
+    SQLITE_CONFIG_MULTITHREAD;
 #endif
 
 const int Utility::OPERATION_INSERT = SQLITE_INSERT;
@@ -40,7 +40,8 @@ const String Utility::SQLITE_TIME_FORMAT = "%H:%M:%S";
 Utility::TypeMap Utility::types_;
 fun::Mutex Utility::mutex_;
 
-Utility::SQLiteMutex::SQLiteMutex(sqlite3* db) : mutex_((db) ? sqlite3_db_mutex(db) : 0) {
+Utility::SQLiteMutex::SQLiteMutex(sqlite3* db)
+    : mutex_((db) ? sqlite3_db_mutex(db) : 0) {
   if (mutex_) {
     sqlite3_mutex_enter(mutex_);
   }
@@ -52,9 +53,7 @@ Utility::SQLiteMutex::~SQLiteMutex() {
   }
 }
 
-Utility::Utility() {
-  InitializeDefaultTypes();
-}
+Utility::Utility() { InitializeDefaultTypes(); }
 
 void Utility::InitializeDefaultTypes() {
   if (types_.IsEmpty()) {
@@ -117,7 +116,8 @@ void Utility::InitializeDefaultTypes() {
   }
 }
 
-void Utility::AddColumnType(String sqlite_type, MetaColumn::ColumnDataType fun_type) {
+void Utility::AddColumnType(String sqlite_type,
+                            MetaColumn::ColumnDataType fun_type) {
   // Check for errors in the mapping
   if (MetaColumn::FDT_UNKNOWN == fun_type) {
     throw fun::sql::NotSupportedException("Cannot map to unknown fun type.");
@@ -140,7 +140,8 @@ String Utility::GetLastError(sqlite3* db) {
   return error;
 }
 
-MetaColumn::ColumnDataType Utility::GetColumnType(sqlite3_stmt* stmt, size_t pos) {
+MetaColumn::ColumnDataType Utility::GetColumnType(sqlite3_stmt* stmt,
+                                                  size_t pos) {
   fun_check_dbg(stmt);
 
   // Ensure statics are initialized
@@ -223,11 +224,12 @@ void Utility::ThrowException(sqlite3* db, int rc, const String& error_msg) {
     case SQLITE_RANGE:
       throw InvalidSQLStatementException(GetLastError(db), error_msg);
     case SQLITE_ROW:
-      break; // sqlite_step() has another row ready
+      break;  // sqlite_step() has another row ready
     case SQLITE_DONE:
-      break; // sqlite_step() has finished executing
+      break;  // sqlite_step() has finished executing
     default:
-      throw SQLiteException(fun::Format("Unknown error code: %d", rc), error_msg);
+      throw SQLiteException(fun::Format("Unknown error code: %d", rc),
+                            error_msg);
   }
 }
 
@@ -236,10 +238,11 @@ bool Utility::FileToMemory(sqlite3* memory, const String& filename) {
   sqlite3* file;
   sqlite3_backup* backup;
 
-  rc = sqlite3_open_v2(filename.c_str(), &file, SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, NULL);
-  if(rc == SQLITE_OK ) {
+  rc = sqlite3_open_v2(filename.c_str(), &file,
+                       SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, NULL);
+  if (rc == SQLITE_OK) {
     backup = sqlite3_backup_init(memory, "main", file, "main");
-    if( backup ) {
+    if (backup) {
       sqlite3_backup_step(backup, -1);
       sqlite3_backup_finish(backup);
     }
@@ -255,10 +258,12 @@ bool Utility::MemoryToFile(const String& filename, sqlite3* memory) {
   sqlite3* file;
   sqlite3_backup* backup;
 
-  rc = sqlite3_open_v2(filename.c_str(), &file, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_URI, NULL);
-  if(rc == SQLITE_OK ) {
+  rc = sqlite3_open_v2(
+      filename.c_str(), &file,
+      SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_URI, NULL);
+  if (rc == SQLITE_OK) {
     backup = sqlite3_backup_init(file, "main", memory, "main");
-    if( backup ) {
+    if (backup) {
       sqlite3_backup_step(backup, -1);
       sqlite3_backup_finish(backup);
     }
@@ -269,17 +274,13 @@ bool Utility::MemoryToFile(const String& filename, sqlite3* memory) {
   return SQLITE_OK == rc;
 }
 
-bool Utility::IsThreadSafe() {
-  return 0 != sqlite3_threadsafe();
-}
+bool Utility::IsThreadSafe() { return 0 != sqlite3_threadsafe(); }
 
-int Utility::GetThreadMode() {
-  return thread_mode_;
-}
+int Utility::GetThreadMode() { return thread_mode_; }
 
 bool Utility::SetThreadMode(int mode) {
 #if (SQLITE_THREADSAFE != 0)
-  if (SQLITE_OK == sqlite3_shutdown())   {
+  if (SQLITE_OK == sqlite3_shutdown()) {
     if (SQLITE_OK == sqlite3_config(mode)) {
       thread_mode_ = mode;
       if (SQLITE_OK == sqlite3_initialize()) {
@@ -292,16 +293,19 @@ bool Utility::SetThreadMode(int mode) {
   return false;
 }
 
-void* Utility::EventHookRegister(sqlite3* db, UpdateCallbackType callback_fn, void* param) {
-  typedef void(*pF)(void*, int, const char*, const char*, sqlite3_int64);
+void* Utility::EventHookRegister(sqlite3* db, UpdateCallbackType callback_fn,
+                                 void* param) {
+  typedef void (*pF)(void*, int, const char*, const char*, sqlite3_int64);
   return sqlite3_update_hook(db, reinterpret_cast<pF>(callback_fn), param);
 }
 
-void* Utility::EventHookRegister(sqlite3* db, CommitCallbackType callback_fn, void* param) {
+void* Utility::EventHookRegister(sqlite3* db, CommitCallbackType callback_fn,
+                                 void* param) {
   return sqlite3_commit_hook(db, callback_fn, param);
 }
 
-void* Utility::EventHookRegister(sqlite3* db, RollbackCallbackType callback_fn, void* param) {
+void* Utility::EventHookRegister(sqlite3* db, RollbackCallbackType callback_fn,
+                                 void* param) {
   return sqlite3_rollback_hook(db, callback_fn, param);
 }
 
@@ -310,6 +314,6 @@ void* Utility::EventHookRegister(sqlite3* db, RollbackCallbackType callback_fn, 
 // See <https://github.com/funproject/fun/issues/578>
 // for a discussion.
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

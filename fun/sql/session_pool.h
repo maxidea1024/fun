@@ -1,14 +1,14 @@
 #pragma once
 
-#include "fun/sql/sql.h"
+#include <map>
+#include "fun/base/any.h"
+#include "fun/base/mutex.h"
+#include "fun/hash_map.h"
 #include "fun/sql/pooled_session_holder.h"
 #include "fun/sql/pooled_session_impl.h"
 #include "fun/sql/session.h"
-#include "fun/hash_map.h"
-#include "fun/base/any.h"
+#include "fun/sql/sql.h"
 #include "fun/timer.h"
-#include "fun/base/mutex.h"
-#include <map>
 
 namespace fun {
 namespace sql {
@@ -56,12 +56,11 @@ class FUN_SQL_API SessionPool : public RefCountedObject {
    *
    * The pool allows for at most max_sessions sessions to be created.
    * If a session has been idle for more than idle_time seconds, and more than
-   * min_sessions sessions are in the pool, the session is automatically destroyed.
+   * min_sessions sessions are in the pool, the session is automatically
+   * destroyed.
    */
-  SessionPool(const String& connector,
-              const String& connection_string,
-              int32 min_sessions = 1,
-              int32 max_sessions = 32,
+  SessionPool(const String& connector, const String& connection_string,
+              int32 min_sessions = 1, int32 max_sessions = 32,
               int32 idle_time = 60);
 
   /**
@@ -91,8 +90,8 @@ class FUN_SQL_API SessionPool : public RefCountedObject {
   template <typename T>
   Session Get(const String& name, const T& value) {
     Session s = Get();
-    add_property_map_.insert(AddPropertyMap::value_type(s.GetImpl(),
-      std::make_pair(name, s.GetProperty(name))));
+    add_property_map_.insert(AddPropertyMap::value_type(
+        s.GetImpl(), std::make_pair(name, s.GetProperty(name))));
     s.SetProperty(name, value);
 
     return s;
@@ -142,9 +141,11 @@ class FUN_SQL_API SessionPool : public RefCountedObject {
   String GetName() const;
 
   /**
-   * Returns the name formatted from supplied arguments as "connector:///connection_string".
+   * Returns the name formatted from supplied arguments as
+   * "connector:///connection_string".
    */
-  static String GetName(const String& connector, const String& connection_string);
+  static String GetName(const String& connector,
+                        const String& connection_string);
 
   /**
    * Sets feature for all the sessions.
@@ -228,13 +229,12 @@ class FUN_SQL_API SessionPool : public RefCountedObject {
   SessionPool& operator=(const SessionPool&) = delete;
 };
 
-
 //
 // inlines
 //
 
-inline String SessionPool::GetName( const String& connector,
-                                    const String& connection_string) {
+inline String SessionPool::GetName(const String& connector,
+                                   const String& connection_string) {
   return Session::GetUri(connector, connection_string);
 }
 
@@ -242,9 +242,7 @@ inline String SessionPool::GetName() const {
   return GetName(connector_, connection_string_);
 }
 
-inline bool SessionPool::IsActive() const {
-  return !shutdown_;
-}
+inline bool SessionPool::IsActive() const { return !shutdown_; }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

@@ -1,8 +1,8 @@
 #include "fun/sql/postgresql/Extractor.h"
+#include "fun/base/date_time_parser.h"
+#include "fun/base/number_parser.h"
 #include "fun/sql/date.h"
 #include "fun/sql/time.h"
-#include "fun/base/number_parser.h"
-#include "fun/base/date_time_parser.h"
 
 #include <limits>
 
@@ -11,7 +11,7 @@ namespace sql {
 namespace postgresql {
 
 Extractor::Extractor(StatementExecutor& st /*, ResultMetadata& md */)
-  : statement_executor_ (st) {}
+    : statement_executor_(st) {}
 
 Extractor::~Extractor() {}
 
@@ -20,7 +20,7 @@ bool Extractor::Extract(size_t pos, int8& val) {
 
   int tmp = 0;
 
-  if  (IsColumnNull(output_param) ||
+  if (IsColumnNull(output_param) ||
       !fun::NumberParser::TryParse(output_param.pData(), tmp)) {
     return false;
   }
@@ -35,9 +35,8 @@ bool Extractor::Extract(size_t pos, uint8& val) {
 
   unsigned int tmp = 0;
 
-  if  (IsColumnNull(output_param) ||
-      !fun::NumberParser::tryParseUnsigned(output_param.pData(), tmp)
-    ) {
+  if (IsColumnNull(output_param) ||
+      !fun::NumberParser::tryParseUnsigned(output_param.pData(), tmp)) {
     return false;
   }
 
@@ -51,7 +50,7 @@ bool Extractor::Extract(size_t pos, int16& val) {
 
   int tmp = 0;
 
-  if  (IsColumnNull(output_param) ||
+  if (IsColumnNull(output_param) ||
       !fun::NumberParser::TryParse(output_param.pData(), tmp)) {
     return false;
   }
@@ -66,7 +65,7 @@ bool Extractor::Extract(size_t pos, uint16& val) {
 
   unsigned int tmp = 0;
 
-  if  (IsColumnNull(output_param) ||
+  if (IsColumnNull(output_param) ||
       !fun::NumberParser::tryParseUnsigned(output_param.pData(), tmp)) {
     return false;
   }
@@ -79,7 +78,7 @@ bool Extractor::Extract(size_t pos, uint16& val) {
 bool Extractor::Extract(size_t pos, int32& val) {
   OutputParameter output_param = ExtractPreamble(pos);
 
-  if  (IsColumnNull(output_param) ||
+  if (IsColumnNull(output_param) ||
       !fun::NumberParser::TryParse(output_param.pData(), val)) {
     return false;
   }
@@ -90,7 +89,7 @@ bool Extractor::Extract(size_t pos, int32& val) {
 bool Extractor::Extract(size_t pos, uint32& val) {
   OutputParameter output_param = ExtractPreamble(pos);
 
-  if  (IsColumnNull(output_param) ||
+  if (IsColumnNull(output_param) ||
       !fun::NumberParser::tryParseUnsigned(output_param.pData(), val)) {
     return false;
   }
@@ -101,9 +100,8 @@ bool Extractor::Extract(size_t pos, uint32& val) {
 bool Extractor::Extract(size_t pos, int64& val) {
   OutputParameter output_param = ExtractPreamble(pos);
 
-  if  ( IsColumnNull(output_param)
-     || ! fun::NumberParser::tryParse64(output_param.pData(), val)
-    ) {
+  if (IsColumnNull(output_param) ||
+      !fun::NumberParser::tryParse64(output_param.pData(), val)) {
     return false;
   }
 
@@ -113,9 +111,8 @@ bool Extractor::Extract(size_t pos, int64& val) {
 bool Extractor::Extract(size_t pos, uint64& val) {
   OutputParameter output_param = ExtractPreamble(pos);
 
-  if  ( IsColumnNull(output_param)
-     || ! fun::NumberParser::tryParseUnsigned64(output_param.pData(), val)
-    ) {
+  if (IsColumnNull(output_param) ||
+      !fun::NumberParser::tryParseUnsigned64(output_param.pData(), val)) {
     return false;
   }
 
@@ -128,8 +125,8 @@ bool Extractor::Extract(size_t pos, long& val) {
 
   int64 tmp = 0;
 
-  if (IsColumnNull(output_param) || !fun::NumberParser::tryParse64(output_param.pData(), tmp)
-    ) {
+  if (IsColumnNull(output_param) ||
+      !fun::NumberParser::tryParse64(output_param.pData(), tmp)) {
     return false;
   }
 
@@ -143,9 +140,8 @@ bool Extractor::Extract(size_t pos, unsigned long& val) {
 
   uint64 tmp = 0;
 
-  if  ( IsColumnNull(output_param)
-     || ! fun::NumberParser::tryParseUnsigned64(output_param.pData(), tmp)
-    ) {
+  if (IsColumnNull(output_param) ||
+      !fun::NumberParser::tryParseUnsigned64(output_param.pData(), tmp)) {
     return false;
   }
 
@@ -176,9 +172,8 @@ bool Extractor::Extract(size_t pos, float& val) {
 
   double tmp = 0.0;
 
-  if  ( IsColumnNull(output_param)
-     || ! fun::NumberParser::tryParseFloat(output_param.pData(), tmp)
-    ) {
+  if (IsColumnNull(output_param) ||
+      !fun::NumberParser::tryParseFloat(output_param.pData(), tmp)) {
     return false;
   }
 
@@ -190,9 +185,8 @@ bool Extractor::Extract(size_t pos, float& val) {
 bool Extractor::Extract(size_t pos, double& val) {
   OutputParameter output_param = ExtractPreamble(pos);
 
-  if  ( IsColumnNull(output_param)
-     || ! fun::NumberParser::tryParseFloat(output_param.pData(), val)
-    ) {
+  if (IsColumnNull(output_param) ||
+      !fun::NumberParser::tryParseFloat(output_param.pData(), val)) {
     return false;
   }
 
@@ -202,7 +196,7 @@ bool Extractor::Extract(size_t pos, double& val) {
 bool Extractor::Extract(size_t pos, char& val) {
   OutputParameter output_param = ExtractPreamble(pos);
 
-  if  (IsColumnNull(output_param)) {
+  if (IsColumnNull(output_param)) {
     return false;
   }
 
@@ -233,25 +227,25 @@ bool Extractor::Extract(size_t pos, fun::sql::BLOB& val) {
   // convert the PostgreSQL text format to binary and append to the BLOB
   // Format: \x10843029479abcf ...  two characters for every byte
   //
-  //  The code below can be made more efficient by converting more than one byte at a time
-  //  also if BLOB had a resize method it would be useful to allocate memory in one
-  //  attempt.
+  //  The code below can be made more efficient by converting more than one byte
+  //  at a time also if BLOB had a resize method it would be useful to allocate
+  //  memory in one attempt.
   //
 
-  const char * pBLOB = reinterpret_cast<const char*>(output_param.pData());
-  size_t BLOBSize  = output_param.size();
+  const char* pBLOB = reinterpret_cast<const char*>(output_param.pData());
+  size_t BLOBSize = output_param.size();
 
-  if  ( '\\' == pBLOB[0]
-     && 'x'  == pBLOB[1]  // preamble to BYTEA data format in text form is \x
-    ) {
+  if ('\\' == pBLOB[0] &&
+      'x' == pBLOB[1]  // preamble to BYTEA data format in text form is \x
+  ) {
     BLOBSize -= 2;  // lose the preamble
-    BLOBSize /= 2;   // each byte is encoded as two text characters
+    BLOBSize /= 2;  // each byte is encoded as two text characters
 
     for (int i = 0; i < BLOBSize * 2; i += 2) {
       String buffer(&pBLOB[i + 2], 2);
       unsigned int binaryBuffer = 0;
       if (fun::NumberParser::tryParseHex(buffer, binaryBuffer)) {
-        uint8 finalBinaryBuffer = static_cast<uint8>(binaryBuffer); // downsize
+        uint8 finalBinaryBuffer = static_cast<uint8>(binaryBuffer);  // downsize
         val.AppendRaw(&finalBinaryBuffer, 1);
       }
     }
@@ -323,12 +317,14 @@ bool Extractor::Extract(size_t pos, Time& val) {
   int tzd = -1;
   DateTime datetime;
 
-  if (!DateTimeParser::TryParse("%H:%M:%s%z", output_param.pData(), datetime, tzd)) {
+  if (!DateTimeParser::TryParse("%H:%M:%s%z", output_param.pData(), datetime,
+                                tzd)) {
     return false;
   }
 
   // datetime.makeUTC(tzd); // TODO
-  // Note: fun::sql::Time should be extended to support the fractional components of fun::DateTime
+  // Note: fun::sql::Time should be extended to support the fractional
+  // components of fun::DateTime
 
   val.Assign(datetime.Hour(), datetime.Minute(), datetime.Second());
 
@@ -336,11 +332,11 @@ bool Extractor::Extract(size_t pos, Time& val) {
 }
 
 bool Extractor::Extract(size_t pos, Any& val) {
-  return ExtractStringImpl (pos, val);
+  return ExtractStringImpl(pos, val);
 }
 
 bool Extractor::Extract(size_t pos, Dynamic::Var& val) {
-  return ExtractStringImpl (pos, val);
+  return ExtractStringImpl(pos, val);
 }
 
 bool Extractor::IsNull(size_t col, size_t /*row*/) {
@@ -353,14 +349,13 @@ bool Extractor::IsNull(size_t col, size_t /*row*/) {
   return false;
 }
 
-void Extractor::Reset() {
-  ExtractorBase::Reset();
-}
+void Extractor::Reset() { ExtractorBase::Reset(); }
 
-const OutputParameter&
-Extractor::ExtractPreamble(size_t position) const {
+const OutputParameter& Extractor::ExtractPreamble(size_t position) const {
   if (statement_executor_.ReturnedColumnCount() <= position) {
-    throw PostgreSqlException("Extractor: attempt to Extract more parameters than query result contains");
+    throw PostgreSqlException(
+        "Extractor: attempt to Extract more parameters than query result "
+        "contains");
   }
 
   return statement_executor_.resultColumn(position);
@@ -370,265 +365,264 @@ bool Extractor::IsColumnNull(const OutputParameter& output_param) const {
   return output_param.IsNull() || 0 == output_param.pData();
 }
 
-
 //
 // Not implemented
 //
 
-bool Extractor::Extract(size_t , std::vector<int8>&) {
+bool Extractor::Extract(size_t, std::vector<int8>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<int8>&) {
+bool Extractor::Extract(size_t, std::deque<int8>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<int8>&) {
+bool Extractor::Extract(size_t, std::list<int8>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<uint8>&) {
+bool Extractor::Extract(size_t, std::vector<uint8>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<uint8>&) {
+bool Extractor::Extract(size_t, std::deque<uint8>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<uint8>&) {
+bool Extractor::Extract(size_t, std::list<uint8>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<int16>&) {
+bool Extractor::Extract(size_t, std::vector<int16>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<int16>&) {
+bool Extractor::Extract(size_t, std::deque<int16>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<int16>&) {
+bool Extractor::Extract(size_t, std::list<int16>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<uint16>&) {
+bool Extractor::Extract(size_t, std::vector<uint16>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<uint16>&) {
+bool Extractor::Extract(size_t, std::deque<uint16>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<uint16>&) {
+bool Extractor::Extract(size_t, std::list<uint16>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<int32>&) {
+bool Extractor::Extract(size_t, std::vector<int32>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<int32>&) {
+bool Extractor::Extract(size_t, std::deque<int32>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<int32>&) {
+bool Extractor::Extract(size_t, std::list<int32>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<uint32>&) {
+bool Extractor::Extract(size_t, std::vector<uint32>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<uint32>&) {
+bool Extractor::Extract(size_t, std::deque<uint32>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<uint32>&) {
+bool Extractor::Extract(size_t, std::list<uint32>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<int64>&) {
+bool Extractor::Extract(size_t, std::vector<int64>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<int64>&) {
+bool Extractor::Extract(size_t, std::deque<int64>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<int64>&) {
+bool Extractor::Extract(size_t, std::list<int64>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<uint64>&) {
+bool Extractor::Extract(size_t, std::vector<uint64>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<uint64>&) {
+bool Extractor::Extract(size_t, std::deque<uint64>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<uint64>&) {
+bool Extractor::Extract(size_t, std::list<uint64>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
 #ifndef FUN_LONG_IS_64_BIT
-bool Extractor::Extract(size_t , std::vector<long>&) {
+bool Extractor::Extract(size_t, std::vector<long>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<long>&) {
+bool Extractor::Extract(size_t, std::deque<long>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<long>&) {
+bool Extractor::Extract(size_t, std::list<long>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 #endif
 
-bool Extractor::Extract(size_t , std::vector<bool>&) {
+bool Extractor::Extract(size_t, std::vector<bool>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<bool>&) {
+bool Extractor::Extract(size_t, std::deque<bool>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<bool>&) {
+bool Extractor::Extract(size_t, std::list<bool>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<float>&) {
+bool Extractor::Extract(size_t, std::vector<float>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<float>&) {
+bool Extractor::Extract(size_t, std::deque<float>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<float>&) {
+bool Extractor::Extract(size_t, std::list<float>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<double>&) {
+bool Extractor::Extract(size_t, std::vector<double>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<double>&) {
+bool Extractor::Extract(size_t, std::deque<double>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<double>&) {
+bool Extractor::Extract(size_t, std::list<double>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<char>&) {
+bool Extractor::Extract(size_t, std::vector<char>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<char>&) {
+bool Extractor::Extract(size_t, std::deque<char>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<char>&) {
+bool Extractor::Extract(size_t, std::list<char>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<String>&) {
+bool Extractor::Extract(size_t, std::vector<String>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<String>&) {
+bool Extractor::Extract(size_t, std::deque<String>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<String>&) {
+bool Extractor::Extract(size_t, std::list<String>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<BLOB>&) {
+bool Extractor::Extract(size_t, std::vector<BLOB>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<BLOB>&) {
+bool Extractor::Extract(size_t, std::deque<BLOB>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<BLOB>&) {
+bool Extractor::Extract(size_t, std::list<BLOB>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<CLOB>&) {
+bool Extractor::Extract(size_t, std::vector<CLOB>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<CLOB>&) {
+bool Extractor::Extract(size_t, std::deque<CLOB>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<CLOB>&) {
+bool Extractor::Extract(size_t, std::list<CLOB>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<DateTime>&) {
+bool Extractor::Extract(size_t, std::vector<DateTime>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<DateTime>&) {
+bool Extractor::Extract(size_t, std::deque<DateTime>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<DateTime>&) {
+bool Extractor::Extract(size_t, std::list<DateTime>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<Date>&) {
+bool Extractor::Extract(size_t, std::vector<Date>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<Date>&) {
+bool Extractor::Extract(size_t, std::deque<Date>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<Date>&) {
+bool Extractor::Extract(size_t, std::list<Date>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<Time>&) {
+bool Extractor::Extract(size_t, std::vector<Time>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<Time>&) {
+bool Extractor::Extract(size_t, std::deque<Time>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<Time>&) {
+bool Extractor::Extract(size_t, std::list<Time>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<Any>&) {
+bool Extractor::Extract(size_t, std::vector<Any>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<Any>&) {
+bool Extractor::Extract(size_t, std::deque<Any>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<Any>&) {
+bool Extractor::Extract(size_t, std::list<Any>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::vector<Dynamic::Var>&) {
+bool Extractor::Extract(size_t, std::vector<Dynamic::Var>&) {
   throw NotImplementedException("std::vector extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::deque<Dynamic::Var>&) {
+bool Extractor::Extract(size_t, std::deque<Dynamic::Var>&) {
   throw NotImplementedException("std::deque extractor must be implemented.");
 }
 
-bool Extractor::Extract(size_t , std::list<Dynamic::Var>&) {
+bool Extractor::Extract(size_t, std::list<Dynamic::Var>&) {
   throw NotImplementedException("std::list extractor must be implemented.");
 }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

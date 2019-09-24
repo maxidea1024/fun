@@ -3,8 +3,7 @@
 namespace fun {
 namespace sql {
 
-PreparatorBase::PreparatorBase(uint32 length)
-  : length_(length), bulk_(false) {}
+PreparatorBase::PreparatorBase(uint32 length) : length_(length), bulk_(false) {}
 
 PreparatorBase::~PreparatorBase() {}
 
@@ -183,15 +182,18 @@ void PreparatorBase::Prepare(size_t pos, const UString& val) {
 }
 
 void PreparatorBase::Prepare(size_t pos, const std::vector<UString>& val) {
-  throw NotImplementedException("std::vector<UString> preparator must be implemented.");
+  throw NotImplementedException(
+      "std::vector<UString> preparator must be implemented.");
 }
 
 void PreparatorBase::Prepare(size_t pos, const std::deque<UString>& val) {
-  throw NotImplementedException("std::deque<UString> preparator must be implemented.");
+  throw NotImplementedException(
+      "std::deque<UString> preparator must be implemented.");
 }
 
 void PreparatorBase::Prepare(size_t pos, const std::list<UString>& val) {
-  throw NotImplementedException("std::list<UString> preparator must be implemented.");
+  throw NotImplementedException(
+      "std::list<UString> preparator must be implemented.");
 }
 
 void PreparatorBase::Prepare(size_t pos, const std::vector<BLOB>& val) {
@@ -266,17 +268,20 @@ void PreparatorBase::Prepare(size_t pos, const std::list<Any>& val) {
   throw NotImplementedException("std::list preparator must be implemented.");
 }
 
-void PreparatorBase::Prepare(size_t pos, const std::vector<fun::dynamic::Var>& val) {
+void PreparatorBase::Prepare(size_t pos,
+                             const std::vector<fun::dynamic::Var>& val) {
   throw NotImplementedException("std::vector preparator must be implemented.");
 }
 
-void PreparatorBase::Prepare(size_t pos, const std::deque<fun::dynamic::Var>& val) {
+void PreparatorBase::Prepare(size_t pos,
+                             const std::deque<fun::dynamic::Var>& val) {
   throw NotImplementedException("std::deque preparator must be implemented.");
 }
 
-void PreparatorBase::Prepare(size_t pos, const std::list<fun::dynamic::Var>& val) {
+void PreparatorBase::Prepare(size_t pos,
+                             const std::list<fun::dynamic::Var>& val) {
   throw NotImplementedException("std::list preparator must be implemented.");
 }
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

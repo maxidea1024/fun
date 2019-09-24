@@ -28,15 +28,11 @@ class FUN_SQL_API Position {
   Type value_;
 };
 
-
 //
 // inlines
 //
 
-inline Position::Type Position::Value() const {
-  return value_;
-}
-
+inline Position::Type Position::Value() const { return value_; }
 
 namespace Keywords {
 
@@ -48,7 +44,7 @@ inline Position from(const T& value) {
   return Position(value);
 }
 
-} // namespace Keywords
+}  // namespace Keywords
 
-} // namespace sql
-} // namespace fun
+}  // namespace sql
+}  // namespace fun

@@ -7,14 +7,14 @@
 #include "fun/sql/extractor_base.h"
 #include "fun/sql/lob.h"
 
-#include "fun/base/types.h"
 #include "fun/base/any.h"
-#include "fun/base/dynamic_any.h"
 #include "fun/base/dynamic/var.h"
+#include "fun/base/dynamic_any.h"
+#include "fun/base/types.h"
 
 namespace fun {
 
-//namespace Dynamic {
+// namespace Dynamic {
 //  class Var;
 //}
 
@@ -23,7 +23,8 @@ namespace postgresql {
 
 /**
  * Extracts and converts data values from the result row returned by PostgreSQL.
- * If NULL is received, the incoming val value is not changed and false is returned
+ * If NULL is received, the incoming val value is not changed and false is
+ * returned
  */
 class FUN_POSTGRESQL_API Extractor : public fun::sql::ExtractorBase {
  public:
@@ -75,7 +76,6 @@ class FUN_POSTGRESQL_API Extractor : public fun::sql::ExtractorBase {
    * Resets any information internally cached by the extractor.
    */
   virtual void Reset();
-
 
   //
   // Not implemented Extract functions
@@ -165,7 +165,7 @@ class FUN_POSTGRESQL_API Extractor : public fun::sql::ExtractorBase {
       return false;
     }
 
-    String tmp; // since the postgreSQL API in use is all about strings...
+    String tmp;  // since the postgreSQL API in use is all about strings...
     bool ret = Extract(pos, tmp);
     if (ret) {
       val = tmp;
@@ -181,6 +181,6 @@ class FUN_POSTGRESQL_API Extractor : public fun::sql::ExtractorBase {
   StatementExecutor& statement_executor_;
 };
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun

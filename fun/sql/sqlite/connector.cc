@@ -1,6 +1,6 @@
 ﻿#include "fun/sql/sqlite/connector.h"
-#include "fun/sql/sqlite/session_impl.h"
 #include "fun/sql/session_factory.h"
+#include "fun/sql/sqlite/session_impl.h"
 
 #if defined(FUN_UNBUNDLED)
 #include <sqlite3.h>
@@ -20,9 +20,10 @@ Connector::Connector() {}
 
 Connector::~Connector() {}
 
-fun::RefCountedPtr<fun::sql::SessionImpl>
-Connector::CreateSession(const String& connection_string, size_t timeout) {
-  return fun::RefCountedPtr<fun::sql::SessionImpl>(new fun::sql::sqlite::SessionImpl(connection_string, timeout));
+fun::RefCountedPtr<fun::sql::SessionImpl> Connector::CreateSession(
+    const String& connection_string, size_t timeout) {
+  return fun::RefCountedPtr<fun::sql::SessionImpl>(
+      new fun::sql::sqlite::SessionImpl(connection_string, timeout));
 }
 
 void Connector::RegisterConnector() {
@@ -41,6 +42,6 @@ void Connector::EnableSoftHeapLimit(int limit) {
   sqlite3_soft_heap_limit(limit);
 }
 
-} // namespace sqlite
-} // namespace sql
-} // namespace fun
+}  // namespace sqlite
+}  // namespace sql
+}  // namespace fun

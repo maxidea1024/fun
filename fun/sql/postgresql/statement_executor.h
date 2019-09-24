@@ -1,9 +1,9 @@
 #pragma once
 
+#include "fun/sql/meta_column.h"
 #include "fun/sql/postgresql/postgresql_exception.h"
 #include "fun/sql/postgresql/postgresql_types.h"
 #include "fun/sql/postgresql/session_handle.h"
-#include "fun/sql/meta_column.h"
 
 #include <libpq-fe.h>
 
@@ -19,11 +19,7 @@ namespace postgresql {
  */
 class StatementExecutor {
  public:
-  enum State {
-    STMT_INITED,
-    STMT_COMPILED,
-    STMT_EXECUTED
-  };
+  enum State { STMT_INITED, STMT_COMPILED, STMT_EXECUTED };
 
   /**
    * Creates the StatementExecutor.
@@ -46,14 +42,16 @@ class StatementExecutor {
   void Prepare(const String& sql_statement);
 
   /**
-   * Binds the params - REQUIRED if the statement has input parameters/placeholders
-   * Pointer and list elements must stay valid for the lifetime of the StatementExecutor!
+   * Binds the params - REQUIRED if the statement has input
+   * parameters/placeholders Pointer and list elements must stay valid for the
+   * lifetime of the StatementExecutor!
    */
   void BindParams(const InputParameterVector& input_parameter_vector);
 
   /**
    * Binds the params ONLY for COPY IN feature of PostgreSQL
-   * Pointer and list elements must stay valid for the lifetime of the StatementExecutor!
+   * Pointer and list elements must stay valid for the lifetime of the
+   * StatementExecutor!
    */
   void BindBulkParams(const InputParameterVector& input_bulk_parameter_vector);
 
@@ -90,13 +88,13 @@ class StatementExecutor {
   /**
    * Cast operator to native result handle type.
    */
-  operator PGresult* ();
+  operator PGresult*();
 
  private:
   void clearResults();
 
   StatementExecutor(const StatementExecutor&) = delete;
-  StatementExecutor& operator= (const StatementExecutor&) = delete;
+  StatementExecutor& operator=(const StatementExecutor&) = delete;
 
  private:
   typedef std::vector<MetaColumn> ColVec;
@@ -105,27 +103,25 @@ class StatementExecutor {
   State state_;
   PGresult* result_handle_;
   String sql_statement_;
-  String prepared_statement_name_; // UUID based to allow multiple prepared statements per transaction.
+  String prepared_statement_name_;  // UUID based to allow multiple prepared
+                                    // statements per transaction.
   size_t count_placeholders_in_sql_statement_;
   ColVec result_columns_;
 
   InputParameterVector input_bulk_parameter_vector_;
 
-  InputParameterVector  input_parameter_vector_;
+  InputParameterVector input_parameter_vector_;
   OutputParameterVector output_parameter_vector_;
-  size_t current_row_; // current row of the result
+  size_t current_row_;  // current row of the result
   size_t affected_row_count_;
 };
-
 
 //
 // inlines
 //
 
-inline StatementExecutor::operator PGresult* () {
-  return result_handle_;
-}
+inline StatementExecutor::operator PGresult*() { return result_handle_; }
 
-} // namespace postgresql
-} // namespace sql
-} // namespace fun
+}  // namespace postgresql
+}  // namespace sql
+}  // namespace fun
