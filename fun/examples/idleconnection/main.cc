@@ -31,7 +31,8 @@ int main(int argc, char* argv[]) {
   if (argc > 1) {
     idle_seconds = atoi(argv[1]);
   }
-  LOG_INFO << "pid = " << Process::CurrentPid() << ", idle seconds = " << idle_seconds;
+  LOG_INFO << "pid = " << Process::CurrentPid()
+           << ", idle seconds = " << idle_seconds;
   EchoServer server(&loop, listen_addr, idle_seconds);
   server.Start();
   loop.Loop();

@@ -15,7 +15,7 @@
 using namespace fun;
 using namespace fun::net;
 
-const int kMaxConns = 10; // 65535
+const int kMaxConns = 10;  // 65535
 const size_t kMaxPacketLen = 255;
 const size_t kHeaderLen = 3;
 
@@ -25,15 +25,18 @@ const uint16_t kBackendPort = 9999;
 
 class MultiplexServer : Noncopyable {
  public:
-  MultiplexServer(EventLoop* loop,
-                  const InetAddress& listen_addr,
+  MultiplexServer(EventLoop* loop, const InetAddress& listen_addr,
                   const InetAddress& backend_addr)
-    : server_(loop, listen_addr, "MultiplexServer")
-    , backend_(loop, backend_addr, "MultiplexBackend") {
-    server_.SetConnectionCallback(boost::bind(&MultiplexServer::OnClientConnection, this, _1));
-    server_.SetMessageCallback(boost::bind(&MultiplexServer::OnClientMessage, this, _1, _2, _3));
-    backend_.SetConnectionCallback(boost::bind(&MultiplexServer::OnBackendConnection, this, _1));
-    backend_.SetMessageCallback(boost::bind(&MultiplexServer::OnBackendMessage, this, _1, _2, _3));
+      : server_(loop, listen_addr, "MultiplexServer"),
+        backend_(loop, backend_addr, "MultiplexBackend") {
+    server_.SetConnectionCallback(
+        boost::bind(&MultiplexServer::OnClientConnection, this, _1));
+    server_.SetMessageCallback(
+        boost::bind(&MultiplexServer::OnClientMessage, this, _1, _2, _3));
+    backend_.SetConnectionCallback(
+        boost::bind(&MultiplexServer::OnBackendConnection, this, _1));
+    backend_.SetMessageCallback(
+        boost::bind(&MultiplexServer::OnBackendMessage, this, _1, _2, _3));
 
     backend_.EnableRetry();
   }
@@ -60,30 +63,27 @@ class MultiplexServer : Noncopyable {
       if (id <= 0) {
         // no client id available
         conn->Shutdown();
-      }
-      else {
+      } else {
         conn->SetContext(id);
         char buf[256];
-        snprintf(buf, sizeof(buf), "CONN %d FROM %s IS UP\r\n",
-                 id, conn->GetPeerAddress().ToIpPort().c_str());
+        snprintf(buf, sizeof(buf), "CONN %d FROM %s IS UP\r\n", id,
+                 conn->GetPeerAddress().ToIpPort().c_str());
         SendBackendString(0, buf);
       }
-    }
-    else {
+    } else {
       if (!conn->GetContext().empty()) {
         int id = boost::any_cast<int>(conn->GetContext());
         fun_check(id > 0 && id <= kMaxConns);
         char buf[256];
-        snprintf(buf, sizeof(buf), "CONN %d FROM %s IS DOWN\r\n",
-                 id, conn->GetPeerAddress().ToIpPort().c_str());
+        snprintf(buf, sizeof(buf), "CONN %d FROM %s IS DOWN\r\n", id,
+                 conn->GetPeerAddress().ToIpPort().c_str());
         SendBackendString(0, buf);
 
         if (backend_conn_) {
           // put client id back for reusing
           avail_ids_.push(id);
           client_conns_.erase(id);
-        }
-        else {
+        } else {
           fun_check(avail_ids_.empty());
           fun_check(client_conns_.empty());
         }
@@ -98,18 +98,16 @@ class MultiplexServer : Noncopyable {
     SendBackendPacket(id, &buf);
   }
 
-  //TODO eventloop에서 호출되므로, 지연이 발생하면 네트워크 전반에 악영향을
+  // TODO eventloop에서 호출되므로, 지연이 발생하면 네트워크 전반에 악영향을
   //미칠 수 있으므로, blocking 동작을 처리할 경우에는 별도의 스레드풀을 사용
   //해야함.
-  void OnClientMessage( const TcpConnectionPtr& conn,
-                        Buffer* buf,
-                        const Timestamp&) {
+  void OnClientMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                       const Timestamp&) {
     if (!conn->GetContext().empty()) {
-      //TODO boost any를 대체할 수단이 필요해보이는데...
+      // TODO boost any를 대체할 수단이 필요해보이는데...
       int id = boost::any_cast<int>(conn->GetContext());
       SendBackendBuffer(id, buf);
-    }
-    else {
+    } else {
       buf->DrainAll();
       // FIXME: error handling
     }
@@ -132,11 +130,9 @@ class MultiplexServer : Noncopyable {
     size_t len = buf->GetReadableLength();
     LOG_DEBUG << "SendBackendPacket " << len;
     fun_check(len <= kMaxPacketLen);
-    uint8_t header[kHeaderLen] = {
-      static_cast<uint8_t>(len),
-      static_cast<uint8_t>(id & 0xFF),
-      static_cast<uint8_t>((id & 0xFF00) >> 8)
-    };
+    uint8_t header[kHeaderLen] = {static_cast<uint8_t>(len),
+                                  static_cast<uint8_t>(id & 0xFF),
+                                  static_cast<uint8_t>((id & 0xFF00) >> 8)};
     buf->Prepend(header, kHeaderLen);
     if (backend_conn_) {
       backend_conn_->Send(buf);
@@ -154,12 +150,10 @@ class MultiplexServer : Noncopyable {
       for (int i = 1; i <= kMaxConns; ++i) {
         avail_ids_.push(i);
       }
-    }
-    else {
+    } else {
       backend_conn_.Reset();
       for (std::map<int, TcpConnectionPtr>::iterator it = client_conns_.begin();
-          it != client_conns_.end();
-          ++it) {
+           it != client_conns_.end(); ++it) {
         it->second->Shutdown();
       }
       client_conns_.clear();
@@ -169,8 +163,7 @@ class MultiplexServer : Noncopyable {
     }
   }
 
-  void OnBackendMessage(const TcpConnectionPtr& conn,
-                        Buffer* buf,
+  void OnBackendMessage(const TcpConnectionPtr& conn, Buffer* buf,
                         const Timestamp&) {
     SendToClient(buf);
   }
@@ -180,8 +173,7 @@ class MultiplexServer : Noncopyable {
       int len = static_cast<uint8_t>(*buf->GetReadablePtr());
       if (buf->GetReadableLength() < len + kHeaderLen) {
         break;
-      }
-      else {
+      } else {
         int id = static_cast<uint8_t>(buf->GetReadablePtr()[1]);
         id |= (static_cast<uint8_t>(buf->GetReadablePtr()[2]) << 8);
 
@@ -190,8 +182,7 @@ class MultiplexServer : Noncopyable {
           if (it != client_conns_.end()) {
             it->second->Send(buf->GetReadablePtr() + kHeaderLen, len);
           }
-        }
-        else {
+        } else {
           String cmd(buf->GetReadablePtr() + kHeaderLen, len);
           LOG_INFO << "Backend cmd " << cmd;
           DoCommand(cmd);
@@ -204,10 +195,11 @@ class MultiplexServer : Noncopyable {
   void DoCommand(const String& cmd) {
     static const String kDisconnectCmd = "DISCONNECT ";
 
-    if (cmd.size() > kDisconnectCmd.size()
-        && std::equal(kDisconnectCmd.begin(), kDisconnectCmd.end(), cmd.begin())) {
+    if (cmd.size() > kDisconnectCmd.size() &&
+        std::equal(kDisconnectCmd.begin(), kDisconnectCmd.end(), cmd.begin())) {
       int conn_id = atoi(&cmd[kDisconnectCmd.size()]);
-      std::map<int, TcpConnectionPtr>::iterator it = client_conns_.find(conn_id);
+      std::map<int, TcpConnectionPtr>::iterator it =
+          client_conns_.find(conn_id);
       if (it != client_conns_.end()) {
         it->second->Shutdown();
       }

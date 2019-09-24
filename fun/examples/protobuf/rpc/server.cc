@@ -1,8 +1,8 @@
 #include <examples/protobuf/rpc/sudoku.pb.h>
 
+#include <red/net/protorpc/RpcServer.h>
 #include "fun/base/logging.h"
 #include "fun/net/event_loop.h"
-#include <red/net/protorpc/RpcServer.h>
 
 #include <boost/bind.hpp>
 
@@ -16,9 +16,9 @@ namespace sudoku {
 class SudokuServiceImpl : public SudokuService {
  public:
   virtual void Solve(::google::protobuf::RpcController* controller,
-                       const ::sudoku::SudokuRequest* request,
-                       ::sudoku::SudokuResponse* response,
-                       ::google::protobuf::Closure* done) {
+                     const ::sudoku::SudokuRequest* request,
+                     ::sudoku::SudokuResponse* response,
+                     ::google::protobuf::Closure* done) {
     LOG_INFO << "SudokuServiceImpl::Solve";
     response->set_solved(true);
     response->set_checkerboard("1234567");
@@ -26,7 +26,7 @@ class SudokuServiceImpl : public SudokuService {
   }
 };
 
-}
+}  // namespace sudoku
 
 int main() {
   LOG_INFO << "pid = " << Process::CurrentPid();
@@ -39,4 +39,3 @@ int main() {
   loop.Loop();
   google::protobuf::ShutdownProtobufLibrary();
 }
-

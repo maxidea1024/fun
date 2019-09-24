@@ -2,9 +2,7 @@
 
 #include <iostream>
 
-void Print() {
-  std::cout << "Hello, world!\n";
-}
+void Print() { std::cout << "Hello, world!\n"; }
 
 int main() {
   fun::net::EventLoop loop;

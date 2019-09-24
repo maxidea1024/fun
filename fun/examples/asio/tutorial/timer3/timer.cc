@@ -1,7 +1,7 @@
 #include "fun/net/event_loop.h"
 
-#include <iostream>
 #include <boost/bind.hpp>
+#include <iostream>
 
 void print(fun::net::EventLoop* loop, int* count) {
   if (*count < 5) {
@@ -9,8 +9,7 @@ void print(fun::net::EventLoop* loop, int* count) {
     ++(*count);
 
     loop->ScheduleAfter(1, boost::bind(print, loop, count));
-  }
-  else {
+  } else {
     loop->Quit();
   }
 }
@@ -23,4 +22,3 @@ int main() {
   loop.Loop();
   std::cout << "Final count is " << count << "\n";
 }
-

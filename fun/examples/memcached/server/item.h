@@ -15,10 +15,10 @@ namespace fun {
 namespace net {
 class Buffer;
 }
-}
+}  // namespace fun
 
 class Item;
-typedef fun::SharedPtr<Item> ItemPtr;  // TODO: use unique_ptr
+typedef fun::SharedPtr<Item> ItemPtr;             // TODO: use unique_ptr
 typedef fun::SharedPtr<const Item> ConstItemPtr;  // TODO: use unique_ptr
 
 // Item is immutable once added into hash table
@@ -34,67 +34,41 @@ class Item : Noncopyable {
     kCas,
   };
 
-  static ItemPtr makeItem(StringPiece keyArg,
-                          uint32_t flagsArg,
-                          int exptimeArg,
-                          int valuelen,
-                          uint64_t casArg) {
-    return boost::make_shared<Item>(keyArg, flagsArg, exptimeArg, valuelen, casArg);
-    //return ItemPtr(new Item(keyArg, flagsArg, exptimeArg, valuelen, casArg));
+  static ItemPtr makeItem(StringPiece keyArg, uint32_t flagsArg, int exptimeArg,
+                          int valuelen, uint64_t casArg) {
+    return boost::make_shared<Item>(keyArg, flagsArg, exptimeArg, valuelen,
+                                    casArg);
+    // return ItemPtr(new Item(keyArg, flagsArg, exptimeArg, valuelen, casArg));
   }
 
-  Item(StringPiece keyArg,
-       uint32_t flagsArg,
-       int exptimeArg,
-       int valuelen,
+  Item(StringPiece keyArg, uint32_t flagsArg, int exptimeArg, int valuelen,
        uint64_t casArg);
 
-  ~Item() {
-    ::free(data_);
-  }
+  ~Item() { ::free(data_); }
 
-  fun::StringPiece key() const {
-    return fun::StringPiece(data_, keylen_);
-  }
+  fun::StringPiece key() const { return fun::StringPiece(data_, keylen_); }
 
-  uint32_t flags() const {
-    return flags_;
-  }
+  uint32_t flags() const { return flags_; }
 
-  int rel_exptime() const {
-    return rel_exptime_;
-  }
+  int rel_exptime() const { return rel_exptime_; }
 
-  const char* value() const {
-    return data_+keylen_;
-  }
+  const char* value() const { return data_ + keylen_; }
 
-  size_t valueLength() const {
-    return value_len_;
-  }
+  size_t valueLength() const { return value_len_; }
 
-  uint64_t cas() const {
-    return cas_;
-  }
+  uint64_t cas() const { return cas_; }
 
-  size_t hash() const {
-    return hash_;
-  }
+  size_t hash() const { return hash_; }
 
-  void setCas(uint64_t casArg) {
-    cas_ = casArg;
-  }
+  void setCas(uint64_t casArg) { cas_ = casArg; }
 
-  size_t neededBytes() const {
-    return totalLen() - received_bytes_;
-  }
+  size_t neededBytes() const { return totalLen() - received_bytes_; }
 
   void append(const char* data, size_t len);
 
   bool EndsWithCRLF() const {
-    return received_bytes_ == totalLen()
-        && data_[totalLen()-2] == '\r'
-        && data_[totalLen()-1] == '\n';
+    return received_bytes_ == totalLen() && data_[totalLen() - 2] == '\r' &&
+           data_[totalLen() - 1] == '\n';
   }
 
   void output(fun::net::Buffer* out, bool needCas = false) const;

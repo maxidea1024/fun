@@ -8,9 +8,9 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <set>
 #include <stdio.h>
 #include <unistd.h>
+#include <set>
 
 using namespace fun;
 using namespace fun::net;
@@ -20,28 +20,27 @@ TODO
 */
 class ChatServer : Noncopyable {
  public:
-  ChatServer(EventLoop* loop,
-             const InetAddress& listen_addr)
-    : server_(loop, listen_addr, "ChatServer")
-    , codec_(boost::bind(&ChatServer::OnStringMessage, this, _1, _2, _3))
-    , connections_(new ConnectionList) {
-    server_.SetConnectionCallback(boost::bind(&ChatServer::OnConnection, this, _1));
-    server_.SetMessageCallback(boost::bind(&LengthHeaderCodec::OnMessage, &codec_, _1, _2, _3));
+  ChatServer(EventLoop* loop, const InetAddress& listen_addr)
+      : server_(loop, listen_addr, "ChatServer"),
+        codec_(boost::bind(&ChatServer::OnStringMessage, this, _1, _2, _3)),
+        connections_(new ConnectionList) {
+    server_.SetConnectionCallback(
+        boost::bind(&ChatServer::OnConnection, this, _1));
+    server_.SetMessageCallback(
+        boost::bind(&LengthHeaderCodec::OnMessage, &codec_, _1, _2, _3));
   }
 
   void SetThreadCount(int thread_count) {
     server_.SetThreadCount(thread_count);
   }
 
-  void Start() {
-    server_.Start();
-  }
+  void Start() { server_.Start(); }
 
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
-    LOG_INFO  << conn->GetLocalAddress().ToIpPort() << " -> "
-              << conn->GetPeerAddress().ToIpPort() << " is "
-              << (conn->IsConnected() ? "UP" : "DOWN");
+    LOG_INFO << conn->GetLocalAddress().ToIpPort() << " -> "
+             << conn->GetPeerAddress().ToIpPort() << " is "
+             << (conn->IsConnected() ? "UP" : "DOWN");
 
     ScopedLock guard(mutex_);
     if (!connections_.unique()) {
@@ -51,8 +50,7 @@ class ChatServer : Noncopyable {
 
     if (conn->IsConnected()) {
       connections_->insert(conn);
-    }
-    else {
+    } else {
       connections_->erase(conn);
     }
   }
@@ -60,13 +58,12 @@ class ChatServer : Noncopyable {
   typedef std::set<TcpConnectionPtr> ConnectionList;
   typedef fun::SharedPtr<ConnectionList> ConnectionListPtr;
 
-  void OnStringMessage(const TcpConnectionPtr&,
-                       const String& message,
+  void OnStringMessage(const TcpConnectionPtr&, const String& message,
                        const Timestamp&) {
-    ConnectionListPtr connections = GetConnectionList();;
+    ConnectionListPtr connections = GetConnectionList();
+    ;
     for (ConnectionList::iterator it = connections->begin();
-        it != connections->end();
-        ++it) {
+         it != connections->end(); ++it) {
       codec_.Send(get_pointer(*it), message);
     }
   }
@@ -94,8 +91,7 @@ int main(int argc, char* argv[]) {
     }
     server.Start();
     loop.Loop();
-  }
-  else {
+  } else {
     printf("Usage: %s port [thread_num]\n", argv[0]);
   }
 }

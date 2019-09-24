@@ -5,9 +5,7 @@ using namespace fun::net;
 
 namespace pubsub {
 
-ParseResult ParseMessage(Buffer* buf,
-                         String* cmd,
-                         String* topic,
+ParseResult ParseMessage(Buffer* buf, String* cmd, String* topic,
                          String* content) {
   ParseResult result = kError;
   const char* crlf = buf->FindCRLF();
@@ -15,7 +13,7 @@ ParseResult ParseMessage(Buffer* buf,
     const char* space = std::find(buf->GetReadablePtr(), crlf, ' ');
     if (space != crlf) {
       cmd->Assign(buf->GetReadablePtr(), space);
-      topic->Assign(space+1, crlf);
+      topic->Assign(space + 1, crlf);
       if (*cmd == "pub") {
         const char* start = crlf + 2;
         crlf = buf->FindCRLF(start);
@@ -23,24 +21,20 @@ ParseResult ParseMessage(Buffer* buf,
           content->Assign(start, crlf);
           buf->DrainUntil(crlf + 2);
           result = kSuccess;
-        }
-        else {
+        } else {
           result = kContinue;
         }
-      }
-      else {
+      } else {
         buf->DrainUntil(crlf + 2);
         result = kSuccess;
       }
-    }
-    else {
+    } else {
       result = kError;
     }
-  }
-  else {
+  } else {
     result = kContinue;
   }
   return result;
 }
 
-} // namespace pubsub
+}  // namespace pubsub

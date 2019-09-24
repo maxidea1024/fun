@@ -4,9 +4,9 @@
 
 #include "examples/asio/chat/codec.h"
 
-#include <boost/bind.hpp>
 #include <stdio.h>
 #include <unistd.h>
+#include <boost/bind.hpp>
 
 bool g_tcp_no_delay = false;
 
@@ -18,8 +18,7 @@ void OnConnection(const fun::net::TcpConnectionPtr& conn) {
 
 void OnStringMessage(LengthHeaderCodec* codec,
                      const fun::net::TcpConnectionPtr& conn,
-                     const String& message,
-                     const fun::Timestamp&) {
+                     const String& message, const fun::Timestamp&) {
   codec->Send(get_pointer(conn), message);
 }
 
@@ -38,7 +37,8 @@ int main(int argc, char* argv[]) {
     LengthHeaderCodec codec(boost::bind(OnStringMessage, &codec, _1, _2, _3));
 
     server.SetConnectionCallback(OnConnection);
-    server.SetMessageCallback(boost::bind(&LengthHeaderCodec::OnMessage, &codec, _1, _2, _3));
+    server.SetMessageCallback(
+        boost::bind(&LengthHeaderCodec::OnMessage, &codec, _1, _2, _3));
 
     if (thread_count > 1) {
       server.SetThreadCount(thread_count);
@@ -46,8 +46,8 @@ int main(int argc, char* argv[]) {
 
     server.Start();
     loop.Loop();
-  }
-  else {
-    fprintf(stderr, "Usage: %s listen_port [tcp_no_delay [threads]]\n", argv[0]);
+  } else {
+    fprintf(stderr, "Usage: %s listen_port [tcp_no_delay [threads]]\n",
+            argv[0]);
   }
 }

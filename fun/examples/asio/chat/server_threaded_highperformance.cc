@@ -9,21 +9,22 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <set>
 #include <stdio.h>
 #include <unistd.h>
+#include <set>
 
 using namespace fun;
 using namespace fun::net;
 
 class ChatServer : Noncopyable {
  public:
-  ChatServer(EventLoop* loop,
-             const InetAddress& listen_addr)
-    : server_(loop, listen_addr, "ChatServer")
-    , codec_(boost::bind(&ChatServer::OnStringMessage, this, _1, _2, _3)) {
-    server_.SetConnectionCallback(boost::bind(&ChatServer::OnConnection, this, _1));
-    server_.SetMessageCallback(boost::bind(&LengthHeaderCodec::OnMessage, &codec_, _1, _2, _3));
+  ChatServer(EventLoop* loop, const InetAddress& listen_addr)
+      : server_(loop, listen_addr, "ChatServer"),
+        codec_(boost::bind(&ChatServer::OnStringMessage, this, _1, _2, _3)) {
+    server_.SetConnectionCallback(
+        boost::bind(&ChatServer::OnConnection, this, _1));
+    server_.SetMessageCallback(
+        boost::bind(&LengthHeaderCodec::OnMessage, &codec_, _1, _2, _3));
   }
 
   void SetThreadCount(int thread_count) {
@@ -31,7 +32,8 @@ class ChatServer : Noncopyable {
   }
 
   void Start() {
-    server_.SetThreadInitCallback(boost::bind(&ChatServer::ThreadInit, this, _1));
+    server_.SetThreadInitCallback(
+        boost::bind(&ChatServer::ThreadInit, this, _1));
     server_.Start();
   }
 
@@ -43,22 +45,20 @@ class ChatServer : Noncopyable {
 
     if (conn->IsConnected()) {
       LocalConnections::instance().insert(conn);
-    }
-    else {
+    } else {
       LocalConnections::instance().erase(conn);
     }
   }
 
-  void OnStringMessage(const TcpConnectionPtr&,
-                       const String& message,
+  void OnStringMessage(const TcpConnectionPtr&, const String& message,
                        const Timestamp&) {
-    EventLoop::Functor f = boost::bind(&ChatServer::DistributeMessage, this, message);
+    EventLoop::Functor f =
+        boost::bind(&ChatServer::DistributeMessage, this, message);
     LOG_DEBUG;
 
     ScopedLock guard(mutex_);
-    for (std::set<EventLoop*>::iterator it = loops_.begin();
-        it != loops_.end();
-        ++it) {
+    for (std::set<EventLoop*>::iterator it = loops_.begin(); it != loops_.end();
+         ++it) {
       (*it)->QueueInLoop(f);
     }
     LOG_DEBUG;
@@ -69,8 +69,7 @@ class ChatServer : Noncopyable {
   void DistributeMessage(const String& message) {
     LOG_DEBUG << "begin";
     for (ConnectionList::iterator it = LocalConnections::instance().begin();
-        it != LocalConnections::instance().end();
-        ++it) {
+         it != LocalConnections::instance().end(); ++it) {
       codec_.Send(get_pointer(*it), message);
     }
     LOG_DEBUG << "end";
@@ -78,7 +77,7 @@ class ChatServer : Noncopyable {
 
   void ThreadInit(EventLoop* loop) {
     fun_check(LocalConnections::pointer() == NULL);
-    LocalConnections::Get(); // singleton??
+    LocalConnections::Get();  // singleton??
     fun_check(LocalConnections::pointer() != NULL);
     ScopedLock guard(mutex_);
     loops_.insert(loop);
@@ -105,8 +104,7 @@ int main(int argc, char* argv[]) {
     }
     server.Start();
     loop.Loop();
-  }
-  else {
+  } else {
     printf("Usage: %s port [thread_num]\n", argv[0]);
   }
 }

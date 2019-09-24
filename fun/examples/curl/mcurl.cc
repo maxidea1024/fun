@@ -1,22 +1,21 @@
 #include <examples/curl/Curl.h>
-#include "fun/net/event_loop.h"
-#include <boost/bind.hpp>
 #include <stdio.h>
+#include <boost/bind.hpp>
+#include "fun/net/event_loop.h"
 
 using namespace fun::net;
 
 EventLoop* g_loop = NULL;
 
-void OnData(const char* data, int len) {
-  printf("len %d\n", len);
-}
+void OnData(const char* data, int len) { printf("len %d\n", len); }
 
 void Done(curl::Request* c, int code) {
   printf("Done %p %s %d\n", c, c->GetEffectiveUrl(), code);
 }
 
 void Done2(curl::Request* c, int code) {
-  printf("Done2 %p %s %d %d\n", c, c->GetRedirectUrl(), c->GetResponseCode(), code);
+  printf("Done2 %p %s %d %d\n", c, c->GetRedirectUrl(), c->GetResponseCode(),
+         code);
   // g_loop->Quit();
 }
 

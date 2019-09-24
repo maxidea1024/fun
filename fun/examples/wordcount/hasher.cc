@@ -26,13 +26,14 @@ const size_t kMaxHashSize = 10 * 1000 * 1000;
 class SendThrottler : Noncopyable {
  public:
   SendThrottler(EventLoop* loop, const InetAddress& addr)
-    : client_(loop, addr, "Sender")
-    , connect_latch_(1)
-    , disconnect_latch_(1)
-    , cond_(mutex_)
-    , congestion_(false) {
+      : client_(loop, addr, "Sender"),
+        connect_latch_(1),
+        disconnect_latch_(1),
+        cond_(mutex_),
+        congestion_(false) {
     LOG_INFO << "SendThrottler [" << addr.ToIpPort() << "]";
-    client_.SetConnectionCallback(boost::bind(&SendThrottler::OnConnection, this, _1));
+    client_.SetConnectionCallback(
+        boost::bind(&SendThrottler::OnConnection, this, _1));
   }
 
   void Connect() {
@@ -65,13 +66,14 @@ class SendThrottler : Noncopyable {
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
     if (conn->IsConnected()) {
-      conn->SetHighWaterMarkCallback(boost::bind(&SendThrottler::OnHighWaterMark, this), 1024*1024);
-      conn->SetWriteCompleteCallback(boost::bind(&SendThrottler::OnWriteComplete, this));
+      conn->SetHighWaterMarkCallback(
+          boost::bind(&SendThrottler::OnHighWaterMark, this), 1024 * 1024);
+      conn->SetWriteCompleteCallback(
+          boost::bind(&SendThrottler::OnWriteComplete, this));
 
       conn_ = conn;
       connect_latch_.CountDown();
-    }
-    else {
+    } else {
       conn_.Reset();
       disconnect_latch_.CountDown();
     }
@@ -110,9 +112,7 @@ class SendThrottler : Noncopyable {
   bool congestion_;
 };
 
-
-class WordCountSender : Noncopyable
-{
+class WordCountSender : Noncopyable {
  public:
   explicit WordCountSender(const String& receivers);
 
@@ -139,28 +139,25 @@ class WordCountSender : Noncopyable
 };
 
 WordCountSender::WordCountSender(const String& receivers)
-  : loop_(loopThread_.StartLoop())
-{
+    : loop_(loopThread_.StartLoop()) {
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
   boost::char_separator<char> sep(", ");
   tokenizer tokens(receivers, sep);
-  for (tokenizer::iterator tok_iter = tokens.begin();
-       tok_iter != tokens.end(); ++tok_iter) {
+  for (tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end();
+       ++tok_iter) {
     String ipport = *tok_iter;
     size_t colon = ipport.find(':');
     if (colon != String::npos) {
-      uint16_t port = static_cast<uint16_t>(atoi(&ipport[colon+1]));
+      uint16_t port = static_cast<uint16_t>(atoi(&ipport[colon + 1]));
       InetAddress addr(ipport.substr(0, colon), port);
       buckets_.push_back(new SendThrottler(loop_, addr));
-    }
-    else {
+    } else {
       fun_check(0 && "Invalid address");
     }
   }
 }
 
-void WordCountSender::ProcessFile(const char* filename)
-{
+void WordCountSender::ProcessFile(const char* filename) {
   LOG_INFO << "ProcessFile " << filename;
   WordCountMap wordcounts;
   // FIXME: use mmap to read file
@@ -178,22 +175,23 @@ void WordCountSender::ProcessFile(const char* filename)
     }
 
     LOG_INFO << "Send " << wordcounts.size() << " records";
-    for (WordCountMap::iterator it = wordcounts.begin();
-         it != wordcounts.end(); ++it) {
+    for (WordCountMap::iterator it = wordcounts.begin(); it != wordcounts.end();
+         ++it) {
       size_t idx = hash(it->first) % buckets_.size();
       buckets_[idx].Send(it->first, it->second);
     }
   }
 }
 
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   if (argc < 3) {
-    printf("Usage: %s addresses_of_receivers input_file1 [input_file2]* \n", argv[0]);
-    printf("Example: %s 'ip1:port1,ip2:port2,ip3:port3' input_file1 input_file2 \n", argv[0]);
-  }
-  else {
+    printf("Usage: %s addresses_of_receivers input_file1 [input_file2]* \n",
+           argv[0]);
+    printf(
+        "Example: %s 'ip1:port1,ip2:port2,ip3:port3' input_file1 input_file2 "
+        "\n",
+        argv[0]);
+  } else {
     const char* batch_size = ::getenv("BATCH_SIZE");
     if (batch_size) {
       g_batch_size = atoi(batch_size);

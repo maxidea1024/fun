@@ -1,7 +1,7 @@
 ﻿#include <red/base/Logging.h>
 #include <red/base/Thread.h>
-#include "fun/net/channel.h"
 #include <red/net/EventLoop.h>
+#include "fun/net/channel.h"
 
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -28,7 +28,7 @@ void ReadCallback(Timestamp, int fd, int idx) {
 
   g_reads += static_cast<int>(::recv(fd, &ch, sizeof(ch), 0));
   if (g_writes > 0) {
-    int widx = idx+1;
+    int widx = idx + 1;
     if (widx >= pipe_count) {
       widx -= pipe_count;
     }
@@ -64,8 +64,10 @@ std::pair<int, int> RunOnce() {
 
   Timestamp end(Timestamp::Now());
 
-  int iterTime = static_cast<int>(end.microSecondsSinceEpoch() - beforeInit.microSecondsSinceEpoch());
-  int loopTime = static_cast<int>(end.microSecondsSinceEpoch() - beforeLoop.microSecondsSinceEpoch());
+  int iterTime = static_cast<int>(end.microSecondsSinceEpoch() -
+                                  beforeInit.microSecondsSinceEpoch());
+  int loopTime = static_cast<int>(end.microSecondsSinceEpoch() -
+                                  beforeLoop.microSecondsSinceEpoch());
   return std::make_pair(iterTime, loopTime);
 }
 
@@ -95,11 +97,11 @@ int main(int argc, char* argv[]) {
   rl.rlim_cur = rl.rlim_max = pipe_count * 2 + 50;
   if (::setrlimit(RLIMIT_NOFILE, &rl) == -1) {
     perror("setrlimit");
-    //return 1;  // comment out this line if under valgrind
+    // return 1;  // comment out this line if under valgrind
   }
   g_pipes.resize(2 * pipe_count);
   for (int i = 0; i < pipe_count; ++i) {
-    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, &g_pipes[i*2]) == -1) {
+    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, &g_pipes[i * 2]) == -1) {
       perror("pipe");
       return 1;
     }
@@ -109,7 +111,7 @@ int main(int argc, char* argv[]) {
   g_loop = &loop;
 
   for (int i = 0; i < pipe_count; ++i) {
-    Channel* channel = new Channel(&loop, g_pipes[i*2]);
+    Channel* channel = new Channel(&loop, g_pipes[i * 2]);
     g_channels.push_back(channel);
   }
 

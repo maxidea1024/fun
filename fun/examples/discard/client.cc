@@ -1,16 +1,13 @@
-﻿#include "fun/net/reactor/tcp_client.h"
+﻿#include "fun/net/inet_address.h"
 #include "fun/net/reactor/event_loop.h"
-#include "fun/net/inet_address.h"
+#include "fun/net/reactor/tcp_client.h"
 
-
-class DiscardClient : Noncopyable
-{
+class DiscardClient : Noncopyable {
  public:
   DiscardClient(EventLoop* loop, const InetAddress& server_addr, int size)
-    : loop_(loop)
-    , client_(loop, server_addr, "DiscardClient")
-    , message_(size, 'H')
-  {
+      : loop_(loop),
+        client_(loop, server_addr, "DiscardClient"),
+        message_(size, 'H') {
     client_.SetConnectionCallback(
         boost::bind(&DiscardClient::OnConnection, this, _1));
     client_.SetMessageCallback(
@@ -18,45 +15,34 @@ class DiscardClient : Noncopyable
     client_.SetWriteCompleteCallback(
         boost::bind(&DiscardClient::OnWriteComplete, this, _1));
 
-    //client_.EnableRetry();
+    // client_.EnableRetry();
   }
 
-  void Connect()
-  {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
  private:
-  void OnConnection(const TcpConnectionPtr& conn)
-  {
+  void OnConnection(const TcpConnectionPtr& conn) {
     LOG_TRACE << conn->GetLocalAddress().ToIpPort() << " -> "
-        << conn->GetPeerAddress().ToIpPort() << " is "
-        << (conn->IsConnected() ? "UP" : "DOWN");
+              << conn->GetPeerAddress().ToIpPort() << " is "
+              << (conn->IsConnected() ? "UP" : "DOWN");
 
-    if (conn->IsConnected())
-    {
+    if (conn->IsConnected()) {
       conn->SetTcpNoDelay(true);
       conn->Send(message_);
-    }
-    else
-    {
+    } else {
       loop_->Quit();
     }
   }
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp& received_time)
-  {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                 const Timestamp& received_time) {
     buf->DrainAll();
   }
 
-  void OnWriteComplete(const TcpConnectionPtr& conn)
-  {
+  void OnWriteComplete(const TcpConnectionPtr& conn) {
     LOG_INFO << "write complete " << message_.size();
     conn->Send(message_);
   }
-
 
   //
   // Member variables
@@ -67,14 +53,11 @@ class DiscardClient : Noncopyable
   String message_;
 };
 
+int main(int argc, char* argv[]) {
+  LOG_INFO << "pid = " << Process::CurrentPid()
+           << ", tid = " << Thread::CurrentTid();
 
-
-int main(int argc, char* argv[])
-{
-  LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
-
-  if (argc > 1)
-  {
+  if (argc > 1) {
     g_thread_count = atoi(argv[1]);
   }
 
@@ -82,5 +65,5 @@ int main(int argc, char* argv[])
   InetAddress listen_addr(2009);
   DiscardClient client(&loop, listen_addr);
   client.Connect();
-  loop.Loop(); //TODO 클라이언트에서는 무한 루프를 돌리기가...??
+  loop.Loop();  // TODO 클라이언트에서는 무한 루프를 돌리기가...??
 }

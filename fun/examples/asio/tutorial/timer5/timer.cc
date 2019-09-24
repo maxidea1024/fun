@@ -2,23 +2,19 @@
 #include "fun/net/event_loop.h"
 #include "fun/net/event_loop_thread.h"
 
-#include <iostream>
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
+#include <iostream>
 
 class Printer : Noncopyable {
  public:
   Printer(fun::net::EventLoop* loop1, fun::net::EventLoop* loop2)
-    : loop1_(loop1)
-    , loop2_(loop2)
-    , count_(0) {
+      : loop1_(loop1), loop2_(loop2), count_(0) {
     loop1_->ScheduleAfter(1, boost::bind(&Printer::Print1, this));
     loop2_->ScheduleAfter(1, boost::bind(&Printer::Print2, this));
   }
 
-  ~Printer() {
-    std::cout << "Final count is " << count_ << "\n";
-  }
+  ~Printer() { std::cout << "Final count is " << count_ << "\n"; }
 
   void Print1() {
     fun::ScopedLock guard(mutex_);
@@ -27,8 +23,7 @@ class Printer : Noncopyable {
       ++count_;
 
       loop1_->ScheduleAfter(1, boost::bind(&Printer::Print1, this));
-    }
-    else {
+    } else {
       loop1_->Quit();
     }
   }
@@ -40,8 +35,7 @@ class Printer : Noncopyable {
       ++count_;
 
       loop2_->ScheduleAfter(1, boost::bind(&Printer::Print2, this));
-    }
-    else {
+    } else {
       loop2_->Quit();
     }
   }
@@ -53,10 +47,10 @@ class Printer : Noncopyable {
   int count_;
 };
 
-
 int main() {
-  fun::SharedPtr<Printer> printer;  // make sure printer lives longer than loops, to avoid
-                                    // race condition of calling Print2() on destructed object.
+  fun::SharedPtr<Printer>
+      printer;  // make sure printer lives longer than loops, to avoid
+                // race condition of calling Print2() on destructed object.
   fun::net::EventLoop loop;
   fun::net::EventLoopThread loop_thread;
   fun::net::EventLoop* loop_in_another_thread = loop_thread.StartLoop();

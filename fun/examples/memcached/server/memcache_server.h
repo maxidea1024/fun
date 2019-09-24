@@ -26,7 +26,9 @@ class MemcacheServer : Noncopyable {
   MemcacheServer(fun::net::EventLoop* loop, const Options&);
   ~MemcacheServer();
 
-  void SetThreadCount(int thread_count) { server_.SetThreadCount(thread_count); }
+  void SetThreadCount(int thread_count) {
+    server_.SetThreadCount(thread_count);
+  }
   void Start();
   void stop();
 
@@ -50,9 +52,7 @@ class MemcacheServer : Noncopyable {
 
   // a complicated solution to save memory
   struct Hash {
-    size_t operator()(const ConstItemPtr& x) const {
-      return x->hash();
-    }
+    size_t operator()(const ConstItemPtr& x) const { return x->hash(); }
   };
 
   struct Equal {

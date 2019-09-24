@@ -8,13 +8,12 @@ class EchoServer {
   EchoServer(fun::net::EventLoop* loop,
              const fun::net::InetAddress& listen_addr);
 
-  void Start(); // calls server_.Start();
+  void Start();  // calls server_.Start();
 
  private:
   void OnConnection(const fun::net::TcpConnectionPtr& conn);
 
-  void OnMessage(const fun::net::TcpConnectionPtr& conn,
-                 fun::net::Buffer* buf,
+  void OnMessage(const fun::net::TcpConnectionPtr& conn, fun::net::Buffer* buf,
                  const fun::Timestamp& time);
 
   fun::net::TcpServer server_;

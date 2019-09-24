@@ -5,25 +5,22 @@
 
 #include <boost/unordered_map.hpp>
 
-#include <String.h> // UnsafeMemory::Memcpy
+#include <String.h>  // UnsafeMemory::Memcpy
 #include <stdio.h>
 
 using namespace fun;
 using namespace fun::net;
 
-Item::Item(StringPiece keyArg,
-           uint32_t flagsArg,
-           int exptimeArg,
-           int valuelen,
+Item::Item(StringPiece keyArg, uint32_t flagsArg, int exptimeArg, int valuelen,
            uint64_t casArg)
-  : keylen_(keyArg.size())
-  , flags_(flagsArg)
-  , rel_exptime_(exptimeArg)
-  , value_len_(valuelen)
-  , received_bytes_(0)
-  , cas_(casArg)
-  , hash_(boost::hash_range(keyArg.begin(), keyArg.end()))
-  , data_(static_cast<char*>(::malloc(totalLen()))) {
+    : keylen_(keyArg.size()),
+      flags_(flagsArg),
+      rel_exptime_(exptimeArg),
+      value_len_(valuelen),
+      received_bytes_(0),
+      cas_(casArg),
+      hash_(boost::hash_range(keyArg.begin(), keyArg.end())),
+      data_(static_cast<char*>(::malloc(totalLen()))) {
   fun_check(value_len_ >= 2);
   fun_check(received_bytes_ < totalLen());
   append(keyArg.data(), keylen_);
@@ -40,7 +37,7 @@ void Item::output(Buffer* out, bool needCas) const {
   out->append("VALUE ");
   out->append(data_, keylen_);
   LogStream buf;
-  buf << ' ' << flags_ << ' ' << value_len_-2;
+  buf << ' ' << flags_ << ' ' << value_len_ - 2;
   if (needCas) {
     buf << ' ' << cas_;
   }

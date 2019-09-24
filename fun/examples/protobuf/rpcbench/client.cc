@@ -1,13 +1,13 @@
 #include <examples/protobuf/rpcbench/echo.pb.h>
 
 #include <red/base/CountDownLatch.h>
+#include <red/net/EventLoopThreadPool.h>
+#include <red/net/protorpc/RpcChannel.h>
 #include "fun/base/logging.h"
 #include "fun/net/event_loop.h"
-#include <red/net/EventLoopThreadPool.h>
 #include "fun/net/inet_address.h"
 #include "fun/net/tcp_client.h"
 #include "fun/net/tcp_connection.h"
-#include <red/net/protorpc/RpcChannel.h>
 
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -20,22 +20,18 @@ using namespace fun::net;
 
 static const int kRequests = 50000;
 
-class RpcClient : Noncopyable
-{
+class RpcClient : Noncopyable {
  public:
-
-  RpcClient(EventLoop* loop,
-            const InetAddress& server_addr,
+  RpcClient(EventLoop* loop, const InetAddress& server_addr,
             CountDownLatch* allConnected,
             CountDownLatch* allFinished)
-    : // loop_(loop),
-      client_(loop, server_addr, "RpcClient"),
-      channel_(new RpcChannel),
-      stub_(get_pointer(channel_)),
-      allConnected_(allConnected),
-      allFinished_(allFinished),
-      count_(0)
-  {
+      :  // loop_(loop),
+        client_(loop, server_addr, "RpcClient"),
+        channel_(new RpcChannel),
+        stub_(get_pointer(channel_)),
+        allConnected_(allConnected),
+        allFinished_(allFinished),
+        count_(0) {
     client_.SetConnectionCallback(
         boost::bind(&RpcClient::OnConnection, this, _1));
     client_.SetMessageCallback(
@@ -43,42 +39,33 @@ class RpcClient : Noncopyable
     // client_.EnableRetry();
   }
 
-  void Connect()
-  {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
-  void sendRequest()
-  {
+  void sendRequest() {
     echo::EchoRequest request;
     request.set_payload("001010");
     echo::EchoResponse* response = new echo::EchoResponse;
-    stub_.Echo(NULL, &request, response, NewCallback(this, &RpcClient::replied, response));
+    stub_.Echo(NULL, &request, response,
+               NewCallback(this, &RpcClient::replied, response));
   }
 
  private:
-  void OnConnection(const TcpConnectionPtr& conn)
-  {
-    if (conn->IsConnected())
-    {
-      //channel_.Reset(new RpcChannel(conn));
+  void OnConnection(const TcpConnectionPtr& conn) {
+    if (conn->IsConnected()) {
+      // channel_.Reset(new RpcChannel(conn));
       conn->SetTcpNoDelay(true);
       channel_->setConnection(conn);
       allConnected_->CountDown();
     }
   }
 
-  void replied(echo::EchoResponse* resp)
-  {
+  void replied(echo::EchoResponse* resp) {
     // LOG_INFO << "replied:\n" << resp->DebugString().c_str();
     // loop_->Quit();
     ++count_;
-    if (count_ < kRequests)
-    {
+    if (count_ < kRequests) {
       sendRequest();
-    }
-    else
-    {
+    } else {
       LOG_INFO << "RpcClient " << this << " finished";
       allFinished_->CountDown();
     }
@@ -93,22 +80,18 @@ class RpcClient : Noncopyable
   int count_;
 };
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   LOG_INFO << "pid = " << Process::CurrentPid();
-  if (argc > 1)
-  {
+  if (argc > 1) {
     int nClients = 1;
 
-    if (argc > 2)
-    {
+    if (argc > 2) {
       nClients = atoi(argv[2]);
     }
 
     int nThreads = 1;
 
-    if (argc > 3)
-    {
+    if (argc > 3) {
       nThreads = atoi(argv[3]);
     }
 
@@ -122,16 +105,15 @@ int main(int argc, char* argv[])
     InetAddress server_addr(argv[1], 8888);
 
     boost::ptr_vector<RpcClient> clients;
-    for (int i = 0; i < nClients; ++i)
-    {
-      clients.push_back(new RpcClient(pool.GetNextLoop(), server_addr, &allConnected, &allFinished));
+    for (int i = 0; i < nClients; ++i) {
+      clients.push_back(new RpcClient(pool.GetNextLoop(), server_addr,
+                                      &allConnected, &allFinished));
       clients.back().Connect();
     }
     allConnected.Wait();
     Timestamp start(Timestamp::Now());
     LOG_INFO << "all connected";
-    for (int i = 0; i < nClients; ++i)
-    {
+    for (int i = 0; i < nClients; ++i) {
       clients[i].sendRequest();
     }
     allFinished.Wait();
@@ -142,10 +124,7 @@ int main(int argc, char* argv[])
     printf("%.1f calls per second\n", nClients * kRequests / seconds);
 
     exit(0);
-  }
-  else
-  {
+  } else {
     printf("Usage: %s host_ip numClients [thread_count]\n", argv[0]);
   }
 }
-

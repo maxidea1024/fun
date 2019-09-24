@@ -11,8 +11,7 @@ using namespace fun::net;
 
 const String kPath = "/sudoku/";
 
-void OnRequest(const TcpConnectionPtr& conn,
-               FastCgiCodec::ParamMap& params,
+void OnRequest(const TcpConnectionPtr& conn, FastCgiCodec::ParamMap& params,
                Buffer* in) {
   String uri = params["REQUEST_URI"];
   LOG_INFO << conn->GetName() << ": " << uri;
@@ -31,8 +30,7 @@ void OnRequest(const TcpConnectionPtr& conn,
 
   if (uri.size() == kCells + kPath.size() && uri.find(kPath) == 0) {
     response.append(solveSudoku(uri.substr(kPath.size())));
-  }
-  else {
+  } else {
     // FIXME: set http status code 400
     response.append("bad request");
   }
@@ -46,7 +44,8 @@ void OnConnection(const TcpConnectionPtr& conn) {
     typedef fun::SharedPtr<FastCgiCodec> CodecPtr;
     CodecPtr codec(new FastCgiCodec(OnRequest));
     conn->SetContext(codec);
-    conn->SetMessageCallback(boost::bind(&FastCgiCodec::OnMessage, codec, _1, _2, _3));
+    conn->SetMessageCallback(
+        boost::bind(&FastCgiCodec::OnMessage, codec, _1, _2, _3));
     conn->SetTcpNoDelay(true);
   }
 }
@@ -65,7 +64,7 @@ int main(int argc, char* argv[]) {
   LOG_INFO << "Sudoku FastCGI listens on " << addr.ToIpPort()
            << " thread_count " << thread_count;
 
-   fun::net::EventLoop loop;
+  fun::net::EventLoop loop;
   TcpServer server(&loop, addr, "FastCGI");
   server.SetConnectionCallback(OnConnection);
   server.SetThreadCount(thread_count);

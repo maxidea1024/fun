@@ -11,19 +11,18 @@ using namespace fun::net;
 const char* g_file = nullptr;
 
 // FIXME: use FileUtil::ReadFile()
-String ReadFile(const char* filename)
-{
+String ReadFile(const char* filename) {
   String content;
   FILE* fp = ::fopen(filename, "rb");
   if (fp) {
     // inefficient!!!
-    const int kBufSize = 1024*1024;
+    const int kBufSize = 1024 * 1024;
     char iobuf[kBufSize];
     ::setbuffer(fp, iobuf, sizeof iobuf);
 
     char buf[kBufSize];
     size_t nread = 0;
-    while ( (nread = ::fread(buf, 1, sizeof buf, fp)) > 0) {
+    while ((nread = ::fread(buf, 1, sizeof buf, fp)) > 0) {
       content.Append(buf, nread);
     }
     ::fclose(fp);
@@ -31,22 +30,20 @@ String ReadFile(const char* filename)
   return content;
 }
 
-void OnHighWaterMark(const TcpConnectionPtr& conn, size_t len)
-{
+void OnHighWaterMark(const TcpConnectionPtr& conn, size_t len) {
   LOG_INFO << "HighWaterMark " << len;
 }
 
-void OnConnection(const TcpConnectionPtr& conn)
-{
+void OnConnection(const TcpConnectionPtr& conn) {
   LOG_INFO << "FileServer - " << conn->GetPeerAddress().ToIpPort() << " -> "
            << conn->GetLocalAddress().ToIpPort() << " is "
            << (conn->IsConnected() ? "UP" : "DOWN");
 
   if (conn->IsConnected()) {
-    LOG_INFO << "FileServer - Sending file " << g_file
-             << " to " << conn->GetPeerAddress().ToIpPort();
+    LOG_INFO << "FileServer - Sending file " << g_file << " to "
+             << conn->GetPeerAddress().ToIpPort();
 
-    conn->SetHighWaterMarkCallback(OnHighWaterMark, 64*1024);
+    conn->SetHighWaterMarkCallback(OnHighWaterMark, 64 * 1024);
 
     String file_content = ReadFile(g_file);
     conn->Send(file_content);
@@ -55,8 +52,7 @@ void OnConnection(const TcpConnectionPtr& conn)
   }
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   LOG_INFO << "pid = " << Process::CurrentPid();
   if (argc > 1) {
     g_file = argv[1];
@@ -67,9 +63,7 @@ int main(int argc, char* argv[])
     server.SetConnectionCallback(OnConnection);
     server.Start();
     loop.Loop();
-  }
-  else {
+  } else {
     fprintf(stderr, "Usage: %s file_for_downloading\n", argv[0]);
   }
 }
-

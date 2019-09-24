@@ -14,28 +14,30 @@ using String;
 
 class MemcacheServer;
 
-class Session : Noncopyable,
-                public EnableSharedFromThis<Session> {
+class Session : Noncopyable, public EnableSharedFromThis<Session> {
  public:
   Session(MemcacheServer* owner, const fun::net::TcpConnectionPtr& conn)
-    : owner_(owner)
-    , conn_(conn)
-    , state_(kNewCommand)
-    , protocol_(kAscii) // FIXME
-    , noreply_(false)
-    , policy_(Item::kInvalid)
-    , bytes_to_discard_(0)
-    , needle_(Item::makeItem(kLongestKey, 0, 0, 2, 0))
-    , bytes_read_(0)
-    , requests_processed_(0) {
+      : owner_(owner),
+        conn_(conn),
+        state_(kNewCommand),
+        protocol_(kAscii)  // FIXME
+        ,
+        noreply_(false),
+        policy_(Item::kInvalid),
+        bytes_to_discard_(0),
+        needle_(Item::makeItem(kLongestKey, 0, 0, 2, 0)),
+        bytes_read_(0),
+        requests_processed_(0) {
     conn_->SetMessageCallback(
         boost::bind(&Session::OnMessage, this, _1, _2, _3));
   }
 
   ~Session() {
     LOG_INFO << "requests processed: " << requests_processed_
-             << " input buffer size: " << conn_->GetInputBuffer()->internalCapacity()
-             << " output buffer size: " << conn_->GetOutputBuffer()->internalCapacity();
+             << " input buffer size: "
+             << conn_->GetInputBuffer()->internalCapacity()
+             << " output buffer size: "
+             << conn_->GetOutputBuffer()->internalCapacity();
   }
 
  private:
@@ -51,8 +53,7 @@ class Session : Noncopyable,
     kAuto,
   };
 
-  void OnMessage(const fun::net::TcpConnectionPtr& conn,
-                 fun::net::Buffer* buf,
+  void OnMessage(const fun::net::TcpConnectionPtr& conn, fun::net::Buffer* buf,
                  const fun::Timestamp&);
   void OnWriteComplete(const fun::net::TcpConnectionPtr& conn);
   void receiveValue(fun::net::Buffer* buf);
@@ -71,9 +72,8 @@ class Session : Noncopyable,
     bool operator()(InputIterator& next, InputIterator end, Token& tok);
   };
 
-  typedef boost::tokenizer<SpaceSeparator,
-      const char*,
-      fun::StringPiece> Tokenizer;
+  typedef boost::tokenizer<SpaceSeparator, const char*, fun::StringPiece>
+      Tokenizer;
   struct Reader;
   bool doUpdate(Tokenizer::iterator& beg, Tokenizer::iterator end);
   void doDelete(Tokenizer::iterator& beg, Tokenizer::iterator end);

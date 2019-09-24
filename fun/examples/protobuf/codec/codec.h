@@ -31,12 +31,9 @@ typedef fun::SharedPtr<google::protobuf::Message> MessagePtr;
 //
 // FIXME: merge with RpcCodec
 //
-class ProtobufCodec : Noncopyable
-{
+class ProtobufCodec : Noncopyable {
  public:
-
-  enum ErrorCode
-  {
+  enum ErrorCode {
     kNoError = 0,
     kInvalidLength,
     kCheckSumError,
@@ -45,34 +42,26 @@ class ProtobufCodec : Noncopyable
     kParseError,
   };
 
-  typedef Function<void (const fun::net::TcpConnectionPtr&,
-                            const MessagePtr&,
-                            const fun::Timestamp&)> ProtobufMessageCallback;
+  typedef Function<void(const fun::net::TcpConnectionPtr&, const MessagePtr&,
+                        const fun::Timestamp&)>
+      ProtobufMessageCallback;
 
-  typedef Function<void (const fun::net::TcpConnectionPtr&,
-                                fun::net::Buffer*,
-                                const fun::Timestamp&,
-                                ErrorCode)> ErrorCallback;
+  typedef Function<void(const fun::net::TcpConnectionPtr&, fun::net::Buffer*,
+                        const fun::Timestamp&, ErrorCode)>
+      ErrorCallback;
 
   explicit ProtobufCodec(const ProtobufMessageCallback& message_cb)
-    : message_cb_(message_cb),
-      error_cb_(DefaultErrorCallback)
-  {
-  }
+      : message_cb_(message_cb), error_cb_(DefaultErrorCallback) {}
 
-  ProtobufCodec(const ProtobufMessageCallback& message_cb, const ErrorCallback& error_cb)
-    : message_cb_(message_cb),
-      error_cb_(error_cb)
-  {
-  }
+  ProtobufCodec(const ProtobufMessageCallback& message_cb,
+                const ErrorCallback& error_cb)
+      : message_cb_(message_cb), error_cb_(error_cb) {}
 
-  void OnMessage(const fun::net::TcpConnectionPtr& conn,
-                 fun::net::Buffer* buf,
+  void OnMessage(const fun::net::TcpConnectionPtr& conn, fun::net::Buffer* buf,
                  const fun::Timestamp& received_time);
 
   void Send(const fun::net::TcpConnectionPtr& conn,
-            const google::protobuf::Message& message)
-  {
+            const google::protobuf::Message& message) {
     // FIXME: serialize to TcpConnection::GetOutputBuffer()
     fun::net::Buffer buf;
     FillEmptyBuffer(&buf, message);
@@ -90,14 +79,15 @@ class ProtobufCodec : Noncopyable
 
  private:
   static void DefaultErrorCallback(const fun::net::TcpConnectionPtr&,
-                                   fun::net::Buffer*,
-                                   const fun::Timestamp&,
+                                   fun::net::Buffer*, const fun::Timestamp&,
                                    ErrorCode);
 
   ProtobufMessageCallback message_cb_;
   ErrorCallback error_cb_;
 
   const static int kHeaderLen = sizeof(int32_t);
-  const static int kMinMessageLen = 2*kHeaderLen + 2; // nameLen + typeName + checkSum
-  const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimit
+  const static int kMinMessageLen =
+      2 * kHeaderLen + 2;  // nameLen + typeName + checkSum
+  const static int kMaxMessageLen =
+      64 * 1024 * 1024;  // same as codec_stream.h kDefaultTotalBytesLimit
 };

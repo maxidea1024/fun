@@ -10,34 +10,30 @@
 
 class LengthHeaderCodec : Noncopyable {
  public:
-  typedef Function<void (const fun::net::TcpConnectionPtr&,
-                                const String& message,
-                                const fun::Timestamp&)> StringMessageCallback;
+  typedef Function<void(const fun::net::TcpConnectionPtr&,
+                        const String& message, const fun::Timestamp&)>
+      StringMessageCallback;
 
   explicit LengthHeaderCodec(const StringMessageCallback& cb)
-    : message_cb_(cb) {
-  }
+      : message_cb_(cb) {}
 
-  void OnMessage(const fun::net::TcpConnectionPtr& conn,
-                 fun::net::Buffer* buf,
+  void OnMessage(const fun::net::TcpConnectionPtr& conn, fun::net::Buffer* buf,
                  const fun::Timestamp& received_time) {
-    while (buf->GetReadableLength() >= kHeaderLen) { // kHeaderLen == 4
+    while (buf->GetReadableLength() >= kHeaderLen) {  // kHeaderLen == 4
       // FIXME: use Buffer::peekInt32()
       const void* data = buf->GetReadablePtr();
-      int32_t be32 = *static_cast<const int32_t*>(data); // SIGBUS
+      int32_t be32 = *static_cast<const int32_t*>(data);  // SIGBUS
       const int32_t len = fun::net::sockets::networkToHost32(be32);
       if (len > 65536 || len < 0) {
         LOG_ERROR << "Invalid length " << len;
         conn->Shutdown();  // FIXME: disable reading
         break;
-      }
-      else if (buf->GetReadableLength() >= len + kHeaderLen) {
+      } else if (buf->GetReadableLength() >= len + kHeaderLen) {
         buf->Drain(kHeaderLen);
         String message(buf->GetReadablePtr(), len);
         message_cb_(conn, message, received_time);
         buf->Drain(len);
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -49,7 +45,8 @@ class LengthHeaderCodec : Noncopyable {
     buf.append(message.data(), message.size());
     int32_t len = static_cast<int32_t>(message.size());
     int32_t be32 = fun::net::sockets::hostToNetwork32(len);
-    // ¸Þ½ÃÁö ¾ÕÂÊ¿¡ ¸Þ½ÃÁö ±æÀÌ¸¦ ³Ö¾îÁÜ.
+    // ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê¿ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½
+    // ï¿½Ö¾ï¿½ï¿½ï¿½.
     buf.Prepend(&be32, sizeof be32);
     conn->Send(&buf);
   }

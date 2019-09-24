@@ -1,16 +1,13 @@
 #pragma once
 
-namespace boost
-{
+namespace boost {
 std::size_t hash_value(const String& x);
 }
 
 #include <boost/unordered_map.hpp>
 
-namespace boost
-{
-inline std::size_t hash_value(const String& x)
-{
+namespace boost {
+inline std::size_t hash_value(const String& x) {
   return hash_range(x.begin(), x.end());
 }
 // template <> struct hash<String>
@@ -20,6 +17,6 @@ inline std::size_t hash_value(const String& x)
 //     return hash_value(v);
 //   }
 // };
-}
+}  // namespace boost
 
 typedef boost::unordered_map<String, int64_t> WordCountMap;

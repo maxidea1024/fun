@@ -1,8 +1,8 @@
 #include "sudoku.h"
 
-#include <vector>
-#include <fun_check.h>
 #include <String.h>
+#include <fun_check.h>
+#include <vector>
 
 using namespace fun;
 
@@ -21,30 +21,28 @@ struct Node {
   int size;
 };
 
-const int kMaxNodes = 1 + 81*4 + 9*9*9*4;
+const int kMaxNodes = 1 + 81 * 4 + 9 * 9 * 9 * 4;
 // const int kMaxColumns = 400;
 const int kRow = 100, kCol = 200, kBox = 300;
 extern const char kNoSolution[] = "NoSolution";
 
 class SudokuSolver {
  public:
-  SudokuSolver(int board[kCells])
-    : inout_(board)
-    , cur_node_(0) {
+  SudokuSolver(int board[kCells]) : inout_(board), cur_node_(0) {
     stack_.reserve(100);
 
     root_ = new_column();
     root_->left = root_->right = root_;
     memset(columns_, 0, sizeof(columns_));
 
-    bool rows[kCells][10] = { {false} };
-    bool cols[kCells][10] = { {false} };
-    bool boxes[kCells][10] = { {false} };
+    bool rows[kCells][10] = {{false}};
+    bool cols[kCells][10] = {{false}};
+    bool boxes[kCells][10] = {{false}};
 
     for (int i = 0; i < kCells; ++i) {
       int row = i / 9;
       int col = i % 9;
-      int box = row/3*3 + col/3;
+      int box = row / 3 * 3 + col / 3;
       int val = inout_[i];
       rows[row][val] = true;
       cols[col][val] = true;
@@ -59,12 +57,9 @@ class SudokuSolver {
 
     for (int i = 0; i < 9; ++i) {
       for (int v = 1; v < 10; ++v) {
-        if (!rows[i][v])
-          append_column(get_row_col(i, v));
-        if (!cols[i][v])
-          append_column(get_col_col(i, v));
-        if (!boxes[i][v])
-          append_column(get_box_col(i, v));
+        if (!rows[i][v]) append_column(get_row_col(i, v));
+        if (!cols[i][v]) append_column(get_col_col(i, v));
+        if (!boxes[i][v]) append_column(get_box_col(i, v));
       }
     }
 
@@ -72,11 +67,10 @@ class SudokuSolver {
       if (inout_[i] == 0) {
         int row = i / 9;
         int col = i % 9;
-        int box = row/3*3 + col/3;
-        //int val = inout[i];
+        int box = row / 3 * 3 + col / 3;
+        // int val = inout[i];
         for (int v = 1; v < 10; ++v) {
-          if (!(rows[row][v] || cols[col][v] || boxes[box][v]))
-          {
+          if (!(rows[row][v] || cols[col][v] || boxes[box][v])) {
             Node* n0 = new_row(i);
             Node* nr = new_row(get_row_col(row, v));
             Node* nc = new_row(get_col_col(col, v));
@@ -104,7 +98,7 @@ class SudokuSolver {
           n = n->right;
         }
 
-        //fun_check(cell != -1 && val != -1);
+        // fun_check(cell != -1 && val != -1);
         inout_[cell] = val;
       }
       return true;
@@ -130,13 +124,12 @@ class SudokuSolver {
   }
 
  private:
-
   Column* root_;
-  int*  inout_;
+  int* inout_;
   Column* columns_[400];
   std::vector<Node*> stack_;
-  Node  nodes_[kMaxNodes];
-  int   cur_node_;
+  Node nodes_[kMaxNodes];
+  int cur_node_;
 
   Column* new_column(int n = 0) {
     fun_check(cur_node_ < kMaxNodes);
@@ -165,7 +158,7 @@ class SudokuSolver {
 
     Node* r = &nodes_[cur_node_++];
 
-    //Node* r = new Node;
+    // Node* r = new Node;
     memset(r, 0, sizeof(Node));
     r->left = r;
     r->right = r;
@@ -177,17 +170,11 @@ class SudokuSolver {
     return r;
   }
 
-  int get_row_col(int row, int val) {
-    return kRow+row*10+val;
-  }
+  int get_row_col(int row, int val) { return kRow + row * 10 + val; }
 
-  int get_col_col(int col, int val) {
-    return kCol+col*10+val;
-  }
+  int get_col_col(int col, int val) { return kCol + col * 10 + val; }
 
-  int get_box_col(int box, int val) {
-    return kBox+box*10+val;
-  }
+  int get_box_col(int box, int val) { return kBox + box * 10 + val; }
 
   Column* get_min_column() {
     Column* c = root_->right;
@@ -197,8 +184,7 @@ class SudokuSolver {
         if (min_size > cc->size) {
           c = cc;
           min_size = cc->size;
-          if (min_size <= 1)
-            break;
+          if (min_size <= 1) break;
         }
       }
     }
@@ -246,13 +232,12 @@ class SudokuSolver {
   }
 };
 
-String solveSudoku(const StringPiece& puzzle)
-{
+String solveSudoku(const StringPiece& puzzle) {
   fun_check(puzzle.size() == kCells);
 
   String result = kNoSolution;
 
-  int board[kCells] = { 0 };
+  int board[kCells] = {0};
   bool valid = true;
   for (int i = 0; i < kCells; ++i) {
     board[i] = puzzle[i] - '0';
@@ -265,7 +250,7 @@ String solveSudoku(const StringPiece& puzzle)
       result.clear();
       result.resize(kCells);
       for (int i = 0; i < kCells; ++i) {
-      result[i] = static_cast<char>(board[i] + '0');
+        result[i] = static_cast<char>(board[i] + '0');
       }
     }
   }

@@ -3,17 +3,16 @@
 
 #undef NDEBUG
 
-#include <fun_check.h>
 #include <errno.h>
+#include <fun_check.h>
 #include <stdio.h>
 #include <strings.h>
 #include <unistd.h>
 
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
-static int acceptOrDie(uint16_t port)
-{
+static int acceptOrDie(uint16_t port) {
   int listenfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   fun_check(listenfd >= 0);
 
@@ -41,7 +40,8 @@ static int acceptOrDie(uint16_t port)
   struct sockaddr_in peer_addr;
   bzero(&peer_addr, sizeof(peer_addr));
   socklen_t addrlen = 0;
-  int sock_fd = ::accept(listenfd, reinterpret_cast<struct sockaddr*>(&peer_addr), &addrlen);
+  int sock_fd = ::accept(
+      listenfd, reinterpret_cast<struct sockaddr*>(&peer_addr), &addrlen);
   if (sock_fd < 0) {
     perror("accept");
     exit(1);
@@ -50,18 +50,16 @@ static int acceptOrDie(uint16_t port)
   return sock_fd;
 }
 
-static int write_n(int sock_fd, const void* buf, int length)
-{
+static int write_n(int sock_fd, const void* buf, int length) {
   int written = 0;
   while (written < length) {
-    ssize_t nw = ::write(sock_fd, static_cast<const char*>(buf) + written, length - written);
+    ssize_t nw = ::write(sock_fd, static_cast<const char*>(buf) + written,
+                         length - written);
     if (nw > 0) {
       written += static_cast<int>(nw);
-    }
-    else if (nw == 0) {
+    } else if (nw == 0) {
       break;  // EOF
-    }
-    else if (errno != EINTR) {
+    } else if (errno != EINTR) {
       perror("write");
       break;
     }
@@ -69,18 +67,16 @@ static int write_n(int sock_fd, const void* buf, int length)
   return written;
 }
 
-static int read_n(int sock_fd, void* buf, int length)
-{
+static int read_n(int sock_fd, void* buf, int length) {
   int nread = 0;
   while (nread < length) {
-    ssize_t nr = ::read(sock_fd, static_cast<char*>(buf) + nread, length - nread);
+    ssize_t nr =
+        ::read(sock_fd, static_cast<char*>(buf) + nread, length - nread);
     if (nr > 0) {
       nread += static_cast<int>(nr);
-    }
-    else if (nr == 0) {
+    } else if (nr == 0) {
       break;  // EOF
-    }
-    else if (errno != EINTR) {
+    } else if (errno != EINTR) {
       perror("read");
       break;
     }
@@ -88,14 +84,14 @@ static int read_n(int sock_fd, void* buf, int length)
   return nread;
 }
 
-void transmit(const Options& opt)
-{
+void transmit(const Options& opt) {
   struct sockaddr_in addr = resolveOrDie(opt.host.c_str(), opt.port);
   printf("connecting to %s:%d\n", inet_ntoa(addr.sin_addr), opt.port);
 
   int sock_fd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   fun_check(sock_fd >= 0);
-  int ret = ::Connect(sock_fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
+  int ret = ::Connect(sock_fd, reinterpret_cast<struct sockaddr*>(&addr),
+                      sizeof(addr));
   if (ret) {
     perror("Connect");
     printf("Unable to Connect %s\n", opt.host.c_str());
@@ -105,10 +101,11 @@ void transmit(const Options& opt)
 
   printf("connected\n");
   fun::Timestamp start(fun::Timestamp::Now());
-  struct SessionMessage sessionMessage = { 0, 0 };
+  struct SessionMessage sessionMessage = {0, 0};
   sessionMessage.number = htonl(opt.number);
   sessionMessage.length = htonl(opt.length);
-  if (write_n(sock_fd, &sessionMessage, sizeof(sessionMessage)) != sizeof(sessionMessage)) {
+  if (write_n(sock_fd, &sessionMessage, sizeof(sessionMessage)) !=
+      sizeof(sessionMessage)) {
     perror("write SessionMessage");
     exit(1);
   }
@@ -141,27 +138,29 @@ void transmit(const Options& opt)
   printf("%.3f seconds\n%.3f MiB/s\n", elapsed, total_mb / elapsed);
 }
 
-void receive(const Options& opt)
-{
+void receive(const Options& opt) {
   int sock_fd = acceptOrDie(opt.port);
 
-  struct SessionMessage sessionMessage = { 0, 0 };
-  if (read_n(sock_fd, &sessionMessage, sizeof(sessionMessage)) != sizeof(sessionMessage)) {
+  struct SessionMessage sessionMessage = {0, 0};
+  if (read_n(sock_fd, &sessionMessage, sizeof(sessionMessage)) !=
+      sizeof(sessionMessage)) {
     perror("read SessionMessage");
     exit(1);
   }
 
   sessionMessage.number = ntohl(sessionMessage.number);
   sessionMessage.length = ntohl(sessionMessage.length);
-  printf("receive number = %d\nreceive length = %d\n",
-         sessionMessage.number, sessionMessage.length);
-  const int total_len = static_cast<int>(sizeof(int32_t) + sessionMessage.length);
+  printf("receive number = %d\nreceive length = %d\n", sessionMessage.number,
+         sessionMessage.length);
+  const int total_len =
+      static_cast<int>(sizeof(int32_t) + sessionMessage.length);
   PayloadMessage* payload = static_cast<PayloadMessage*>(::malloc(total_len));
   fun_check(payload);
 
   for (int i = 0; i < sessionMessage.number; ++i) {
     payload->length = 0;
-    if (read_n(sock_fd, &payload->length, sizeof(payload->length)) != sizeof(payload->length)) {
+    if (read_n(sock_fd, &payload->length, sizeof(payload->length)) !=
+        sizeof(payload->length)) {
       perror("read length");
       exit(1);
     }

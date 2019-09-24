@@ -1,8 +1,8 @@
 ﻿#include "plot.h"
-#include "fun/base/timestamp.h"
-#include <vector>
 #include <math.h>
 #include <stdio.h>
+#include <vector>
+#include "fun/base/timestamp.h"
 
 int main() {
   std::vector<double> cpu_usage;
@@ -15,8 +15,8 @@ int main() {
     String png = plot.plotCpu(cpu_usage);
   }
   double elapsed = TimeDifference(fun::Timestamp::Now(), Start);
-  printf("%d plots in %f seconds, %f PNG per second, %f ms per PNG\n",
-         N, elapsed, N / elapsed, elapsed * 1000 / N);
+  printf("%d plots in %f seconds, %f PNG per second, %f ms per PNG\n", N,
+         elapsed, N / elapsed, elapsed * 1000 / N);
   String png = plot.plotCpu(cpu_usage);
 
   FILE* fp = fopen("test.png", "wb");

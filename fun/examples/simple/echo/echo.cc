@@ -9,14 +9,14 @@
 
 EchoServer::EchoServer(fun::net::EventLoop* loop,
                        const fun::net::InetAddress& listen_addr)
-  : server_(loop, listen_addr, "EchoServer") {
-  server_.SetConnectionCallback(boost::bind(&EchoServer::OnConnection, this, _1));
-  server_.SetMessageCallback(boost::bind(&EchoServer::OnMessage, this, _1, _2, _3));
+    : server_(loop, listen_addr, "EchoServer") {
+  server_.SetConnectionCallback(
+      boost::bind(&EchoServer::OnConnection, this, _1));
+  server_.SetMessageCallback(
+      boost::bind(&EchoServer::OnMessage, this, _1, _2, _3));
 }
 
-void EchoServer::Start() {
-  server_.Start();
-}
+void EchoServer::Start() { server_.Start(); }
 
 void EchoServer::OnConnection(const fun::net::TcpConnectionPtr& conn) {
   LOG_INFO << "EchoServer - " << conn->GetPeerAddress().ToIpPort() << " -> "
@@ -25,10 +25,9 @@ void EchoServer::OnConnection(const fun::net::TcpConnectionPtr& conn) {
 }
 
 void EchoServer::OnMessage(const fun::net::TcpConnectionPtr& conn,
-                           fun::net::Buffer* buf,
-                           const fun::Timestamp& time) {
-  //TODO ReadAllAsStringRef()µµ Ãß°¡ÇØÁÖ¸é ÁÁÀ»µí... º¹»ç°¡ ºÒÇÊ¿äÇØÁö´Ï..
-  //´Ü, lifecycleÀ» Àß °ü¸®ÇØ¾ßÇÔ.
+                           fun::net::Buffer* buf, const fun::Timestamp& time) {
+  // TODO ReadAllAsStringRef()ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½... ï¿½ï¿½ï¿½ç°¡ ï¿½ï¿½ï¿½Ê¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½..
+  //ï¿½ï¿½, lifecycleï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½.
   String msg(buf->ReadAllAsString());
   LOG_INFO << conn->GetName() << " echo " << msg.size() << " bytes, "
            << "data received at " << time.ToString();

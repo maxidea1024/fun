@@ -1,8 +1,8 @@
 #include "tunnel.h"
 
+#include <netdb.h>
 #include <red/net/Endian.h>
 #include <stdio.h>
-#include <netdb.h>
 #include <unistd.h>
 
 using namespace fun;
@@ -11,13 +11,11 @@ using namespace fun::net;
 EventLoop* g_event_loop;
 std::map<String, TunnelPtr> g_tunnels;
 
-void OnServerConnection(const TcpConnectionPtr& conn)
-{
+void OnServerConnection(const TcpConnectionPtr& conn) {
   LOG_DEBUG << conn->GetName() << (conn->IsConnected() ? " UP" : " DOWN");
   if (conn->IsConnected()) {
     conn->SetTcpNoDelay(true);
-  }
-  else {
+  } else {
     std::map<String, TunnelPtr>::iterator it = g_tunnels.find(conn->GetName());
     if (it != g_tunnels.end()) {
       it->second->Disconnect();
@@ -26,15 +24,13 @@ void OnServerConnection(const TcpConnectionPtr& conn)
   }
 }
 
-void OnServerMessage( const TcpConnectionPtr& conn,
-                      Buffer* buf, const Timestamp&)
-{
+void OnServerMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                     const Timestamp&) {
   LOG_DEBUG << conn->GetName() << " " << buf->GetReadableLength();
   if (g_tunnels.find(conn->GetName()) == g_tunnels.end()) {
     if (buf->GetReadableLength() > 128) {
       conn->Shutdown();
-    }
-    else if (buf->GetReadableLength() > 8) {
+    } else if (buf->GetReadableLength() > 8) {
       const char* begin = buf->GetReadablePtr() + 8;
       const char* end = buf->GetReadablePtr() + buf->GetReadableLength();
       const char* where = std::find(begin, end, '\0');
@@ -53,9 +49,9 @@ void OnServerMessage( const TcpConnectionPtr& conn,
         bool socks4a = sockets::networkToHost32(addr.sin_addr.s_addr) < 256;
         bool okay = false;
         if (socks4a) {
-          const char* endOfHostName = std::find(where+1, end, '\0');
+          const char* endOfHostName = std::find(where + 1, end, '\0');
           if (endOfHostName != end) {
-            String hostname = where+1;
+            String hostname = where + 1;
             where = endOfHostName;
             LOG_INFO << "Socks4a host name " << hostname;
             InetAddress tmp;
@@ -63,12 +59,10 @@ void OnServerMessage( const TcpConnectionPtr& conn,
               addr.sin_addr.s_addr = tmp.ipNetEndian();
               okay = true;
             }
-          }
-          else {
+          } else {
             return;
           }
-        }
-        else {
+        } else {
           okay = true;
         }
 
@@ -78,34 +72,31 @@ void OnServerMessage( const TcpConnectionPtr& conn,
           tunnel->setup();
           tunnel->Connect();
           g_tunnels[conn->GetName()] = tunnel;
-          buf->DrainUntil(where+1);
+          buf->DrainUntil(where + 1);
           char response[] = "\000\x5aUVWXYZ";
-          UnsafeMemory::Memcpy(response+2, &addr.sin_port, 2);
-          UnsafeMemory::Memcpy(response+4, &addr.sin_addr.s_addr, 4);
+          UnsafeMemory::Memcpy(response + 2, &addr.sin_port, 2);
+          UnsafeMemory::Memcpy(response + 4, &addr.sin_addr.s_addr, 4);
           conn->Send(response, 8);
-        }
-        else {
+        } else {
           char response[] = "\000\x5bUVWXYZ";
           conn->Send(response, 8);
           conn->Shutdown();
         }
       }
     }
-  }
-  else if (!conn->GetContext().empty()) {
-    const TcpConnectionPtr& client_conn
-      = boost::any_cast<const TcpConnectionPtr&>(conn->GetContext());
+  } else if (!conn->GetContext().empty()) {
+    const TcpConnectionPtr& client_conn =
+        boost::any_cast<const TcpConnectionPtr&>(conn->GetContext());
     client_conn->Send(buf);
   }
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <listen_port>\n", argv[0]);
-  }
-  else {
-    LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
+  } else {
+    LOG_INFO << "pid = " << Process::CurrentPid()
+             << ", tid = " << Thread::CurrentTid();
 
     uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
     InetAddress listen_addr(port);

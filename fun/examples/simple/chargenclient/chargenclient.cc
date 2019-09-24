@@ -16,17 +16,16 @@ using namespace fun::net;
 class ChargenClient : Noncopyable {
  public:
   ChargenClient(EventLoop* loop, const InetAddress& listen_addr)
-    : loop_(loop)
-    , client_(loop, listen_addr, "ChargenClient") {
-    client_.SetConnectionCallback(boost::bind(&ChargenClient::OnConnection, this, _1));
-    client_.SetMessageCallback(boost::bind(&ChargenClient::OnMessage, this, _1, _2, _3));
+      : loop_(loop), client_(loop, listen_addr, "ChargenClient") {
+    client_.SetConnectionCallback(
+        boost::bind(&ChargenClient::OnConnection, this, _1));
+    client_.SetMessageCallback(
+        boost::bind(&ChargenClient::OnMessage, this, _1, _2, _3));
 
     // client_.EnableRetry();
   }
 
-  void Connect() {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
@@ -39,9 +38,8 @@ class ChargenClient : Noncopyable {
     }
   }
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp& received_time) {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                 const Timestamp& received_time) {
     buf->DrainAll();
   }
 
@@ -59,8 +57,7 @@ int main(int argc, char* argv[]) {
     ChargenClient chargen_client(&loop, server_addr);
     chargen_client.Connect();
     loop.Loop();
-  }
-  else {
+  } else {
     printf("Usage: %s host_ip\n", argv[0]);
   }
 }

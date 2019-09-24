@@ -23,7 +23,7 @@ Condition g_cond(g_mutex);
 double busy(int cycles) {
   double result = 0;
   for (int i = 0; i < cycles; ++i) {
-    result += sqrt(i) * sqrt(i+1);
+    result += sqrt(i) * sqrt(i + 1);
   }
   return result;
 }
@@ -45,8 +45,7 @@ void threadFunc() {
   while (g_done.get() == 0) {
     {
       ScopedLock guard(g_mutex);
-      while (!g_busy)
-        g_cond.Wait();
+      while (!g_busy) g_cond.Wait();
     }
     busy(g_cycles);
   }
@@ -59,27 +58,26 @@ void load(int percent) {
   percent = std::min(100, percent);
 
   // Bresenham's line algorithm
-  int err = 2*percent - 100;
+  int err = 2 * percent - 100;
   int count = 0;
 
   for (int i = 0; i < 100; ++i) {
     bool busy = false;
     if (err > 0) {
       busy = true;
-      err += 2*(percent - 100);
+      err += 2 * (percent - 100);
       ++count;
       // printf("%2d, ", i);
+    } else {
+      err += 2 * percent;
     }
-    else {
-      err += 2*percent;
-    }
- {
-    ScopedLock guard(g_mutex);
-    g_busy = busy;
-    g_cond.notifyAll();
+    {
+      ScopedLock guard(g_mutex);
+      g_busy = busy;
+      g_cond.notifyAll();
     }
 
-    CurrentThread::sleepUsec(10*1000); // 10 ms
+    CurrentThread::sleepUsec(10 * 1000);  // 10 ms
   }
   fun_check(count == percent);
 }
@@ -93,7 +91,8 @@ void fixed() {
 void cosine() {
   while (true)
     for (int i = 0; i < 200; ++i) {
-      int percent = static_cast<int>((1.0 + cos(i * 3.14159 / 100)) / 2 * g_percent + 0.5);
+      int percent = static_cast<int>(
+          (1.0 + cos(i * 3.14159 / 100)) / 2 * g_percent + 0.5);
       load(percent);
     }
 }
@@ -126,29 +125,27 @@ int main(int argc, char* argv[]) {
   switch (argv[1][0]) {
     case 'f': {
       fixed();
-    }
-    break;
+    } break;
 
     case 'c': {
       cosine();
-    }
-    break;
+    } break;
 
     case 'z': {
       sawtooth();
-    }
-    break;
+    } break;
 
-    // TODO: square and triangle waves
+      // TODO: square and triangle waves
 
     default:
-    break;
+      break;
   }
 
-  g_done.getAndSet(1); {
-  ScopedLock guard(g_mutex);
-  g_busy = true;
-  g_cond.notifyAll();
+  g_done.getAndSet(1);
+  {
+    ScopedLock guard(g_mutex);
+    g_busy = true;
+    g_cond.notifyAll();
   }
   for (int i = 0; i < thread_count; ++i) {
     threads[i].join();

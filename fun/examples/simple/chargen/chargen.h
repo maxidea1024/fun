@@ -6,16 +6,14 @@
 class ChargenServer {
  public:
   ChargenServer(fun::net::EventLoop* loop,
-                const fun::net::InetAddress& listen_addr,
-                bool print = false);
+                const fun::net::InetAddress& listen_addr, bool print = false);
 
   void Start();
 
  private:
   void OnConnection(const fun::net::TcpConnectionPtr& conn);
 
-  void OnMessage(const fun::net::TcpConnectionPtr& conn,
-                 fun::net::Buffer* buf,
+  void OnMessage(const fun::net::TcpConnectionPtr& conn, fun::net::Buffer* buf,
                  const fun::Timestamp& time);
 
   void OnWriteComplete(const fun::net::TcpConnectionPtr& conn);

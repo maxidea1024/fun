@@ -1,6 +1,6 @@
-#include "memcache_server.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/inspect/process_inspector.h"
+#include "memcache_server.h"
 
 #include <stdio.h>
 #ifdef HAVE_TCMALLOC
@@ -21,20 +21,22 @@ int main(int argc, char* argv[]) {
   MemcacheServer::Options options;
   MemcacheServer server(&loop, options);
 
-  printf("sizeof(Item) = %zd\npid = %d\nitems = %d\nkeylen = %d\nvaluelen = %d\n",
-         sizeof(Item), Process::CurrentPid(), items, keylen, valuelen);
-  char key[256] = { 0 };
+  printf(
+      "sizeof(Item) = %zd\npid = %d\nitems = %d\nkeylen = %d\nvaluelen = %d\n",
+      sizeof(Item), Process::CurrentPid(), items, keylen, valuelen);
+  char key[256] = {0};
   String value;
   for (int i = 0; i < items; ++i) {
     snprintf(key, sizeof key, "%0*d", keylen, i);
     value.Assign(valuelen, "0123456789"[i % 10]);
-    ItemPtr item(Item::makeItem(key, 0, 0, valuelen+2, 1));
+    ItemPtr item(Item::makeItem(key, 0, 0, valuelen + 2, 1));
     item->append(value.data(), value.size());
     item->append("\r\n", 2);
     fun_check(item->EndsWithCRLF());
     bool exists = false;
     bool stored = server.StoreItem(item, Item::kAdd, &exists);
-    fun_check(stored); (void) stored;
+    fun_check(stored);
+    (void)stored;
     fun_check(!exists);
   }
   Inspector::ArgList arg;

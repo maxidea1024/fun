@@ -14,16 +14,13 @@ using namespace fun::net;
 
 EventLoop* g_loop;
 
-struct Context
-{
+struct Context {
   int count;
   int64_t bytes;
   SessionMessage session;
   Buffer output;
 
-  Context()
-    : count(0),
-      bytes(0) {
+  Context() : count(0), bytes(0) {
     session.number = 0;
     session.length = 0;
   }
@@ -33,11 +30,9 @@ struct Context
 // T R A N S M I T
 /////////////////////////////////////////////////////////////////////
 
-namespace trans
-{
+namespace trans {
 
-void OnConnection(const Options& opt, const TcpConnectionPtr& conn)
-{
+void OnConnection(const Options& opt, const TcpConnectionPtr& conn) {
   if (conn->IsConnected()) {
     printf("connected\n");
     Context context;
@@ -53,22 +48,20 @@ void OnConnection(const Options& opt, const TcpConnectionPtr& conn)
     context.output.hasWritten(opt.length);
     conn->SetContext(context);
 
-    SessionMessage sessionMessage = { 0, 0 };
+    SessionMessage sessionMessage = {0, 0};
     sessionMessage.number = htonl(opt.number);
     sessionMessage.length = htonl(opt.length);
     conn->Send(&sessionMessage, sizeof(sessionMessage));
 
     conn->Send(context.output.ToStringPiece());
-  }
-  else {
+  } else {
     const Context& context = boost::any_cast<Context>(conn->GetContext());
     LOG_INFO << "payload bytes " << context.bytes;
     conn->GetLoop()->Quit();
   }
 }
 
-void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
-{
+void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time) {
   Context* context = boost::any_cast<Context>(conn->getMutableContext());
   while (buf->GetReadableLength() >= sizeof(int32_t)) {
     int32_t length = buf->ReadInt32();
@@ -77,23 +70,20 @@ void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
         conn->Send(context->output.ToStringPiece());
         ++context->count;
         context->bytes += length;
-      }
-      else {
+      } else {
         conn->Shutdown();
         break;
       }
-    }
-    else {
+    } else {
       conn->Shutdown();
       break;
     }
   }
 }
 
-}
+}  // namespace trans
 
-void transmit(const Options& opt)
-{
+void transmit(const Options& opt) {
   InetAddress addr(opt.port);
   if (!InetAddress::Resolve(opt.host, &addr)) {
     LOG_FATAL << "Unable to Resolve " << opt.host;
@@ -102,10 +92,8 @@ void transmit(const Options& opt)
   EventLoop loop;
   g_loop = &loop;
   TcpClient client(&loop, addr, "TtcpClient");
-  client.SetConnectionCallback(
-      boost::bind(&trans::OnConnection, opt, _1));
-  client.SetMessageCallback(
-      boost::bind(&trans::OnMessage, _1, _2, _3));
+  client.SetConnectionCallback(boost::bind(&trans::OnConnection, opt, _1));
+  client.SetMessageCallback(boost::bind(&trans::OnMessage, _1, _2, _3));
   client.Connect();
   loop.Loop();
   double elapsed = TimeDifference(fun::Timestamp::Now(), start);
@@ -117,24 +105,20 @@ void transmit(const Options& opt)
 // R E C E I V E
 /////////////////////////////////////////////////////////////////////
 
-namespace receiving
-{
+namespace receiving {
 
-void OnConnection(const TcpConnectionPtr& conn)
-{
+void OnConnection(const TcpConnectionPtr& conn) {
   if (conn->IsConnected()) {
     Context context;
     conn->SetContext(context);
-  }
-  else {
+  } else {
     const Context& context = boost::any_cast<Context>(conn->GetContext());
     LOG_INFO << "payload bytes " << context.bytes;
     conn->GetLoop()->Quit();
   }
 }
 
-void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
-{
+void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time) {
   while (buf->GetReadableLength() >= sizeof(int32_t)) {
     Context* context = boost::any_cast<Context>(conn->getMutableContext());
     SessionMessage& session = context->session;
@@ -143,15 +127,14 @@ void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
         session.number = buf->ReadInt32();
         session.length = buf->ReadInt32();
         context->output.AppendInt32(session.length);
-        printf("receive number = %d\nreceive length = %d\n",
-               session.number, session.length);
-      }
-      else {
+        printf("receive number = %d\nreceive length = %d\n", session.number,
+               session.length);
+      } else {
         break;
       }
-    }
-    else {
-      const unsigned total_len = session.length + static_cast<int>(sizeof(int32_t));
+    } else {
+      const unsigned total_len =
+          session.length + static_cast<int>(sizeof(int32_t));
       const int32_t length = buf->peekInt32();
       if (length == session.length) {
         if (buf->GetReadableLength() >= total_len) {
@@ -163,12 +146,10 @@ void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
             conn->Shutdown();
             break;
           }
-        }
-        else {
+        } else {
           break;
         }
-      }
-      else {
+      } else {
         printf("wrong length %d\n", length);
         conn->Shutdown();
         break;
@@ -177,10 +158,9 @@ void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
   }
 }
 
-}
+}  // namespace receiving
 
-void receive(const Options& opt)
-{
+void receive(const Options& opt) {
   EventLoop loop;
   g_loop = &loop;
   InetAddress listen_addr(opt.port);

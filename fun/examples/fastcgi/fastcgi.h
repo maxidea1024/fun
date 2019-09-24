@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fun/net/tcp_connection.h"
 #include <map>
+#include "fun/net/tcp_connection.h"
 
 /**
 one FastCgiCodec per TcpConnection
@@ -12,18 +12,14 @@ class FastCgiCodec : Noncopyable {
  public:
   typedef std::map<String, String> ParamMap;
 
-  typedef Function<void (const fun::net::TcpConnectionPtr& conn,
-                                ParamMap&,
-                                fun::net::Buffer*)> Callback;
+  typedef Function<void(const fun::net::TcpConnectionPtr& conn, ParamMap&,
+                        fun::net::Buffer*)>
+      Callback;
 
   explicit FastCgiCodec(const Callback& cb)
-    : cb_(cb)
-    , got_request_(false)
-    , keep_conn_(false) {
-  }
+      : cb_(cb), got_request_(false), keep_conn_(false) {}
 
-  void OnMessage(const fun::net::TcpConnectionPtr& conn,
-                 fun::net::Buffer* buf,
+  void OnMessage(const fun::net::TcpConnectionPtr& conn, fun::net::Buffer* buf,
                  const fun::Timestamp& received_time) {
     ParseRequest(buf);
     if (got_request_) {
@@ -32,8 +28,7 @@ class FastCgiCodec : Noncopyable {
       params_stream_.DrainAll();
       params_.clear();
       got_request_ = false;
-      if (!keep_conn_)
-      {
+      if (!keep_conn_) {
         conn->Shutdown();
       }
     }

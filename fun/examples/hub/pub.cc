@@ -1,10 +1,10 @@
-﻿#include "pubsub.h"
-#include "fun/base/process_info.h"
+﻿#include "fun/base/process_info.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/event_loop_thread.h"
+#include "pubsub.h"
 
-#include <iostream>
 #include <stdio.h>
+#include <iostream>
 
 using namespace fun;
 using namespace fun::net;
@@ -18,8 +18,7 @@ void Connection(PubSubClient* client) {
   if (client->IsConnected()) {
     client->Publish(g_topic, g_content);
     client->Stop();
-  }
-  else {
+  } else {
     g_loop->Quit();
   }
 }
@@ -30,11 +29,12 @@ int main(int argc, char* argv[]) {
     size_t colon = host_port.find(':');
     if (colon != String::npos) {
       String host_ip = host_port.substr(0, colon);
-      uint16_t port = static_cast<uint16_t>(atoi(host_port.c_str()+colon+1));
+      uint16_t port =
+          static_cast<uint16_t>(atoi(host_port.c_str() + colon + 1));
       g_topic = argv[2];
       g_content = argv[3];
 
-      String name = ProcessInfo::username()+"@"+ProcessInfo::hostname();
+      String name = ProcessInfo::username() + "@" + ProcessInfo::hostname();
       name += ":" + ProcessInfo::pidString();
 
       if (g_content == "-") {
@@ -48,9 +48,8 @@ int main(int argc, char* argv[]) {
           client.Publish(g_topic, line);
         }
         client.Stop();
-        CurrentThread::sleepUsec(1000*1000);
-      }
-      else {
+        CurrentThread::sleepUsec(1000 * 1000);
+      } else {
         EventLoop loop;
         g_loop = &loop;
         PubSubClient client(g_loop, InetAddress(host_ip, port), name);
@@ -58,14 +57,14 @@ int main(int argc, char* argv[]) {
         client.Start();
         loop.Loop();
       }
-    }
-    else {
+    } else {
       printf("Usage: %s hub_ip:port topic content\n", argv[0]);
     }
-  }
-  else {
-    printf("Usage: %s hub_ip:port topic content\n"
-           "Read contents from stdin:\n"
-           "  %s hub_ip:port topic -\n", argv[0], argv[0]);
+  } else {
+    printf(
+        "Usage: %s hub_ip:port topic content\n"
+        "Read contents from stdin:\n"
+        "  %s hub_ip:port topic -\n",
+        argv[0], argv[0]);
   }
 }

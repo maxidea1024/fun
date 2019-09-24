@@ -9,17 +9,17 @@
 #include <boost/ptr_container/ptr_map.hpp>
 
 extern "C" {
-  struct hostent;
-  struct ares_channeldata;
-  typedef struct ares_channeldata* ares_channel;
+struct hostent;
+struct ares_channeldata;
+typedef struct ares_channeldata* ares_channel;
 }
 
 namespace fun {
 namespace net {
 class Channel;
 class EventLoop;
-}
-}
+}  // namespace net
+}  // namespace fun
 
 namespace cdns {
 
@@ -32,8 +32,7 @@ class Resolver : Noncopyable {
     kDnsOnly,
   };
 
-  explicit Resolver(fun::net::EventLoop* loop,
-                    Option opt = kDnsAndHostsFile);
+  explicit Resolver(fun::net::EventLoop* loop, Option opt = kDnsAndHostsFile);
 
   ~Resolver();
 
@@ -44,10 +43,7 @@ class Resolver : Noncopyable {
     Resolver* owner;
     Callback callback;
 
-    QueryData(Resolver* o, const Callback& cb)
-      : owner(o)
-      , callback(cb) {
-    }
+    QueryData(Resolver* o, const Callback& cb) : owner(o), callback(cb) {}
   };
 
   fun::net::EventLoop* loop_;
@@ -66,9 +62,11 @@ class Resolver : Noncopyable {
   // ARES callbacks
   //
 
-  static void ares_host_callback(void* data, int status, int timeouts, struct hostent* hostent);
+  static void ares_host_callback(void* data, int status, int timeouts,
+                                 struct hostent* hostent);
   static int ares_sock_create_callback(int sock_fd, int type, void* data);
-  static void ares_sock_state_callback(void* data, int sock_fd, int read, int write);
+  static void ares_sock_state_callback(void* data, int sock_fd, int read,
+                                       int write);
 };
 
-} // namespace cdns
+}  // namespace cdns

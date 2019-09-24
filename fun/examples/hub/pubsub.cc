@@ -7,26 +7,21 @@ using namespace fun;
 using namespace fun::net;
 using namespace pubsub;
 
-PubSubClient::PubSubClient(EventLoop* loop,
-                           const InetAddress& hub_addr,
+PubSubClient::PubSubClient(EventLoop* loop, const InetAddress& hub_addr,
                            const String& name)
-  : client_(loop, hub_addr, name) {
+    : client_(loop, hub_addr, name) {
   // FIXME: dtor is not thread safe
-  client_.SetConnectionCallback(boost::bind(&PubSubClient::OnConnection, this, _1));
-  client_.SetMessageCallback(boost::bind(&PubSubClient::OnMessage, this, _1, _2, _3));
+  client_.SetConnectionCallback(
+      boost::bind(&PubSubClient::OnConnection, this, _1));
+  client_.SetMessageCallback(
+      boost::bind(&PubSubClient::OnMessage, this, _1, _2, _3));
 }
 
-void PubSubClient::Start() {
-  client_.Connect();
-}
+void PubSubClient::Start() { client_.Connect(); }
 
-void PubSubClient::Stop() {
-  client_.Disconnect();
-}
+void PubSubClient::Stop() { client_.Disconnect(); }
 
-bool PubSubClient::IsConnected() const {
-  return conn_ && conn_->IsConnected();
-}
+bool PubSubClient::IsConnected() const { return conn_ && conn_->IsConnected(); }
 
 bool PubSubClient::Subscribe(const String& topic, const SubscribeCallback& cb) {
   String message = "sub " + topic + "\r\n";
@@ -48,8 +43,7 @@ void PubSubClient::OnConnection(const TcpConnectionPtr& conn) {
   if (conn->IsConnected()) {
     conn_ = conn;
     // FIXME: re-sub
-  }
-  else {
+  } else {
     conn_.Reset();
   }
 
@@ -58,8 +52,7 @@ void PubSubClient::OnConnection(const TcpConnectionPtr& conn) {
   }
 }
 
-void PubSubClient::OnMessage(const TcpConnectionPtr& conn,
-                             Buffer* buf,
+void PubSubClient::OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
                              const Timestamp& received_time) {
   ParseResult result = kSuccess;
   while (result == kSuccess) {
@@ -69,8 +62,7 @@ void PubSubClient::OnMessage(const TcpConnectionPtr& conn,
       if (cmd == "pub" && subscribe_cb_) {
         subscribe_cb_(topic, content, received_time);
       }
-    }
-    else if (result == kError) {
+    } else if (result == kError) {
       conn->Shutdown();
     }
   }

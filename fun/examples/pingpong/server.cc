@@ -1,9 +1,9 @@
-﻿#include "fun/net/tcp_server.h"
-#include "fun/base/atomic.h"
+﻿#include "fun/base/atomic.h"
 #include "fun/base/logging.h"
 #include "fun/base/thread.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/inet_address.h"
+#include "fun/net/tcp_server.h"
 
 #include <boost/bind.hpp>
 
@@ -21,18 +21,17 @@ void OnConnection(const TcpConnectionPtr& conn) {
   }
 }
 
-void OnMessage( const TcpConnectionPtr& conn,
-                Buffer* buf,
-                const Timestamp& received_time) {
+void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
+               const Timestamp& received_time) {
   conn->Send(buf);
 }
 
 int main(int argc, char* argv[]) {
   if (argc < 4) {
     fprintf(stderr, "Usage: server <address> <port> <threads>\n");
-  }
-  else {
-    LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
+  } else {
+    LOG_INFO << "pid = " << Process::CurrentPid()
+             << ", tid = " << Thread::CurrentTid();
 
     Logger::SetLogLevel(Logger::WARN);
 

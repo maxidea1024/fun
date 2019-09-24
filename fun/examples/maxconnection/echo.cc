@@ -7,19 +7,18 @@
 using namespace fun;
 using namespace fun::net;
 
-EchoServer::EchoServer(EventLoop* loop,
-                       const InetAddress& listen_addr,
+EchoServer::EchoServer(EventLoop* loop, const InetAddress& listen_addr,
                        int max_connections)
-  : server_(loop, listen_addr, "EchoServer")
-  , connected_count_(0)
-  , MAX_CONNECTIONS(max_connections) {
-  server_.SetConnectionCallback(boost::bind(&EchoServer::OnConnection, this, _1));
-  server_.SetMessageCallback(boost::bind(&EchoServer::OnMessage, this, _1, _2, _3));
+    : server_(loop, listen_addr, "EchoServer"),
+      connected_count_(0),
+      MAX_CONNECTIONS(max_connections) {
+  server_.SetConnectionCallback(
+      boost::bind(&EchoServer::OnConnection, this, _1));
+  server_.SetMessageCallback(
+      boost::bind(&EchoServer::OnMessage, this, _1, _2, _3));
 }
 
-void EchoServer::Start() {
-  server_.Start();
-}
+void EchoServer::Start() { server_.Start(); }
 
 void EchoServer::OnConnection(const TcpConnectionPtr& conn) {
   LOG_INFO << "EchoServer - " << conn->GetPeerAddress().ToIpPort() << " -> "
@@ -32,17 +31,16 @@ void EchoServer::OnConnection(const TcpConnectionPtr& conn) {
       conn->Shutdown();
       conn->ForceCloseWithDelay(3.0);  // > round trip of the whole Internet.
     }
-  }
-  else {
+  } else {
     --connected_count_;
   }
   LOG_INFO << "numConnected = " << connected_count_;
 }
 
-void EchoServer::OnMessage(const TcpConnectionPtr& conn,
-                           Buffer* buf,
+void EchoServer::OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
                            const Timestamp& time) {
   String msg(buf->ReadAllAsString());
-  LOG_INFO << conn->GetName() << " echo " << msg.size() << " bytes at " << time.ToString();
+  LOG_INFO << conn->GetName() << " echo " << msg.size() << " bytes at "
+           << time.ToString();
   conn->Send(msg);
 }

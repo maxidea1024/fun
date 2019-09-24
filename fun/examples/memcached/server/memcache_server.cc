@@ -11,35 +11,31 @@ using namespace fun::net;
 
 fun::AtomicInt64 g_cas;
 
-MemcacheServer::Options::Options() {
-  bzero(this, sizeof(*this));
-}
+MemcacheServer::Options::Options() { bzero(this, sizeof(*this)); }
 
-struct MemcacheServer::Stats {
-};
+struct MemcacheServer::Stats {};
 
-MemcacheServer::MemcacheServer(fun::net::EventLoop* loop, const Options& options)
-  : loop_(loop),
-    options_(options),
-    start_time_(::time(NULL)-1),
-    server_(loop, InetAddress(options.tcpport), "red-memcached"),
-    stats_(new Stats) {
+MemcacheServer::MemcacheServer(fun::net::EventLoop* loop,
+                               const Options& options)
+    : loop_(loop),
+      options_(options),
+      start_time_(::time(NULL) - 1),
+      server_(loop, InetAddress(options.tcpport), "red-memcached"),
+      stats_(new Stats) {
   server_.SetConnectionCallback(
       boost::bind(&MemcacheServer::OnConnection, this, _1));
 }
 
-MemcacheServer::~MemcacheServer() {
-}
+MemcacheServer::~MemcacheServer() {}
 
-void MemcacheServer::Start() {
-  server_.Start();
-}
+void MemcacheServer::Start() { server_.Start(); }
 
 void MemcacheServer::stop() {
   loop_->ScheduleAfter(3.0, boost::bind(&EventLoop::Quit, loop_));
 }
 
-bool MemcacheServer::StoreItem(const ItemPtr& item, const Item::UpdatePolicy policy, bool* exists) {
+bool MemcacheServer::StoreItem(const ItemPtr& item,
+                               const Item::UpdatePolicy policy, bool* exists) {
   fun_check(item->neededBytes() == 0);
   MutexLock& mutex = shards_[item->hash() % kShards].mutex;
   ItemMap& items = shards_[item->hash() % kShards].items;
@@ -52,41 +48,34 @@ bool MemcacheServer::StoreItem(const ItemPtr& item, const Item::UpdatePolicy pol
       items.erase(it);
     }
     items.insert(item);
-  }
-  else {
+  } else {
     if (policy == Item::kAdd) {
       if (*exists) {
         return false;
-      }
-      else {
+      } else {
         item->setCas(g_cas.IncrementAndGet());
         items.insert(item);
       }
-    }
-    else if (policy == Item::kReplace) {
+    } else if (policy == Item::kReplace) {
       if (*exists) {
         item->setCas(g_cas.IncrementAndGet());
         items.erase(it);
         items.insert(item);
-      }
-      else {
+      } else {
         return false;
       }
-    }
-    else if (policy == Item::kAppend || policy == Item::kPrepend) {
+    } else if (policy == Item::kAppend || policy == Item::kPrepend) {
       if (*exists) {
         const ConstItemPtr& oldItem = *it;
-        int newLen = static_cast<int>(item->valueLength() + oldItem->valueLength() - 2);
-        ItemPtr newItem(Item::makeItem(item->key(),
-                                       oldItem->flags(),
-                                       oldItem->rel_exptime(),
-                                       newLen,
+        int newLen =
+            static_cast<int>(item->valueLength() + oldItem->valueLength() - 2);
+        ItemPtr newItem(Item::makeItem(item->key(), oldItem->flags(),
+                                       oldItem->rel_exptime(), newLen,
                                        g_cas.IncrementAndGet()));
         if (policy == Item::kAppend) {
           newItem->append(oldItem->value(), oldItem->valueLength() - 2);
           newItem->append(item->value(), item->valueLength());
-        }
-        else {
+        } else {
           newItem->append(item->value(), item->valueLength() - 2);
           newItem->append(oldItem->value(), oldItem->valueLength());
         }
@@ -94,22 +83,18 @@ bool MemcacheServer::StoreItem(const ItemPtr& item, const Item::UpdatePolicy pol
         fun_check(newItem->EndsWithCRLF());
         items.erase(it);
         items.insert(newItem);
-      }
-      else {
+      } else {
         return false;
       }
-    }
-    else if (policy == Item::kCas) {
+    } else if (policy == Item::kCas) {
       if (*exists && (*it)->cas() == item->cas()) {
         item->setCas(g_cas.IncrementAndGet());
         items.erase(it);
         items.insert(item);
-      }
-      else {
+      } else {
         return false;
       }
-    }
-    else {
+    } else {
       fun_check(false);
     }
   }
@@ -138,8 +123,7 @@ void MemcacheServer::OnConnection(const TcpConnectionPtr& conn) {
     fun_check(sessions_.find(conn->GetName()) == sessions_.end());
     sessions_[conn->GetName()] = session;
     // fun_check(sessions_.size() == stats_.current_conns);
-  }
-  else {
+  } else {
     ScopedLock guard(mutex_);
     fun_check(sessions_.find(conn->GetName()) != sessions_.end());
     sessions_.erase(conn->GetName());

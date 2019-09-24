@@ -10,41 +10,31 @@ using std::endl;
 typedef fun::SharedPtr<fun::Query> QueryPtr;
 typedef fun::SharedPtr<fun::Answer> AnswerPtr;
 
-void test_down_pointer_cast()
-{
+void test_down_pointer_cast() {
   ::fun::SharedPtr<google::protobuf::Message> msg(new fun::Query);
   ::fun::SharedPtr<fun::Query> query(fun::down_pointer_cast<fun::Query>(msg));
   fun_check(msg && query);
-  if (!query)
-  {
+  if (!query) {
     abort();
   }
 }
 
-void OnQuery(const fun::net::TcpConnectionPtr&,
-             const QueryPtr& message,
-             const fun::Timestamp&)
-{
+void OnQuery(const fun::net::TcpConnectionPtr&, const QueryPtr& message,
+             const fun::Timestamp&) {
   cout << "OnQuery: " << message->GetTypeName() << endl;
 }
 
-void OnAnswer(const fun::net::TcpConnectionPtr&,
-              const AnswerPtr& message,
-              const fun::Timestamp&)
-{
+void OnAnswer(const fun::net::TcpConnectionPtr&, const AnswerPtr& message,
+              const fun::Timestamp&) {
   cout << "OnAnswer: " << message->GetTypeName() << endl;
 }
 
 void OnUnknownMessageType(const fun::net::TcpConnectionPtr&,
-                          const MessagePtr& message,
-                          fun::Timestamp)
-{
+                          const MessagePtr& message, fun::Timestamp) {
   cout << "OnUnknownMessageType: " << message->GetTypeName() << endl;
 }
 
-
-int main()
-{
+int main() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
   test_down_pointer_cast();
 

@@ -12,8 +12,7 @@ EventLoop* g_event_loop;
 InetAddress* g_server_addr;
 std::map<String, TunnelPtr> g_tunnels;
 
-void OnServerConnection(const TcpConnectionPtr& conn)
-{
+void OnServerConnection(const TcpConnectionPtr& conn) {
   LOG_DEBUG << (conn->IsConnected() ? "UP" : "DOWN");
   if (conn->IsConnected()) {
     conn->SetTcpNoDelay(true);
@@ -22,42 +21,35 @@ void OnServerConnection(const TcpConnectionPtr& conn)
     tunnel->setup();
     tunnel->Connect();
     g_tunnels[conn->GetName()] = tunnel;
-  }
-  else {
+  } else {
     fun_check(g_tunnels.find(conn->GetName()) != g_tunnels.end());
     g_tunnels[conn->GetName()]->Disconnect();
     g_tunnels.erase(conn->GetName());
   }
 }
 
-void OnServerMessage( const TcpConnectionPtr& conn,
-                      Buffer* buf,
-                      const Timestamp&)
-{
+void OnServerMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                     const Timestamp&) {
   LOG_DEBUG << buf->GetReadableLength();
   if (!conn->GetContext().empty()) {
-    const TcpConnectionPtr& client_conn
-      = boost::any_cast<const TcpConnectionPtr&>(conn->GetContext());
+    const TcpConnectionPtr& client_conn =
+        boost::any_cast<const TcpConnectionPtr&>(conn->GetContext());
     client_conn->Send(buf);
   }
 }
 
-void memstat()
-{
-  malloc_stats();
-}
+void memstat() { malloc_stats(); }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   if (argc < 4) {
     fprintf(stderr, "Usage: %s <host_ip> <port> <listen_port>\n", argv[0]);
-  }
-  else {
-    LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
+  } else {
+    LOG_INFO << "pid = " << Process::CurrentPid()
+             << ", tid = " << Thread::CurrentTid();
     {
       // set max virtual memory to 256MB.
-      size_t kOneMB = 1024*1024;
-      rlimit rl = { 256*kOneMB, 256*kOneMB };
+      size_t kOneMB = 1024 * 1024;
+      rlimit rl = {256 * kOneMB, 256 * kOneMB};
       setrlimit(RLIMIT_AS, &rl);
     }
     const char* ip = argv[1];

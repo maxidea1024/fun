@@ -7,13 +7,13 @@
 #include <boost/bind.hpp>
 
 #include <ares.h>
-#include <netdb.h>
 #include <arpa/inet.h>  // inet_ntop
+#include <netdb.h>
 #include <netinet/in.h>
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <fun_check.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace fun;
 using namespace fun::net;
@@ -41,18 +41,16 @@ const char* GetSocketType(int type) {
 
 const bool kDebug = false;
 
-} // namespace
+}  // namespace
 
 Resolver::Resolver(EventLoop* loop, Option opt)
-  : loop_(loop)
-  , context_(nullptr)
-  , timer_active_(false) {
+    : loop_(loop), context_(nullptr), timer_active_(false) {
   static char lookups[] = "b";
   struct ares_options options;
   int optmask = ARES_OPT_FLAGS;
   options.flags = ARES_FLAG_NOCHECKRESP;
   options.flags |= ARES_FLAG_STAYOPEN;
-  options.flags |= ARES_FLAG_IGNTC; // UDP only
+  options.flags |= ARES_FLAG_IGNTC;  // UDP only
   optmask |= ARES_OPT_SOCK_STATE_CB;
   options.sock_state_cb = &Resolver::ares_sock_state_callback;
   options.sock_state_cb_data = this;
@@ -67,24 +65,23 @@ Resolver::Resolver(EventLoop* loop, Option opt)
   if (status != ARES_SUCCESS) {
     fun_check(0);
   }
-  ares_set_socket_callback(context_, &Resolver::ares_sock_create_callback, this);
+  ares_set_socket_callback(context_, &Resolver::ares_sock_create_callback,
+                           this);
 }
 
-Resolver::~Resolver() {
-  ares_destroy(context_);
-}
+Resolver::~Resolver() { ares_destroy(context_); }
 
 bool Resolver::Resolve(StringArg hostname, const Callback& cb) {
   loop_->AssertInLoopThread();
 
   QueryData* query_data = new QueryData(this, cb);
   ares_gethostbyname(context_, hostname.c_str(), AF_INET,
-      &Resolver::ares_host_callback, query_data);
+                     &Resolver::ares_host_callback, query_data);
   struct timeval tv;
   struct timeval* tvp = ares_timeout(context_, nullptr, &tv);
   double timeout = GetSeconds(tvp);
 
-  LOG_DEBUG << "timeout " <<  timeout << " active " << timer_active_;
+  LOG_DEBUG << "timeout " << timeout << " active " << timer_active_;
 
   if (!timer_active_) {
     loop_->ScheduleAfter(timeout, boost::bind(&Resolver::OnTimer, this));
@@ -106,7 +103,8 @@ void Resolver::OnTimer() {
   struct timeval tv;
   struct timeval* tvp = ares_timeout(context_, NULL, &tv);
   double timeout = GetSeconds(tvp);
-  LOG_DEBUG << loop_->GetPollReturnTime().ToString() << " next timeout " <<  timeout;
+  LOG_DEBUG << loop_->GetPollReturnTime().ToString() << " next timeout "
+            << timeout;
 
   if (timeout < 0) {
     timer_active_ = false;
@@ -115,9 +113,8 @@ void Resolver::OnTimer() {
   }
 }
 
-void Resolver::OnQueryResult( int status,
-                              struct hostent* result,
-                              const Callback& callback) {
+void Resolver::OnQueryResult(int status, struct hostent* result,
+                             const Callback& callback) {
   LOG_DEBUG << "OnQueryResult " << status;
 
   struct sockaddr_in addr;
@@ -170,14 +167,11 @@ void Resolver::OnSockStateChange(int sock_fd, bool read, bool write) {
   }
 }
 
-
 //
 // ARES callbacks
 //
 
-void Resolver::ares_host_callback(void* data,
-                                  int status,
-                                  int timeouts,
+void Resolver::ares_host_callback(void* data, int status, int timeouts,
                                   struct hostent* hostent) {
   QueryData* query = static_cast<QueryData*>(data);
 
@@ -191,9 +185,7 @@ int Resolver::ares_sock_create_callback(int sock_fd, int type, void* data) {
   return 0;
 }
 
-void Resolver::ares_sock_state_callback(void* data,
-                                        int sock_fd,
-                                        int read,
+void Resolver::ares_sock_state_callback(void* data, int sock_fd, int read,
                                         int write) {
   LOG_TRACE << "sock_fd=" << sock_fd << " read=" << read << " write=" << write;
   static_cast<Resolver*>(data)->OnSockStateChange(sock_fd, read, write);

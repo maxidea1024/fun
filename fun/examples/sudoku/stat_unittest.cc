@@ -1,6 +1,6 @@
-#include "fun/base/logging.h"
 #include <red/base/Thread.h>
 #include <red/base/ThreadPool.h>
+#include "fun/base/logging.h"
 
 #include <boost/circular_buffer.hpp>
 #include <boost/noncopyable.hpp>
@@ -14,8 +14,7 @@ using namespace fun;
 
 #include <stdio.h>
 
-BOOST_AUTO_TEST_CASE(testSudokuStatSameSecond)
-{
+BOOST_AUTO_TEST_CASE(testSudokuStatSameSecond) {
   ThreadPool p;
   SudokuStat s(p);
 
@@ -28,8 +27,7 @@ BOOST_AUTO_TEST_CASE(testSudokuStatSameSecond)
   printf("same second:\n%s\n", s.report().c_str());
 }
 
-BOOST_AUTO_TEST_CASE(testSudokuStatNextSecond)
-{
+BOOST_AUTO_TEST_CASE(testSudokuStatNextSecond) {
   ThreadPool p;
   SudokuStat s(p);
 
@@ -44,8 +42,7 @@ BOOST_AUTO_TEST_CASE(testSudokuStatNextSecond)
   printf("next second:\n%s\n", s.report().c_str());
 }
 
-BOOST_AUTO_TEST_CASE(testSudokuStatFuzz)
-{
+BOOST_AUTO_TEST_CASE(testSudokuStatFuzz) {
   ThreadPool p;
   SudokuStat s(p);
 
@@ -61,8 +58,7 @@ BOOST_AUTO_TEST_CASE(testSudokuStatFuzz)
   }
 }
 
-BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead5)
-{
+BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead5) {
   ThreadPool p;
   SudokuStat s(p);
 
@@ -77,8 +73,7 @@ BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead5)
   printf("jump ahead 5 seconds:\n%s\n", s.report().c_str());
 }
 
-BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead59)
-{
+BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead59) {
   ThreadPool p;
   SudokuStat s(p);
 
@@ -93,8 +88,7 @@ BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead59)
   printf("jump ahead 59 seconds:\n%s\n", s.report().c_str());
 }
 
-BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead60)
-{
+BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead60) {
   ThreadPool p;
   SudokuStat s(p);
 
@@ -109,8 +103,7 @@ BOOST_AUTO_TEST_CASE(testSudokuStatJumpAhead60)
   printf("jump ahead 60 seconds:\n%s\n", s.report().c_str());
 }
 
-BOOST_AUTO_TEST_CASE(testSudokuStatJumpBack3)
-{
+BOOST_AUTO_TEST_CASE(testSudokuStatJumpBack3) {
   ThreadPool p;
   SudokuStat s(p);
 
@@ -129,4 +122,3 @@ BOOST_AUTO_TEST_CASE(testSudokuStatJumpBack3)
 
   printf("jump back 3 seconds:\n%s\n", s.report().c_str());
 }
-

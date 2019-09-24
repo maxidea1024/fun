@@ -11,7 +11,8 @@ struct FastCgiCodec::RecordHeader {
   uint8_t unused;
 };
 
-const unsigned FastCgiCodec::kRecordHeader = static_cast<unsigned>(sizeof(FastCgiCodec::RecordHeader));
+const unsigned FastCgiCodec::kRecordHeader =
+    static_cast<unsigned>(sizeof(FastCgiCodec::RecordHeader));
 
 enum FcgiType {
   kFcgiInvalid = 0,
@@ -42,8 +43,7 @@ using namespace fun::net;
 bool FastCgiCodec::OnParams(const char* content, uint16_t length) {
   if (length > 0) {
     params_stream_.Append(content, length);
-  }
-  else if (!ParseAllParams()) {
+  } else if (!ParseAllParams()) {
     LOG_ERROR << "ParseAllParams() failed";
     return false;
   }
@@ -53,8 +53,7 @@ bool FastCgiCodec::OnParams(const char* content, uint16_t length) {
 void FastCgiCodec::OnStdin(const char* content, uint16_t length) {
   if (length > 0) {
     stdin_.Append(content, length);
-  }
-  else {
+  } else {
     got_request_ = true;
   }
 }
@@ -74,8 +73,7 @@ bool FastCgiCodec::ParseAllParams() {
     if (params_stream_.GetReadableLength() >= name_len + value_len) {
       String name = params_stream_.retrieveAsString(name_len);
       params_[name] = params_stream_.retrieveAsString(value_len);
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -89,16 +87,13 @@ uint32_t FastCgiCodec::ReadLength() {
     if (byte & 0x80) {
       if (params_stream_.GetReadableLength() >= sizeof(uint32_t)) {
         return params_stream_.ReadInt32() & 0x7fffffff;
-      }
-      else {
+      } else {
         return -1;
       }
-    }
-    else {
+    } else {
       return params_stream_.ReadInt8();
     }
-  }
-  else {
+  } else {
     return -1;
   }
 }
@@ -107,24 +102,19 @@ using fun::net::Buffer;
 
 void FastCgiCodec::EndStdout(Buffer* buf) {
   RecordHeader header = {
-    1,
-    kFcgiStdout,
-    sockets::hostToNetwork16(1),
-    0,
-    0,
-    0,
+      1, kFcgiStdout, sockets::hostToNetwork16(1), 0, 0, 0,
   };
   buf->Append(&header, kRecordHeader);
 }
 
 void FastCgiCodec::EndRequest(Buffer* buf) {
   RecordHeader header = {
-    1,
-    kFcgiEndRequest,
-    sockets::hostToNetwork16(1),
-    sockets::hostToNetwork16(kRecordHeader),
-    0,
-    0,
+      1,
+      kFcgiEndRequest,
+      sockets::hostToNetwork16(1),
+      sockets::hostToNetwork16(kRecordHeader),
+      0,
+      0,
   };
   buf->Append(&header, kRecordHeader);
   buf->AppendInt32(0);
@@ -132,20 +122,20 @@ void FastCgiCodec::EndRequest(Buffer* buf) {
 }
 
 void FastCgiCodec::Respond(Buffer* response) {
-  if (response->GetReadableLength() < 65536
-      && response->GetPrependableLength() >= kRecordHeader) {
+  if (response->GetReadableLength() < 65536 &&
+      response->GetPrependableLength() >= kRecordHeader) {
     RecordHeader header = {
-      1,
-      kFcgiStdout,
-      sockets::hostToNetwork16(1),
-      sockets::hostToNetwork16(static_cast<uint16_t>(response->GetReadableLength())),
-      static_cast<uint8_t>(-response->GetReadableLength() & 7),
-      0,
+        1,
+        kFcgiStdout,
+        sockets::hostToNetwork16(1),
+        sockets::hostToNetwork16(
+            static_cast<uint16_t>(response->GetReadableLength())),
+        static_cast<uint8_t>(-response->GetReadableLength() & 7),
+        0,
     };
     response->Prepend(&header, kRecordHeader);
     response->Append("\0\0\0\0\0\0\0\0", header.padding);
-  }
-  else {
+  } else {
     // FIXME:
   }
 
@@ -184,8 +174,7 @@ bool FastCgiCodec::ParseRequest(Buffer* buf) {
           break;
       }
       buf->Drain(total);
-    }
-    else {
+    } else {
       break;
     }
   }

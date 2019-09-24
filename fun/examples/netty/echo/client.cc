@@ -16,22 +16,22 @@ using namespace fun;
 using namespace fun::net;
 
 /**
-*/
+ */
 class EchoClient : Noncopyable {
  public:
   EchoClient(EventLoop* loop, const InetAddress& listen_addr, int size)
-    : loop_(loop)
-    , client_(loop, listen_addr, "EchoClient")
-    , message_(size, 'H') {
-    client_.SetConnectionCallback(boost::bind(&EchoClient::OnConnection, this, _1));
-    client_.SetMessageCallback(boost::bind(&EchoClient::OnMessage, this, _1, _2, _3));
+      : loop_(loop),
+        client_(loop, listen_addr, "EchoClient"),
+        message_(size, 'H') {
+    client_.SetConnectionCallback(
+        boost::bind(&EchoClient::OnConnection, this, _1));
+    client_.SetMessageCallback(
+        boost::bind(&EchoClient::OnMessage, this, _1, _2, _3));
 
-    //client_.EnableRetry();
+    // client_.EnableRetry();
   }
 
-  void Connect() {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
@@ -42,15 +42,13 @@ class EchoClient : Noncopyable {
     if (conn->IsConnected()) {
       conn->SetTcpNoDelay(true);
       conn->Send(message_);
-    }
-    else {
+    } else {
       loop_->Quit();
     }
   }
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp& time) {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                 const Timestamp& time) {
     conn->Send(buf);
   }
 
@@ -60,7 +58,8 @@ class EchoClient : Noncopyable {
 };
 
 int main(int argc, char* argv[]) {
-  LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
+  LOG_INFO << "pid = " << Process::CurrentPid()
+           << ", tid = " << Thread::CurrentTid();
 
   if (argc > 1) {
     EventLoop loop;
@@ -73,10 +72,9 @@ int main(int argc, char* argv[]) {
 
     EchoClient client(&loop, server_addr, size);
     client.Connect();
-    //TODO clientµµ ·çÇÁ¸¦ µ¹¾Æ¾ß¸¸ ÇÏ´Â°ÇÁö...
+    // TODO clientï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¾ß¸ï¿½ ï¿½Ï´Â°ï¿½ï¿½ï¿½...
     loop.Loop();
-  }
-  else {
+  } else {
     printf("Usage: %s host_ip [msg_size]\n", argv[0]);
   }
 }

@@ -1,11 +1,11 @@
 #include <examples/protobuf/rpc/sudoku.pb.h>
 
+#include <red/net/protorpc/RpcChannel.h>
 #include "fun/base/logging.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/inet_address.h"
 #include "fun/net/tcp_client.h"
 #include "fun/net/tcp_connection.h"
-#include <red/net/protorpc/RpcChannel.h>
 
 #include <boost/bind.hpp>
 
@@ -18,10 +18,10 @@ using namespace fun::net;
 class RpcClient : Noncopyable {
  public:
   RpcClient(EventLoop* loop, const InetAddress& server_addr)
-    : loop_(loop)
-    , client_(loop, server_addr, "RpcClient")
-    , channel_(new RpcChannel)
-    , stub_(get_pointer(channel_)) {
+      : loop_(loop),
+        client_(loop, server_addr, "RpcClient"),
+        channel_(new RpcChannel),
+        stub_(get_pointer(channel_)) {
     client_.SetConnectionCallback(
         boost::bind(&RpcClient::OnConnection, this, _1));
     client_.SetMessageCallback(
@@ -29,20 +29,19 @@ class RpcClient : Noncopyable {
     // client_.EnableRetry();
   }
 
-  void Connect() {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
     if (conn->IsConnected()) {
-      //channel_.Reset(new RpcChannel(conn));
+      // channel_.Reset(new RpcChannel(conn));
       channel_->setConnection(conn);
       sudoku::SudokuRequest request;
       request.set_checkerboard("001010");
       sudoku::SudokuResponse* response = new sudoku::SudokuResponse;
 
-      stub_.Solve(NULL, &request, response, NewCallback(this, &RpcClient::solved, response));
+      stub_.Solve(NULL, &request, response,
+                  NewCallback(this, &RpcClient::solved, response));
     } else {
       loop_->Quit();
     }
@@ -73,4 +72,3 @@ int main(int argc, char* argv[]) {
   }
   google::protobuf::ShutdownProtobufLibrary();
 }
-

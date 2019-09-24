@@ -14,7 +14,8 @@ class Plot : Noncopyable {
   void label(double maxValue);
 
   // gdFont is a typedef of unnamed struct, cannot be forward declared
-  // wordaround suggested in http://stackoverflow.com/questions/7256436/forward-declarations-of-unnamed-struct
+  // wordaround suggested in
+  // http://stackoverflow.com/questions/7256436/forward-declarations-of-unnamed-struct
   struct MyGdFont;
   typedef struct MyGdFont* MyGdFontPtr;
 
@@ -37,4 +38,3 @@ class Plot : Noncopyable {
 
   const double ratioX_;
 };
-

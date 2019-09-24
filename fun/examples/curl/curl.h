@@ -2,11 +2,11 @@
 
 #include "fun/base/string_piece.h"
 
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 extern "C" {
 typedef void CURLM;
@@ -17,15 +17,14 @@ namespace fun {
 namespace net {
 class Channel;
 class EventLoop;
-}
-}
+}  // namespace net
+}  // namespace fun
 
 namespace curl {
 
 class Curl;
 
-class Request : EnableSharedFromThis<Request>,
-                Noncopyable {
+class Request : EnableSharedFromThis<Request>, Noncopyable {
  public:
   typedef Function<void(const char*, int)> DataCallback;
   typedef Function<void(Request*, int)> DoneCallback;
@@ -33,17 +32,11 @@ class Request : EnableSharedFromThis<Request>,
   Request(Curl*, const char* url);
   ~Request();
 
-  void SetDataCallback(const DataCallback& cb) {
-    data_cb_ = cb;
-  }
+  void SetDataCallback(const DataCallback& cb) { data_cb_ = cb; }
 
-  void SetDoneCallback(const DoneCallback& cb) {
-    done_cb_ = cb;
-  }
+  void SetDoneCallback(const DoneCallback& cb) { done_cb_ = cb; }
 
-  void SetHeaderCallback(const DataCallback& cb) {
-    header_cb_ = cb;
-  }
+  void SetHeaderCallback(const DataCallback& cb) { header_cb_ = cb; }
 
   // void AllowRedirect(int redirects);
   void HeaderOnly();
@@ -65,7 +58,7 @@ class Request : EnableSharedFromThis<Request>,
   }
 
   template <typename OPT>
-  int setopt(OPT opt, size_t (*p)(char* , size_t , size_t , void* )) {
+  int setopt(OPT opt, size_t (*p)(char*, size_t, size_t, void*)) {
     return curl_easy_setopt(curl_, opt, p);
   }
 
@@ -78,19 +71,16 @@ class Request : EnableSharedFromThis<Request>,
   void RemoveChannel();
   void Done(int code);
 
-  CURL* GetCurl() {
-    return curl_;
-  }
+  CURL* GetCurl() { return curl_; }
 
-  fun::net::Channel* GetChannel() {
-    return get_pointer(channel_);
-  }
+  fun::net::Channel* GetChannel() { return get_pointer(channel_); }
 
  private:
   void DataCallback(const char* buffer, int len);
   void HeaderCallback(const char* buffer, int len);
   static size_t WriteData(char* buffer, size_t size, size_t nmemb, void* userp);
-  static size_t HeaderData(char* buffer, size_t size, size_t nmemb, void* userp);
+  static size_t HeaderData(char* buffer, size_t size, size_t nmemb,
+                           void* userp);
   void DoneCallback();
 
   class Curl* owner_;
@@ -107,7 +97,7 @@ class Curl : Noncopyable {
  public:
   enum Option {
     kCURLnossl = 0,
-    kCURLssl   = 1,
+    kCURLssl = 1,
   };
 
   explicit Curl(fun::net::EventLoop* loop);
@@ -136,4 +126,4 @@ class Curl : Noncopyable {
   int prev_running_handles_;
 };
 
-}
+}  // namespace curl

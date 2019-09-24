@@ -4,7 +4,8 @@
 class Percentile {
  public:
   Percentile(std::vector<int>& latencies, int infly) {
-    stat << "recv " << fun::Fmt("%6zd", latencies.size()) << " in-fly " << infly;
+    stat << "recv " << fun::Fmt("%6zd", latencies.size()) << " in-fly "
+         << infly;
 
     if (!latencies.empty()) {
       std::sort(latencies.begin(), latencies.end());
@@ -15,28 +16,21 @@ class Percentile {
       int median = getPercentile(latencies, 50);
       int p90 = getPercentile(latencies, 90);
       int p99 = getPercentile(latencies, 99);
-      stat << " min " << min
-           << " max " << max
-           << " avg " << mean
-           << " median " << median
-           << " p90 " << p90
-           << " p99 " << p99;
+      stat << " min " << min << " max " << max << " avg " << mean << " median "
+           << median << " p90 " << p90 << " p99 " << p99;
     }
   }
 
-  const fun::LogStream::Buffer& report() const {
-    return stat.buffer();
-  }
+  const fun::LogStream::Buffer& report() const { return stat.buffer(); }
 
   void save(const std::vector<int>& latencies, fun::StringArg name) const {
-    if (latencies.empty())
-      return;
+    if (latencies.empty()) return;
     fun::FileUtil::AppendFile f(name);
     f.append("# ", 2);
     f.append(stat.buffer().data(), stat.buffer().length());
     f.append("\n", 1);
 
-    const int kInterval = 5; // 5 us per bucket
+    const int kInterval = 5;  // 5 us per bucket
     int low = latencies.front() / kInterval * kInterval;
     int count = 0;
     int sum = 0;
@@ -54,7 +48,8 @@ class Percentile {
         ++count;
       else {
         sum += count;
-        int n = snprintf(buf, sizeof buf, "%4d %5d %5.2f\n", low, count, 100 * sum / total);
+        int n = snprintf(buf, sizeof buf, "%4d %5d %5.2f\n", low, count,
+                         100 * sum / total);
         f.append(buf, n);
         low = latencies[i] / kInterval * kInterval;
         fun_check(latencies[i] < low + kInterval);
@@ -63,7 +58,8 @@ class Percentile {
     }
     sum += count;
     fun_check(sum == total);
-    int n = snprintf(buf, sizeof buf, "%4d %5d %5.1f\n", low, count, 100 * sum / total);
+    int n = snprintf(buf, sizeof buf, "%4d %5d %5.1f\n", low, count,
+                     100 * sum / total);
     f.append(buf, n);
   }
 

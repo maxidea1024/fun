@@ -1,7 +1,7 @@
 #include "sudoku.h"
 
-#include "fun/base/logging.h"
 #include <red/base/FileUtil.h>
+#include "fun/base/logging.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/tcp_client.h"
 
@@ -35,37 +35,31 @@ InputPtr ReadInput(std::istream& in) {
 
 class SudokuClient : Noncopyable {
  public:
-  SudokuClient(EventLoop* loop,
-               const InetAddress& server_addr,
-               const InputPtr& input,
-               const String& name,
-               bool nodelay)
-    : name_(name)
-    , tcp_no_delay_(nodelay)
-    , client_(loop, server_addr, name_)
-    , input_(input)
-    , count_(0) {
+  SudokuClient(EventLoop* loop, const InetAddress& server_addr,
+               const InputPtr& input, const String& name, bool nodelay)
+      : name_(name),
+        tcp_no_delay_(nodelay),
+        client_(loop, server_addr, name_),
+        input_(input),
+        count_(0) {
     client_.SetConnectionCallback(
         boost::bind(&SudokuClient::OnConnection, this, _1));
     client_.SetMessageCallback(
         boost::bind(&SudokuClient::OnMessage, this, _1, _2, _3));
   }
 
-  void Connect() {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
   void Send(int n) {
     fun_check(n > 0);
-    if (!conn_)
-      return;
+    if (!conn_) return;
 
     Timestamp now(Timestamp::Now());
     for (int i = 0; i < n; ++i) {
       char buf[256];
       const String& req = (*input_)[count_ % input_->size()];
-      int len = snprintf(buf, sizeof buf, "%s-%08d:%s\r\n",
-                         name_.c_str(), count_, req.c_str());
+      int len = snprintf(buf, sizeof buf, "%s-%08d:%s\r\n", name_.c_str(),
+                         count_, req.c_str());
       requests_.append(buf, len);
       send_time_[count_] = now;
       ++count_;
@@ -84,20 +78,17 @@ class SudokuClient : Noncopyable {
   void OnConnection(const TcpConnectionPtr& conn) {
     if (conn->IsConnected()) {
       LOG_INFO << name_ << " connected";
-      if (tcp_no_delay_)
-        conn->SetTcpNoDelay(true);
+      if (tcp_no_delay_) conn->SetTcpNoDelay(true);
       conn_ = conn;
-    }
-    else {
+    } else {
       LOG_INFO << name_ << " disconnected";
       conn_.Reset();
       // FIXME: exit
     }
   }
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp& received_time) {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                 const Timestamp& received_time) {
     size_t len = buf->GetReadableLength();
     while (len >= kCells + 2) {
       const char* crlf = buf->FindCRLF();
@@ -110,13 +101,11 @@ class SudokuClient : Noncopyable {
           conn->Shutdown();
           break;
         }
-      }
-      else if (len > 100) { // id + ":" + kCells + "\r\n"
+      } else if (len > 100) {  // id + ":" + kCells + "\r\n"
         LOG_ERROR << "Line is too long!";
         conn->Shutdown();
         break;
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -127,14 +116,15 @@ class SudokuClient : Noncopyable {
     if (colon != String::npos) {
       size_t dash = response.find('-');
       if (dash != String::npos && dash < colon) {
-        int id = atoi(response.c_str()+dash+1);
-        boost::unordered_map<int, Timestamp>::iterator send_time = send_time_.find(id);
+        int id = atoi(response.c_str() + dash + 1);
+        boost::unordered_map<int, Timestamp>::iterator send_time =
+            send_time_.find(id);
         if (send_time != send_time_.end()) {
-          int64_t latency_us = received_time.microSecondsSinceEpoch() - send_time->second.microSecondsSinceEpoch();
+          int64_t latency_us = received_time.microSecondsSinceEpoch() -
+                               send_time->second.microSecondsSinceEpoch();
           latencies_.push_back(static_cast<int>(latency_us));
           send_time_.erase(send_time);
-        }
-        else {
+        } else {
           LOG_ERROR << "Unknown id " << id << " of " << name_;
         }
       }
@@ -154,30 +144,24 @@ class SudokuClient : Noncopyable {
   std::vector<int> latencies_;
 };
 
-
 class SudokuLoadtest : Noncopyable {
  public:
-  SudokuLoadtest()
-    : count_(0)
-    , ticks_(0)
-    , sofar_(0) {
-  }
+  SudokuLoadtest() : count_(0), ticks_(0), sofar_(0) {}
 
-  void RunClient( const InputPtr& input,
-                    const InetAddress& server_addr,
-                    int rps,
-                    int conn,
-                    bool nodelay) {
+  void RunClient(const InputPtr& input, const InetAddress& server_addr, int rps,
+                 int conn, bool nodelay) {
     EventLoop loop;
 
     for (int i = 0; i < conn; ++i) {
-      Fmt f("c%04d", i+1);
+      Fmt f("c%04d", i + 1);
       String name(f.data(), f.length());
-      clients_.push_back(new SudokuClient(&loop, server_addr, input, name, nodelay));
+      clients_.push_back(
+          new SudokuClient(&loop, server_addr, input, name, nodelay));
       clients_.back().Connect();
     }
 
-    loop.ScheduleEvery(1.0 / kHz, boost::bind(&SudokuLoadtest::Tick, this, rps));
+    loop.ScheduleEvery(1.0 / kHz,
+                       boost::bind(&SudokuLoadtest::Tick, this, rps));
     loop.ScheduleEvery(1.0, boost::bind(&SudokuLoadtest::Tock, this));
     loop.Loop();
   }
@@ -219,8 +203,7 @@ class SudokuLoadtest : Noncopyable {
   static const int kHz = 100;
 };
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   int conn = 1;
   int rps = 100;
   bool nodelay = false;
@@ -241,7 +224,10 @@ int main(int argc, char* argv[])
     case 2:
       break;
     default:
-      printf("Usage: %s input server_ip [requests_per_second] [connections] [-n]\n", argv[0]);
+      printf(
+          "Usage: %s input server_ip [requests_per_second] [connections] "
+          "[-n]\n",
+          argv[0]);
       return 0;
   }
 
@@ -251,8 +237,7 @@ int main(int argc, char* argv[])
     printf("%zd requests from %s\n", input->size(), argv[1]);
     SudokuLoadtest test;
     test.RunClient(input, server_addr, rps, conn, nodelay);
-  }
-  else {
+  } else {
     printf("Cannot open %s\n", argv[1]);
   }
 }

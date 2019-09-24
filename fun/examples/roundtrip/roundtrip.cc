@@ -8,23 +8,20 @@
 using namespace fun;
 using namespace fun::net;
 
-const size_t FRAME_LENGTH = 2*sizeof(int64);
+const size_t FRAME_LENGTH = 2 * sizeof(int64);
 
 void ServerConnectionCallback(const TcpConnectionPtr& conn) {
-  LOG_TRACE << conn->GetName() << " "
-        << conn->GetPeerAddress().ToIpPort() << " -> "
-        << conn->GetLocalAddress().ToIpPort() << " is "
-        << (conn->IsConnected() ? "UP" : "DOWN");
+  LOG_TRACE << conn->GetName() << " " << conn->GetPeerAddress().ToIpPort()
+            << " -> " << conn->GetLocalAddress().ToIpPort() << " is "
+            << (conn->IsConnected() ? "UP" : "DOWN");
 
   if (conn->IsConnected()) {
     conn->SetTcpNoDelay(true);
-  }
-  else {
+  } else {
   }
 }
 
-void ServerMessageCallback(const TcpConnectionPtr& conn,
-                           Buffer* buffer,
+void ServerMessageCallback(const TcpConnectionPtr& conn, Buffer* buffer,
                            const Timestamp& received_time) {
   int64 message[2];
   while (buffer->GetReadableLength() >= FRAME_LENGTH) {
@@ -48,20 +45,18 @@ TcpConnectionPtr client_connection;
 
 void ClientConnectionCallback(const TcpConnectionPtr& conn) {
   LOG_TRACE << conn->GetLocalAddress().ToIpPort() << " -> "
-        << conn->GetPeerAddress().ToIpPort() << " is "
-        << (conn->IsConnected() ? "UP" : "DOWN");
+            << conn->GetPeerAddress().ToIpPort() << " is "
+            << (conn->IsConnected() ? "UP" : "DOWN");
 
   if (conn->IsConnected()) {
     client_connection = conn;
     conn->SetTcpNoDelay(true);
-  }
-  else {
+  } else {
     client_connection.Reset();
   }
 }
 
-void ClientMessageCallback(const TcpConnectionPtr&,
-                           Buffer* buffer,
+void ClientMessageCallback(const TcpConnectionPtr&, Buffer* buffer,
                            const Timestamp& received_time) {
   int64 message[2];
   while (buffer->GetReadableLength() >= FRAME_LENGTH) {
@@ -72,14 +67,13 @@ void ClientMessageCallback(const TcpConnectionPtr&,
     int64 their = message[1];
     int64 back = received_time.microSecondsSinceEpoch();
     int64 mine = (back + send) / 2;
-    LOG_INFO << "round trip " << back - send
-             << " clock error " << their - mine;
+    LOG_INFO << "round trip " << back - send << " clock error " << their - mine;
   }
 }
 
 void SendMyTime() {
   if (client_connection) {
-    int64 message[2] = { 0, 0 };
+    int64 message[2] = {0, 0};
     message[0] = Timestamp::Now().microSecondsSinceEpoch();
     client_connection->Send(message, sizeof message);
   }
@@ -93,8 +87,9 @@ void RunClient(const char* ip, uint16 port) {
   client.SetMessageCallback(ClientMessageCallback);
   client.Connect();
   loop.ScheduleEvery(0.2, SendMyTime);
-  //TODO 클라이언트에서 이 루프가 무한으로 반복되면, 프레임이 갱신이 안되므로
-  //스레드로 돌려야하나? 아니면, timeout을 0으로 주어서 polling형태로 처리해야할까??
+  // TODO 클라이언트에서 이 루프가 무한으로 반복되면, 프레임이 갱신이 안되므로
+  //스레드로 돌려야하나? 아니면, timeout을 0으로 주어서 polling형태로
+  //처리해야할까??
   loop.Loop();
 }
 
@@ -104,12 +99,10 @@ int main(int argc, char* argv[]) {
 
     if (strcmp(argv[1], "-s") == 0) {
       RunServer(port);
-    }
-    else {
+    } else {
       RunClient(argv[1], port);
     }
-  }
-  else {
+  } else {
     printf("Usage:\n%s -s port\n%s ip port\n", argv[0], argv[0]);
   }
 }

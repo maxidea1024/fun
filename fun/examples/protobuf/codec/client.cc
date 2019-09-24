@@ -1,6 +1,6 @@
-#include "dispatcher.h"
-#include "codec.h"
 #include <examples/protobuf/codec/query.pb.h>
+#include "codec.h"
+#include "dispatcher.h"
 
 #include "fun/base/logging.h"
 #include "fun/base/mutex.h"
@@ -20,61 +20,53 @@ typedef fun::SharedPtr<fun::Answer> AnswerPtr;
 
 google::protobuf::Message* message_to_send;
 
-class QueryClient : Noncopyable
-{
+class QueryClient : Noncopyable {
  public:
   QueryClient(EventLoop* loop, const InetAddress& server_addr)
-  : loop_(loop)
-  , client_(loop, server_addr, "QueryClient")
-  , dispatcher_(boost::bind(&QueryClient::OnUnknownMessage, this, _1, _2, _3))
-  , codec_(boost::bind(&ProtobufDispatcher::OnProtobufMessage, &dispatcher_, _1, _2, _3))
-  {
-    dispatcher_.RegisterMessageCallback<fun::Answer>(boost::bind(&QueryClient::OnAnswer, this, _1, _2, _3));
-    dispatcher_.RegisterMessageCallback<fun::Empty>(boost::bind(&QueryClient::OnEmpty, this, _1, _2, _3));
-    client_.SetConnectionCallback(boost::bind(&QueryClient::OnConnection, this, _1));
-    client_.SetMessageCallback(boost::bind(&ProtobufCodec::OnMessage, &codec_, _1, _2, _3));
+      : loop_(loop),
+        client_(loop, server_addr, "QueryClient"),
+        dispatcher_(
+            boost::bind(&QueryClient::OnUnknownMessage, this, _1, _2, _3)),
+        codec_(boost::bind(&ProtobufDispatcher::OnProtobufMessage, &dispatcher_,
+                           _1, _2, _3)) {
+    dispatcher_.RegisterMessageCallback<fun::Answer>(
+        boost::bind(&QueryClient::OnAnswer, this, _1, _2, _3));
+    dispatcher_.RegisterMessageCallback<fun::Empty>(
+        boost::bind(&QueryClient::OnEmpty, this, _1, _2, _3));
+    client_.SetConnectionCallback(
+        boost::bind(&QueryClient::OnConnection, this, _1));
+    client_.SetMessageCallback(
+        boost::bind(&ProtobufCodec::OnMessage, &codec_, _1, _2, _3));
   }
 
-  void Connect()
-  {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
  private:
-  void OnConnection(const TcpConnectionPtr& conn)
-  {
+  void OnConnection(const TcpConnectionPtr& conn) {
     LOG_INFO << conn->GetLocalAddress().ToIpPort() << " -> "
-        << conn->GetPeerAddress().ToIpPort() << " is "
-        << (conn->IsConnected() ? "UP" : "DOWN");
+             << conn->GetPeerAddress().ToIpPort() << " is "
+             << (conn->IsConnected() ? "UP" : "DOWN");
 
-    if (conn->IsConnected())
-    {
+    if (conn->IsConnected()) {
       codec_.Send(conn, *message_to_send);
-    }
-    else
-    {
+    } else {
       loop_->Quit();
     }
   }
 
-  void OnUnknownMessage(const TcpConnectionPtr&,
-                        const MessagePtr& message,
-                        const Timestamp&)
-  {
+  void OnUnknownMessage(const TcpConnectionPtr&, const MessagePtr& message,
+                        const Timestamp&) {
     LOG_INFO << "OnUnknownMessage: " << message->GetTypeName();
   }
 
-  void OnAnswer(const fun::net::TcpConnectionPtr&,
-                const AnswerPtr& message,
-                const Timestamp&)
-  {
-    LOG_INFO << "OnAnswer:\n" << message->GetTypeName() << message->DebugString();
+  void OnAnswer(const fun::net::TcpConnectionPtr&, const AnswerPtr& message,
+                const Timestamp&) {
+    LOG_INFO << "OnAnswer:\n"
+             << message->GetTypeName() << message->DebugString();
   }
 
-  void OnEmpty(const fun::net::TcpConnectionPtr&,
-               const EmptyPtr& message,
-               const Timestamp&)
-  {
+  void OnEmpty(const fun::net::TcpConnectionPtr&, const EmptyPtr& message,
+               const Timestamp&) {
     LOG_INFO << "OnEmpty: " << message->GetTypeName();
   }
 
@@ -84,12 +76,9 @@ class QueryClient : Noncopyable
   ProtobufCodec codec_;
 };
 
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   LOG_INFO << "pid = " << Process::CurrentPid();
-  if (argc > 2)
-  {
+  if (argc > 2) {
     EventLoop loop;
     uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
     InetAddress server_addr(argv[1], port);
@@ -101,17 +90,14 @@ int main(int argc, char* argv[])
     fun::Empty empty;
     message_to_send = &query;
 
-    if (argc > 3 && argv[3][0] == 'e')
-    {
+    if (argc > 3 && argv[3][0] == 'e') {
       message_to_send = &empty;
     }
 
     QueryClient client(&loop, server_addr);
     client.Connect();
     loop.Loop();
-  }
-  else
-  {
+  } else {
     printf("Usage: %s host_ip port [q|e]\n", argv[0]);
   }
 }

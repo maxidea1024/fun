@@ -34,31 +34,28 @@ struct Entry {
 
 class DemuxServer : Noncopyable {
  public:
-  DemuxServer(EventLoop* loop,
-              const InetAddress& listen_addr,
+  DemuxServer(EventLoop* loop, const InetAddress& listen_addr,
               const InetAddress& socks_addr)
-    : loop_(loop)
-    , server_(loop, listen_addr, "DemuxServer")
-    , socks_addr_(socks_addr) {
-    server_.SetConnectionCallback(boost::bind(&DemuxServer::OnServerConnection, this, _1));
-    server_.SetMessageCallback(boost::bind(&DemuxServer::OnServerMessage, this, _1, _2, _3));
+      : loop_(loop),
+        server_(loop, listen_addr, "DemuxServer"),
+        socks_addr_(socks_addr) {
+    server_.SetConnectionCallback(
+        boost::bind(&DemuxServer::OnServerConnection, this, _1));
+    server_.SetMessageCallback(
+        boost::bind(&DemuxServer::OnServerMessage, this, _1, _2, _3));
   }
 
-  void Start() {
-    server_.Start();
-  }
+  void Start() { server_.Start(); }
 
   void OnServerConnection(const TcpConnectionPtr& conn) {
     if (conn->IsConnected()) {
       if (server_conn_) {
         conn->Shutdown();
-      }
-      else {
+      } else {
         server_conn_ = conn;
         LOG_INFO << "OnServerConnection set server_conn_";
       }
-    }
-    else {
+    } else {
       if (server_conn_ == conn) {
         server_conn_.Reset();
         socks_conns_.Clear();
@@ -68,15 +65,13 @@ class DemuxServer : Noncopyable {
     }
   }
 
-  void OnServerMessage( const TcpConnectionPtr& conn,
-                        Buffer* buf,
-                        const Timestamp&) {
+  void OnServerMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                       const Timestamp&) {
     while (buf->GetReadableLength() > kHeaderLen) {
       int len = static_cast<uint8_t>(*buf->GetReadablePtr());
       if (buf->GetReadableLength() < len + kHeaderLen) {
         break;
-      }
-      else {
+      } else {
         int conn_id = static_cast<uint8_t>(buf->GetReadablePtr()[1]);
         conn_id |= (static_cast<uint8_t>(buf->GetReadablePtr()[2]) << 8);
 
@@ -86,12 +81,11 @@ class DemuxServer : Noncopyable {
           if (socks_conn) {
             fun_check(socks_conns_[conn_id].pending.GetReadableLength() == 0);
             socks_conn->Send(buf->GetReadablePtr() + kHeaderLen, len);
+          } else {
+            socks_conns_[conn_id].pending.Append(
+                buf->GetReadablePtr() + kHeaderLen, len);
           }
-          else {
-            socks_conns_[conn_id].pending.Append(buf->GetReadablePtr() + kHeaderLen, len);
-          }
-        }
-        else {
+        } else {
           String cmd(buf->GetReadablePtr() + kHeaderLen, len);
           DoCommand(cmd);
         }
@@ -120,14 +114,12 @@ class DemuxServer : Noncopyable {
       // FIXME: SetWriteCompleteCallback
       socks_conns_[conn_id] = entry;
       entry.client->Connect();
-    }
-    else {
+    } else {
       fun_check(socks_conns_.find(conn_id) != socks_conns_.end());
       TcpConnectionPtr& socks_conn = socks_conns_[conn_id].connection;
       if (socks_conn) {
         socks_conn->Shutdown();
-      }
-      else {
+      } else {
         socks_conns_.erase(conn_id);
       }
     }
@@ -141,24 +133,20 @@ class DemuxServer : Noncopyable {
       if (pending_data.GetReadableLength() > 0) {
         conn->Send(&pending_data);
       }
-    }
-    else {
+    } else {
       if (server_conn_) {
         char buf[256];
         int len = snprintf(buf, sizeof(buf), "DISCONNECT %d\r\n", conn_id);
         Buffer buffer;
         buffer.Append(buf, len);
         SendServerPacket(0, &buffer);
-      }
-      else {
+      } else {
         socks_conns_.erase(conn_id);
       }
     }
   }
 
-  void OnSocksMessage(int conn_id,
-                      const TcpConnectionPtr& conn,
-                      Buffer* buf,
+  void OnSocksMessage(int conn_id, const TcpConnectionPtr& conn, Buffer* buf,
                       const Timestamp&) {
     fun_check(socks_conns_.find(conn_id) != socks_conns_.end());
     while (buf->GetReadableLength() > kMaxPacketLen) {
@@ -178,10 +166,8 @@ class DemuxServer : Noncopyable {
     LOG_DEBUG << len;
     fun_check(len <= kMaxPacketLen);
     uint8_t header[kHeaderLen] = {
-      static_cast<uint8_t>(len),
-      static_cast<uint8_t>(conn_id & 0xFF),
-      static_cast<uint8_t>((conn_id & 0xFF00) >> 8)
-    };
+        static_cast<uint8_t>(len), static_cast<uint8_t>(conn_id & 0xFF),
+        static_cast<uint8_t>((conn_id & 0xFF00) >> 8)};
     buf->Prepend(header, kHeaderLen);
     if (server_conn_) {
       server_conn_->Send(buf);

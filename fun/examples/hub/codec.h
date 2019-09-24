@@ -13,9 +13,7 @@ enum ParseResult {
   kContinue,
 };
 
-ParseResult ParseMessage(Buffer* buf,
-                         String* cmd,
-                         String* topic,
+ParseResult ParseMessage(Buffer* buf, String* cmd, String* topic,
                          String* content);
 
-} // namespace pubsub
+}  // namespace pubsub

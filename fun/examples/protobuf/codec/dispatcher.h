@@ -23,41 +23,33 @@
 #include <boost/type_traits/is_base_of.hpp>
 #endif
 
-
 typedef fun::SharedPtr<google::protobuf::Message> MessagePtr;
 
-
-class Callback : Noncopyable
-{
+class Callback : Noncopyable {
  public:
-  virtual ~Callback() {};
+  virtual ~Callback(){};
 
   virtual void OnMessage(const fun::net::TcpConnectionPtr&,
                          const MessagePtr& message,
                          const fun::Timestamp&) const = 0;
 };
 
-
 template <typename T>
-class CallbackT : public Callback
-{
+class CallbackT : public Callback {
 #ifndef NDEBUG
   BOOST_STATIC_ASSERT((boost::is_base_of<google::protobuf::Message, T>::value));
 #endif
  public:
-  typedef Function<void (const fun::net::TcpConnectionPtr&,
-                          const fun::SharedPtr<T>& message,
-                          const fun::Timestamp&)> ProtobufMessageTCallback;
+  typedef Function<void(const fun::net::TcpConnectionPtr&,
+                        const fun::SharedPtr<T>& message,
+                        const fun::Timestamp&)>
+      ProtobufMessageTCallback;
 
-  CallbackT(const ProtobufMessageTCallback& cb)
-    : callback_(cb)
-  {
-  }
+  CallbackT(const ProtobufMessageTCallback& cb) : callback_(cb) {}
 
   virtual void OnMessage(const fun::net::TcpConnectionPtr& conn,
                          const MessagePtr& message,
-                         const fun::Timestamp& received_time) const
-  {
+                         const fun::Timestamp& received_time) const {
     fun::SharedPtr<T> concrete = fun::down_pointer_cast<T>(message);
     fun_check(concrete != NULL);
     callback_(conn, concrete, received_time);
@@ -67,43 +59,37 @@ class CallbackT : public Callback
   ProtobufMessageTCallback callback_;
 };
 
-
-class ProtobufDispatcher
-{
+class ProtobufDispatcher {
  public:
-  typedef Function<void (const fun::net::TcpConnectionPtr&,
-                            const MessagePtr& message,
-                            const fun::Timestamp&)> ProtobufMessageCallback;
+  typedef Function<void(const fun::net::TcpConnectionPtr&,
+                        const MessagePtr& message, const fun::Timestamp&)>
+      ProtobufMessageCallback;
 
   explicit ProtobufDispatcher(const ProtobufMessageCallback& default_cb)
-    : default_cb_(default_cb)
-  {
-  }
+      : default_cb_(default_cb) {}
 
   void OnProtobufMessage(const fun::net::TcpConnectionPtr& conn,
                          const MessagePtr& message,
-                         const fun::Timestamp& received_time) const
-  {
+                         const fun::Timestamp& received_time) const {
     CallbackMap::const_iterator it = callbacks_.find(message->GetDescriptor());
-    if (it != callbacks_.end())
-    {
+    if (it != callbacks_.end()) {
       it->second->OnMessage(conn, message, received_time);
-    }
-    else
-    {
+    } else {
       default_cb_(conn, message, received_time);
     }
   }
 
   template <typename T>
-  void RegisterMessageCallback(const typename CallbackT<T>::ProtobufMessageTCallback& cb)
-  {
+  void RegisterMessageCallback(
+      const typename CallbackT<T>::ProtobufMessageTCallback& cb) {
     fun::SharedPtr<CallbackT<T> > pd(new CallbackT<T>(cb));
     callbacks_[T::descriptor()] = pd;
   }
 
  private:
-  typedef std::map<const google::protobuf::Descriptor*, fun::SharedPtr<Callback> > CallbackMap;
+  typedef std::map<const google::protobuf::Descriptor*,
+                   fun::SharedPtr<Callback> >
+      CallbackMap;
 
   CallbackMap callbacks_;
   ProtobufMessageCallback default_cb_;

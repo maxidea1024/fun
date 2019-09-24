@@ -1,9 +1,9 @@
 #include <examples/protobuf/resolver/resolver.pb.h>
 
+#include <examples/cdns/Resolver.h>
+#include <red/net/protorpc/RpcServer.h>
 #include "fun/base/logging.h"
 #include "fun/net/event_loop.h"
-#include <red/net/protorpc/RpcServer.h>
-#include <examples/cdns/Resolver.h>
 
 #include <boost/bind.hpp>
 
@@ -12,55 +12,42 @@
 using namespace fun;
 using namespace fun::net;
 
-
 namespace resolver {
 
-class ResolverServiceImpl : public ResolverService
-{
+class ResolverServiceImpl : public ResolverService {
  public:
   ResolverServiceImpl(EventLoop* loop)
-    : resolver_(loop, cdns::Resolver::kDnsOnly)
-  {
-  }
+      : resolver_(loop, cdns::Resolver::kDnsOnly) {}
 
   virtual void Resolve(::google::protobuf::RpcController* controller,
                        const ::resolver::ResolveRequest* request,
                        ::resolver::ResolveResponse* response,
-                       ::google::protobuf::Closure* done)
-  {
+                       ::google::protobuf::Closure* done) {
     LOG_INFO << "ResolverServiceImpl::Resolve " << request->GetAddress();
 
-    bool succeed = resolver_.Resolve(request->GetAddress(),
-                                     boost::bind(&ResolverServiceImpl::DoneCallback,
-                                                 this,
-                                                 request->GetAddress(),
-                                                 _1,
-                                                 response,
-                                                 done));
-    if (!succeed)
-    {
+    bool succeed = resolver_.Resolve(
+        request->GetAddress(),
+        boost::bind(&ResolverServiceImpl::DoneCallback, this,
+                    request->GetAddress(), _1, response, done));
+    if (!succeed) {
       response->set_resolved(false);
       done->Run();
     }
   }
 
  private:
-  void DoneCallback(const String& host,
-                    const fun::net::InetAddress& address,
+  void DoneCallback(const String& host, const fun::net::InetAddress& address,
                     ::resolver::ResolveResponse* response,
                     ::google::protobuf::Closure* done)
 
   {
     LOG_INFO << "ResolverServiceImpl::DoneCallback " << host;
     int32_t ip = address.ipNetEndian();
-    if (ip)
-    {
+    if (ip) {
       response->set_resolved(true);
       response->add_ip(ip);
       response->add_port(address.portNetEndian());
-    }
-    else
-    {
+    } else {
       response->set_resolved(false);
     }
     done->Run();
@@ -69,11 +56,9 @@ class ResolverServiceImpl : public ResolverService
   cdns::Resolver resolver_;
 };
 
-} // namespace resolver
+}  // namespace resolver
 
-
-int main()
-{
+int main() {
   LOG_INFO << "pid = " << Process::CurrentPid();
 
   EventLoop loop;

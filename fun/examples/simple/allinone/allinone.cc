@@ -15,7 +15,7 @@ using namespace fun::net;
 int main() {
   LOG_INFO << "pid = " << Process::CurrentPid();
 
-  EventLoop loop; // one loop shared by multiple servers
+  EventLoop loop;  // one loop shared by multiple servers
 
   ChargenServer chargen_server(&loop, InetAddress(2019));
   chargen_server.Start();

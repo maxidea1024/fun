@@ -1,12 +1,12 @@
 // Concurrent downloading one file from HTTP
 
 #include <examples/curl/Curl.h>
-#include "fun/base/logging.h"
-#include "fun/net/event_loop.h"
+#include <stdio.h>
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <stdio.h>
 #include <sstream>
+#include "fun/base/logging.h"
+#include "fun/net/event_loop.h"
 
 using namespace fun;
 using namespace fun::net;
@@ -15,25 +15,18 @@ typedef fun::SharedPtr<FILE> FilePtr;
 
 template <int N>
 bool StartsWith(const String& str, const char (&prefix)[N]) {
-  return str.size() >= N-1 && std::equal(prefix, prefix+N-1, str.begin());
+  return str.size() >= N - 1 && std::equal(prefix, prefix + N - 1, str.begin());
 }
 
 class Piece : Noncopyable {
  public:
-  Piece(const curl::RequestPtr& req,
-        const FilePtr& out,
-        const String& range,
+  Piece(const curl::RequestPtr& req, const FilePtr& out, const String& range,
         const Function<void()> done)
-    : req_(req)
-    , out_(out)
-    , range_(range)
-    , done_cb_(done) {
+      : req_(req), out_(out), range_(range), done_cb_(done) {
     LOG_INFO << "range: " << range;
     req->SetRange(range);
-    req_->SetDataCallback(
-        boost::bind(&Piece::OnData, this, _1, _2));
-    req_->SetDoneCallback(
-        boost::bind(&Piece::OnDone, this, _1, _2));
+    req_->SetDataCallback(boost::bind(&Piece::OnData, this, _1, _2));
+    req_->SetDoneCallback(boost::bind(&Piece::OnDone, this, _1, _2));
   }
 
  private:
@@ -57,15 +50,15 @@ class Piece : Noncopyable {
 class Downloader : Noncopyable {
  public:
   Downloader(EventLoop* loop, const String& url)
-    : loop_(loop)
-    , curl_(loop_)
-    , url_(url)
-    , req_(curl_.GetUrl(url_))
-    , found_(false)
-    , accept_ranges_(false)
-    , length_(0)
-    , pieces_(kConcurrent)
-    , concurrent_(0) {
+      : loop_(loop),
+        curl_(loop_),
+        url_(url),
+        req_(curl_.GetUrl(url_)),
+        found_(false),
+        accept_ranges_(false),
+        length_(0),
+        pieces_(kConcurrent),
+        concurrent_(0) {
     req_->SetHeaderCallback(boost::bind(&Downloader::OnHeader, this, _1, _2));
     req_->SetDoneCallback(boost::bind(&Downloader::OnHeaderDone, this, _1, _2));
     req_->HeaderOnly();
@@ -81,8 +74,7 @@ class Downloader : Noncopyable {
     if (line == "Accept-Ranges: bytes\r\n") {
       accept_ranges_ = true;
       LOG_DEBUG << "Accept-Ranges";
-    }
-    else if (StartsWith(line, "Content-Length:")) {
+    } else if (StartsWith(line, "Content-Length:")) {
       length_ = atoll(line.c_str() + strlen("Content-Length:"));
       LOG_INFO << "Content-Length: " << length_;
     }
@@ -94,26 +86,21 @@ class Downloader : Noncopyable {
       LOG_INFO << "Downloading with " << kConcurrent << " connections";
       concurrent_ = kConcurrent;
       ConcurrentDownload();
-    }
-    else if (found_) {
+    } else if (found_) {
       LOG_WARN << "Single connection download";
       FILE* fp = ::fopen("output", "wb");
       if (fp) {
         FilePtr(fp, ::fclose).swap(out_);
         req_.Reset();
         req2_ = curl_.GetUrl(url_);
-        req2_->SetDataCallback(
-            boost::bind(&Downloader::OnData, this, _1, _2));
-        req2_->SetDoneCallback(
-            boost::bind(&Downloader::onDownloadDone, this));
+        req2_->SetDataCallback(boost::bind(&Downloader::OnData, this, _1, _2));
+        req2_->SetDoneCallback(boost::bind(&Downloader::onDownloadDone, this));
         concurrent_ = 1;
-      }
-      else {
+      } else {
         LOG_ERROR << "Can not create output file";
         loop_->Quit();
       }
-    }
-    else {
+    } else {
       LOG_ERROR << "File not found";
       loop_->Quit();
     }
@@ -131,17 +118,15 @@ class Downloader : Noncopyable {
 
         std::ostringstream range;
         if (i < kConcurrent - 1) {
-          range << i * piece_len << "-" << (i+1) * piece_len - 1;
-        }
-        else {
+          range << i * piece_len << "-" << (i + 1) * piece_len - 1;
+        } else {
           range << i * piece_len << "-" << length_ - 1;
         }
-        pieces_.push_back(new Piece(req,
-                                    out,
-                                    range.str().c_str(), // String -> String
-                                    boost::bind(&Downloader::onDownloadDone, this)));
-      }
-      else {
+        pieces_.push_back(
+            new Piece(req, out,
+                      range.str().c_str(),  // String -> String
+                      boost::bind(&Downloader::onDownloadDone, this)));
+      } else {
         LOG_ERROR << "Can not create output file: " << buf;
         loop_->Quit();
       }
@@ -176,7 +161,9 @@ class Downloader : Noncopyable {
 int main(int argc, char* argv[]) {
   EventLoop loop;
   curl::Curl::Initialize(curl::Curl::kCURLssl);
-  String url = argc > 1 ? argv[1] : "https://chenshuo-public.s3.amazonaws.com/pdf/allinone.pdf";
+  String url =
+      argc > 1 ? argv[1]
+               : "https://chenshuo-public.s3.amazonaws.com/pdf/allinone.pdf";
   Downloader downloader(&loop, url);
   loop.Loop();
 }

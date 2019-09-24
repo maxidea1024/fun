@@ -1,8 +1,8 @@
 #include <examples/curl/Curl.h>
+#include <boost/bind.hpp>
 #include "fun/base/logging.h"
 #include "fun/net/channel.h"
 #include "fun/net/event_loop.h"
-#include <boost/bind.hpp>
 
 #include <curl/curl.h>
 #include <fun_check.h>
@@ -11,12 +11,10 @@ using namespace curl;
 using namespace fun;
 using namespace fun::net;
 
-static void Dummy(const fun::SharedPtr<Channel>&) {
-}
+static void Dummy(const fun::SharedPtr<Channel>&) {}
 
 Request::Request(Curl* owner, const char* url)
-  : owner_(owner)
-  , curl_(CHECK_NOTNULL(curl_easy_init())) {
+    : owner_(owner), curl_(CHECK_NOTNULL(curl_easy_init())) {
   setopt(CURLOPT_URL, url);
   setopt(CURLOPT_WRITEFUNCTION, &Request::WriteData);
   setopt(CURLOPT_WRITEDATA, this);
@@ -42,9 +40,7 @@ Request::~Request() {
 //   setopt(CURLOPT_MAXREDIRS, redirects);
 // }
 
-void Request::HeaderOnly() {
-  setopt(CURLOPT_NOBODY, 1);
-}
+void Request::HeaderOnly() { setopt(CURLOPT_NOBODY, 1); }
 
 void Request::SetRange(const StringArg range) {
   setopt(CURLOPT_RANGE, range.c_str());
@@ -56,20 +52,17 @@ const char* Request::GetEffectiveUrl() {
   return p;
 }
 
-
 const char* Request::GetRedirectUrl() {
   const char* p = NULL;
   curl_easy_getinfo(curl_, CURLINFO_REDIRECT_URL, &p);
   return p;
 }
 
-
 int Request::GetResponseCode() {
   long code = 0;
   curl_easy_getinfo(curl_, CURLINFO_RESPONSE_CODE, &code);
   return static_cast<int>(code);
 }
-
 
 Channel* Request::SetChannel(int fd) {
   fun_check(channel_.Get() == NULL);
@@ -78,7 +71,6 @@ Channel* Request::SetChannel(int fd) {
   return get_pointer(channel_);
 }
 
-
 void Request::RemoveChannel() {
   channel_->DisableAll();
   channel_->Remove();
@@ -86,13 +78,11 @@ void Request::RemoveChannel() {
   channel_.Reset();
 }
 
-
 void Request::Done(int code) {
   if (done_cb_) {
     done_cb_(this, code);
   }
 }
-
 
 void Request::DataCallback(const char* buffer, int len) {
   if (data_cb_) {
@@ -100,27 +90,27 @@ void Request::DataCallback(const char* buffer, int len) {
   }
 }
 
-
 void Request::HeaderCallback(const char* buffer, int len) {
   if (header_cb_) {
     header_cb_(buffer, len);
   }
 }
 
-size_t Request::WriteData(char* buffer, size_t size, size_t nmemb, void* userp) {
+size_t Request::WriteData(char* buffer, size_t size, size_t nmemb,
+                          void* userp) {
   fun_check(size == 1);
   Request* req = static_cast<Request*>(userp);
   req->DataCallback(buffer, static_cast<int>(nmemb));
   return nmemb;
 }
 
-size_t Request::HeaderData(char* buffer, size_t size, size_t nmemb, void* userp) {
+size_t Request::HeaderData(char* buffer, size_t size, size_t nmemb,
+                           void* userp) {
   fun_check(size == 1);
   Request* req = static_cast<Request*>(userp);
   req->HeaderCallback(buffer, static_cast<int>(nmemb));
   return nmemb;
 }
-
 
 // ==================================================================
 
@@ -128,10 +118,10 @@ void Curl::Initialize(Option opt) {
   curl_global_init(opt == kCURLnossl ? CURL_GLOBAL_NOTHING : CURL_GLOBAL_SSL);
 }
 
-
-int Curl::SocketCallback(CURL* c, int fd, int what, void* userp, void* socketp) {
+int Curl::SocketCallback(CURL* c, int fd, int what, void* userp,
+                         void* socketp) {
   Curl* curl = static_cast<Curl*>(userp);
-  const char *whatstr[]={ "none", "IN", "OUT", "INOUT", "REMOVE" };
+  const char* whatstr[] = {"none", "IN", "OUT", "INOUT", "REMOVE"};
   LOG_DEBUG << "Curl::SocketCallback [" << curl << "] - fd = " << fd
             << " what = " << whatstr[what];
   Request* req = NULL;
@@ -143,8 +133,7 @@ int Curl::SocketCallback(CURL* c, int fd, int what, void* userp, void* socketp) 
     req->RemoveChannel();
     ch = NULL;
     curl_multi_assign(curl->curlm_, fd, ch);
-  }
-  else {
+  } else {
     fun::net::Channel* ch = static_cast<Channel*>(socketp);
     if (!ch) {
       ch = req->SetChannel(fd);
@@ -158,56 +147,49 @@ int Curl::SocketCallback(CURL* c, int fd, int what, void* userp, void* socketp) 
     // update
     if (what & CURL_POLL_OUT) {
       ch->EnableWriting();
-    }
-    else {
+    } else {
       ch->DisableWriting();
     }
   }
   return 0;
 }
 
-
 int Curl::TimerCallback(CURLM* curlm, long ms, void* userp) {
   Curl* curl = static_cast<Curl*>(userp);
   LOG_DEBUG << curl << " " << ms << " ms";
-  curl->loop_->ScheduleAfter(static_cast<int>(ms)/1000.0, boost::bind(&Curl::OnTimer, curl));
+  curl->loop_->ScheduleAfter(static_cast<int>(ms) / 1000.0,
+                             boost::bind(&Curl::OnTimer, curl));
   return 0;
 }
 
-
 Curl::Curl(EventLoop* loop)
-  : loop_(loop)
-  , curlm_(CHECK_NOTNULL(curl_multi_init()))
-  , running_handles_(0)
-  , prev_running_handles_(0) {
+    : loop_(loop),
+      curlm_(CHECK_NOTNULL(curl_multi_init())),
+      running_handles_(0),
+      prev_running_handles_(0) {
   curl_multi_setopt(curlm_, CURLMOPT_SOCKETFUNCTION, &Curl::SocketCallback);
   curl_multi_setopt(curlm_, CURLMOPT_SOCKETDATA, this);
   curl_multi_setopt(curlm_, CURLMOPT_TIMERFUNCTION, &Curl::TimerCallback);
   curl_multi_setopt(curlm_, CURLMOPT_TIMERDATA, this);
 }
 
-
-Curl::~Curl() {
-  curl_multi_cleanup(curlm_);
-}
-
+Curl::~Curl() { curl_multi_cleanup(curlm_); }
 
 RequestPtr Curl::GetUrl(StringArg url) {
   RequestPtr req(new Request(this, url.c_str()));
   return req;
 }
 
-
 void Curl::OnTimer() {
   CURLMcode rc = CURLM_OK;
   do {
     LOG_TRACE;
-    rc = curl_multi_socket_action(curlm_, CURL_SOCKET_TIMEOUT, 0, &running_handles_);
+    rc = curl_multi_socket_action(curlm_, CURL_SOCKET_TIMEOUT, 0,
+                                  &running_handles_);
     LOG_TRACE << rc << " " << running_handles_;
   } while (rc == CURLM_CALL_MULTI_PERFORM);
   CheckFinish();
 }
-
 
 void Curl::OnRead(int fd) {
   CURLMcode rc = CURLM_OK;
@@ -219,7 +201,6 @@ void Curl::OnRead(int fd) {
   CheckFinish();
 }
 
-
 void Curl::OnWrite(int fd) {
   CURLMcode rc = CURLM_OK;
   do {
@@ -230,12 +211,11 @@ void Curl::OnWrite(int fd) {
   CheckFinish();
 }
 
-
 void Curl::CheckFinish() {
   if (prev_running_handles_ > running_handles_ || running_handles_ == 0) {
     CURLMsg* msg = NULL;
     int left = 0;
-    while ( (msg = curl_multi_info_read(curlm_, &left)) != NULL) {
+    while ((msg = curl_multi_info_read(curlm_, &left)) != NULL) {
       if (msg->msg == CURLMSG_DONE) {
         CURL* c = msg->easy_handle;
         CURLcode res = msg->data.result;

@@ -1,10 +1,10 @@
 #include "codec.h"
 
+#include <red/net/EventLoopThreadPool.h>
 #include "fun/base/atomic.h"
 #include "fun/base/logging.h"
 #include "fun/base/mutex.h"
 #include "fun/net/event_loop.h"
-#include <red/net/EventLoopThreadPool.h>
 #include "fun/net/tcp_client.h"
 
 #include <boost/bind.hpp>
@@ -31,26 +31,24 @@ TODO
 class ChatClient : Noncopyable {
  public:
   ChatClient(EventLoop* loop, const InetAddress& server_addr)
-    : loop_(loop)
-    , client_(loop, server_addr, "LoadTestClient")
-    , codec_(boost::bind(&ChatClient::OnStringMessage, this, _1, _2, _3)) {
-    client_.SetConnectionCallback(boost::bind(&ChatClient::OnConnection, this, _1));
-    client_.SetMessageCallback(boost::bind(&LengthHeaderCodec::OnMessage, &codec_, _1, _2, _3));
+      : loop_(loop),
+        client_(loop, server_addr, "LoadTestClient"),
+        codec_(boost::bind(&ChatClient::OnStringMessage, this, _1, _2, _3)) {
+    client_.SetConnectionCallback(
+        boost::bind(&ChatClient::OnConnection, this, _1));
+    client_.SetMessageCallback(
+        boost::bind(&LengthHeaderCodec::OnMessage, &codec_, _1, _2, _3));
 
-    //client_.EnableRetry();
+    // client_.EnableRetry();
   }
 
-  void Connect() {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
   void Disconnect() {
     // client_.Disconnect();
   }
 
-  Timestamp GetReceivedTime() const {
-    return received_time_;
-  }
+  Timestamp GetReceivedTime() const { return received_time_; }
 
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
@@ -64,14 +62,12 @@ class ChatClient : Noncopyable {
         LOG_INFO << "all connected";
         loop_->ScheduleAfter(10.0, boost::bind(&ChatClient::Send, this));
       }
-    }
-    else {
+    } else {
       connection_.Reset();
     }
   }
 
-  void OnStringMessage(const TcpConnectionPtr&,
-                       const String& message,
+  void OnStringMessage(const TcpConnectionPtr&, const String& message,
                        const Timestamp&) {
     // printf("<<< %s\n", message.c_str());
     received_time_ = loop_->GetPollReturnTime();
@@ -81,8 +77,7 @@ class ChatClient : Noncopyable {
       LOG_INFO << "all received " << g_connections << " in "
                << TimeDifference(end_time, g_start_time);
       g_loop->QueueInLoop(g_statistic);
-    }
-    else if (received % 1000 == 0) {
+    } else if (received % 1000 == 0) {
       LOG_DEBUG << received;
     }
   }
@@ -109,11 +104,12 @@ void statistic(const boost::ptr_vector<ChatClient>& clients) {
   }
 
   std::sort(seconds.begin(), seconds.end());
-  for (size_t i = 0; i < clients.size(); i += std::max(static_cast<size_t>(1), clients.size()/20)) {
-    printf("%6zd%% %.6f\n", i*100/clients.size(), seconds[i]);
+  for (size_t i = 0; i < clients.size();
+       i += std::max(static_cast<size_t>(1), clients.size() / 20)) {
+    printf("%6zd%% %.6f\n", i * 100 / clients.size(), seconds[i]);
   }
   if (clients.size() >= 100) {
-    printf("%6d%% %.6f\n", 99, seconds[clients.size() - clients.size()/100]);
+    printf("%6d%% %.6f\n", 99, seconds[clients.size() - clients.size() / 100]);
   }
   printf("%6d%% %.6f\n", 100, seconds.back());
 }
@@ -148,8 +144,7 @@ int main(int argc, char* argv[]) {
 
     loop.Loop();
     // client.Disconnect();
-  }
-  else {
+  } else {
     printf("Usage: %s host_ip port connections [thread_count]\n", argv[0]);
   }
 }

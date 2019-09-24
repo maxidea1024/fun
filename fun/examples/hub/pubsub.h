@@ -1,22 +1,21 @@
 ﻿#pragma once
 
 #include "fun/base/function.h"
-#include "fun/net/tcp_connection.h"
 #include "fun/net/tcp_client.h"
+#include "fun/net/tcp_connection.h"
 
 namespace pubsub {
 
 // FIXME: dtor is not thread safe
 class PubSubClient : Noncopyable {
  public:
-  typedef Function<void (PubSubClient*)> ConnectionCallback;
+  typedef Function<void(PubSubClient*)> ConnectionCallback;
 
-  typedef Function<void ( const String& topic,
-                          const String& content,
-                          const Timestamp&)> SubscribeCallback;
+  typedef Function<void(const String& topic, const String& content,
+                        const Timestamp&)>
+      SubscribeCallback;
 
-  PubSubClient(EventLoop* loop,
-               const InetAddress& hub_addr,
+  PubSubClient(EventLoop* loop, const InetAddress& hub_addr,
                const String& name);
 
   void Start();
@@ -25,12 +24,11 @@ class PubSubClient : Noncopyable {
 
   bool IsConnected() const;
 
-  void SetConnectionCallback(const ConnectionCallback& cb)
-  {
+  void SetConnectionCallback(const ConnectionCallback& cb) {
     connection_cb_ = cb;
   }
 
-  //TODO topic에 wildcard 혹은 regex를 적용해주는게 좋을듯...
+  // TODO topic에 wildcard 혹은 regex를 적용해주는게 좋을듯...
   bool Subscribe(const String& topic, const SubscribeCallback& cb);
 
   void Unsubscribe(const String& topic);
@@ -40,8 +38,7 @@ class PubSubClient : Noncopyable {
  private:
   void OnConnection(const TcpConnectionPtr& conn);
 
-  void OnMessage(const TcpConnectionPtr& conn,
-                 Buffer* buf,
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
                  const Timestamp& received_time);
 
   bool Send(const String& message);
@@ -52,4 +49,4 @@ class PubSubClient : Noncopyable {
   SubscribeCallback subscribe_cb_;
 };
 
-} // namespace pubsub
+}  // namespace pubsub

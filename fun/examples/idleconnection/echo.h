@@ -13,23 +13,21 @@ template <typename T>
 inline size_t hash_value(const fun::SharedPtr<T>& x) {
   return boost::hash_value(x.get());
 }
-}
+}  // namespace boost
 #endif
 
 // RFC 862
 class EchoServer {
  public:
   EchoServer(fun::net::EventLoop* loop,
-             const fun::net::InetAddress& listen_addr,
-             int idle_seconds);
+             const fun::net::InetAddress& listen_addr, int idle_seconds);
 
   void Start();
 
  private:
   void OnConnection(const fun::net::TcpConnectionPtr& conn);
 
-  void OnMessage(const fun::net::TcpConnectionPtr& conn,
-                 fun::net::Buffer* buf,
+  void OnMessage(const fun::net::TcpConnectionPtr& conn, fun::net::Buffer* buf,
                  const fun::Timestamp& time);
 
   void OnTimer();
@@ -40,8 +38,7 @@ class EchoServer {
 
   struct Entry : public fun::copyable {
     explicit Entry(const WeakTcpConnectionPtr& weak_conn)
-      : weak_conn_(weak_conn) {
-    }
+        : weak_conn_(weak_conn) {}
 
     ~Entry() {
       fun::net::TcpConnectionPtr conn = weak_conn_.lock();

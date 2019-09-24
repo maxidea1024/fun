@@ -23,10 +23,12 @@ int g_thread_count = 0;
 class EchoServer {
  public:
   EchoServer(EventLoop* loop, const InetAddress& listen_addr)
-    : server_(loop, listen_addr, "EchoServer")
-    , start_time_(Timestamp::Now()) {
-    server_.SetConnectionCallback(boost::bind(&EchoServer::OnConnection, this, _1));
-    server_.SetMessageCallback(boost::bind(&EchoServer::OnMessage, this, _1, _2, _3));
+      : server_(loop, listen_addr, "EchoServer"),
+        start_time_(Timestamp::Now()) {
+    server_.SetConnectionCallback(
+        boost::bind(&EchoServer::OnConnection, this, _1));
+    server_.SetMessageCallback(
+        boost::bind(&EchoServer::OnMessage, this, _1, _2, _3));
     server_.SetThreadCount(g_thread_count);
     loop->ScheduleEvery(5.0, boost::bind(&EchoServer::PrintThroughput, this));
   }
@@ -40,22 +42,19 @@ class EchoServer {
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
     LOG_TRACE << conn->GetPeerAddress().ToIpPort() << " -> "
-        << conn->GetLocalAddress().ToIpPort() << " is "
-        << (conn->IsConnected() ? "UP" : "DOWN");
+              << conn->GetLocalAddress().ToIpPort() << " is "
+              << (conn->IsConnected() ? "UP" : "DOWN");
 
     conn->SetTcpNoDelay(true);
 
     if (conn->IsConnected()) {
       connections_.increment();
-    }
-    else {
+    } else {
       connections_.decrement();
     }
   }
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp&) {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, const Timestamp&) {
     size_t len = buf->GetReadableLength();
     transferred_bytes_.addAndGet(len);
     received_messages_.IncrementAndGet();
@@ -66,13 +65,12 @@ class EchoServer {
     Timestamp end_time = Timestamp::Now();
     double bytes = static_cast<double>(transferred_bytes_.getAndSet(0));
     int msgs = received_messages_.getAndSet(0);
-    double bytesPerMsg = msgs > 0 ?  bytes/msgs : 0;
+    double bytesPerMsg = msgs > 0 ? bytes / msgs : 0;
     double time = TimeDifference(end_time, start_time_);
 
     printf("%.3f MiB/s %.2f Kilo Msgs/s %.2f bytes per msg, ",
-        bytes/time/1024/1024,
-        static_cast<double>(msgs)/time/1000,
-        bytesPerMsg);
+           bytes / time / 1024 / 1024, static_cast<double>(msgs) / time / 1000,
+           bytesPerMsg);
 
     printConnection();
     fflush(stdout);
@@ -82,10 +80,8 @@ class EchoServer {
   void printConnection() {
     String procStatus = ProcessInfo::procStatus();
     printf("%d conn, files %d , VmSize %ld KiB, RSS %ld KiB, ",
-           connections_.get(),
-           ProcessInfo::openedFiles(),
-           getLong(procStatus, "VmSize:"),
-           getLong(procStatus, "VmRSS:"));
+           connections_.get(), ProcessInfo::openedFiles(),
+           getLong(procStatus, "VmSize:"), getLong(procStatus, "VmRSS:"));
 
     String meminfo;
     FileUtil::readFile("/proc/meminfo", 65536, &meminfo);

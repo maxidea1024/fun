@@ -1,21 +1,17 @@
 #include "fun/net/event_loop.h"
 
-#include <iostream>
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
+#include <iostream>
 
 class Printer : Noncopyable {
  public:
-  Printer(fun::net::EventLoop* loop)
-    : loop_(loop)
-    , count_(0) {
+  Printer(fun::net::EventLoop* loop) : loop_(loop), count_(0) {
     // Note: loop.ScheduleEvery() is better for this use case.
     loop_->ScheduleAfter(1, boost::bind(&Printer::Print, this));
   }
 
-  ~Printer() {
-    std::cout << "Final count is " << count_ << "\n";
-  }
+  ~Printer() { std::cout << "Final count is " << count_ << "\n"; }
 
   void Print() {
     if (count_ < 5) {
@@ -23,8 +19,7 @@ class Printer : Noncopyable {
       ++count_;
 
       loop_->ScheduleAfter(1, boost::bind(&Printer::Print, this));
-    }
-    else {
+    } else {
       loop_->Quit();
     }
   }

@@ -8,33 +8,27 @@ using std::cout;
 using std::endl;
 
 void OnUnknownMessageType(const fun::net::TcpConnectionPtr&,
-                          const MessagePtr& message,
-                          fun::Timestamp)
-{
+                          const MessagePtr& message, fun::Timestamp) {
   cout << "OnUnknownMessageType: " << message->GetTypeName() << endl;
 }
 
-void OnQuery(const fun::net::TcpConnectionPtr&,
-             const MessagePtr& message,
-             fun::Timestamp)
-{
+void OnQuery(const fun::net::TcpConnectionPtr&, const MessagePtr& message,
+             fun::Timestamp) {
   cout << "OnQuery: " << message->GetTypeName() << endl;
-  fun::SharedPtr<fun::Query> query = fun::down_pointer_cast<fun::Query>(message);
+  fun::SharedPtr<fun::Query> query =
+      fun::down_pointer_cast<fun::Query>(message);
   fun_check(query != NULL);
 }
 
-void OnAnswer(const fun::net::TcpConnectionPtr&,
-              const MessagePtr& message,
-              fun::Timestamp)
-{
+void OnAnswer(const fun::net::TcpConnectionPtr&, const MessagePtr& message,
+              fun::Timestamp) {
   cout << "OnAnswer: " << message->GetTypeName() << endl;
-  fun::SharedPtr<fun::Answer> answer = fun::down_pointer_cast<fun::Answer>(message);
+  fun::SharedPtr<fun::Answer> answer =
+      fun::down_pointer_cast<fun::Answer>(message);
   fun_check(answer != NULL);
 }
 
-
-int main()
-{
+int main() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ProtobufDispatcherLite dispatcher(OnUnknownMessageType);

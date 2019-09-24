@@ -1,9 +1,9 @@
-﻿#include "fun/net/tcp_client.h"
-#include "fun/base/logging.h"
+﻿#include "fun/base/logging.h"
 #include "fun/base/thread.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/event_loop_thread_pool.h"
 #include "fun/net/inet_address.h"
+#include "fun/net/tcp_client.h"
 
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -20,41 +20,32 @@ class Client;
 
 class Session : Noncopyable {
  public:
-  Session(EventLoop* loop,
-          const InetAddress& server_addr,
-          const String& name,
+  Session(EventLoop* loop, const InetAddress& server_addr, const String& name,
           Client* owner)
-    : client_(loop, server_addr, name)
-    , owner_(owner)
-    , bytes_readed_(0)
-    , bytes_written_(0)
-    , messages_readed_(0) {
-    client_.SetConnectionCallback(boost::bind(&Session::OnConnection, this, _1));
-    client_.SetMessageCallback(boost::bind(&Session::OnMessage, this, _1, _2, _3));
+      : client_(loop, server_addr, name),
+        owner_(owner),
+        bytes_readed_(0),
+        bytes_written_(0),
+        messages_readed_(0) {
+    client_.SetConnectionCallback(
+        boost::bind(&Session::OnConnection, this, _1));
+    client_.SetMessageCallback(
+        boost::bind(&Session::OnMessage, this, _1, _2, _3));
   }
 
-  void Start() {
-    client_.Connect();
-  }
+  void Start() { client_.Connect(); }
 
-  void Stop() {
-    client_.Disconnect();
-  }
+  void Stop() { client_.Disconnect(); }
 
-  int64_t GetBytesReaded() const {
-     return bytes_readed_;
-  }
+  int64_t GetBytesReaded() const { return bytes_readed_; }
 
-  int64_t GetMessagesReaded() const {
-     return messages_readed_;
-  }
+  int64_t GetMessagesReaded() const { return messages_readed_; }
 
  private:
   void OnConnection(const TcpConnectionPtr& conn);
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp& received_time) {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                 const Timestamp& received_time) {
     ++messages_readed_;
     bytes_readed_ += buf->GetReadableLength();
     bytes_written_ += buf->GetReadableLength();
@@ -70,16 +61,12 @@ class Session : Noncopyable {
 
 class Client : Noncopyable {
  public:
-  Client(EventLoop* loop,
-         const InetAddress& server_addr,
-         int block_size,
-         int session_count,
-         int timeout,
-         int thread_count)
-    : loop_(loop)
-    , thread_pool_(loop, "pingpong-client")
-    , session_count_(session_count)
-    , timeout_(timeout) {
+  Client(EventLoop* loop, const InetAddress& server_addr, int block_size,
+         int session_count, int timeout, int thread_count)
+      : loop_(loop),
+        thread_pool_(loop, "pingpong-client"),
+        session_count_(session_count),
+        timeout_(timeout) {
     loop->ScheduleAfter(timeout, boost::bind(&Client::HandleTimeout, this));
 
     if (thread_count > 1) {
@@ -95,15 +82,14 @@ class Client : Noncopyable {
       char buf[32];
       snprintf(buf, sizeof buf, "C%05d", i);
 
-      Session* session = new Session(thread_pool_.GetNextLoop(), server_addr, buf, this);
+      Session* session =
+          new Session(thread_pool_.GetNextLoop(), server_addr, buf, this);
       session->Start();
       sessions_.push_back(session);
     }
   }
 
-  const String& GetMessage() const {
-    return message_;
-  }
+  const String& GetMessage() const { return message_; }
 
   void OnConnect() {
     if (connected_count_.IncrementAndGet() == session_count_) {
@@ -118,24 +104,24 @@ class Client : Noncopyable {
       int64_t total_bytes_readed = 0;
       int64_t total_messages_readed = 0;
       for (boost::ptr_vector<Session>::iterator it = sessions_.begin();
-          it != sessions_.end(); ++it) {
+           it != sessions_.end(); ++it) {
         total_bytes_readed += it->GetBytesReaded();
         total_messages_readed += it->GetMessagesReaded();
       }
       LOG_WARN << total_bytes_readed << " total bytes read";
       LOG_WARN << total_messages_readed << " total messages read";
-      LOG_WARN << static_cast<double>(total_bytes_readed) / static_cast<double>(total_messages_readed)
+      LOG_WARN << static_cast<double>(total_bytes_readed) /
+                      static_cast<double>(total_messages_readed)
                << " average message size";
-      LOG_WARN << static_cast<double>(total_bytes_readed) / (timeout_ * 1024 * 1024)
+      LOG_WARN << static_cast<double>(total_bytes_readed) /
+                      (timeout_ * 1024 * 1024)
                << " MiB/s throughput";
       conn->GetLoop()->QueueInLoop(boost::bind(&Client::Quit, this));
     }
   }
 
  private:
-  void Quit() {
-    loop_->QueueInLoop(boost::bind(&EventLoop::Quit, loop_));
-  }
+  void Quit() { loop_->QueueInLoop(boost::bind(&EventLoop::Quit, loop_)); }
 
   void HandleTimeout() {
     LOG_WARN << "Stop";
@@ -157,8 +143,7 @@ void Session::OnConnection(const TcpConnectionPtr& conn) {
     conn->SetTcpNoDelay(true);
     conn->Send(owner_->GetMessage());
     owner_->OnConnect();
-  }
-  else {
+  } else {
     owner_->OnDisconnect(conn);
   }
 }
@@ -167,9 +152,9 @@ int main(int argc, char* argv[]) {
   if (argc != 7) {
     fprintf(stderr, "Usage: client <host_ip> <port> <threads> <blocksize> ");
     fprintf(stderr, "<sessions> <time>\n");
-  }
-  else {
-    LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
+  } else {
+    LOG_INFO << "pid = " << Process::CurrentPid()
+             << ", tid = " << Thread::CurrentTid();
     Logger::SetLogLevel(Logger::WARN);
 
     const char* ip = argv[1];
@@ -181,7 +166,8 @@ int main(int argc, char* argv[]) {
 
     EventLoop loop;
     InetAddress server_addr(ip, port);
-    Client client(&loop, server_addr, block_size, session_count, timeout, thread_count);
+    Client client(&loop, server_addr, block_size, session_count, timeout,
+                  thread_count);
     loop.Loop();
   }
 }

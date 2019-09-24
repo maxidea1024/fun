@@ -1,7 +1,7 @@
 // #include "fun/net/tcp_client.h"
 
-#include "fun/base/logging.h"
 #include <red/base/Thread.h>
+#include "fun/base/logging.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/inet_address.h"
 
@@ -18,25 +18,26 @@ using namespace fun::net;
 class DiscardClient : Noncopyable {
  public:
   DiscardClient(EventLoop* loop, const InetAddress& listen_addr, int size)
-    : loop_(loop)
-    , client_(loop, listen_addr, "DiscardClient")
-    , message_(size, 'H') {
-    client_.SetConnectionCallback(boost::bind(&DiscardClient::OnConnection, this, _1));
-    client_.SetMessageCallback(boost::bind(&DiscardClient::OnMessage, this, _1, _2, _3));
-    client_.SetWriteCompleteCallback(boost::bind(&DiscardClient::OnWriteComplete, this, _1));
+      : loop_(loop),
+        client_(loop, listen_addr, "DiscardClient"),
+        message_(size, 'H') {
+    client_.SetConnectionCallback(
+        boost::bind(&DiscardClient::OnConnection, this, _1));
+    client_.SetMessageCallback(
+        boost::bind(&DiscardClient::OnMessage, this, _1, _2, _3));
+    client_.SetWriteCompleteCallback(
+        boost::bind(&DiscardClient::OnWriteComplete, this, _1));
 
-    //client_.EnableRetry();
+    // client_.EnableRetry();
   }
 
-  void Connect() {
-    client_.Connect();
-  }
+  void Connect() { client_.Connect(); }
 
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
     LOG_TRACE << conn->GetLocalAddress().ToIpPort() << " -> "
-        << conn->GetPeerAddress().ToIpPort() << " is "
-        << (conn->IsConnected() ? "UP" : "DOWN");
+              << conn->GetPeerAddress().ToIpPort() << " is "
+              << (conn->IsConnected() ? "UP" : "DOWN");
 
     if (conn->IsConnected()) {
       conn->SetTcpNoDelay(true);
@@ -46,9 +47,8 @@ class DiscardClient : Noncopyable {
     }
   }
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp& time) {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                 const Timestamp& time) {
     buf->DrainAll();
   }
 
@@ -63,7 +63,8 @@ class DiscardClient : Noncopyable {
 };
 
 int main(int argc, char* argv[]) {
-  LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
+  LOG_INFO << "pid = " << Process::CurrentPid()
+           << ", tid = " << Thread::CurrentTid();
 
   if (argc > 1) {
     EventLoop loop;

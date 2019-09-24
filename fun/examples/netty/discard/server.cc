@@ -1,8 +1,8 @@
 #include "fun/net/tcp_server.h"
 
 #include <red/base/Atomic.h>
-#include "fun/base/logging.h"
 #include <red/base/Thread.h>
+#include "fun/base/logging.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/inet_address.h"
 
@@ -21,13 +21,16 @@ int thread_count = 0;
 class DiscardServer {
  public:
   DiscardServer(EventLoop* loop, const InetAddress& listen_addr)
-    : server_(loop, listen_addr, "DiscardServer")
-    , old_counter_(0)
-    , start_time_(Timestamp::Now()) {
-    server_.SetConnectionCallback(boost::bind(&DiscardServer::OnConnection, this, _1));
-    server_.SetMessageCallback(boost::bind(&DiscardServer::OnMessage, this, _1, _2, _3));
+      : server_(loop, listen_addr, "DiscardServer"),
+        old_counter_(0),
+        start_time_(Timestamp::Now()) {
+    server_.SetConnectionCallback(
+        boost::bind(&DiscardServer::OnConnection, this, _1));
+    server_.SetMessageCallback(
+        boost::bind(&DiscardServer::OnMessage, this, _1, _2, _3));
     server_.SetThreadCount(thread_count);
-    loop->ScheduleEvery(3.0, boost::bind(&DiscardServer::PrintThroughput, this));
+    loop->ScheduleEvery(3.0,
+                        boost::bind(&DiscardServer::PrintThroughput, this));
   }
 
   void Start() {
@@ -42,9 +45,7 @@ class DiscardServer {
               << (conn->IsConnected() ? "UP" : "DOWN");
   }
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp&) {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf, const Timestamp&) {
     size_t len = buf->GetReadableLength();
     transferred_.add(len);
     received_messages_.IncrementAndGet();
@@ -60,9 +61,10 @@ class DiscardServer {
     double time = TimeDifference(end_time, start_time_);
 
     printf("%4.3f MiB/s %4.3f Ki Msgs/s %6.2f bytes per msg\n",
-        static_cast<double>(transfered_bytes)/time/1024/1024,
-        static_cast<double>(received_msg_count)/time/1024,
-        static_cast<double>(transfered_bytes)/static_cast<double>(received_msg_count));
+           static_cast<double>(transfered_bytes) / time / 1024 / 1024,
+           static_cast<double>(received_msg_count) / time / 1024,
+           static_cast<double>(transfered_bytes) /
+               static_cast<double>(received_msg_count));
 
     old_counter_ = new_counter;
     start_time_ = end_time;
@@ -77,7 +79,8 @@ class DiscardServer {
 };
 
 int main(int argc, char* argv[]) {
-  LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
+  LOG_INFO << "pid = " << Process::CurrentPid()
+           << ", tid = " << Thread::CurrentTid();
 
   if (argc > 1) {
     thread_count = atoi(argv[1]);

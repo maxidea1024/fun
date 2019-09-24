@@ -1,14 +1,14 @@
 #include "sudoku.h"
 
 #include <red/base/Atomic.h>
-#include "fun/base/logging.h"
 #include <red/base/Thread.h>
 #include <red/base/ThreadPool.h>
+#include <red/net/inspect/Inspector.h>
+#include "fun/base/logging.h"
 #include "fun/net/event_loop.h"
 #include "fun/net/event_loop_thread.h"
 #include "fun/net/inet_address.h"
 #include "fun/net/tcp_server.h"
-#include <red/net/inspect/Inspector.h>
 
 #include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
@@ -24,19 +24,17 @@ using namespace fun::net;
 
 class SudokuServer : Noncopyable {
  public:
-  SudokuServer(EventLoop* loop,
-               const InetAddress& listen_addr,
-               int event_loop_count,
-               int thread_count,
-               bool nodelay)
-    : server_(loop, listen_addr, "SudokuServer")
-    , thread_pool_()
-    , thread_count_(thread_count)
-    , tcp_no_delay_(nodelay)
-    , start_time_(Timestamp::Now())
-    , stat_(thread_pool_)
-    , inspect_thread_()
-    , inspector_(inspect_thread_.StartLoop(), InetAddress(9982), "sudoku-solver") {
+  SudokuServer(EventLoop* loop, const InetAddress& listen_addr,
+               int event_loop_count, int thread_count, bool nodelay)
+      : server_(loop, listen_addr, "SudokuServer"),
+        thread_pool_(),
+        thread_count_(thread_count),
+        tcp_no_delay_(nodelay),
+        start_time_(Timestamp::Now()),
+        stat_(thread_pool_),
+        inspect_thread_(),
+        inspector_(inspect_thread_.StartLoop(), InetAddress(9982),
+                   "sudoku-solver") {
     LOG_INFO << "Use " << event_loop_count << " IO threads.";
     LOG_INFO << "TCP no delay " << nodelay;
 
@@ -61,16 +59,15 @@ class SudokuServer : Noncopyable {
  private:
   void OnConnection(const TcpConnectionPtr& conn) {
     LOG_TRACE << conn->GetPeerAddress().ToIpPort() << " -> "
-        << conn->GetLocalAddress().ToIpPort() << " is "
-        << (conn->IsConnected() ? "UP" : "DOWN");
+              << conn->GetLocalAddress().ToIpPort() << " is "
+              << (conn->IsConnected() ? "UP" : "DOWN");
     if (conn->IsConnected() && tcp_no_delay_) {
       conn->SetTcpNoDelay(true);
     }
   }
 
-  void OnMessage( const TcpConnectionPtr& conn,
-                  Buffer* buf,
-                  const Timestamp& received_time) {
+  void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
+                 const Timestamp& received_time) {
     LOG_DEBUG << conn->GetName();
     size_t len = buf->GetReadableLength();
     while (len >= kCells + 2) {
@@ -86,14 +83,12 @@ class SudokuServer : Noncopyable {
           stat_.RecordBadRequest();
           break;
         }
-      }
-      else if (len > 100) { // id + ":" + kCells + "\r\n"
+      } else if (len > 100) {  // id + ":" + kCells + "\r\n"
         conn->Send("Id too long!\r\n");
         conn->Shutdown();
         stat_.RecordBadRequest();
         break;
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -105,8 +100,7 @@ class SudokuServer : Noncopyable {
     Timestamp received_time;
   };
 
-  bool ProcessRequest(const TcpConnectionPtr& conn,
-                      const String& request,
+  bool ProcessRequest(const TcpConnectionPtr& conn, const String& request,
                       const Timestamp& received_time) {
     Request req;
     req.received_time = received_time;
@@ -114,12 +108,10 @@ class SudokuServer : Noncopyable {
     String::const_iterator colon = find(request.begin(), request.end(), ':');
     if (colon != request.end()) {
       req.id.Assign(request.begin(), colon);
-      req.puzzle.Assign(colon+1, request.end());
-    }
-    else {
+      req.puzzle.Assign(colon + 1, request.end());
+    } else {
       // when using thread pool, an id must be provided in the request.
-      if (thread_count_ > 1)
-        return false;
+      if (thread_count_ > 1) return false;
       req.puzzle = request;
     }
 
@@ -135,11 +127,11 @@ class SudokuServer : Noncopyable {
     String result = solveSudoku(req.puzzle);
     if (req.id.empty()) {
       conn->Send(result + "\r\n");
-    }
-    else {
+    } else {
       conn->Send(req.id + ":" + result + "\r\n");
     }
-    stat_.recordResponse(Timestamp::Now(), req.received_time, result != kNoSolution);
+    stat_.recordResponse(Timestamp::Now(), req.received_time,
+                         result != kNoSolution);
   }
 
   TcpServer server_;
@@ -153,10 +145,11 @@ class SudokuServer : Noncopyable {
   Inspector inspector_;
 };
 
-int main(int argc, char* argv[])
-{
-  LOG_INFO << argv[0] << " [number of IO threads] [number of worker threads] [-n]";
-  LOG_INFO << "pid = " << Process::CurrentPid() << ", tid = " << Thread::CurrentTid();
+int main(int argc, char* argv[]) {
+  LOG_INFO << argv[0]
+           << " [number of IO threads] [number of worker threads] [-n]";
+  LOG_INFO << "pid = " << Process::CurrentPid()
+           << ", tid = " << Thread::CurrentTid();
   int event_loop_count = 0;
   int thread_count = 0;
   bool nodelay = false;
@@ -172,7 +165,8 @@ int main(int argc, char* argv[])
 
   EventLoop loop;
   InetAddress listen_addr(9981);
-  SudokuServer server(&loop, listen_addr, event_loop_count, thread_count, nodelay);
+  SudokuServer server(&loop, listen_addr, event_loop_count, thread_count,
+                      nodelay);
 
   server.Start();
 
