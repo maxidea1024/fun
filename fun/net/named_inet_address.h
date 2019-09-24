@@ -37,8 +37,8 @@ class FUN_NET_API NamedInetAddress {
     return HashOf(addr.address_) ^ HashOf(addr.port_);
   }
 
-  // FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar,
-  // NamedInetAddress& addr)
+  // FUN_ALWAYS_INLINE
+  //friend Archive& operator & (Archive& ar, NamedInetAddress& addr)
   //{
   //  return ar & addr.address_ & addr.port_;
   //}
