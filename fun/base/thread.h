@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
+#include "fun/base/environment.h"
 #include "fun/base/event.h"
 #include "fun/base/mutex.h"
-#include "fun/base/environment.h"
 
-//TODO thread_std만 사용하고 있으므로, 구태여 impl형태로 구현할 필요가 없다.
+// TODO thread_std만 사용하고 있으므로, 구태여 impl형태로 구현할 필요가 없다.
 #include "fun/base/thread_std.h"
 
 namespace fun {
@@ -22,8 +22,7 @@ class ThreadLocalStorage;
  * Furthermore, a thread can be assigned a name.
  * The name of a thread can be changed at any time.
  */
-class FUN_BASE_API Thread : private ThreadImpl
-{
+class FUN_BASE_API Thread : private ThreadImpl {
  public:
   typedef ThreadImpl::TIDImpl TID;
 
@@ -282,9 +281,7 @@ class FUN_BASE_API Thread : private ThreadImpl
     FunctorRunnable(const Functor& functor) : functor_(functor) {}
     ~FunctorRunnable() {}
 
-    void Run() override {
-      functor_();
-    }
+    void Run() override { functor_(); }
 
    private:
     Functor functor_;
@@ -292,7 +289,7 @@ class FUN_BASE_API Thread : private ThreadImpl
 
  private:
   Thread(const Thread&) = delete;
-  Thread& operator = (const Thread&) = delete;
+  Thread& operator=(const Thread&) = delete;
 
   int32 id_;
   String name_;
@@ -304,36 +301,26 @@ class FUN_BASE_API Thread : private ThreadImpl
   friend class PooledThread;
 };
 
-
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE int32 Thread::GetId() const {
-  return id_;
-}
+FUN_ALWAYS_INLINE int32 Thread::GetId() const { return id_; }
 
-FUN_ALWAYS_INLINE Thread::TID Thread::GetTid() const {
-  return GetTidImpl();
-}
+FUN_ALWAYS_INLINE Thread::TID Thread::GetTid() const { return GetTidImpl(); }
 
 FUN_ALWAYS_INLINE String Thread::GetName() const {
   ScopedLock<FastMutex> guard(mutex_);
   return name_;
 }
 
-FUN_ALWAYS_INLINE bool Thread::IsRunning() const {
-  return IsRunningImpl();
-}
+FUN_ALWAYS_INLINE bool Thread::IsRunning() const { return IsRunningImpl(); }
 
 FUN_ALWAYS_INLINE void Thread::Sleep(int32 milliseconds) {
   SleepImpl(milliseconds);
 }
 
-FUN_ALWAYS_INLINE void Thread::Yield() {
-  YieldImpl();
-}
+FUN_ALWAYS_INLINE void Thread::Yield() { YieldImpl(); }
 
 FUN_ALWAYS_INLINE Thread* Thread::Current() {
   return static_cast<Thread*>(CurrentImpl());
@@ -359,9 +346,7 @@ FUN_ALWAYS_INLINE void Thread::SetStackSize(int32 size) {
   SetStackSizeImpl(size);
 }
 
-FUN_ALWAYS_INLINE void Thread::SetAffinity(int32 cpu) {
-  SetAffinityImpl(cpu);
-}
+FUN_ALWAYS_INLINE void Thread::SetAffinity(int32 cpu) { SetAffinityImpl(cpu); }
 
 FUN_ALWAYS_INLINE int32 Thread::GetAffinity() const {
   return GetAffinityImpl();
@@ -371,8 +356,6 @@ FUN_ALWAYS_INLINE int32 Thread::GetStackSize() const {
   return GetStackSizeImpl();
 }
 
-FUN_ALWAYS_INLINE Thread::TID Thread::CurrentTid() {
-  return CurrentTidImpl();
-}
+FUN_ALWAYS_INLINE Thread::TID Thread::CurrentTid() { return CurrentTidImpl(); }
 
-} // namespace fun
+}  // namespace fun

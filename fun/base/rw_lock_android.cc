@@ -12,8 +12,6 @@ RWLockImpl::RWLockImpl() {
   pthread_mutexattr_destroy(&attr);
 }
 
-RWLockImpl::~RWLockImpl() {
-  pthread_mutex_destroy(&mutex_);
-}
+RWLockImpl::~RWLockImpl() { pthread_mutex_destroy(&mutex_); }
 
-} // namespace fun
+}  // namespace fun

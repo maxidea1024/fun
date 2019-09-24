@@ -27,4 +27,4 @@ class FUN_BASE_API SharedLibrayImpl {
   static FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

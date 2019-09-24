@@ -15,5 +15,5 @@ class ISendDest_S {
   virtual HostId GetHostId() const { return HostId_None; }
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

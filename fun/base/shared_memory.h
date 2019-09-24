@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/ftl/template.h" // Swap
+#include "fun/base/ftl/template.h"  // Swap
 
 #include <algorithm>
 #include <cstddef>
@@ -21,10 +21,7 @@ class File;
  */
 class FUN_BASE_API SharedMemory {
  public:
-  enum AccessMode {
-    AM_READ = 0,
-    AM_WRITE
-  };
+  enum AccessMode { AM_READ = 0, AM_WRITE };
 
   /**
    * Default constructor creates an unmapped SharedMemory object.
@@ -44,14 +41,11 @@ class FUN_BASE_API SharedMemory {
    * will generally ignore the hint.
    *
    * If server is set to true, the shared memory region will be unlinked
-   * by calling shm_unlink() (on POSIX platforms) when the SharedMemory object is destroyed.
-   * The server parameter is ignored on Windows platforms.
+   * by calling shm_unlink() (on POSIX platforms) when the SharedMemory object
+   * is destroyed. The server parameter is ignored on Windows platforms.
    */
-  SharedMemory( const String& name,
-                size_t size,
-                AccessMode mode,
-                const void* addr_hint = nullptr,
-                bool server = true);
+  SharedMemory(const String& name, size_t size, AccessMode mode,
+               const void* addr_hint = nullptr, bool server = true);
 
   /**
    * Maps the entire contents of file into a shared memory segment.
@@ -61,9 +55,8 @@ class FUN_BASE_API SharedMemory {
    * is actually honored is, however, up to the system. Windows platform
    * will generally ignore the hint.
    */
-  SharedMemory( const File& file,
-                AccessMode mode,
-                const void* addr_hint = nullptr);
+  SharedMemory(const File& file, AccessMode mode,
+               const void* addr_hint = nullptr);
 
   /**
    * Creates a SharedMemory object by copying another one.
@@ -78,7 +71,7 @@ class FUN_BASE_API SharedMemory {
   /**
    * Assigns another SharedMemory object.
    */
-  SharedMemory& operator = (const SharedMemory& other);
+  SharedMemory& operator=(const SharedMemory& other);
 
   /**
    * Swaps the SharedMemory object with another one.
@@ -101,7 +94,6 @@ class FUN_BASE_API SharedMemory {
   SharedMemoryImpl* impl_;
 };
 
-
 //
 // inlines
 //
@@ -110,4 +102,4 @@ inline void SharedMemory::Swap(SharedMemory& other) {
   fun::Swap(impl_, other.impl_);
 }
 
-} // namespace fun
+}  // namespace fun

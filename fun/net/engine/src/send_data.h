@@ -1,15 +1,16 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
 #include "fun/net/message/net_message.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
 
-//class ArraySegment
-//class ArraySegmentList
+// class ArraySegment
+// class ArraySegmentList
 
-//TODO raw포인터가 아닌 ByteArray 객체를 담는 형태로 변경해, 복사를 줄이도록 하는게 좋을듯함.
+// TODO raw포인터가 아닌 ByteArray 객체를 담는 형태로 변경해, 복사를 줄이도록
+// 하는게 좋을듯함.
 
 class SendFragRefs {
  public:
@@ -32,55 +33,41 @@ class SendFragRefs {
   SendFragRefs() : total_len_(0) {}
 
   SendFragRefs(const SendFragRefs& rhs)
-    : total_len_(rhs.total_len_),
-      fragments_(rhs.fragments_) {}
+      : total_len_(rhs.total_len_), fragments_(rhs.fragments_) {}
 
-  SendFragRefs(const IMessageOut& msg) : total_len_(0) {
-    Add(msg);
-  }
+  SendFragRefs(const IMessageOut& msg) : total_len_(0) { Add(msg); }
 
-  SendFragRefs(const IMessageIn& msg) : total_len_(0) {
-    Add(msg);
-  }
+  SendFragRefs(const IMessageIn& msg) : total_len_(0) { Add(msg); }
 
-  SendFragRefs& operator = (const SendFragRefs& rhs) {
+  SendFragRefs& operator=(const SendFragRefs& rhs) {
     fragments_ = rhs.fragments_;
     total_len_ = rhs.total_len_;
     return *this;
   }
 
   inline SendFragRefs(SendFragRefs&& rhs)
-    : fragments_(MoveTemp(rhs.fragments_))
-    , total_len_(rhs.total_len_) {
+      : fragments_(MoveTemp(rhs.fragments_)), total_len_(rhs.total_len_) {
     rhs.total_len_ = 0;
   }
 
-  inline SendFragRefs& operator = (SendFragRefs&& rhs) {
+  inline SendFragRefs& operator=(SendFragRefs&& rhs) {
     fragments_ = MoveTemp(rhs.fragments_);
     total_len_ = rhs.total_len_;
     rhs.total_len_ = 0;
     return *this;
   }
 
-  inline const Frag* ConstData() const {
-    return fragments_.ConstData();
-  }
+  inline const Frag* ConstData() const { return fragments_.ConstData(); }
 
-  inline Frag& operator[](int32 index) {
-    return fragments_[index];
-  }
+  inline Frag& operator[](int32 index) { return fragments_[index]; }
 
-  inline const Frag& operator[](int32 index) const {
-    return fragments_[index];
-  }
+  inline const Frag& operator[](int32 index) const { return fragments_[index]; }
 
-  inline int32 Count() const {
-    return fragments_.Count();
-  }
+  inline int32 Count() const { return fragments_.Count(); }
 
-  //TODO 이게 실제로 사용되는지??
+  // TODO 이게 실제로 사용되는지??
   inline void Resize(int32 count) {
-    //fragments_.ResizeUninitialized(Count);
+    // fragments_.ResizeUninitialized(Count);
     fragments_.ResizeZeroed(count);
   }
 
@@ -89,9 +76,7 @@ class SendFragRefs {
     total_len_ += frag.len;
   }
 
-  inline void Add(const uint8* frag, int32 len) {
-    Add(Frag(frag, len));
-  }
+  inline void Add(const uint8* frag, int32 len) { Add(Frag(frag, len)); }
 
   inline void Add(const ByteArray& frag) {
     Add(Frag((const uint8*)frag.ConstData(), frag.Len()));
@@ -111,11 +96,26 @@ class SendFragRefs {
     total_len_ += other.total_len_;
   }
 
-  inline SendFragRefs& operator << (const Frag& frag) { Add(frag); return *this; }
-  inline SendFragRefs& operator << (const ByteArray& frag) { Add(frag); return *this; }
-  inline SendFragRefs& operator << (const IMessageOut& frag) { Add(frag); return *this; }
-  inline SendFragRefs& operator << (const IMessageIn& frag) { Add(frag); return *this; }
-  inline SendFragRefs& operator << (const SendFragRefs& frag) { Add(frag); return *this; }
+  inline SendFragRefs& operator<<(const Frag& frag) {
+    Add(frag);
+    return *this;
+  }
+  inline SendFragRefs& operator<<(const ByteArray& frag) {
+    Add(frag);
+    return *this;
+  }
+  inline SendFragRefs& operator<<(const IMessageOut& frag) {
+    Add(frag);
+    return *this;
+  }
+  inline SendFragRefs& operator<<(const IMessageIn& frag) {
+    Add(frag);
+    return *this;
+  }
+  inline SendFragRefs& operator<<(const SendFragRefs& frag) {
+    Add(frag);
+    return *this;
+  }
 
   void Insert(int32 position, const SendFragRefs& other) {
     fragments_.Insert(other.fragments_, position);
@@ -144,11 +144,11 @@ class SendFragRefs {
   }
 
   void Clear() {
-    fragments_.Reset(); // keep capacity
+    fragments_.Reset();  // keep capacity
     total_len_ = 0;
   }
 
-  //copy
+  // copy
   inline ByteArray ToBytes() const {
     ByteArray bytes(total_len_, NoInit);
     uint8* dst = (uint8*)bytes.MutableData();
@@ -178,11 +178,9 @@ class SendFragRefs {
     fun_check(int32(dst_ptr - dst) == total_len_);
   }
 
-  //copy
-  inline MessageOut ToMessageOut() const {
-    return MessageOut(ToBytes());
-  }
+  // copy
+  inline MessageOut ToMessageOut() const { return MessageOut(ToBytes()); }
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

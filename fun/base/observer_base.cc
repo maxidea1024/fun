@@ -14,9 +14,9 @@ ObserverBase::~ObserverBase() {
   // NOOP
 }
 
-ObserverBase& ObserverBase::operator = (const ObserverBase& rhs) {
+ObserverBase& ObserverBase::operator=(const ObserverBase& rhs) {
   // NOOP
   return *this;
 }
 
-} // namespace fun
+}  // namespace fun

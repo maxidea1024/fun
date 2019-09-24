@@ -1,9 +1,9 @@
 ﻿#pragma once
 
+#include <vector>
 #include "fun/base/base.h"
 #include "fun/base/notification_strategy.h"
 #include "fun/base/shared_ptr.h"
-#include <vector>
 
 namespace fun {
 
@@ -24,8 +24,7 @@ class PriorityStrategy : public NotificationStrategy<ArgsType, DelegateType> {
  public:
   PriorityStrategy() {}
 
-  PriorityStrategy(const PriorityStrategy& s)
-    : delegates_(s.delegates_) {}
+  PriorityStrategy(const PriorityStrategy& s) : delegates_(s.delegates_) {}
 
   ~PriorityStrategy() {}
 
@@ -68,7 +67,7 @@ class PriorityStrategy : public NotificationStrategy<ArgsType, DelegateType> {
     }
   }
 
-  PriorityStrategy& operator = (const PriorityStrategy& s) {
+  PriorityStrategy& operator=(const PriorityStrategy& s) {
     if (FUN_LIKELY(&s != this)) {
       delegates_ = s.delegates_;
     }
@@ -82,14 +81,11 @@ class PriorityStrategy : public NotificationStrategy<ArgsType, DelegateType> {
     delegates_.clear();
   }
 
-  bool IsEmpty() const {
-    return delegates_.empty();
-  }
+  bool IsEmpty() const { return delegates_.empty(); }
 
  protected:
   Delegates delegates_;
 };
-
 
 /**
  * NotificationStrategy for PriorityEvent.
@@ -145,7 +141,7 @@ class PriorityStrategy<void, DelegateType> {
     }
   }
 
-  PriorityStrategy& operator = (const PriorityStrategy& s) {
+  PriorityStrategy& operator=(const PriorityStrategy& s) {
     if (FUN_LIKELY(&s != this)) {
       delegates_ = s.delegates_;
     }
@@ -159,12 +155,10 @@ class PriorityStrategy<void, DelegateType> {
     delegates_.clear();
   }
 
-  bool IsEmpty() const {
-    return delegates_.empty();
-  }
+  bool IsEmpty() const { return delegates_.empty(); }
 
  protected:
   Delegates delegates_;
 };
 
-} // namespace fun
+}  // namespace fun

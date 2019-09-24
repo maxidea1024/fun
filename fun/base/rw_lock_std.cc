@@ -5,25 +5,17 @@ namespace fun {
 
 RWLockImpl::RWLockImpl() : mutex_() {}
 
-void RWLockImpl::ReadLockImpl() {
-  mutex_.lock_shared();
-}
+void RWLockImpl::ReadLockImpl() { mutex_.lock_shared(); }
 
-bool RWLockImpl::TryReadLockImpl() {
-  return mutex_.try_lock_shared();
-}
+bool RWLockImpl::TryReadLockImpl() { return mutex_.try_lock_shared(); }
 
-void RWLockImpl::WriteLockImpl() {
-  mutex_.lock();
-}
+void RWLockImpl::WriteLockImpl() { mutex_.lock(); }
 
-bool RWLockImpl::TryWriteLockImpl() {
-  return mutex_.try_lock();
-}
+bool RWLockImpl::TryWriteLockImpl() { return mutex_.try_lock(); }
 
 void RWLockImpl::UnlockImpl() {
   // TODO: unlock_shared()?
   mutex_.unlock();
 }
 
-} // namespace fun
+}  // namespace fun

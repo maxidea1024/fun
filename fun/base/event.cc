@@ -3,9 +3,7 @@
 namespace fun {
 
 Event::Event(EventResetType type)
-  : state_(false),
-    auto_reset_(type == EventResetType::Auto) {
-}
+    : state_(false), auto_reset_(type == EventResetType::Auto) {}
 
 Event::~Event() {
   // NOOP
@@ -57,7 +55,8 @@ bool Event::WaitImpl(int32 milliseconds) {
   try {
     std::unique_lock<std::mutex> guard(mutex_);
 
-    bool ret = cond_.wait_for(guard, std::chrono::milliseconds(milliseconds), [this]() { return this->state_.load(); });
+    bool ret = cond_.wait_for(guard, std::chrono::milliseconds(milliseconds),
+                              [this]() { return this->state_.load(); });
 
     if (ret && auto_reset_) {
       state_ = false;
@@ -69,4 +68,4 @@ bool Event::WaitImpl(int32 milliseconds) {
   }
 }
 
-} // namespace fun
+}  // namespace fun

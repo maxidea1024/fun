@@ -1,4 +1,4 @@
-﻿//TODO 상수와 설정 가능한 값을 분리하도록 하자.
+﻿// TODO 상수와 설정 가능한 값을 분리하도록 하자.
 
 #pragma once
 
@@ -8,42 +8,43 @@ namespace net {
 class RUdpConfig {
  public:
   //사용안됨.
-  //static uint8 first_stream_value;
+  // static uint8 first_stream_value;
 
   //사용안됨.
-  //static int32 max_random_stream_length;
+  // static int32 max_random_stream_length;
 
-  /** 한번에 보낼 수 있는 단위. 즉, 한 프레임의 길이입니다. MTU 보다 커서는 안됩니다. */
+  /** 한번에 보낼 수 있는 단위. 즉, 한 프레임의 길이입니다. MTU 보다 커서는
+   * 안됩니다. */
   static int32 frame_length;
 
   /** 첫번째 재전송시까지의 대기시간입니다. */
   static double first_resend_cooltime;
 
-  //static double enlarge_resend_cooltime_ratio;
+  // static double enlarge_resend_cooltime_ratio;
 
   /** 최대 재전송 대기시간입니다. */
   static double max_resend_cooltime;
 
   //사용안됨.
-  //static double min_lag;
+  // static double min_lag;
 
   //사용안됨.
-  //static double max_lag;
+  // static double max_lag;
 
   //사용안됨.
-  //static double simulated_udp_reliability_ratio;
+  // static double simulated_udp_reliability_ratio;
 
   //사용안됨.
-  //static int32 too_old_frame_number_threshold;
+  // static int32 too_old_frame_number_threshold;
 
   /** 한 프레임당 최대 응답(Acknowledge) 수입니다. */
   static int32 max_ack_count_in_one_frame;
 
   //사용안됨.
-  //static double tick_interval;
+  // static double tick_interval;
 
   //사용안됨.
-  //static double show_ui_interval;
+  // static double show_ui_interval;
 
   static int32 received_speed_before_update;
 
@@ -70,5 +71,5 @@ class RUdpConfig {
   static int32 max_resend_limit_count;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -3,9 +3,9 @@
 #include "fun/base/base.h"
 #include "fun/base/exception.h"
 
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
-#include <atomic>
 
 namespace fun {
 
@@ -85,7 +85,7 @@ class FUN_BASE_API Event {
 
   // Disable copy and assignment.
   Event(const Event&) = delete;
-  Event& operator = (const Event&) = delete;
+  Event& operator=(const Event&) = delete;
 
  private:
   bool WaitImpl(int32 milliseconds);
@@ -95,7 +95,6 @@ class FUN_BASE_API Event {
   mutable std::mutex mutex_;
   std::condition_variable cond_;
 };
-
 
 //
 // inlines
@@ -111,8 +110,6 @@ inline bool Event::TryWait(int32 milliseconds) {
   return WaitImpl(milliseconds);
 }
 
-inline bool Event::IsAutoReset() const {
-  return auto_reset_;
-}
+inline bool Event::IsAutoReset() const { return auto_reset_; }
 
-} // namespace fun
+}  // namespace fun

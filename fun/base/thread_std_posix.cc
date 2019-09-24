@@ -1,29 +1,31 @@
-﻿#include "fun/base/thread_std.h"
+﻿#include "fun/base/exception.h"
 #include "fun/base/thread.h"
-#include "fun/base/exception.h"
+#include "fun/base/thread_std.h"
 
 #include <pthread.h>
 #include <signal.h>
 
 #if defined(__sun) && defined(__SVR4)
-  #if !defined(__EXTENSIONS__)
-    #define __EXTENSIONS__
-  #endif
+#if !defined(__EXTENSIONS__)
+#define __EXTENSIONS__
+#endif
 #endif
 
-#if FUN_PLATFORM == FUN_PLATFORM_LINUX || FUN_PLATFORM == FUN_PLATFORM_ANDROID || FUN_PLATFORM == FUN_PLATFORM_MAC_OS_X || FUN_PLATFORM == FUN_PLATFORM_QNX
-  #include <time.h>
-  #include <unistd.h>
+#if FUN_PLATFORM == FUN_PLATFORM_LINUX ||   \
+    FUN_PLATFORM == FUN_PLATFORM_ANDROID || \
+    FUN_PLATFORM == FUN_PLATFORM_MAC_OS_X || FUN_PLATFORM == FUN_PLATFORM_QNX
+#include <time.h>
+#include <unistd.h>
 #endif
 
 #if FUN_PLATFORM == FUN_PLATFORM_MAC_OS_X
-  #include <mach/mach.h>
-  #include <mach/task.h>
-  #include <mach/thread_policy.h>
+#include <mach/mach.h>
+#include <mach/task.h>
+#include <mach/thread_policy.h>
 #endif
 
 #if FUN_PLATFORM == FUN_PLATFORM_LINUX || FUN_PLATFORM == FUN_PLATFORM_ANDROID
-  #include <sys/syscall.h>
+#include <sys/syscall.h>
 #endif
 
 #include <cstring>
@@ -48,7 +50,7 @@ int MapPrio(int prio, int policy) {
     default:
       fun_bugcheck_msg("invalid thread priority");
   }
-  return -1; // just to satisfy compiler - we'll never get here anyway
+  return -1;  // just to satisfy compiler - we'll never get here anyway
 }
 
 int ReverseMapPrio(int prio, int policy) {
@@ -82,7 +84,8 @@ void ThreadImpl::SetPriorityImpl(int prio) {
     if (IsRunningImpl()) {
       struct sched_param par;
       par.sched_priority = MapPrio(data_->prio, SCHED_OTHER);
-      if (pthread_setschedparam(data_->thread->native_handle(), SCHED_OTHER, &par)) {
+      if (pthread_setschedparam(data_->thread->native_handle(), SCHED_OTHER,
+                                &par)) {
         throw SystemException("cannot set thread priority");
       }
     }
@@ -130,13 +133,15 @@ void ThreadImpl::SetStackSizeImpl(int size) {
 }
 
 void ThreadImpl::SetAffinityImpl(int cpu) {
-#if FUN_PLATFORM_UNIX_FAMILY && FUN_PLATFORM != FUN_PLATFORM_MAC_OS_X && FUN_PLATFORM != FUN_PLATFORM_FREE_BSD
+#if FUN_PLATFORM_UNIX_FAMILY && FUN_PLATFORM != FUN_PLATFORM_MAC_OS_X && \
+    FUN_PLATFORM != FUN_PLATFORM_FREE_BSD
 #ifdef HAVE_PTHREAD_SETAFFINITY_NP
   cpu_set_t cpu_set;
   CPU_ZERO(&cpu_set);
   CPU_SET(cpu, &cpu_set);
 #ifdef HAVE_THREE_PARAM_SCHED_SETAFFINITY
-  if (pthread_setaffinity_np(data_->thread->native_handle(), sizeof(cpu_set), &cpu_set) != 0) {
+  if (pthread_setaffinity_np(data_->thread->native_handle(), sizeof(cpu_set),
+                             &cpu_set) != 0) {
     throw SystemException("Failed to set affinity");
   }
 #else
@@ -145,17 +150,17 @@ void ThreadImpl::SetAffinityImpl(int cpu) {
   }
 #endif
 #endif
-#endif // defined unix & !defined mac os x
+#endif  // defined unix & !defined mac os x
 
 #if FUN_PLATFORM == FUN_PLATFORM_MAC_OS_X
   kern_return_t ret;
   thread_affinity_policy policy;
   policy.affinity_tag = cpu;
 
-  ret = thread_policy_set(pthread_mach_thread_np(data_->thread->native_handle()),
-                          THREAD_AFFINITY_POLICY,
-                          (thread_policy_t)&policy,
-                          THREAD_AFFINITY_POLICY_COUNT);
+  ret =
+      thread_policy_set(pthread_mach_thread_np(data_->thread->native_handle()),
+                        THREAD_AFFINITY_POLICY, (thread_policy_t)&policy,
+                        THREAD_AFFINITY_POLICY_COUNT);
   if (ret != KERN_SUCCESS) {
     throw SystemException("Failed to set affinity");
   }
@@ -166,12 +171,14 @@ void ThreadImpl::SetAffinityImpl(int cpu) {
 
 int ThreadImpl::GetAffinityImpl() const {
   int ret = -1;
-#if FUN_PLATFORM_UNIX_FAMILY && FUN_PLATFORM != FUN_PLATFORM_MAC_OS_X && FUN_PLATFORM != FUN_PLATFORM_FREE_BSD
+#if FUN_PLATFORM_UNIX_FAMILY && FUN_PLATFORM != FUN_PLATFORM_MAC_OS_X && \
+    FUN_PLATFORM != FUN_PLATFORM_FREE_BSD
 #ifdef HAVE_PTHREAD_SETAFFINITY_NP
   cpu_set_t cpu_set;
   CPU_ZERO(&cpu_set);
 #ifdef HAVE_THREE_PARAM_SCHED_SETAFFINITY
-  if (pthread_getaffinity_np(data_->thread->native_handle(), sizeof(cpu_set), &cpu_set) != 0) {
+  if (pthread_getaffinity_np(data_->thread->native_handle(), sizeof(cpu_set),
+                             &cpu_set) != 0) {
     throw SystemException("Failed to get affinity", errno);
   }
 #else
@@ -187,18 +194,16 @@ int ThreadImpl::GetAffinityImpl() const {
     }
   }
 #endif
-#endif // defined unix & !defined mac os x
+#endif  // defined unix & !defined mac os x
 
 #if FUN_PLATFORM == FUN_PLATFORM_MAC_OS_X
   kern_return_t ret;
   thread_affinity_policy policy;
   mach_msg_type_number_t count = THREAD_AFFINITY_POLICY_COUNT;
   boolean_t get_default = false;
-  ret = thread_policy_get(pthread_mach_thread_np(data_->thread->native_handle()),
-                          THREAD_AFFINITY_POLICY,
-                          (thread_policy_t)&policy,
-                          &count,
-                          &get_default);
+  ret = thread_policy_get(
+      pthread_mach_thread_np(data_->thread->native_handle()),
+      THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, &count, &get_default);
   if (ret != KERN_SUCCESS) {
     throw SystemException("Failed to get affinity", errno);
   }
@@ -212,4 +217,4 @@ int ThreadImpl::GetAffinityImpl() const {
   return ret;
 }
 
-} // namespace fun
+}  // namespace fun

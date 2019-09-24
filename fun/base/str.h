@@ -25,17 +25,17 @@ S& TrimLeftInPlace(S& str) {
   while (i != e && CharTraitsA::IsSpace(*i)) {
     ++i;
   }
-  str.Remove(0, e-i);
+  str.Remove(0, e - i);
   return str;
 }
 
 template <typename S>
 S TrimRight(const S& str) {
-  int32 i = str.Len()-1;
+  int32 i = str.Len() - 1;
   while (i >= 0 && CharTraitsA::IsSpace(str[i])) {
     --i;
   }
-  return S(str, 0, i+1);
+  return S(str, 0, i + 1);
 }
 
 /**
@@ -60,7 +60,7 @@ S& TrimRightInPlace(S& str) {
 template <typename S>
 S Trim(const S& str) {
   int32 first = 0;
-  int32 last  = int32(str.Len()) - 1;
+  int32 last = int32(str.Len()) - 1;
 
   while (first <= last && CharTraitsA::IsSpace(str[first])) {
     ++first;
@@ -78,7 +78,7 @@ S Trim(const S& str) {
 template <typename S>
 S& TrimInPlace(S& str) {
   int32 first = 0;
-  int32 last  = int32(str.Len()) - 1;
+  int32 last = int32(str.Len()) - 1;
 
   while (first <= last && CharTraitsA::IsSpace(str[first])) {
     ++first;
@@ -98,7 +98,7 @@ S& TrimInPlace(S& str) {
  */
 template <typename S>
 S ToUpper(const S& str) {
-  typename S::ConstIterator it  = str.begin();
+  typename S::ConstIterator it = str.begin();
   typename S::ConstIterator end = str.end();
 
   S result;
@@ -114,11 +114,12 @@ S ToUpper(const S& str) {
  */
 template <typename S>
 S& ToUpperInPlace(S& str) {
-  typename S::iterator it  = str.begin();
+  typename S::iterator it = str.begin();
   typename S::iterator end = str.end();
 
   while (it != end) {
-    *it = static_cast<typename S::CharType>(CharTraitsA::ToUpper(*it)); ++it;
+    *it = static_cast<typename S::CharType>(CharTraitsA::ToUpper(*it));
+    ++it;
   }
   return str;
 }
@@ -128,7 +129,7 @@ S& ToUpperInPlace(S& str) {
  */
 template <typename S>
 S ToLower(const S& str) {
-  typename S::ConstIterator it  = str.begin();
+  typename S::ConstIterator it = str.begin();
   typename S::ConstIterator end = str.end();
 
   S result;
@@ -144,11 +145,12 @@ S ToLower(const S& str) {
  */
 template <typename S>
 S& ToLowerInPlace(S& str) {
-  typename S::iterator it  = str.begin();
+  typename S::iterator it = str.begin();
   typename S::iterator end = str.end();
 
   while (it != end) {
-    *it = static_cast<typename S::CharType>(CharTraitsA::ToLower(*it)); ++it;
+    *it = static_cast<typename S::CharType>(CharTraitsA::ToLower(*it));
+    ++it;
   }
   return str;
 }
@@ -167,17 +169,20 @@ int32 icompare(const S& str, int32 pos, int32 n, It it2, It end2) {
   if (pos + n > sz) {
     n = sz - pos;
   }
-  It it1  = str.begin() + pos;
+  It it1 = str.begin() + pos;
   It end1 = str.begin() + pos + n;
   while (it1 != end1 && it2 != end2) {
-    typename S::CharType c1(static_cast<typename S::CharType>(CharTraitsA::ToLower(*it1)));
-    typename S::CharType c2(static_cast<typename S::CharType>(CharTraitsA::ToLower(*it2)));
+    typename S::CharType c1(
+        static_cast<typename S::CharType>(CharTraitsA::ToLower(*it1)));
+    typename S::CharType c2(
+        static_cast<typename S::CharType>(CharTraitsA::ToLower(*it2)));
     if (c1 < c2) {
       return -1;
     } else if (c1 > c2) {
       return 1;
     }
-    ++it1; ++it2;
+    ++it1;
+    ++it2;
   }
 
   if (it1 == end1) {
@@ -197,14 +202,17 @@ int32 icompare(const S& str1, const S& str2) {
   typename S::ConstIterator it2(str2.begin());
   typename S::ConstIterator end2(str2.end());
   while (it1 != end1 && it2 != end2) {
-    typename S::CharType c1(static_cast<typename S::CharType>(CharTraitsA::ToLower(*it1)));
-    typename S::CharType c2(static_cast<typename S::CharType>(CharTraitsA::ToLower(*it2)));
+    typename S::CharType c1(
+        static_cast<typename S::CharType>(CharTraitsA::ToLower(*it1)));
+    typename S::CharType c2(
+        static_cast<typename S::CharType>(CharTraitsA::ToLower(*it2)));
     if (c1 < c2) {
       return -1;
     } else if (c1 > c2) {
       return 1;
     }
-    ++it1; ++it2;
+    ++it1;
+    ++it2;
   }
 
   if (it1 == end1) {
@@ -236,7 +244,8 @@ int32 icompare(const S& str1, int32 pos, int32 n, const S& str2) {
 }
 
 template <typename S>
-int32 icompare(const S& str1, int32 pos1, int32 n1, const S& str2, int32 pos2, int32 n2) {
+int32 icompare(const S& str1, int32 pos1, int32 n1, const S& str2, int32 pos2,
+               int32 n2) {
   int32 sz2 = str2.Len();
   if (pos2 > sz2) {
     pos2 = sz2;
@@ -244,7 +253,8 @@ int32 icompare(const S& str1, int32 pos1, int32 n1, const S& str2, int32 pos2, i
   if (pos2 + n2 > sz2) {
     n2 = sz2 - pos2;
   }
-  return icompare(str1, pos1, n1, str2.begin() + pos2, str2.begin() + pos2 + n2);
+  return icompare(str1, pos1, n1, str2.begin() + pos2,
+                  str2.begin() + pos2 + n2);
 }
 
 template <typename S>
@@ -260,7 +270,8 @@ int32 icompare(const S& str1, int32 pos1, int32 n, const S& str2, int32 pos2) {
 }
 
 template <typename S>
-int32 icompare(const S& str, int32 pos, int32 n, const typename S::CharType* ptr) {
+int32 icompare(const S& str, int32 pos, int32 n,
+               const typename S::CharType* ptr) {
   fun_check_ptr(ptr);
   int32 sz = str.Len();
   if (pos > sz) {
@@ -269,17 +280,20 @@ int32 icompare(const S& str, int32 pos, int32 n, const typename S::CharType* ptr
   if (pos + n > sz) {
     n = sz - pos;
   }
-  typename S::ConstIterator it  = str.begin() + pos;
+  typename S::ConstIterator it = str.begin() + pos;
   typename S::ConstIterator end = str.begin() + pos + n;
   while (it != end && *ptr) {
-    typename S::CharType c1(static_cast<typename S::CharType>(CharTraitsA::ToLower(*it)));
-    typename S::CharType c2(static_cast<typename S::CharType>(CharTraitsA::ToLower(*ptr)));
+    typename S::CharType c1(
+        static_cast<typename S::CharType>(CharTraitsA::ToLower(*it)));
+    typename S::CharType c2(
+        static_cast<typename S::CharType>(CharTraitsA::ToLower(*ptr)));
     if (c1 < c2) {
       return -1;
     } else if (c1 > c2) {
       return 1;
     }
-    ++it; ++ptr;
+    ++it;
+    ++ptr;
   }
 
   if (it == end) {
@@ -301,15 +315,23 @@ int32 icompare(const S& str, const typename S::CharType* ptr) {
 
 #else
 
-int32 FUN_BASE_API icompare(const String& str, int32 pos, int32 n, String::ConstIterator it2, String::ConstIterator end2);
+int32 FUN_BASE_API icompare(const String& str, int32 pos, int32 n,
+                            String::ConstIterator it2,
+                            String::ConstIterator end2);
 int32 FUN_BASE_API icompare(const String& str1, const String& str2);
-int32 FUN_BASE_API icompare(const String& str1, int32 n1, const String& str2, int32 n2);
+int32 FUN_BASE_API icompare(const String& str1, int32 n1, const String& str2,
+                            int32 n2);
 int32 FUN_BASE_API icompare(const String& str1, int32 n, const String& str2);
-int32 FUN_BASE_API icompare(const String& str1, int32 pos, int32 n, const String& str2);
-int32 FUN_BASE_API icompare(const String& str1, int32 pos1, int32 n1, const String& str2, int32 pos2, int32 n2);
-int32 FUN_BASE_API icompare(const String& str1, int32 pos1, int32 n, const String& str2, int32 pos2);
-int32 FUN_BASE_API icompare(const String& str, int32 pos, int32 n, const String::CharType* ptr);
-int32 FUN_BASE_API icompare(const String& str, int32 pos, const String::CharType* ptr);
+int32 FUN_BASE_API icompare(const String& str1, int32 pos, int32 n,
+                            const String& str2);
+int32 FUN_BASE_API icompare(const String& str1, int32 pos1, int32 n1,
+                            const String& str2, int32 pos2, int32 n2);
+int32 FUN_BASE_API icompare(const String& str1, int32 pos1, int32 n,
+                            const String& str2, int32 pos2);
+int32 FUN_BASE_API icompare(const String& str, int32 pos, int32 n,
+                            const String::CharType* ptr);
+int32 FUN_BASE_API icompare(const String& str, int32 pos,
+                            const String::CharType* ptr);
 int32 FUN_BASE_API icompare(const String& str, const String::CharType* ptr);
 
 #endif
@@ -325,7 +347,7 @@ template <typename S>
 S Translate(const S& str, const S& from, const S& to) {
   S result;
   result.Reserve(str.Len());
-  typename S::ConstIterator it  = str.begin();
+  typename S::ConstIterator it = str.begin();
   typename S::ConstIterator end = str.end();
   int32 to_size = to.Len();
   while (it != end) {
@@ -343,7 +365,8 @@ S Translate(const S& str, const S& from, const S& to) {
 }
 
 template <typename S>
-S Translate(const S& str, const typename S::CharType* from, const typename S::CharType* to) {
+S Translate(const S& str, const typename S::CharType* from,
+            const typename S::CharType* to) {
   fun_check_ptr(from);
   fun_check_ptr(to);
   return Translate(str, S(from), S(to));
@@ -362,7 +385,8 @@ S& TranslateInPlace(S& str, const S& from, const S& to) {
 }
 
 template <typename S>
-S TranslateInPlace(S& str, const typename S::CharType* from, const typename S::CharType* to) {
+S TranslateInPlace(S& str, const typename S::CharType* from,
+                   const typename S::CharType* to) {
   fun_check_ptr(from);
   fun_check_ptr(to);
   str = Translate(str, S(from), S(to));
@@ -379,7 +403,7 @@ S TranslateInPlace(S& str, const typename S::CharType* from, const typename S::C
 
 template <typename S>
 S& ReplaceInPlace(S& str, const S& from, const S& to, int32 start = 0) {
-  fun_check (from.Len() > 0);
+  fun_check(from.Len() > 0);
 
   S result;
   int32 pos = 0;
@@ -399,8 +423,9 @@ S& ReplaceInPlace(S& str, const S& from, const S& to, int32 start = 0) {
 }
 
 template <typename S>
-S& ReplaceInPlace(S& str, const typename S::CharType* from, const typename S::CharType* to, int32 start = 0) {
-  fun_check (*from);
+S& ReplaceInPlace(S& str, const typename S::CharType* from,
+                  const typename S::CharType* to, int32 start = 0) {
+  fun_check(*from);
 
   S result;
   int32 pos = 0;
@@ -421,7 +446,8 @@ S& ReplaceInPlace(S& str, const typename S::CharType* from, const typename S::Ch
 }
 
 template <typename S>
-S& ReplaceInPlace(S& str, const typename S::CharType from, const typename S::CharType to = 0, int32 start = 0) {
+S& ReplaceInPlace(S& str, const typename S::CharType from,
+                  const typename S::CharType to = 0, int32 start = 0) {
   if (from == to) {
     return str;
   }
@@ -442,8 +468,7 @@ S& ReplaceInPlace(S& str, const typename S::CharType from, const typename S::Cha
 }
 
 template <typename S>
-S& RemoveInPlace(S& str, const typename S::CharType ch, int32 start = 0)
-{
+S& RemoveInPlace(S& str, const typename S::CharType ch, int32 start = 0) {
   return ReplaceInPlace(str, ch, 0, start);
 }
 
@@ -459,14 +484,16 @@ S Replace(const S& str, const S& from, const S& to, int32 start = 0) {
 }
 
 template <typename S>
-S Replace(const S& str, const typename S::CharType* from, const typename S::CharType* to, int32 start = 0) {
+S Replace(const S& str, const typename S::CharType* from,
+          const typename S::CharType* to, int32 start = 0) {
   S result(str);
   ReplaceInPlace(result, from, to, start);
   return result;
 }
 
 template <typename S>
-S Replace(const S& str, const typename S::CharType from, const typename S::CharType to = 0, int32 start = 0) {
+S Replace(const S& str, const typename S::CharType from,
+          const typename S::CharType to = 0, int32 start = 0) {
   S result(str);
   ReplaceInPlace(result, from, to, start);
   return result;
@@ -481,14 +508,24 @@ S Remove(const S& str, const typename S::CharType ch, int32 start = 0) {
 
 #else
 
-FUN_BASE_API String Replace(const String& str, const String& from, const String& to, int32 start = 0);
-FUN_BASE_API String Replace(const String& str, const String::CharType* from, const String::CharType* to, int32 start = 0);
-FUN_BASE_API String Replace(const String& str, const String::CharType from, const String::CharType to = 0, int32 start = 0);
-FUN_BASE_API String Remove(const String& str, const String::CharType ch, int32 start = 0);
-FUN_BASE_API String& ReplaceInPlace(String& str, const String& from, const String& to, int32 start = 0);
-FUN_BASE_API String& ReplaceInPlace(String& str, const String::CharType* from, const String::CharType* to, int32 start = 0);
-FUN_BASE_API String& ReplaceInPlace(String& str, const String::CharType from, const String::CharType to = 0, int32 start = 0);
-FUN_BASE_API String& RemoveInPlace(String& str, const String::CharType ch, int32 start = 0);
+FUN_BASE_API String Replace(const String& str, const String& from,
+                            const String& to, int32 start = 0);
+FUN_BASE_API String Replace(const String& str, const String::CharType* from,
+                            const String::CharType* to, int32 start = 0);
+FUN_BASE_API String Replace(const String& str, const String::CharType from,
+                            const String::CharType to = 0, int32 start = 0);
+FUN_BASE_API String Remove(const String& str, const String::CharType ch,
+                           int32 start = 0);
+FUN_BASE_API String& ReplaceInPlace(String& str, const String& from,
+                                    const String& to, int32 start = 0);
+FUN_BASE_API String& ReplaceInPlace(String& str, const String::CharType* from,
+                                    const String::CharType* to,
+                                    int32 start = 0);
+FUN_BASE_API String& ReplaceInPlace(String& str, const String::CharType from,
+                                    const String::CharType to = 0,
+                                    int32 start = 0);
+FUN_BASE_API String& RemoveInPlace(String& str, const String::CharType ch,
+                                   int32 start = 0);
 
 #endif
 
@@ -546,9 +583,11 @@ S Cat(const S& s1, const S& s2, const S& s3, const S& s4, const S& s5) {
  * Concatenates six strings.
  */
 template <typename S>
-S Cat(const S& s1, const S& s2, const S& s3, const S& s4, const S& s5, const S& s6) {
+S Cat(const S& s1, const S& s2, const S& s3, const S& s4, const S& s5,
+      const S& s6) {
   S result = s1;
-  result.Reserve(s1.Len() + s2.Len() + s3.Len() + s4.Len() + s5.Len() + s6.Len());
+  result.Reserve(s1.Len() + s2.Len() + s3.Len() + s4.Len() + s5.Len() +
+                 s6.Len());
   result.Append(s2);
   result.Append(s3);
   result.Append(s4);
@@ -578,7 +617,8 @@ S Cat(const S& delim, const It& begin, const It& end) {
  */
 template <typename S>
 bool StartsWith(const S& str, const S& prefix) {
-  return str.Len() >= prefix.Len() && equal(prefix.begin(), prefix.end(), str.begin());
+  return str.Len() >= prefix.Len() &&
+         equal(prefix.begin(), prefix.end(), str.begin());
 }
 
 /**
@@ -586,9 +626,9 @@ bool StartsWith(const S& str, const S& prefix) {
  */
 template <typename S>
 bool EndsWith(const S& str, const S& suffix) {
-  return str.Len() >= suffix.Len() && equal(suffix.rbegin(), suffix.rend(), str.rbegin());
+  return str.Len() >= suffix.Len() &&
+         equal(suffix.rbegin(), suffix.rend(), str.rbegin());
 }
-
 
 //
 // case-insensitive string equality
@@ -600,9 +640,7 @@ struct i_char_traits : public std::char_traits<charT> {
     return CharTraitsA::ToLower(c1) == CharTraitsA::ToLower(c2);
   }
 
-  FUN_ALWAYS_INLINE static bool ne(charT c1, charT c2) {
-    return !eq(c1, c2);
-  }
+  FUN_ALWAYS_INLINE static bool ne(charT c1, charT c2) { return !eq(c1, c2); }
 
   FUN_ALWAYS_INLINE static bool lt(charT c1, charT c2) {
     return CharTraitsA::ToLower(c1) < CharTraitsA::ToLower(c2);
@@ -623,7 +661,9 @@ struct i_char_traits : public std::char_traits<charT> {
   }
 
   static const charT* find(const charT* s, int32 n, charT a) {
-    while(n-- > 0 && CharTraitsA::ToLower(*s) != CharTraitsA::ToLower(a)) { ++s; }
+    while (n-- > 0 && CharTraitsA::ToLower(*s) != CharTraitsA::ToLower(a)) {
+      ++s;
+    }
     return s;
   }
 };
@@ -639,9 +679,9 @@ typedef std::basic_string<char, i_char_traits<char> > istring;
  */
 template <typename T>
 std::size_t isubstr(const T& str, const T& sought) {
-  typename T::ConstIterator it = std::search(str.begin(), str.end(),
-    sought.begin(), sought.end(),
-    i_char_traits<typename T::CharType>::eq);
+  typename T::ConstIterator it =
+      std::search(str.begin(), str.end(), sought.begin(), sought.end(),
+                  i_char_traits<typename T::CharType>::eq);
 
   if (it != str.end()) {
     return it - str.begin();
@@ -656,9 +696,9 @@ std::size_t isubstr(const T& str, const T& sought) {
  * requirement.
  */
 struct CILess {
-  FUN_ALWAYS_INLINE bool operator() (const String& s1, const String& s2) const {
+  FUN_ALWAYS_INLINE bool operator()(const String& s1, const String& s2) const {
     return icompare(s1, s2) < 0;
   }
 };
 
-} // namespace fun
+}  // namespace fun

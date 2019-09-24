@@ -2,34 +2,30 @@
 
 namespace fun {
 
-//DEFINE_LOG_CATEGORY(LogTickableTimer);
+// DEFINE_LOG_CATEGORY(LogTickableTimer);
 
 //
 // TickableTimer
 //
 
 TickableTimer::TickableTimer(const String& name)
-  : next_id_(1), timer_name_(name) {}
+    : next_id_(1), timer_name_(name) {}
 
-TickableTimer::~TickableTimer() {
-  CancelAll();
-}
+TickableTimer::~TickableTimer() { CancelAll(); }
 
-const String& TickableTimer::GetTimerName() const {
-  return timer_name_;
-}
+const String& TickableTimer::GetTimerName() const { return timer_name_; }
 
-void TickableTimer::SetTimerName(const String& name) {
-  timer_name_ = name;
-}
+void TickableTimer::SetTimerName(const String& name) { timer_name_ = name; }
 
-TickableTimer::IdType
-TickableTimer::ExpireAt(const Timestamp& time, const Handler& handler, const String& tag) {
+TickableTimer::IdType TickableTimer::ExpireAt(const Timestamp& time,
+                                              const Handler& handler,
+                                              const String& tag) {
   return Expire(time, Timespan::Zero, handler, -1, tag);
 }
 
-TickableTimer::IdType
-TickableTimer::ExpireAfter(const Timespan& delay, const Handler& handler, const String& tag) {
+TickableTimer::IdType TickableTimer::ExpireAfter(const Timespan& delay,
+                                                 const Handler& handler,
+                                                 const String& tag) {
   if (delay <= Timespan::Zero) {
     // 경고정도로 처리하고 말아야할까??
   }
@@ -37,8 +33,10 @@ TickableTimer::ExpireAfter(const Timespan& delay, const Handler& handler, const 
   return Expire(Timestamp::Now() + delay, Timespan::Zero, handler, -1, tag);
 }
 
-TickableTimer::IdType
-TickableTimer::ExpireRepeatedly(const Timespan& period, const Handler& handler, int32 repeat_limit, const String& tag) {
+TickableTimer::IdType TickableTimer::ExpireRepeatedly(const Timespan& period,
+                                                      const Handler& handler,
+                                                      int32 repeat_limit,
+                                                      const String& tag) {
   if (period <= Timespan::Zero) {
     // 경고정도로 처리하고 말아야할까??
   }
@@ -47,17 +45,20 @@ TickableTimer::ExpireRepeatedly(const Timespan& period, const Handler& handler, 
   return Expire(Timestamp::Now() + period, period, handler, repeat_limit, tag);
 }
 
-TickableTimer::IdType
-TickableTimer::Expire(const Timestamp& first_time, const Timespan& period, const Handler& handler, int32 repeat_limit, const String& tag) {
+TickableTimer::IdType TickableTimer::Expire(const Timestamp& first_time,
+                                            const Timespan& period,
+                                            const Handler& handler,
+                                            int32 repeat_limit,
+                                            const String& tag) {
   Entry* entry = new Entry();
   entry->id = next_id_++;
   entry->next_expire_time = first_time.ToUniversalTime();
-  //entry->last_expired_time = nullptr;
+  // entry->last_expired_time = nullptr;
   entry->period = period;
   entry->repeat_limit = repeat_limit;
   entry->tag = tag;
   entry->expired_count = 0;
-  //entry->last_spent_time = nullptr;
+  // entry->last_spent_time = nullptr;
   entry->handler = handler;
   return Schedule(entry, entries_);
 }
@@ -105,7 +106,7 @@ bool TickableTimer::GetPeriod(const IdType id, Timespan& out_period) const {
 bool TickableTimer::SetPeriod(const IdType id, const Timespan& period) {
   if (auto entry = FindEntry(id)) {
     entry->period = period;
-    //NextExpireTime을 수정해주어야할까??
+    // NextExpireTime을 수정해주어야할까??
     return true;
   }
   return false;
@@ -147,26 +148,23 @@ bool TickableTimer::SetTag(const IdType id, const String& tag) {
   return false;
 }
 
-void TickableTimer::ClearCentralCallback() {
-  central_callback_ = Handler();
-}
+void TickableTimer::ClearCentralCallback() { central_callback_ = Handler(); }
 
 void TickableTimer::SetCentralCallback(const Handler& handler) {
   central_callback_ = handler;
 }
 
-int32 TickableTimer::Tick() {
-  return Tick(Timestamp::Now());
-}
+int32 TickableTimer::Tick() { return Tick(Timestamp::Now()); }
 
 int32 TickableTimer::Tick(const Timestamp& abs_time) {
   const Timestamp utc_abs_time = abs_time.ToUniversalTime();
 
   last_ticked_abs_time_ = abs_time.ToUniversalTime();
 
-  //TODO 여기서 다시 실행되는 부분이 있을 수 있으므로, 이에 대한 대응을 해주어야함.
-  // Period가 0이하로 설정되면 스케줄링에서 아예 제거되므로, 연달아 수행되는 현상은 발생할 수 없으므로,
-  // 별다른 처리는 필요치 않음.
+  // TODO 여기서 다시 실행되는 부분이 있을 수 있으므로, 이에 대한 대응을
+  // 해주어야함.
+  // Period가 0이하로 설정되면 스케줄링에서 아예 제거되므로, 연달아 수행되는
+  // 현상은 발생할 수 없으므로, 별다른 처리는 필요치 않음.
   //
   // 하지만,
   // Context.GetTimer()를 통해서 현재 가장 앞선 시간보다 이전으로 설정해버리면
@@ -211,10 +209,12 @@ int32 TickableTimer::Tick(const Timestamp& abs_time) {
 
   int32 expired_count = 0;
 
-  if (!entries_.IsEmpty() && entries_.Front()->next_expire_time <= utc_abs_time) {
+  if (!entries_.IsEmpty() &&
+      entries_.Front()->next_expire_time <= utc_abs_time) {
     List<Entry*> repeated_entries;
 
-    while (!entries_.IsEmpty() && entries_.Front()->next_expire_time <= utc_abs_time) {
+    while (!entries_.IsEmpty() &&
+           entries_.Front()->next_expire_time <= utc_abs_time) {
       auto front = entries_.CutFront();
 
       ExpireOne(front, utc_abs_time);
@@ -223,7 +223,7 @@ int32 TickableTimer::Tick(const Timestamp& abs_time) {
         delete front;
       } else {
         front->next_expire_time = utc_abs_time + front->period;
-        //Schedule(front, repeated_entries);
+        // Schedule(front, repeated_entries);
         repeated_entries.Append(front);
       }
 
@@ -231,7 +231,7 @@ int32 TickableTimer::Tick(const Timestamp& abs_time) {
     }
 
     // 목록을 교체함.
-    //Swap(repeated_entries, entries_);
+    // Swap(repeated_entries, entries_);
 
     for (auto& entry : repeated_entries) {
       Schedule(entry, entries_);
@@ -242,10 +242,10 @@ int32 TickableTimer::Tick(const Timestamp& abs_time) {
 }
 
 void TickableTimer::ExpireOne(Entry* entry, const Timestamp& abs_time) {
-  //fun_log(LogTickableTimer,Info,TEXT(">> TickableTimer.%s"), *entry->tag);
+  // fun_log(LogTickableTimer,Info,TEXT(">> TickableTimer.%s"), *entry->tag);
 
   entry->expired_count++;
-  //entry->last_expired_time = abs_time;
+  // entry->last_expired_time = abs_time;
 
   // call handler function.
   Context context(entry, this);
@@ -256,16 +256,17 @@ void TickableTimer::ExpireOne(Entry* entry, const Timestamp& abs_time) {
 
   entry->handler(context);
 
-  //TODO 로깅 및 트래킹...
+  // TODO 로깅 및 트래킹...
 
   if (entry->period <= Timespan::Zero) {
-    // oneshot, 호출부에서 엔트리 자체를 삭제할것이므로, 별다른 처리가 필요 없음.
+    // oneshot, 호출부에서 엔트리 자체를 삭제할것이므로, 별다른 처리가 필요
+    // 없음.
     return;
   }
 
   if (entry->repeat_limit > 0 && entry->expired_count >= entry->repeat_limit) {
     // 최대 반복 횟수를 초과했으므로, 엔트리에서 제거하도록 함.
-    entry->period = Timespan::Zero; // 호출부에서 엔트리를 제거하도록 표시함.
+    entry->period = Timespan::Zero;  // 호출부에서 엔트리를 제거하도록 표시함.
     return;
   }
 }
@@ -297,7 +298,8 @@ TickableTimer::Entry* TickableTimer::FindPausedEntry(const IdType id) {
   return nullptr;
 }
 
-const TickableTimer::Entry* TickableTimer::FindPausedEntry(const IdType id) const {
+const TickableTimer::Entry* TickableTimer::FindPausedEntry(
+    const IdType id) const {
   for (auto it = paused_entries_.CreateConstIterator(); it; ++it) {
     if (it->id == id) {
       return *it;
@@ -306,7 +308,8 @@ const TickableTimer::Entry* TickableTimer::FindPausedEntry(const IdType id) cons
   return nullptr;
 }
 
-TickableTimer::IdType TickableTimer::Schedule(Entry* entry, List<Entry*>& list) {
+TickableTimer::IdType TickableTimer::Schedule(Entry* entry,
+                                              List<Entry*>& list) {
   bool is_inserted = false;
   for (auto it = list.CreateIterator(); it; ++it) {
     if (it->next_expire_time >= entry->next_expire_time) {
@@ -325,19 +328,18 @@ TickableTimer::IdType TickableTimer::Schedule(Entry* entry, List<Entry*>& list) 
 
 void TickableTimer::Pause(Entry* entry) {
   ////이미 paused된지 확인.
-  //if (entry->elapsed_time_at_pause_requested.IsNull()) {
+  // if (entry->elapsed_time_at_pause_requested.IsNull()) {
   //  //액티브 목록에서 제거한 후 Paused 목록으로 옮겨주어야함.
   //}
 }
 
 void TickableTimer::Resume(Entry* entry) {
-  //paused된 상태에서만 resume이 가능함.
+  // paused된 상태에서만 resume이 가능함.
   //
-  //if (!entry->elapsed_time_at_pause_requested.IsNull()) {
+  // if (!entry->elapsed_time_at_pause_requested.IsNull()) {
   //  //재실행이 가능 하도록 rescheduling되어야함.
   //}
 }
-
 
 //
 // TickableTimer::Context
@@ -367,9 +369,7 @@ void TickableTimer::Context::SetTag(const String& tag) {
   ((Entry*)entry)->tag = tag;
 }
 
-TickableTimer* TickableTimer::Context::GetTimer() const {
-  return timer;
-}
+TickableTimer* TickableTimer::Context::GetTimer() const { return timer; }
 
 int32 TickableTimer::Context::GetRepeatLimit() const {
   return ((const Entry*)entry)->repeat_limit;
@@ -379,4 +379,4 @@ int32 TickableTimer::Context::GetExpiredCount() const {
   return ((const Entry*)entry)->expired_count;
 }
 
-} // namespace fun
+}  // namespace fun

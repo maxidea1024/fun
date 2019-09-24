@@ -6,9 +6,9 @@ namespace fun {
 namespace net {
 
 /**
- * 송수신량을 측정하는 기능은 없다. 다만 송수신량이 어느정도 이상 되면 보낼 양을 제한하도록,
- * 송신 속도를 제어하는 기능을 갖고 있다.
- * 그것도 long term 이하 단위로도!
+ * 송수신량을 측정하는 기능은 없다. 다만 송수신량이 어느정도 이상 되면 보낼 양을
+ * 제한하도록, 송신 속도를 제어하는 기능을 갖고 있다. 그것도 long term 이하
+ * 단위로도!
  */
 class SendBrake {
  public:
@@ -30,10 +30,10 @@ class SendBrake {
 class RecentSpeedMeasurer {
  public:
   RecentSpeedMeasurer()
-    : last_interval_total_bytes_(0),
-      last_long_interval_work_time_(0),
-      recent_speed_(0),
-      last_accum_time_(0) {}
+      : last_interval_total_bytes_(0),
+        last_long_interval_work_time_(0),
+        recent_speed_(0),
+        last_accum_time_(0) {}
 
   bool IsRemovingSafeForCalcSpeed(double absolute_time);
 
@@ -48,9 +48,7 @@ class RecentSpeedMeasurer {
 
   void LongTick(double absolute_time);
 
-  double GetRecentSpeed() const {
-    return recent_speed_;
-  }
+  double GetRecentSpeed() const { return recent_speed_; }
 
  private:
   /** 최근 송수신속도 (바이트 단위) */
@@ -81,8 +79,7 @@ class AllowedMaxSendSpeed {
  */
 class RecentReceiveSpeedAtReceiverSide {
  public:
-  RecentReceiveSpeedAtReceiverSide()
-    : value_(0), last_clear_time_(0) {}
+  RecentReceiveSpeedAtReceiverSide() : value_(0), last_clear_time_(0) {}
 
   double GetValue() const { return value_; }
   void SetValue(double value) { value_ = value; }
@@ -94,5 +91,5 @@ class RecentReceiveSpeedAtReceiverSide {
   double last_clear_time_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

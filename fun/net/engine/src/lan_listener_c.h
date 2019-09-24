@@ -16,7 +16,8 @@ class LanListener_C : public Runnable {
   bool IsListening() const;
 
  private:
-  bool AcceptNewSocket(InternalSocket* new_socket, const InetAddress& remote_addr);
+  bool AcceptNewSocket(InternalSocket* new_socket,
+                       const InetAddress& remote_addr);
   InternalSocket* NewAcceptPendedSocket();
 
   void CatchThreadUnexpectedExit(const char* where, const char* reason);
@@ -31,5 +32,5 @@ class LanListener_C : public Runnable {
   void Run() override;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

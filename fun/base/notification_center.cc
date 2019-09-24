@@ -58,4 +58,4 @@ NotificationCenter& NotificationCenter::DefaultCenter() {
   return *sh.Get();
 }
 
-} // namespace fun
+}  // namespace fun

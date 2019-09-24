@@ -1,5 +1,5 @@
-﻿#include "fun/net/net.h"
-#include "P2PGroup_C.h"
+﻿#include "P2PGroup_C.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -13,5 +13,5 @@ void P2PGroup_C::GetInfo(P2PGroupInfo& info) const {
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

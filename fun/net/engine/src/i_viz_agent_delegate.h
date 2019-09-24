@@ -15,5 +15,5 @@ class IVizAgentDelegate {
   virtual NetServerImpl* QueryNetServer() = 0;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

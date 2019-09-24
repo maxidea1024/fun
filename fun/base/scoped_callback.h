@@ -28,29 +28,23 @@ class ScopedCallback {
   /**
    * Request a callback.
    */
-  void Request() {
-    ++counter_;
-  }
+  void Request() { ++counter_; }
 
   /**
    * Unrequest a callback.
    */
-  void Unrequest() {
-    --counter_;
-  }
+  void Unrequest() { --counter_; }
 
   /**
    * Checks whether this callback has outstanding requests.
    *
    * \return true if there are outstanding requests, false otherwise.
    */
-  bool HasRequests() const {
-    return counter_ > 0;
-  }
+  bool HasRequests() const { return counter_ > 0; }
 
  private:
   /** Counts callback requests. */
   int32 counter_;
 };
 
-} // namespace fun
+}  // namespace fun

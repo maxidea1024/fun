@@ -10,7 +10,8 @@ class RelayDest {
  public:
   /** Target host id */
   HostId send_to;
-  /** The frame number used in the reliable UDP layer in case of P2P reliable message. */
+  /** The frame number used in the reliable UDP layer in case of P2P reliable
+   * message. */
   FrameNumber frame_number;
 };
 
@@ -20,10 +21,11 @@ class RelayDest {
 typedef Array<RelayDest> RelayDestList;
 
 inline String ToString(const RelayDest& value) {
-  return String::Format("{send_to: %d, frame_number: %d}", (int32)value.send_to, (int32)value.frame_number);
+  return String::Format("{send_to: %d, frame_number: %d}", (int32)value.send_to,
+                        (int32)value.frame_number);
 }
 
-//TODO 이건 필요 없을듯 싶음...
+// TODO 이건 필요 없을듯 싶음...
 inline String ToString(const RelayDestList& value) {
   String result = "[";
   for (int32 i = 0; i < value.Count(); ++i) {
@@ -34,5 +36,5 @@ inline String ToString(const RelayDestList& value) {
   return result;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

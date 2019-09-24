@@ -11,20 +11,18 @@ extern const EventTag kNullEventTag;
 
 class Events {
  public:
-  typedef Function<
-    void(
-      const String& /*event_name*/,
-      const EventId& /*event_id*/,
-      const EventTag& /*event_tag*/,
-      const SharedPtr<Session>& /*associated_session*/
-      )
-    > TimedoutHandler;
-
+  typedef Function<void(const String& /*event_name*/,
+                        const EventId& /*event_id*/,
+                        const EventTag& /*event_tag*/,
+                        const SharedPtr<Session>& /*associated_session*/
+                        )>
+      TimedoutHandler;
 
   template <typename EventTy>
-  static void RegisterHandler(const Function<ChainAction(SharedPtr<const EventTy>)>& h) {
+  static void RegisterHandler(
+      const Function<ChainAction(SharedPtr<const EventTy>)>& h) {
     VoidedHandler f;
-    //TODO
+    // TODO
 
     RegiserHandler(typeid(EventTy), f);
   }
@@ -55,16 +53,16 @@ class Events {
 
   static void RegisterHandler(const std::type_info&, const VoidedHandler&);
   static bool Post(const std::type_info&, SharedPtr<const void>);
-  static bool Post(const std::type_info&, SharedPtr<const void>, const EventTag& event_tag);
+  static bool Post(const std::type_info&, SharedPtr<const void>,
+                   const EventTag& event_tag);
 };
-
 
 void SetCommonEventTag(const EventTag& tag);
 bool IsCommonEventTag(const EventTag& tag);
 const EventTag& GetCurrentEventTag();
 
-//thread_local에 기록하면 되려나??
+// thread_local에 기록하면 되려나??
 void DebugSetEventName(const String& name);
 const String& DebugGetEventName();
 
-} // namespace fun
+}  // namespace fun

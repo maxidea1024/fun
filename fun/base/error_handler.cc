@@ -18,29 +18,30 @@ void ErrorHandler::OnException(const std::exception& e) {
   fun_debugger_msg(e.what());
 }
 
-void ErrorHandler::OnException() {
-  fun_debugger_msg("unknown exception");
-}
+void ErrorHandler::OnException() { fun_debugger_msg("unknown exception"); }
 
 void ErrorHandler::Handle(const Exception& e) {
   ScopedLock<FastMutex> guard(mutex_);
   try {
     handler_->OnException(e);
-  } catch (...) {}
+  } catch (...) {
+  }
 }
 
 void ErrorHandler::Handle(const std::exception& e) {
   ScopedLock<FastMutex> guard(mutex_);
   try {
     handler_->OnException(e);
-  } catch (...) {}
+  } catch (...) {
+  }
 }
 
 void ErrorHandler::Handle() {
   ScopedLock<FastMutex> guard(mutex_);
   try {
     handler_->OnException();
-  } catch (...) {}
+  } catch (...) {
+  }
 }
 
 ErrorHandler* ErrorHandler::Set(ErrorHandler* handler) {
@@ -52,13 +53,11 @@ ErrorHandler* ErrorHandler::Set(ErrorHandler* handler) {
   return old_handler;
 }
 
-ErrorHandler* ErrorHandler::Get() {
-  return handler_;
-}
+ErrorHandler* ErrorHandler::Get() { return handler_; }
 
 ErrorHandler* ErrorHandler::DefaultHandler() {
   static Singleton<ErrorHandler>::Holder sh;
   return sh.Get();
 }
 
-} // namespace fun
+}  // namespace fun

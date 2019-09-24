@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
 #include "fun/base/atomics.h"
+#include "fun/base/base.h"
 #include "fun/base/ftl/shared_ptr.h"
 #include "fun/base/thread.h"
 
@@ -39,7 +39,7 @@ class Singleton {
     // Creating an instance on another thread, so we wait
     // until the creation is complete.
     while (state != 2) {
-      //Thread::Sleep(2); // 2msec wait
+      // Thread::Sleep(2); // 2msec wait
       Thread::Yield();
     }
 
@@ -57,26 +57,21 @@ class Singleton {
     return instance;
   }
 
-  static FUN_ALWAYS_INLINE T& GetUnsafeRef() {
-    return *GetUnsafePtr();
-  }
-
+  static FUN_ALWAYS_INLINE T& GetUnsafeRef() { return *GetUnsafePtr(); }
 
   class Holder {
    public:
     Holder() : ptr_(Singleton<T>::GetPtr()) {}
 
     T* Get() {
-      return ptr_.Get();// .GetUnsafePtr();
+      return ptr_.Get();  // .GetUnsafePtr();
     }
 
-    operator T* () {
-      return Get();
-    }
+    operator T*() { return Get(); }
 
    private:
     Singleton::Ptr ptr_;
   };
 };
 
-} // namespace fun
+}  // namespace fun

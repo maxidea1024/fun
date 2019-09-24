@@ -22,14 +22,14 @@ class RunnableAdapter : public Runnable {
   typedef void (C::*Callback)();
 
   RunnableAdapter(C& object, Callback method)
-    : object_(&object), method_(method) {}
+      : object_(&object), method_(method) {}
 
   RunnableAdapter(const RunnableAdapter& rhs)
-    : object_(rhs.object_), method_(rhs.method_) {}
+      : object_(rhs.object_), method_(rhs.method_) {}
 
   ~RunnableAdapter() {}
 
-  RunnableAdapter& operator = (const RunnableAdapter& rhs) {
+  RunnableAdapter& operator=(const RunnableAdapter& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       object_ = rhs.object_;
       method_ = rhs.method_;
@@ -37,9 +37,7 @@ class RunnableAdapter : public Runnable {
     return *this;
   }
 
-  void Run() override {
-    (object_->*method_)();
-  }
+  void Run() override { (object_->*method_)(); }
 
  private:
   RunnableAdapter();
@@ -48,4 +46,4 @@ class RunnableAdapter : public Runnable {
   Callback method_;
 };
 
-} // namespace fun
+}  // namespace fun

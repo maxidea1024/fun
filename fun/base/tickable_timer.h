@@ -1,15 +1,15 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/nullable.h"
-#include "fun/base/ftl/function.h"
 #include "fun/base/container/list.h"
+#include "fun/base/ftl/function.h"
+#include "fun/base/nullable.h"
 #include "fun/base/timespan.h"
 #include "fun/base/timestamp.h"
 
 namespace fun {
 
-//FUN_BASE_API DECLARE_LOG_CATEGORY_EXTERN(LogTickableTimer, Info, All);
+// FUN_BASE_API DECLARE_LOG_CATEGORY_EXTERN(LogTickableTimer, Info, All);
 
 /**
  *
@@ -37,9 +37,9 @@ class FUN_BASE_API TickableTimer {
     int32 GetRepeatLimit() const;
     int32 GetExpiredCount() const;
 
-    //TODO
-    //void Pause();
-    //void Resume();
+    // TODO
+    // void Pause();
+    // void Resume();
 
    private:
     friend class TickableTimer;
@@ -47,11 +47,10 @@ class FUN_BASE_API TickableTimer {
     void* entry;
     TickableTimer* timer;
 
-    Context(void* entry, TickableTimer* timer)
-      : entry(entry), timer(timer) {}
+    Context(void* entry, TickableTimer* timer) : entry(entry), timer(timer) {}
   };
 
-  typedef TFunction<void (Context&)> Handler;
+  typedef TFunction<void(Context&)> Handler;
 
   TickableTimer(const String& name = String());
   ~TickableTimer();
@@ -63,25 +62,19 @@ class FUN_BASE_API TickableTimer {
   void SetCentralCallback(const Handler& handler);
 
   // oneshot
-  IdType ExpireAt(const Timestamp& time,
-                  const Handler& handler,
+  IdType ExpireAt(const Timestamp& time, const Handler& handler,
                   const String& tag = String());
 
   // oneshot
-  IdType ExpireAfter( const Timespan& delay,
-                      const Handler& handler,
-                      const String& tag = String());
+  IdType ExpireAfter(const Timespan& delay, const Handler& handler,
+                     const String& tag = String());
 
   // repeated
-  IdType ExpireRepeatedly(const Timespan& period,
-                          const Handler& handler,
-                          int32 repeat_limit = 0,
-                          const String& tag = String());
+  IdType ExpireRepeatedly(const Timespan& period, const Handler& handler,
+                          int32 repeat_limit = 0, const String& tag = String());
 
-  IdType Expire(const Timestamp& first_time,
-                const Timespan& period,
-                const Handler& handler,
-                int32 repeat_limit = -1,
+  IdType Expire(const Timestamp& first_time, const Timespan& period,
+                const Handler& handler, int32 repeat_limit = -1,
                 const String& tag = String());
 
   bool Cancel(const IdType id);
@@ -104,22 +97,22 @@ class FUN_BASE_API TickableTimer {
   int32 Tick();
   int32 Tick(const Timestamp& abs_time);
 
-  //TODO 통계관리
+  // TODO 통계관리
 
  private:
   struct Entry {
     IdType id;
     Timestamp next_expire_time;
-    //Nullable<Timestamp> last_expired_time;
+    // Nullable<Timestamp> last_expired_time;
     Timespan period;
     int32 repeat_limit;
     int32 expired_count;
-    //Nullable<Timespan> last_spent_time;
+    // Nullable<Timespan> last_spent_time;
     Handler handler;
     String tag;
 
-    //Nullable<Timespan> elapsed_time_at_pause_requested;
-    //bool resume_requested;
+    // Nullable<Timespan> elapsed_time_at_pause_requested;
+    // bool resume_requested;
   };
   List<Entry*> entries_;
   List<Entry*> paused_entries_;
@@ -142,4 +135,4 @@ class FUN_BASE_API TickableTimer {
   void Reschedule(Entry* entry);
 };
 
-} // namespace fun
+}  // namespace fun

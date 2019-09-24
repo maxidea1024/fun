@@ -1,7 +1,7 @@
 ﻿#include "fun/base/thread_std.h"
-#include "fun/base/thread.h"
-#include "fun/base/exception.h"
 #include "fun/base/error_handler.h"
+#include "fun/base/exception.h"
+#include "fun/base/thread.h"
 //#include "fun/base/format.h"
 
 #if FUN_PLATFORM_WINDOWS_FAMILY
@@ -33,10 +33,12 @@ void ThreadImpl::StartImpl(SharedPtr<Runnable> target) {
   data_->runnable_target = target;
 
   try {
-    data_->thread = UniquePtr<std::thread>(new std::thread(RunnableEntry, this));
+    data_->thread =
+        UniquePtr<std::thread>(new std::thread(RunnableEntry, this));
   } catch (std::system_error& e) {
     data_->runnable_target = nullptr;
-    throw SystemException(String::Format("cannot start thread: %s", String(e.what())));
+    throw SystemException(
+        String::Format("cannot start thread: %s", String(e.what())));
   }
 
   data_->tid = data_->thread->native_handle();
@@ -53,7 +55,8 @@ void ThreadImpl::JoinImpl() {
   try {
     data_->thread->join();
   } catch (std::system_error& e) {
-    throw SystemException(String::Format("cannot join thread: %s", String(e.what())));
+    throw SystemException(
+        String::Format("cannot join thread: %s", String(e.what())));
   }
 
   data_->joined = true;
@@ -64,7 +67,8 @@ bool ThreadImpl::JoinImpl(int32 milliseconds) {
     try {
       data_->thread->join();
     } catch (std::system_error& e) {
-      throw SystemException(String::Format("cannot join thread: %s", String(e.what())));
+      throw SystemException(
+          String::Format("cannot join thread: %s", String(e.what())));
     }
     data_->joined = true;
     return true;
@@ -75,9 +79,7 @@ bool ThreadImpl::JoinImpl(int32 milliseconds) {
   }
 }
 
-ThreadImpl* ThreadImpl::CurrentImpl() {
-  return current_thread_holder_.Get();
-}
+ThreadImpl* ThreadImpl::CurrentImpl() { return current_thread_holder_.Get(); }
 
 ThreadImpl::TIDImpl ThreadImpl::CurrentTidImpl() {
   ThreadImpl* thread_impl = CurrentImpl();
@@ -86,7 +88,7 @@ ThreadImpl::TIDImpl ThreadImpl::CurrentTidImpl() {
   }
 
   return thread_impl->GetTidImpl();
-  //return std::this_thread::get_id();
+  // return std::this_thread::get_id();
 }
 
 void ThreadImpl::SleepImpl(int32 milliseconds) {
@@ -115,4 +117,4 @@ void* ThreadImpl::RunnableEntry(void* thread) {
   return 0;
 }
 
-} // namespace fun
+}  // namespace fun

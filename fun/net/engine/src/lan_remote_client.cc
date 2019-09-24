@@ -7,9 +7,8 @@
 namespace fun {
 namespace net {
 
-LanClient_S::LanClient_S( LanServerImpl* owner,
-                          InternalSocket* new_socket,
-                          const InetAddress& remote_addr) {
+LanClient_S::LanClient_S(LanServerImpl* owner, InternalSocket* new_socket,
+                         const InetAddress& remote_addr) {
   owner_ = owner;
 
   last_request_measure_send_speed_time_ = 0;
@@ -18,7 +17,8 @@ LanClient_S::LanClient_S( LanServerImpl* owner,
   dispose_caller_ = nullptr;
   created_time_ = owner_->GetAbsoluteTime();
 
-  max_direct_p2p_connect_count_ = NetConfig::default_max_direct_p2p_multicast_count;
+  max_direct_p2p_connect_count_ =
+      NetConfig::default_max_direct_p2p_multicast_count;
   host_id_ = HostId_None;
   purge_requested_ = false;
   task_running_ = false;
@@ -34,11 +34,12 @@ LanClient_S::LanClient_S( LanServerImpl* owner,
   request_auto_prune_start_time_ = 0;
 
   to_client_tcp_ = new TcpTransport_S(this, new_socket, remote_addr);
-  to_client_tcp_->SetEnableNagleAlgorithm(owner_->settings_.bEnableNagleAlgorithm);
+  to_client_tcp_->SetEnableNagleAlgorithm(
+      owner_->settings_.bEnableNagleAlgorithm);
 }
 
-ResultCode
-LanClient_S::ExtractMessagesFromTcpStream(ReceivedMessageList& out_result) {
+ResultCode LanClient_S::ExtractMessagesFromTcpStream(
+    ReceivedMessageList& out_result) {
   out_result.Clear();
 
   owner_->AssertIsNotLockedByCurrentThread();
@@ -46,11 +47,8 @@ LanClient_S::ExtractMessagesFromTcpStream(ReceivedMessageList& out_result) {
 
   ResultCode rc;
   const int32 added_count = MessageStream::ExtractMessagesAndFlushStream(
-          to_client_tcp_->recv_stream_,
-          out_result,
-          host_id_,
-          owner_->settings_.message_max_length,
-          rc);
+      to_client_tcp_->recv_stream_, out_result, host_id_,
+      owner_->settings_.message_max_length, rc);
 
   if (added_count < 0) {
     return rc;
@@ -68,7 +66,8 @@ void LanClient_S::GetClientInfo(NetClientInfo& out_info) {
   out_info.send_queued_amount_in_byte_ = send_queued_amount_in_byte_;
   out_info.host_tag = host_tag_;
 
-  out_info.joined_p2p_groups_.Clear(joined_lan_p2p_groups_.Count() + had_joined_p2p_groups_.Count());
+  out_info.joined_p2p_groups_.Clear(joined_lan_p2p_groups_.Count() +
+                                    had_joined_p2p_groups_.Count());
 
   for (const auto& pair : joined_lan_p2p_groups_) {
     out_info.joined_p2p_groups_.Add(pair.key);
@@ -80,8 +79,9 @@ void LanClient_S::GetClientInfo(NetClientInfo& out_info) {
 
   out_info.relayed_p2p = false;
 
-  //TODO 이게 구태여 필요할까???
-  out_info.host_id_recycle_count = owner_->host_id_factory_->GetRecycleCount(host_id_);
+  // TODO 이게 구태여 필요할까???
+  out_info.host_id_recycle_count =
+      owner_->host_id_factory_->GetRecycleCount(host_id_);
 }
 
 NetClientInfoPtr LanClient_S::GetClientInfo() {
@@ -105,7 +105,8 @@ bool LanClient_S::PopFirstUserWorkItem(FinalUserWorkItem& out_item) {
   owner_->AssertIsLockedByCurrentThread();
 
   if (!final_user_work_queue_.IsEmpty()) {
-    out_item.From(final_user_work_queue_.Front(), host_id_); //From이라는걸 써야하나... 진정..
+    out_item.From(final_user_work_queue_.Front(),
+                  host_id_);  // From이라는걸 써야하나... 진정..
     final_user_work_queue_.RemoveFront();
     return true;
   }
@@ -133,10 +134,14 @@ void LanClient_S::WarnTooShortDisposal(const char* where) {
   if (dispose_caller_ == nullptr) {
     dispose_caller_ = where;
 
-    if ((owner_->GetAbsoluteTime() - created_time_) < 0.3) { // TODO 수치가 하드 코딩 되어 있음...
+    if ((owner_->GetAbsoluteTime() - created_time_) <
+        0.3) {  // TODO 수치가 하드 코딩 되어 있음...
       if (owner_->intra_logger_) {
-        const String text = String::Format( "A suspicious part has been found."
-                                            "  The connected client disconnected in a short time after connecting. : %s", where);
+        const String text = String::Format(
+            "A suspicious part has been found."
+            "  The connected client disconnected in a short time after "
+            "connecting. : %s",
+            where);
         owner_->intra_logger_->WriteLine(LogCategory::System, *text);
       }
     }
@@ -182,20 +187,15 @@ void LanClient_S::EnqueueIssueSendReadyRemotes() {
 }
 
 //@todo 이름을 살짝 변경해주는게 어떨런지..?
-bool LanClient_S::IsDispose() {
-  return dispose_waiter_ != nullptr;
-}
+bool LanClient_S::IsDispose() { return dispose_waiter_ != nullptr; }
 
-double LanClient_S::GetAbsoluteTime() {
-  return owner_->GetAbsoluteTime();
-}
+double LanClient_S::GetAbsoluteTime() { return owner_->GetAbsoluteTime(); }
 
-void LanClient_S::IssueDispose( ResultCode result_code,
-                                ResultCode detail_code,
-                                const ByteArray& comment,
-                                const char* where,
-                                SocketErrorCode socket_error) {
-  owner_->IssueDisposeLanClient(this, result_code, detail_code, comment, where, socket_error);
+void LanClient_S::IssueDispose(ResultCode result_code, ResultCode detail_code,
+                               const ByteArray& comment, const char* where,
+                               SocketErrorCode socket_error) {
+  owner_->IssueDisposeLanClient(this, result_code, detail_code, comment, where,
+                                socket_error);
 }
 
 //@todo 이름을 살짝 변경해주는게 어떨런지..?
@@ -217,34 +217,28 @@ CCriticalSection2& LanClient_S::GetMutex() {
   return to_client_tcp_->GetMutex();
 }
 
-void LanClient_S::Decrease() {
-  DecreaseUseCount();
-}
+void LanClient_S::Decrease() { DecreaseUseCount(); }
 
 void LanClient_S::OnIssueSendFail(const char* where,
                                   SocketErrorCode socket_error) {
-  IssueDispose( ResultCode::DisconnectFromRemote,
-                ResultCode::TCPConnectFailure,
-                ByteArray(),
-                __FUNCTION__,
-                socket_error);
+  IssueDispose(ResultCode::DisconnectFromRemote, ResultCode::TCPConnectFailure,
+               ByteArray(), __FUNCTION__, socket_error);
 
   WarnTooShortDisposal(where);
 }
 
 void LanClient_S::SendWhenReady(HostId sender_id,
-                                const InetAddress& sender_addr,
-                                HostId dest_id,
+                                const InetAddress& sender_addr, HostId dest_id,
                                 const SendFragRefs& data,
                                 const UdpSendOptions& option) {
-  fun_check(0); //사용하지 말것!!
+  fun_check(0);  //사용하지 말것!!
 }
 
 bool LanClient_S::IsLockedByCurrentThread() {
-  //TODO 뭐지 이거 왜 두번이나 하는거지, 오타인가??
-  return  to_client_tcp_->GetMutex().IsLockedByCurrentThread() ||
-          to_client_tcp_->GetMutex().IsLockedByCurrentThread();
+  // TODO 뭐지 이거 왜 두번이나 하는거지, 오타인가??
+  return to_client_tcp_->GetMutex().IsLockedByCurrentThread() ||
+         to_client_tcp_->GetMutex().IsLockedByCurrentThread();
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

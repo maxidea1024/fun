@@ -12,29 +12,25 @@ namespace net {
  */
 typedef uint16 CryptoCountType;
 
-
 /**
  * Session security key.
  */
-class SessionKey
-{
-public:
+class SessionKey {
+ public:
   CryptoAESKey aes_key;
   CryptoRC4Key rc4_key;
 
   /** Clear keys. */
-  inline void Reset()
-  {
+  inline void Reset() {
     aes_key.Reset();
     rc4_key.Reset();
   }
 
   /** Returns true if keys are exists. */
-  inline bool KeyExists() const
-  {
+  inline bool KeyExists() const {
     return aes_key.KeyExists() && rc4_key.KeyExists();
   }
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

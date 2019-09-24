@@ -48,7 +48,8 @@ class UserTaskQueue {
 
  public:
   void AddTaskSubject(ITaskSubject* subject);
-  bool PopAnyTaskNotRunningAndMarkAsRunning(FinalUserWorkItem& output, void** out_host_tag);
+  bool PopAnyTaskNotRunningAndMarkAsRunning(FinalUserWorkItem& output,
+                                            void** out_host_tag);
   void SetTaskRunningFlagByHostId(HostId subject_host_id, bool running);
 
  private:
@@ -56,5 +57,5 @@ class UserTaskQueue {
   ListNode<ITaskSubject::Node>::ListOwner task_subjects_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

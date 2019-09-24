@@ -1,6 +1,6 @@
 ﻿#include "fun/base/rw_lock.h"
 
-//TODO rw_lock_std.cc로 대체하는게 여러모로 좋을듯...
+// TODO rw_lock_std.cc로 대체하는게 여러모로 좋을듯...
 #if defined(FUN_CXX11_RWLOCK_FINISHED) && defined(FUN_ENABLE_CPP14)
 #include "fun/base/rw_lock_std.cc"
 #elif FUN_PLATFORM_WINDOWS_FAMILY
@@ -27,4 +27,4 @@ RWLock::~RWLock() {
   // NOOP
 }
 
-} // namespace fun
+}  // namespace fun

@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "IVizAgentDelegate.h"
+#include "RCPair.h"  // RCPair
 #include "RemoteClient.h"
 #include "ServerSocketPool.h"
-#include "RCPair.h" // RCPair
-#include "thread_pool_impl.h" // ThreadPool
-#include "host_id_factory.h" // IHostIdFactory
-#include "Tracer.h" // LogWriter
+#include "Tracer.h"            // LogWriter
+#include "host_id_factory.h"   // IHostIdFactory
+#include "thread_pool_impl.h"  // ThreadPool
 
 #include "Misc/TickableTimer.h"
 
@@ -36,27 +36,29 @@ class SendDestInfo_S {
 
  public:
   SendDestInfo_S()
-    : host_id(HostId_None),
-      object(nullptr),
-      p2p_route_prev_link(nullptr),
-      p2p_route_next_link(nullptr),
-      host_object(nullptr) {}
+      : host_id(HostId_None),
+        object(nullptr),
+        p2p_route_prev_link(nullptr),
+        p2p_route_next_link(nullptr),
+        host_object(nullptr) {}
 
-  friend bool operator == (const SendDestInfo_S& a, const SendDestInfo_S& b) {
+  friend bool operator==(const SendDestInfo_S& a, const SendDestInfo_S& b) {
     return a.host_id == b.host_id;
   }
 
-  friend bool operator != (const SendDestInfo_S& a, const SendDestInfo_S& b) {
+  friend bool operator!=(const SendDestInfo_S& a, const SendDestInfo_S& b) {
     return a.host_id != b.host_id;
   }
 
-  friend bool operator < (const SendDestInfo_S& a, const SendDestInfo_S& b) {
+  friend bool operator<(const SendDestInfo_S& a, const SendDestInfo_S& b) {
     return a.host_id < b.host_id;
   }
 };
 
-typedef Array<SendDestInfo_S, InlineAllocator<NetConfig::OrdinaryHeavyS2CMulticastCount>> SendDestInfoList_S;
-//typedef Array<SendDestInfo_S> SendDestInfoList_S;
+typedef Array<SendDestInfo_S,
+              InlineAllocator<NetConfig::OrdinaryHeavyS2CMulticastCount>>
+    SendDestInfoList_S;
+// typedef Array<SendDestInfo_S> SendDestInfoList_S;
 
 typedef Map<RCPair, P2PConnectionStatePtr> RCPairMap;
 
@@ -69,16 +71,20 @@ class P2PPairList {
  public:
   /** 릴레이건 직접이건, P2P 연결이 활성화된 것들 */
   RCPairMap active_pairs;
-  /** 비활성되어있지만 다시 재사용될 가능성이 있는 것들, 즉 최근 일정시간까지는 활성화되어있던 것들 */
+  /** 비활성되어있지만 다시 재사용될 가능성이 있는 것들, 즉 최근 일정시간까지는
+   * 활성화되어있던 것들 */
   RCPairMap recyclable_pairs;
 
   /// 직접연결된 P2P 쌍인지.
   P2PConnectionStatePtr GetPair(HostId a, HostId b);
   void RemovePairOfAnySide(RemoteClient_S* client);
-  void AddPair(RemoteClient_S* client_a, RemoteClient_S* client_b, P2PConnectionStatePtr state);
-  void ReleasePair(NetServerImpl* owner, RemoteClient_S* client_a, RemoteClient_S* client_b);
+  void AddPair(RemoteClient_S* client_a, RemoteClient_S* client_b,
+               P2PConnectionStatePtr state);
+  void ReleasePair(NetServerImpl* owner, RemoteClient_S* client_a,
+                   RemoteClient_S* client_b);
 
-  void AddRecyclePair(RemoteClient_S* client_a, RemoteClient_S* client_b, P2PConnectionStatePtr state);
+  void AddRecyclePair(RemoteClient_S* client_a, RemoteClient_S* client_b,
+                      P2PConnectionStatePtr state);
   void RemoveTooOldRecyclePair(double absolute_time);
 
   P2PConnectionStatePtr GetRecyclePair(HostId a, HostId b, bool remove = true);
@@ -86,22 +92,20 @@ class P2PPairList {
   void Clear();
 };
 
-
-class NetServerImpl
-  : public NetCoreImpl
-  , public IInternalSocketDelegate
-  , public ICompletionPortCallbacks
-  , public ISendDest_S
-  , public ITaskSubject
-  , public NetServer
-  , public ICompletionContext
-  , public P2PGroupMemberBase_S
-  , public IVizAgentDelegate
-  , public IUserTaskQueueOwner
-  , public ISocketIoCompletionDelegate
-  , public ICompletionKey
-  , public IThreadReferer
-  , public IThreadPoolCallbacks {
+class NetServerImpl : public NetCoreImpl,
+                      public IInternalSocketDelegate,
+                      public ICompletionPortCallbacks,
+                      public ISendDest_S,
+                      public ITaskSubject,
+                      public NetServer,
+                      public ICompletionContext,
+                      public P2PGroupMemberBase_S,
+                      public IVizAgentDelegate,
+                      public IUserTaskQueueOwner,
+                      public ISocketIoCompletionDelegate,
+                      public ICompletionKey,
+                      public IThreadReferer,
+                      public IThreadPoolCallbacks {
  private:
   friend class UdpSocket_S;
 
@@ -115,8 +119,8 @@ class NetServerImpl
  public:
   virtual CCriticalSection2& GetMutex() override { return main_mutex_; }
 
-  //IVizAgentDelegate interface
-  //TODO 뭔가 정리가 안되는 느낌이다...
+  // IVizAgentDelegate interface
+  // TODO 뭔가 정리가 안되는 느낌이다...
   //얘는 리얼타임을 사용하는건가???
   inline double GetAbsoluteTime() override { return clock_.AbsoluteSeconds(); }
 
@@ -136,21 +140,22 @@ class NetServerImpl
   uint32 timer_callback_interval_;
   void* timer_callback_context_;
 
-  // 이 서버가 실행되는 환경에서, ICMP 패킷이 도착하는 호스트로부터의 통신을 완전 차단하는
-  // 환경이 적용되어 있는지?
-  // false이면 안전하게 ttl 을 수정한 패킷 교환이 가능
+  // 이 서버가 실행되는 환경에서, ICMP 패킷이 도착하는 호스트로부터의 통신을
+  // 완전 차단하는 환경이 적용되어 있는지? false이면 안전하게 ttl 을 수정한 패킷
+  // 교환이 가능
   bool using_over_block_icmp_environment_;
 
-  // 이 객체 인스턴스의 GUID. 이 값은 전세계 어느 컴퓨터에서도 겹치지 않는 값이어야 한다.
-  // 같은 호스트에서 여러개의 서버를 실행시 P2P 홀펀칭 시도중 host_id, peer addr만 갖고는 어느 서버와 연결된 것에 대한 것인지
-  // 구별이 불가능하므로 이 기능을 쓰는 것이다.
+  // 이 객체 인스턴스의 GUID. 이 값은 전세계 어느 컴퓨터에서도 겹치지 않는
+  // 값이어야 한다. 같은 호스트에서 여러개의 서버를 실행시 P2P 홀펀칭 시도중
+  // host_id, peer addr만 갖고는 어느 서버와 연결된 것에 대한 것인지 구별이
+  // 불가능하므로 이 기능을 쓰는 것이다.
   Uuid instance_tag_;
 
   // 여기에 등록된 클라들은 곧 파괴될 것이다
 
-  // issue중이던 것들은 바로 dispose시 에러가 발생한다. 혹은 issuerecv/send에서 이벤트 없이 에러가 발생한다.
-  // 그래서 이 변수가 쓰이는거다.
-  // host_id=0인 경우, 즉 비인증 상태의 객체가 파괴되는 경우도 감안, EHostId를 키로 두지 않는다.
+  // issue중이던 것들은 바로 dispose시 에러가 발생한다. 혹은 issuerecv/send에서
+  // 이벤트 없이 에러가 발생한다. 그래서 이 변수가 쓰이는거다. host_id=0인 경우,
+  // 즉 비인증 상태의 객체가 파괴되는 경우도 감안, EHostId를 키로 두지 않는다.
   // key: object, value: disposed time
   typedef Map<RemoteClient_S*, double> DisposeIssuedRemoteClientMap;
   DisposeIssuedRemoteClientMap dispose_issued_remote_clients_map_;
@@ -233,13 +238,15 @@ class NetServerImpl
 
   Array<UdpSocketPtr_S> udp_sockets_;
 
-  Map<InetAddress, UdpSocketPtr_S> local_addr_to_udp_socket_map_; // UDP socket의 local 주소 -> 소켓 객체
+  Map<InetAddress, UdpSocketPtr_S>
+      local_addr_to_udp_socket_map_;  // UDP socket의 local 주소 -> 소켓 객체
 
   InternalSocketPtr tcp_listening_socket_;
 
   Singleton<ServerSocketPool>::CPtr server_socket_pool_;
 
-  // cs locked인 경우 local event를 enque하기만 해야 한다. cs unlock인 경우에는 콜백 허용
+  // cs locked인 경우 local event를 enque하기만 해야 한다. cs unlock인 경우에는
+  // 콜백 허용
   INetServerCallbacks* callbacks_;
 
   Clock clock_;
@@ -253,13 +260,15 @@ class NetServerImpl
   // sendissued가 false이고 Sendqueue.Length > 0 인놈들의 모음
   ListNode<RemoteClient_S>::ListOwner tcp_issue_send_ready_remote_clients_;
 
-  // FunNet.NetConfig.EveryRemoteIssueSendOnNeedInterval이지만 테스트를 위해 값을 수정할 경우를 위해 멤버로 떼놨다.
+  // FunNet.NetConfig.EveryRemoteIssueSendOnNeedInterval이지만 테스트를 위해
+  // 값을 수정할 경우를 위해 멤버로 떼놨다.
   double every_remote_issue_send_on_need_internal_;
 
   // IssueSend를 걸어야 하는 것들
   // send queue에 뭔가가 들어가는 순간, issue send = F인 것들이 여기에 등록된다.
   // issue send = T가 되는 순간 여기서 빠진다.
-  // UDP 소켓을 굉장히 많이 둔 경우 모든 UDP socket에 대해 루프를 돌면 비효율적이므로 이것이 필요
+  // UDP 소켓을 굉장히 많이 둔 경우 모든 UDP socket에 대해 루프를 돌면
+  // 비효율적이므로 이것이 필요
   ListNode<UdpSocket_S>::ListOwner udp_issued_send_ready_list_;
 
   // 루프백 메시지용 키
@@ -289,40 +298,78 @@ class NetServerImpl
   void PostEveryRemote_IssueSend();
   void EveryRemote_IssueSendOnNeed(Array<IHostObject*>& pool);
 
-  void IoCompletion_PerRemoteClient(CompletionStatus& completion, ReceivedMessageList& msg_list);
-  void IoCompletion_UdpConnectee(CompletionStatus& completion, ReceivedMessageList& msg_list);
-  void CatchThreadExceptionAndPurgeClient(RemoteClient_S* rc, const char* where, const char* reason);
+  void IoCompletion_PerRemoteClient(CompletionStatus& completion,
+                                    ReceivedMessageList& msg_list);
+  void IoCompletion_UdpConnectee(CompletionStatus& completion,
+                                 ReceivedMessageList& msg_list);
+  void CatchThreadExceptionAndPurgeClient(RemoteClient_S* rc, const char* where,
+                                          const char* reason);
 
-  void IoCompletion_TcpCustomValueCase(CompletionStatus& completion, RemoteClient_S* rc);
-  void IoCompletion_TcpSendCompletionCase(CompletionStatus& completion, RemoteClient_S* rc);
-  void IoCompletion_TcpRecvCompletionCase(CompletionStatus& completion, RemoteClient_S* rc, ReceivedMessageList& msg_list);
-  void IoCompletion_UdpRecvCompletionCase(CompletionStatus& completion, UdpSocket_S* udp_socket, ReceivedMessageList& msg_list);
-  void IoCompletion_UdpSendCompletionCase(CompletionStatus& completion, UdpSocket_S* udp_socket);
+  void IoCompletion_TcpCustomValueCase(CompletionStatus& completion,
+                                       RemoteClient_S* rc);
+  void IoCompletion_TcpSendCompletionCase(CompletionStatus& completion,
+                                          RemoteClient_S* rc);
+  void IoCompletion_TcpRecvCompletionCase(CompletionStatus& completion,
+                                          RemoteClient_S* rc,
+                                          ReceivedMessageList& msg_list);
+  void IoCompletion_UdpRecvCompletionCase(CompletionStatus& completion,
+                                          UdpSocket_S* udp_socket,
+                                          ReceivedMessageList& msg_list);
+  void IoCompletion_UdpSendCompletionCase(CompletionStatus& completion,
+                                          UdpSocket_S* udp_socket);
 
   void IoCompletion_NewClientCase(RemoteClient_S* rc);
-  void IoCompletion_ProcessMessageOrMoveToFinalRecvQueue(RemoteClient_S* rc, ReceivedMessageList& extracted_msg_list, UdpSocket_S* udp_socket);
-  bool IoCompletion_ProcessMessage_EngineLayer(ReceivedMessage& received_msg, RemoteClient_S* rc, UdpSocket_S* udp_socket);
-  bool IoCompletion_ProcessMessage_FromUnknownClient(const InetAddress& From, MessageIn& received_msg, UdpSocket_S* udp_socket);
+  void IoCompletion_ProcessMessageOrMoveToFinalRecvQueue(
+      RemoteClient_S* rc, ReceivedMessageList& extracted_msg_list,
+      UdpSocket_S* udp_socket);
+  bool IoCompletion_ProcessMessage_EngineLayer(ReceivedMessage& received_msg,
+                                               RemoteClient_S* rc,
+                                               UdpSocket_S* udp_socket);
+  bool IoCompletion_ProcessMessage_FromUnknownClient(const InetAddress& From,
+                                                     MessageIn& received_msg,
+                                                     UdpSocket_S* udp_socket);
 
-  void IoCompletion_ProcessMessage_ServerHolepunch(MessageIn& msg, const InetAddress& From, UdpSocket_S* udp_socket);
-  void IoCompletion_ProcessMessage_PeerUdp_ServerHolepunch(MessageIn& msg, const InetAddress& From, UdpSocket_S* udp_socket);
-  void IoCompletion_ProcessMessage_NotifyCSEncryptedSessionKey(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_NotifyServerConnectionRequestData(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_RequestServerConnectionHint(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_RequestServerTimeAndKeepAlive(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_SpeedHackDetectorPing(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_UnreliableRelay1(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_UnreliableRelay1_RelayDestListCompressed(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_ReliableRelay1(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_LingerDataFrame1(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_NotifyHolepunchSuccess(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_PeerUdp_NotifyHolepunchSuccess(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_RPC(ReceivedMessage& received_msg, bool msg_processed, RemoteClient_S* rc, bool is_real_udp);
-  void IoCompletion_ProcessMessage_FreeformMessage(ReceivedMessage& received_msg, bool msg_processed, RemoteClient_S* rc, bool is_real_udp);
-  void IoCompletion_ProcessMessage_RequestReceiveSpeedAtReceiverSide_NoRelay(MessageIn& msg, RemoteClient_S* rc);
-  void IoCompletion_ProcessMessage_ReplyReceiveSpeedAtReceiverSide_NoRelay(ReceivedMessage& received_msg, RemoteClient_S* rc);
-  void IoCompletion_MulticastUnreliableRelay2_AndUnlock(CScopedLock2* main_mutex,
-        const HostIdArray& relay_dest, HostId relay_sender_host_id, MessageIn& payload, MessagePriority priority, uint64 unique_id);
+  void IoCompletion_ProcessMessage_ServerHolepunch(MessageIn& msg,
+                                                   const InetAddress& From,
+                                                   UdpSocket_S* udp_socket);
+  void IoCompletion_ProcessMessage_PeerUdp_ServerHolepunch(
+      MessageIn& msg, const InetAddress& From, UdpSocket_S* udp_socket);
+  void IoCompletion_ProcessMessage_NotifyCSEncryptedSessionKey(
+      MessageIn& msg, RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_NotifyServerConnectionRequestData(
+      MessageIn& msg, RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_RequestServerConnectionHint(
+      MessageIn& msg, RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_RequestServerTimeAndKeepAlive(
+      MessageIn& msg, RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_SpeedHackDetectorPing(MessageIn& msg,
+                                                         RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_UnreliableRelay1(MessageIn& msg,
+                                                    RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_UnreliableRelay1_RelayDestListCompressed(
+      MessageIn& msg, RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_ReliableRelay1(MessageIn& msg,
+                                                  RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_LingerDataFrame1(MessageIn& msg,
+                                                    RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_NotifyHolepunchSuccess(MessageIn& msg,
+                                                          RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_PeerUdp_NotifyHolepunchSuccess(
+      MessageIn& msg, RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_RPC(ReceivedMessage& received_msg,
+                                       bool msg_processed, RemoteClient_S* rc,
+                                       bool is_real_udp);
+  void IoCompletion_ProcessMessage_FreeformMessage(
+      ReceivedMessage& received_msg, bool msg_processed, RemoteClient_S* rc,
+      bool is_real_udp);
+  void IoCompletion_ProcessMessage_RequestReceiveSpeedAtReceiverSide_NoRelay(
+      MessageIn& msg, RemoteClient_S* rc);
+  void IoCompletion_ProcessMessage_ReplyReceiveSpeedAtReceiverSide_NoRelay(
+      ReceivedMessage& received_msg, RemoteClient_S* rc);
+  void IoCompletion_MulticastUnreliableRelay2_AndUnlock(
+      CScopedLock2* main_mutex, const HostIdArray& relay_dest,
+      HostId relay_sender_host_id, MessageIn& payload, MessagePriority priority,
+      uint64 unique_id);
 
   void NotifyProtocolVersionMismatch(RemoteClient_S* rc);
 
@@ -332,10 +379,8 @@ class NetServerImpl
   // 사용자 정의 OnTick을 콜 하기 위한 타이머.
   TimerTaskIdType tick_timer_id_;
 
-  void UserTaskQueue_Add( RemoteClient_S* rc,
-                          ReceivedMessage& received_msg,
-                          FinalUserWorkItemType type,
-                          bool is_real_udp);
+  void UserTaskQueue_Add(RemoteClient_S* rc, ReceivedMessage& received_msg,
+                         FinalUserWorkItemType type, bool is_real_udp);
   void PostOnTick();
   void OnTick();
   void PostUserTask();
@@ -343,7 +388,8 @@ class NetServerImpl
   void EndCompletion();
 
   void UserWork_FinalReceiveRPC(FinalUserWorkItem& uwi, void* host_tag);
-  void UserWork_FinalReceiveFreeformMessage(FinalUserWorkItem& uwi, void* host_tag);
+  void UserWork_FinalReceiveFreeformMessage(FinalUserWorkItem& uwi,
+                                            void* host_tag);
   void UserWork_FinalUserTask(FinalUserWorkItem& uwi, void* host_tag);
   void UserWork_LocalEvent(FinalUserWorkItem& uwi);
 
@@ -352,16 +398,19 @@ class NetServerImpl
 
   void SetCallbacks(INetServerCallbacks* callbacks);
 
-  //@maxidea: todo: 파라메터 Params을 mutable하게 넘겨주는게 좋을듯... 내부에서 Params의 일부 값들이 변경 될수 있다.
-  bool Start(const StartServerArgs& args, SharedPtr<ResultInfo>& out_error) override;
+  //@maxidea: todo: 파라메터 Params을 mutable하게 넘겨주는게 좋을듯... 내부에서
+  //Params의 일부 값들이 변경 될수 있다.
+  bool Start(const StartServerArgs& args,
+             SharedPtr<ResultInfo>& out_error) override;
   void Stop() override;
 
  private:
-  bool CreateTcpListenSocketAndInit(const Array<int32>& tcp_ports, SharedPtr<ResultInfo>& out_error);
-  bool CreateAndInitUdpSockets( ServerUdpAssignMode udp_assign_mode,
-                                const Array<int32>& udp_ports,
-                                Array<int32>& failed_bind_ports,
-                                SharedPtr<ResultInfo>& out_error);
+  bool CreateTcpListenSocketAndInit(const Array<int32>& tcp_ports,
+                                    SharedPtr<ResultInfo>& out_error);
+  bool CreateAndInitUdpSockets(ServerUdpAssignMode udp_assign_mode,
+                               const Array<int32>& udp_ports,
+                               Array<int32>& failed_bind_ports,
+                               SharedPtr<ResultInfo>& out_error);
 
   bool AsyncCallbackMayOccur() override;
 
@@ -372,19 +421,22 @@ class NetServerImpl
   RandomMT random_;
 
   struct CandidateRemoteClients : public Map<InetAddress, RemoteClient_S*> {
-    //TODO 이런 이름이 좀더 좋으려나?? RemoveByValue인데 말이지??
-    //void RemoveByRC(RemoteClient_S* rc);
+    // TODO 이런 이름이 좀더 좋으려나?? RemoveByValue인데 말이지??
+    // void RemoveByRC(RemoteClient_S* rc);
     void Remove(RemoteClient_S* rc);
   };
   CandidateRemoteClients candidate_remote_clients_;
 
-  Set<RemoteClient_S*> remote_client_instances_; // 실제로 RC들의 소유권을 가지는 곳
+  Set<RemoteClient_S*>
+      remote_client_instances_;  // 실제로 RC들의 소유권을 가지는 곳
 
   // ClientHostId가 가리키는 peer가 참여하고 있는 P2P group 리스트를 얻는다.
   bool GetJoinedP2PGroups(HostId client_id, HostIdArray& output);
 
-  RemoteClient_S* GetRemoteClientByUdpEndPoint_NOLOCK(const InetAddress& client_addr);
-  RemoteClient_S* GetCandidateRemoteClientByTcpAddr(const InetAddress& client_addr);
+  RemoteClient_S* GetRemoteClientByUdpEndPoint_NOLOCK(
+      const InetAddress& client_addr);
+  RemoteClient_S* GetCandidateRemoteClientByTcpAddr(
+      const InetAddress& client_addr);
 
   void PurgeTooOldAddMemberAckItem();
 
@@ -403,11 +455,9 @@ class NetServerImpl
   bool IsValidHostId(HostId host_id);
   bool IsValidHostId_NOLOCK(HostId host_id);
 
-  void EnqueueClientLeaveEvent( RemoteClient_S* rc,
-                                ResultCode result_code,
-                                ResultCode detail_code,
-                                const ByteArray& comment,
-                                SocketErrorCode socket_error);
+  void EnqueueClientLeaveEvent(RemoteClient_S* rc, ResultCode result_code,
+                               ResultCode detail_code, const ByteArray& comment,
+                               SocketErrorCode socket_error);
   void ProcessOneLocalEvent(LocalEvent& event);
 
  public:
@@ -442,20 +492,18 @@ class NetServerImpl
   bool NextDecryptCount(HostId remote_id);
 
   virtual bool Send(const SendFragRefs& data_to_send,
-                    const SendOption& send_opt,
-                    const HostId* sendto_list,
+                    const SendOption& send_opt, const HostId* sendto_list,
                     int32 sendto_count) override;
 
  public:
-  bool Send_BroadcastLayer( const SendFragRefs& payload,
-                            const SendOption& send_opt,
-                            const HostId* sendto_list,
-                            int32 sendto_count);
+  bool Send_BroadcastLayer(const SendFragRefs& payload,
+                           const SendOption& send_opt,
+                           const HostId* sendto_list, int32 sendto_count);
 
-  //TODO 함수명, 파라메터 이름을 변경하도록 하자.
-  void ConvertGroupToIndividualsAndUnion( int32 sendto_count,
-                                          const HostId* sendto_list,
-                                          HostIdArray& send_dest_list);
+  // TODO 함수명, 파라메터 이름을 변경하도록 하자.
+  void ConvertGroupToIndividualsAndUnion(int32 sendto_count,
+                                         const HostId* sendto_list,
+                                         HostIdArray& send_dest_list);
 
   bool CloseConnection(HostId client_id) override;
   void CloseAllConnections() override;
@@ -476,24 +524,24 @@ class NetServerImpl
 
   bool LeaveP2PGroup(HostId member_id, HostId group_id);
 
-  HostId CreateP2PGroup(const HostId* member_list,
-                        int32 member_count,
+  HostId CreateP2PGroup(const HostId* member_list, int32 member_count,
                         const ByteArray& custom_field,
-                        const P2PGroupOption& option,
-                        HostId assigned_host_id);
-  bool JoinP2PGroup(HostId member_id,
-                    HostId group_id,
+                        const P2PGroupOption& option, HostId assigned_host_id);
+  bool JoinP2PGroup(HostId member_id, HostId group_id,
                     const ByteArray& custom_field);
 
-  void EnqueueP2PAddMemberAckCompleteEvent( HostId group_id,
-                                            HostId added_member_host_id,
-                                            ResultCode result);
+  void EnqueueP2PAddMemberAckCompleteEvent(HostId group_id,
+                                           HostId added_member_host_id,
+                                           ResultCode result);
 
  private:
   uint32 joined_p2p_group_key_gen_;
 
-  bool JoinP2PGroup_INTERNAL(HostId member_id, HostId group_id, const ByteArray& custom_field, uint32 joined_p2p_group_key_gen_);
-  void AddMemberAckWaiters_RemoveRelated_MayTriggerJoinP2PMemberCompleteEvent(P2PGroup_S* group, HostId member_id, ResultCode reason);
+  bool JoinP2PGroup_INTERNAL(HostId member_id, HostId group_id,
+                             const ByteArray& custom_field,
+                             uint32 joined_p2p_group_key_gen_);
+  void AddMemberAckWaiters_RemoveRelated_MayTriggerJoinP2PMemberCompleteEvent(
+      P2PGroup_S* group, HostId member_id, ResultCode reason);
 
  public:
   void P2PGroup_CheckConsistency();
@@ -507,13 +555,14 @@ class NetServerImpl
 
   P2PGroupPtr_S GetP2PGroupByHostId_NOLOCK(HostId group_id);
   bool GetP2PGroupInfo(HostId group_id, P2PGroupInfo& output);
-  //TODO 함수명과 파라메터명 변경 검토.
+  // TODO 함수명과 파라메터명 변경 검토.
   void ConvertAndAppendP2PGroupToPeerList(HostId send_to, HostIdArray& SendTo2);
 
   ISendDest_S* GetSendDestByHostId_NOLOCK(HostId peer_id);
 
   bool GetP2PConnectionStats(HostId remote_id, P2PConnectionStats& out_stats);
-  bool GetP2PConnectionStats(HostId remote_a, HostId remote_b, P2PPairConnectionStats& out_stats);
+  bool GetP2PConnectionStats(HostId remote_a, HostId remote_b,
+                             P2PPairConnectionStats& out_stats);
 
   // ITaskSubject interface
   HostId GetHostId() const override { return HostId_Server; }
@@ -522,11 +571,9 @@ class NetServerImpl
   void OnSetTaskRunningFlag(bool running) override;
   bool PopFirstUserWorkItem(FinalUserWorkItem& out_item) override;
 
-  void IssueDisposeRemoteClient(RemoteClient_S* rc,
-                                ResultCode result_code,
+  void IssueDisposeRemoteClient(RemoteClient_S* rc, ResultCode result_code,
                                 ResultCode detail_code,
-                                const ByteArray& comment,
-                                const char* where,
+                                const ByteArray& comment, const char* where,
                                 SocketErrorCode socket_error);
 
   void RemoteClient_RemoveFromCollections(RemoteClient_S* rc);
@@ -549,11 +596,13 @@ class NetServerImpl
   void ShowError_NOLOCK(SharedPtr<ResultInfo> result_info);
   void ShowWarning_NOLOCK(SharedPtr<ResultInfo> result_info);
 
-  void ShowNotImplementedRpcWarning(RpcId rpc_id, const char* rpc_name) override {
+  void ShowNotImplementedRpcWarning(RpcId rpc_id,
+                                    const char* rpc_name) override {
     NetCoreImpl::ShowNotImplementedRpcWarning(rpc_id, rpc_name);
   }
 
-  void PostCheckReadMessage(IMessageIn& msg, RpcId rpc_id, const char* rpc_name) override {
+  void PostCheckReadMessage(IMessageIn& msg, RpcId rpc_id,
+                            const char* rpc_name) override {
     NetCoreImpl::PostCheckReadMessage(msg, rpc_id, rpc_name);
   }
 
@@ -567,25 +616,30 @@ class NetServerImpl
   // 너무 오랫동안 쓰이지 않은 UDP 송신 큐를 찾아서 제거한다.
   void TcpAndUdp_LongTick();
 
-  //void DisconnectRemoteClientOnTimeout();
+  // void DisconnectRemoteClientOnTimeout();
   void Heartbeat_PerClient();
 
   void GetUserWorkerThreadInfo(Array<ThreadInfo>& output);
   void GetNetWorkerThreadInfo(Array<ThreadInfo>& output);
 
   // 스레드 섞기
-  void OnSocketIoCompletion(Array<IHostObject*>& send_issued_pool, ReceivedMessageList& msg_list, CompletionStatus& completion);
-  void OnIoCompletion(Array<IHostObject*>& send_issued_pool, ReceivedMessageList& msg_list, CompletionStatus& completion);
+  void OnSocketIoCompletion(Array<IHostObject*>& send_issued_pool,
+                            ReceivedMessageList& msg_list,
+                            CompletionStatus& completion);
+  void OnIoCompletion(Array<IHostObject*>& send_issued_pool,
+                      ReceivedMessageList& msg_list,
+                      CompletionStatus& completion);
 
   bool RunAsync(HostId task_owner_id, Function<void()> user_func) override;
 
  private:
-  void ConditionalFallbackServerUdpToTcp(RemoteClient_S* rc, double absolute_time);
+  void ConditionalFallbackServerUdpToTcp(RemoteClient_S* rc,
+                                         double absolute_time);
   void ConditionalArbitaryUdpTouch(RemoteClient_S* rc, double absolute_time);
   void RefreshSendQueuedAmountStat(RemoteClient_S* rc);
 
  public:
-  //void ConditionalPruneTooOldDefragBoard();
+  // void ConditionalPruneTooOldDefragBoard();
   void LocalProcessForFallbackUdpToTcp(RemoteClient_S* rc);
 
   // NetServer interface
@@ -593,7 +647,8 @@ class NetServerImpl
 
   virtual void GetUdpListenerLocalAddrs(Array<InetAddress>& output) override;
 
-  // 정렬을 하기위해 P2PConnectionState 과 배열의 index와 directP2P Count로 구성된 구조체 리스트를 만든다.
+  // 정렬을 하기위해 P2PConnectionState 과 배열의 index와 directP2P Count로
+  // 구성된 구조체 리스트를 만든다.
   struct ConnectionInfo {
     P2PConnectionState* state;
     int32 host_index0;
@@ -603,19 +658,19 @@ class NetServerImpl
 
     ConnectionInfo() { Reset(); }
 
-    bool operator < (const ConnectionInfo& other) const {
+    bool operator<(const ConnectionInfo& other) const {
       return state->recent_ping_ < other.state->recent_ping_;
     }
 
-    bool operator <= (const ConnectionInfo& other) const {
+    bool operator<=(const ConnectionInfo& other) const {
       return state->recent_ping_ <= other.state->recent_ping_;
     }
 
-    bool operator > (const ConnectionInfo& other) const {
+    bool operator>(const ConnectionInfo& other) const {
       return state->recent_ping_ > other.state->recent_ping_;
     }
 
-    bool operator >= (const ConnectionInfo& other) const {
+    bool operator>=(const ConnectionInfo& other) const {
       return state->recent_ping_ >= other.state->recent_ping_;
     }
 
@@ -634,26 +689,31 @@ class NetServerImpl
 
  public:
   void RemoteClient_RequestStartServerHolepunch_OnFirst(RemoteClient_S* rc);
-  void RemoteClient_NewLocalUdpSocketAndRequestNewRemoteUdpSocket(RemoteClient_S* rc);
+  void RemoteClient_NewLocalUdpSocketAndRequestNewRemoteUdpSocket(
+      RemoteClient_S* rc);
 
-  void MakeP2PRouteLinks(SendDestInfoList_S& tgt, int32 unreliable_s2c_routed_multicast_max_count, double routed_send_max_ping);
+  void MakeP2PRouteLinks(SendDestInfoList_S& tgt,
+                         int32 unreliable_s2c_routed_multicast_max_count,
+                         double routed_send_max_ping);
 
   void Convert_NOLOCK(SendDestInfoList_S& to, HostIdArray& from);
 
-  virtual void SetDefaultFallbackMethod(FallbackMethod fallback_method) override;
+  virtual void SetDefaultFallbackMethod(
+      FallbackMethod fallback_method) override;
 
   UniquePtr<LogWriter> intra_logger_;
 
   virtual void EnableIntraLogging(const char* log_filename) override;
   virtual void DisableIntraLogging() override;
 
-  void EnqueueHackSuspectEvent(RemoteClient_S* rc, const char* statement, HackType hack_type);
+  void EnqueueHackSuspectEvent(RemoteClient_S* rc, const char* statement,
+                               HackType hack_type);
   void EnqueueP2PGroupRemoveEvent(HostId group_id);
 
-  //double GetSpeedHackLongDetectMinInterval();
-  //double GetSpeedHackLongDeviationRatio();
-  //double GetSpeedHackDeviationThreshold();
-  //int32 GetSpeedHackDetectorSeriesLength();
+  // double GetSpeedHackLongDetectMinInterval();
+  // double GetSpeedHackLongDeviationRatio();
+  // double GetSpeedHackDeviationThreshold();
+  // int32 GetSpeedHackDetectorSeriesLength();
 
   double speed_hack_detector_reck_ratio_;
 
@@ -664,18 +724,23 @@ class NetServerImpl
 
   virtual bool IsConnectedClient(HostId client_id) override;
 
-  virtual void SetMaxDirectP2PConnectionCount(HostId client_id, int32 max_count) override;
-  virtual HostId GetMostSuitableSuperPeerInGroup(HostId group_id, const SuperPeerSelectionPolicy& policy, const Array<HostId>& excludees) override;
-  virtual HostId GetMostSuitableSuperPeerInGroup(HostId group_id, const SuperPeerSelectionPolicy& policy, HostId excludee) override;
+  virtual void SetMaxDirectP2PConnectionCount(HostId client_id,
+                                              int32 max_count) override;
+  virtual HostId GetMostSuitableSuperPeerInGroup(
+      HostId group_id, const SuperPeerSelectionPolicy& policy,
+      const Array<HostId>& excludees) override;
+  virtual HostId GetMostSuitableSuperPeerInGroup(
+      HostId group_id, const SuperPeerSelectionPolicy& policy,
+      HostId excludee) override;
 
-  virtual int32 GetSuitableSuperPeerRankListInGroup(HostId group_id,
-                                                    super_peer_rating_* ratings,
-                                                    int32 ratings_buffer_count,
-                                                    const SuperPeerSelectionPolicy& policy,
-                                                    const Array<HostId>& excludees) override;
+  virtual int32 GetSuitableSuperPeerRankListInGroup(
+      HostId group_id, super_peer_rating_* ratings, int32 ratings_buffer_count,
+      const SuperPeerSelectionPolicy& policy,
+      const Array<HostId>& excludees) override;
 
  private:
-  void TouchSuitableSuperPeerCalcRequest(P2PGroup_S* group, const SuperPeerSelectionPolicy& policy);
+  void TouchSuitableSuperPeerCalcRequest(
+      P2PGroup_S* group, const SuperPeerSelectionPolicy& policy);
 
  public:
   virtual void GetUdpSocketAddrList(Array<InetAddress>& output) override;
@@ -683,16 +748,19 @@ class NetServerImpl
   virtual uint32 GetInternalVersion() override;
 
   //@maxidea: 제거 대상
-  //void EnqueueUnitTestFailEvent(const String& text);
+  // void EnqueueUnitTestFailEvent(const String& text);
 
   void EnqueueError(SharedPtr<ResultInfo> result_info);
   void EnqueueWarning(SharedPtr<ResultInfo> result_info);
 
   void EnqueueLocalEvent(LocalEvent& Event);
 
-  void EnqueueClientJoinApproveDetermine(const InetAddress& client_tcp_addr, const ByteArray& request);
-  void ProcessOnClientJoinApproved(RemoteClient_S* rc, const ByteArray& response);
-  void ProcessOnClientJoinRejected(RemoteClient_S* rc, const ByteArray& response);
+  void EnqueueClientJoinApproveDetermine(const InetAddress& client_tcp_addr,
+                                         const ByteArray& request);
+  void ProcessOnClientJoinApproved(RemoteClient_S* rc,
+                                   const ByteArray& response);
+  void ProcessOnClientJoinRejected(RemoteClient_S* rc,
+                                   const ByteArray& response);
 
  private:
   // true시 빈 P2P 그룹도 허용함
@@ -713,7 +781,7 @@ class NetServerImpl
   HostId GetLocalHostId();
   virtual bool IsNagleAlgorithmEnabled() override;
 
-  //double last_prune_too_old_defragger_time_;
+  // double last_prune_too_old_defragger_time_;
 
   int32 freq_fail_log_most_rank_;
   String freq_fail_log_most_rank_text_;
@@ -723,14 +791,13 @@ class NetServerImpl
  public:
   // 종료시에만 설정됨
   // Stop()이 return하기 전까지는 이벤트 콜백이 있어야하므로 삭제한다.
-  //FUN_ALIGNED_VOLATILE bool tear_down_;
+  // FUN_ALIGNED_VOLATILE bool tear_down_;
 
-  bool SendFreeform(const HostId* sendto_list,
-                    int32 sendto_count,
-                    const RpcCallOption& rpc_call_opt,
-                    const uint8* payload,
+  bool SendFreeform(const HostId* sendto_list, int32 sendto_count,
+                    const RpcCallOption& rpc_call_opt, const uint8* payload,
                     int32 payload_length) {
-    return NetCoreImpl::SendFreeform(sendto_list, sendto_count, rpc_call_opt, payload, payload_length);
+    return NetCoreImpl::SendFreeform(sendto_list, sendto_count, rpc_call_opt,
+                                     payload, payload_length);
   }
 
  public:
@@ -747,23 +814,21 @@ class NetServerImpl
   // 미사용중인 고정 UDP 포트 목록. per-rc UDP 모드인 경우 사용됨.
   Array<int32> free_udp_ports_;
 
-  void EnableVizAgent(const char* viz_server_ip,
-                      int32 viz_server_port,
+  void EnableVizAgent(const char* viz_server_ip, int32 viz_server_port,
                       const String& login_key) override;
 
  private:
   virtual NetClientImpl* QueryNetClient() override { return nullptr; }
   virtual NetServerImpl* QueryNetServer() override { return this; }
 
-  virtual void Viz_NotifySendByProxy( const HostId* sendto_list,
-                                      int32 sendto_count,
-                                      const MessageSummary& summary,
-                                      const RpcCallOption& rpc_call_opt) override;
-  virtual void Viz_NotifyRecvToStub(HostId rpc_recvfrom,
-                                    RpcId rpc_id,
+  virtual void Viz_NotifySendByProxy(
+      const HostId* sendto_list, int32 sendto_count,
+      const MessageSummary& summary,
+      const RpcCallOption& rpc_call_opt) override;
+  virtual void Viz_NotifyRecvToStub(HostId rpc_recvfrom, RpcId rpc_id,
                                     const char* rpc_name,
                                     const char* params_as_string) override;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace fun
+}  // namespace fun

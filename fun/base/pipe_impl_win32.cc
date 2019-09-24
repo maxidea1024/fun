@@ -41,13 +41,9 @@ int PipeImpl::ReadBytes(void* buf, int len) {
   }
 }
 
-PipeImpl::Handle PipeImpl::ReadHandle() const {
-  return read_handle_;
-}
+PipeImpl::Handle PipeImpl::ReadHandle() const { return read_handle_; }
 
-PipeImpl::Handle PipeImpl::WriteHandle() const {
-  return write_handle_;
-}
+PipeImpl::Handle PipeImpl::WriteHandle() const { return write_handle_; }
 
 void PipeImpl::CloseRead() {
   if (read_handle_ != INVALID_HANDLE_VALUE) {
@@ -63,4 +59,4 @@ void PipeImpl::CloseWrite() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

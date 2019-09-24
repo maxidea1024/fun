@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
 #include <shared_mutex>
+#include "fun/base/base.h"
 
 namespace fun {
 
@@ -19,4 +19,4 @@ class FUN_BASE_API RWLockImpl {
   std::shared_timed_mutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

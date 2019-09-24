@@ -2,14 +2,13 @@
 
 #include "fun/base/base.h"
 
-
 #ifndef FUN_NO_INOTIFY
 
+#include "fun/base/atomic_counter.h"
 #include "fun/base/file.h"
 #include "fun/base/multicast_event.h"
 #include "fun/base/runnable.h"
 #include "fun/base/thread.h"
-#include "fun/base/atomic_counter.h"
 
 namespace fun {
 
@@ -20,17 +19,17 @@ class DirectoryWatcherStrategy;
  * to the filesystem, more specifically, to a specific
  * directory. Changes to a directory are reported via
  * events.
- * 
+ *
  * A thread will be created that watches the specified
  * directory for changes. Events are reported in the context
  * of this thread.
- * 
+ *
  * Note that changes to files in subdirectories of the watched
  * directory are not reported. Separate DirectoryWatcher objects
  * must be created for these directories if they should be watched.
- * 
+ *
  * Changes to file attributes are not reported.
- * 
+ *
  * On Windows, this class is implemented using FindFirstChangeNotification()/
  * FindNextChangeNotification().
  * On Linux, this class is implemented using inotify.
@@ -42,12 +41,12 @@ class DirectoryWatcherStrategy;
  * and Darwin if events for changes to files (DW_ITEM_MODIFIED) are enabled.
  * To avoid problems (e.g. with network shares notifications), scanning
  * can be forced as the only mechanism, regardless of platform default.
- * 
+ *
  * DW_ITEM_MOVED_FROM and DW_ITEM_MOVED_TO events will only be reported
  * on Linux. On other platforms, a file rename or move operation
  * will be reported via a DW_ITEM_REMOVED and a DW_ITEM_ADDED event.
  * The order of these two events is not defined.
- * 
+ *
  * An event mask can be specified to enable only certain events.
  */
 class FUN_BASE_API DirectoryWatcher : protected Runnable {
@@ -100,8 +99,7 @@ class FUN_BASE_API DirectoryWatcher : protected Runnable {
   };
 
   struct DirectoryEvent {
-    DirectoryEvent(const File& f, DirectoryEventType ev)
-      : item(f), event(ev) {}
+    DirectoryEvent(const File& f, DirectoryEventType ev) : item(f), event(ev) {}
 
     /**
      * The directory or file that has been changed.
@@ -155,10 +153,9 @@ class FUN_BASE_API DirectoryWatcher : protected Runnable {
    * of the directory. Native notification mechanism can also be disabled
    * (i.e. replaced with scanning) by setting force_scan to true.
    */
-  DirectoryWatcher(const String& path,
-                  int event_mask = DW_FILTER_ENABLE_ALL,
-                  int scan_interval = DW_DEFAULT_SCAN_INTERVAL,
-                  bool force_scan = false);
+  DirectoryWatcher(const String& path, int event_mask = DW_FILTER_ENABLE_ALL,
+                   int scan_interval = DW_DEFAULT_SCAN_INTERVAL,
+                   bool force_scan = false);
 
   /**
    * Creates a DirectoryWatcher for the specified directory
@@ -169,10 +166,9 @@ class FUN_BASE_API DirectoryWatcher : protected Runnable {
    * of the directory. Native notification mechanism can also be disabled
    * (i.e. replaced with scanning) by setting force_scan to true.
    */
-  DirectoryWatcher(const File& directory,
-                  int event_mask = DW_FILTER_ENABLE_ALL,
-                  int scan_interval = DW_DEFAULT_SCAN_INTERVAL,
-                  bool force_scan = false);
+  DirectoryWatcher(const File& directory, int event_mask = DW_FILTER_ENABLE_ALL,
+                   int scan_interval = DW_DEFAULT_SCAN_INTERVAL,
+                   bool force_scan = false);
 
   /**
    * Destroys the DirectoryWatcher.
@@ -186,7 +182,8 @@ class FUN_BASE_API DirectoryWatcher : protected Runnable {
   void SuspendEvents();
 
   /**
-   * Resumes events, after they have been suspended with a call to SuspendEvents().
+   * Resumes events, after they have been suspended with a call to
+   * SuspendEvents().
    */
   void ResumeEvents();
 
@@ -225,7 +222,7 @@ class FUN_BASE_API DirectoryWatcher : protected Runnable {
  private:
   DirectoryWatcher() = delete;
   DirectoryWatcher(const DirectoryWatcher&) = delete;
-  DirectoryWatcher& operator = (const DirectoryWatcher&) = delete;
+  DirectoryWatcher& operator=(const DirectoryWatcher&) = delete;
 
   Thread thread_;
   File directory_;
@@ -235,7 +232,6 @@ class FUN_BASE_API DirectoryWatcher : protected Runnable {
   bool force_scan_;
   DirectoryWatcherStrategy* strategy_;
 };
-
 
 //
 // inlines
@@ -257,6 +253,6 @@ FUN_ALWAYS_INLINE const File& DirectoryWatcher::GetDirectory() const {
   return directory_;
 }
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_NO_INOTIFY
+#endif  // FUN_NO_INOTIFY

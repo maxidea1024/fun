@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "P2PGroup_S.h"     // LanP2PGroupMemberBase_S
-#include "P2PPair.h"        // LanP2PConnectionStatePtr
-#include "TcpTransport_S.h" // ITcpTransportOwner_S
+#include "P2PGroup_S.h"      // LanP2PGroupMemberBase_S
+#include "P2PPair.h"         // LanP2PConnectionStatePtr
+#include "TcpTransport_S.h"  // ITcpTransportOwner_S
 
 namespace fun {
 namespace net {
@@ -11,15 +11,14 @@ class LanP2PConnectionState;
 
 typedef Map<HostId, class LanClient_S*> LanClients_S;
 
-class LanClient_S
-  : public ISendDest_S,
-    public ITaskSubject,
-    public ICompletionContext,
-    public ListNode<LanClient_S>,
-    public LanP2PGroupMemberBase_S,
-    public ITcpTransportOwner_S,
-    public UseCount,
-    public IHostObject {
+class LanClient_S : public ISendDest_S,
+                    public ITaskSubject,
+                    public ICompletionContext,
+                    public ListNode<LanClient_S>,
+                    public LanP2PGroupMemberBase_S,
+                    public ITcpTransportOwner_S,
+                    public UseCount,
+                    public IHostObject {
  private:
   const char* dispose_caller_;
 
@@ -58,10 +57,10 @@ class LanClient_S
     SocketErrorCode socket_error;
 
     DisposeWaiter()
-      : reason(ResultCode::Ok),
-        detail(ResultCode::Ok),
-        created_time_(0),
-        socket_error(SocketErrorCode::Ok) {}
+        : reason(ResultCode::Ok),
+          detail(ResultCode::Ok),
+          created_time_(0),
+          socket_error(SocketErrorCode::Ok) {}
   };
   // 평소에는 null이지만 일단 세팅되면 모든 스레드에서 종료할 때까지 기다린다.
   UniquePtr<DisposeWaiter> dispose_waiter_;
@@ -104,8 +103,7 @@ class LanClient_S
   // 자진탈퇴 요청을 건 시간
   double request_auto_prune_start_time_;
 
-  LanClient_S(LanServerImpl* owner_,
-              InternalSocket* new_socket,
+  LanClient_S(LanServerImpl* owner_, InternalSocket* new_socket,
               const InetAddress& tcp_remote_addr);
   ~LanClient_S();
 
@@ -136,9 +134,7 @@ class LanClient_S
     fun_check(IsLockedByCurrentThread() == false);
   }
 
-  LeanType GetLeanType() const override {
-    return LeanType::LanClient_S;
-  }
+  LeanType GetLeanType() const override { return LeanType::LanClient_S; }
 
   void WarnTooShortDisposal(const char* where);
   void LockMain_AssertIsLockedByCurrentThread();
@@ -146,10 +142,8 @@ class LanClient_S
   void EnqueueIssueSendReadyRemotes();
   bool IsDispose();
   double GetAbsoluteTime();
-  void IssueDispose(ResultCode result_code,
-                    ResultCode detail_code,
-                    const ByteArray& comment,
-                    const char* where,
+  void IssueDispose(ResultCode result_code, ResultCode detail_code,
+                    const ByteArray& comment, const char* where,
                     SocketErrorCode socket_error);
   bool IsValidEnd();
 
@@ -160,12 +154,10 @@ class LanClient_S
   CCriticalSection2& GetMutex();
   void Decrease();
   void OnIssueSendFail(const char* where, SocketErrorCode socket_error);
-  void SendWhenReady( HostId sender_id,
-                      const InetAddress& sender_addr,
-                      HostId dest_id,
-                      const SendFragRefs& data,
-                      const UdpSendOption& option);
+  void SendWhenReady(HostId sender_id, const InetAddress& sender_addr,
+                     HostId dest_id, const SendFragRefs& data,
+                     const UdpSendOption& option);
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

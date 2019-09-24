@@ -14,8 +14,12 @@ class ISendDest_C {
   virtual HostId GetHostId() const { return HostId_None; }
 
   // note sort에서 포인터 타입이 안되는 문제가 있어서 임시로.
-  bool operator == (const ISendDest_C& other) const { return GetHostId() == other.GetHostId(); }
-  bool operator <  (const ISendDest_C& other) const { return GetHostId() <  other.GetHostId(); }
+  bool operator==(const ISendDest_C& other) const {
+    return GetHostId() == other.GetHostId();
+  }
+  bool operator<(const ISendDest_C& other) const {
+    return GetHostId() < other.GetHostId();
+  }
 };
 
 class IP2PGroupMember {
@@ -26,5 +30,5 @@ class IP2PGroupMember {
   virtual double GetIndirectServerTimeDiff() = 0;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -4,8 +4,8 @@
 
 #if FUN_PLATFORM_UNIX_FAMILY && FUN_PLATFORM != FUN_PLATFORM_VXWORKS
 
-#include "fun/base/container/array.h"
 #include <setjmp.h>
+#include "fun/base/container/array.h"
 
 namespace fun {
 
@@ -100,16 +100,15 @@ class FUN_BASE_API SignalHandler {
   friend class ThreadImpl;
 };
 
-
 #ifndef FUN_NO_SIGNAL_HANDLER
-#define fun_throw_on_signal \
-  fun::SignalHandler _fun_signal_handler; \
+#define fun_throw_on_signal                                            \
+  fun::SignalHandler _fun_signal_handler;                              \
   int _fun_signal = sigsetjmp(_fun_signal_handler.GetJumpBuffer(), 1); \
   if (_fun_signal) _fun_signal_handler.ThrowSignalException(_fun_signal);
 #else
 #define fun_throw_on_signal
 #endif
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_PLATFORM_UNIX_FAMILY
+#endif  // FUN_PLATFORM_UNIX_FAMILY

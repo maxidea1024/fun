@@ -1,4 +1,4 @@
-﻿//TODO TypeId로 대체하도록 하자.
+﻿// TODO TypeId로 대체하도록 하자.
 
 #pragma once
 
@@ -25,4 +25,4 @@ enum class LeanType {
   LanServer
 };
 
-} // namespace fun
+}  // namespace fun

@@ -1,15 +1,13 @@
 ﻿#include "fun/base/debug.h"
 #include "fun/base/debugger.h"
-#include "fun/base/ndc.h"
 #include "fun/base/exception.h"
+#include "fun/base/ndc.h"
 
 //#include <sstream>
 
 namespace fun {
 
-void Debug::Assertion(const char* cond,
-                      const char* file,
-                      int32 line,
+void Debug::Assertion(const char* cond, const char* file, int32 line,
                       const char* text) {
   String msg("Assertion violation: ");
   msg += cond;
@@ -48,7 +46,7 @@ void Debug::Unexpected(const char* file, int32 line) {
   try {
     String msg("Unexpected exception in noexcept function or destructor: ");
     try {
-      throw; // rethrow...??
+      throw;  // rethrow...??
     } catch (Exception& e) {
       msg += e.GetDisplayText();
     } catch (...) {
@@ -70,10 +68,8 @@ void Debug::Debugger(const char* msg, const char* file, int32 line) {
   Debugger::Enter(msg, file, line);
 }
 
-String Debug::What( const char* msg,
-                    const char* file,
-                    int32 line,
-                    const char* text) {
+String Debug::What(const char* msg, const char* file, int32 line,
+                   const char* text) {
   String str;
 
   if (msg) {
@@ -88,8 +84,8 @@ String Debug::What( const char* msg,
 
 #if FUN_EXCEPTION_BACKTRACE
   str << "\n" << Ndc::Backtrace(3, 2);
-#endif // FUN_EXCEPTION_BACKTRACE
+#endif  // FUN_EXCEPTION_BACKTRACE
   return str;
 }
 
-} // namespace fun
+}  // namespace fun

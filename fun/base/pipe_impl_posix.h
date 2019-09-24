@@ -26,4 +26,4 @@ class FUN_BASE_API PipeImpl : public RefCountedObject {
   int write_fd_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -1,6 +1,6 @@
 ﻿#include "fun/base/directory_iterator_win32.h"
-#include "fun/base/string/string.h"
 #include "fun/base/path.h"
+#include "fun/base/string/string.h"
 
 #if defined(_WIN32_WCE)
 #include "fun/base/file_wince.h"
@@ -13,7 +13,7 @@
 namespace fun {
 
 DirectoryIteratorImpl::DirectoryIteratorImpl(const String& path)
-  : fh_(INVALID_HANDLE_VALUE), rc_(1) {
+    : fh_(INVALID_HANDLE_VALUE), rc_(1) {
   Path p(path);
   p.MakeDirectory();
   String find_path = p.ToString();
@@ -50,4 +50,4 @@ const String& DirectoryIteratorImpl::Next() {
   return current_;
 }
 
-} // namespace fun
+}  // namespace fun

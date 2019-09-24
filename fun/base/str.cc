@@ -4,7 +4,8 @@ namespace fun {
 
 #if defined(FUN_NO_TEMPLATE_ICOMPARE)
 
-int32 icompare(const String& str, int32 pos, int32 n, String::ConstIterator it2, String::ConstIterator end2) {
+int32 icompare(const String& str, int32 pos, int32 n, String::ConstIterator it2,
+               String::ConstIterator end2) {
   int32 sz = str.Len();
   if (pos > sz) {
     pos = sz;
@@ -13,7 +14,7 @@ int32 icompare(const String& str, int32 pos, int32 n, String::ConstIterator it2,
     n = sz - pos;
   }
 
-  String::ConstIterator it1  = str.begin() + pos;
+  String::ConstIterator it1 = str.begin() + pos;
   String::ConstIterator end1 = str.begin() + pos + n;
   while (it1 != end1 && it2 != end2) {
     String::CharType c1 = CharTraitsA::ToLower(*it1);
@@ -23,7 +24,8 @@ int32 icompare(const String& str, int32 pos, int32 n, String::ConstIterator it2,
     } else if (c1 > c2) {
       return 1;
     }
-    ++it1; ++it2;
+    ++it1;
+    ++it2;
   }
 
   if (it1 == end1) {
@@ -55,7 +57,8 @@ int32 icompare(const String& str1, int32 pos, int32 n, const String& str2) {
   return icompare(str1, pos, n, str2.begin(), str2.end());
 }
 
-int32 icompare(const String& str1, int32 pos1, int32 n1, const String& str2, int32 pos2, int32 n2) {
+int32 icompare(const String& str1, int32 pos1, int32 n1, const String& str2,
+               int32 pos2, int32 n2) {
   int32 sz2 = str2.Len();
   if (pos2 > sz2) {
     pos2 = sz2;
@@ -63,10 +66,12 @@ int32 icompare(const String& str1, int32 pos1, int32 n1, const String& str2, int
   if (pos2 + n2 > sz2) {
     n2 = sz2 - pos2;
   }
-  return icompare(str1, pos1, n1, str2.begin() + pos2, str2.begin() + pos2 + n2);
+  return icompare(str1, pos1, n1, str2.begin() + pos2,
+                  str2.begin() + pos2 + n2);
 }
 
-int32 icompare(const String& str1, int32 pos1, int32 n, const String& str2, int32 pos2) {
+int32 icompare(const String& str1, int32 pos1, int32 n, const String& str2,
+               int32 pos2) {
   int32 sz2 = str2.Len();
   if (pos2 > sz2) {
     pos2 = sz2;
@@ -77,8 +82,9 @@ int32 icompare(const String& str1, int32 pos1, int32 n, const String& str2, int3
   return icompare(str1, pos1, n, str2.begin() + pos2, str2.begin() + pos2 + n);
 }
 
-int32 icompare(const String& str, int32 pos, int32 n, const String::CharType* ptr) {
-  fun_check_ptr (ptr);
+int32 icompare(const String& str, int32 pos, int32 n,
+               const String::CharType* ptr) {
+  fun_check_ptr(ptr);
   int32 sz = str.Len();
   if (pos > sz) {
     pos = sz;
@@ -86,7 +92,7 @@ int32 icompare(const String& str, int32 pos, int32 n, const String::CharType* pt
   if (pos + n > sz) {
     n = sz - pos;
   }
-  String::ConstIterator it  = str.begin() + pos;
+  String::ConstIterator it = str.begin() + pos;
   String::ConstIterator end = str.begin() + pos + n;
   while (it != end && *ptr) {
     String::CharType c1 = CharTraitsA::ToLower(*it);
@@ -96,7 +102,8 @@ int32 icompare(const String& str, int32 pos, int32 n, const String::CharType* pt
     } else if (c1 > c2) {
       return 1;
     }
-    ++it; ++ptr;
+    ++it;
+    ++ptr;
   }
 
   if (it == end) {
@@ -114,19 +121,22 @@ int32 icompare(const String& str, const String::CharType* ptr) {
   return icompare(str, 0, str.Len(), ptr);
 }
 
-String Replace(const String& str, const String& from, const String& to, int32 start) {
+String Replace(const String& str, const String& from, const String& to,
+               int32 start) {
   String result(str);
   ReplaceInPlace(result, from, to, start);
   return result;
 }
 
-String Replace(const String& str, const String::CharType* from, const String::CharType* to, int32 start) {
+String Replace(const String& str, const String::CharType* from,
+               const String::CharType* to, int32 start) {
   String result(str);
   ReplaceInPlace(result, from, to, start);
   return result;
 }
 
-String Replace(const String& str, const String::CharType from, const String::CharType to, int32 start) {
+String Replace(const String& str, const String::CharType from,
+               const String::CharType to, int32 start) {
   String result(str);
   ReplaceInPlace(result, from, to, start);
   return result;
@@ -138,7 +148,8 @@ String Remove(const String& str, const String::CharType ch, int32 start) {
   return result;
 }
 
-String& ReplaceInPlace(String& str, const String& from, const String& to, int32 start) {
+String& ReplaceInPlace(String& str, const String& from, const String& to,
+                       int32 start) {
   fun_check(from.Len() > 0);
 
   String result;
@@ -158,7 +169,8 @@ String& ReplaceInPlace(String& str, const String& from, const String& to, int32 
   return str;
 }
 
-String& ReplaceInPlace(String& str, const String::CharType* from, const String::CharType* to, int32 start) {
+String& ReplaceInPlace(String& str, const String::CharType* from,
+                       const String::CharType* to, int32 start) {
   fun_check(*from);
 
   String result;
@@ -179,7 +191,8 @@ String& ReplaceInPlace(String& str, const String::CharType* from, const String::
   return str;
 }
 
-String& ReplaceInPlace(String& str, const String::CharType from, const String::CharType to, int32 start) {
+String& ReplaceInPlace(String& str, const String::CharType from,
+                       const String::CharType to, int32 start) {
   if (from == to) {
     return str;
   }
@@ -205,4 +218,4 @@ String& RemoveInPlace(String& str, const String::CharType ch, int32 start) {
 
 #endif
 
-} // namespace fun
+}  // namespace fun

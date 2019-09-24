@@ -16,7 +16,7 @@ class RefCountedPtr {
 
   RefCountedPtr() : ptr_(nullptr) {}
 
-  //TODO 초기 참조 카운터가 1일 경우와 0일 경우에 따라서 처리가 달라짐.
+  // TODO 초기 참조 카운터가 1일 경우와 0일 경우에 따라서 처리가 달라짐.
   //이부분을 확실히 해주어야함.
   RefCountedPtr(T* ptr) : ptr_(ptr) {
     if (ptr_) {
@@ -42,29 +42,24 @@ class RefCountedPtr {
   }
 
   // move semantics.
-  RefCountedPtr(RefCountedPtr&& rhs) : ptr_(rhs.ptr_) {
-    rhs.ptr_ = nullptr;
-  }
+  RefCountedPtr(RefCountedPtr&& rhs) : ptr_(rhs.ptr_) { rhs.ptr_ = nullptr; }
 
   template <typename OtherType>
   RefCountedPtr(const RefCountedPtr<OtherType>& other)
-    : ptr_(const_cast<OtherType*>(other.Get())) {
+      : ptr_(const_cast<OtherType*>(other.Get())) {
     if (ptr_) {
       ptr_->AddRef();
     }
   }
 
   template <typename OtherType>
-  RefCountedPtr(RefCountedPtr<OtherType>&& other)
-    : ptr_(other.Get()) {
+  RefCountedPtr(RefCountedPtr<OtherType>&& other) : ptr_(other.Get()) {
     other.ptr_ = nullptr;
   }
 
-  ~RefCountedPtr() {
-    Release();
-  }
+  ~RefCountedPtr() { Release(); }
 
-  RefCountedPtr& operator = (T* ptr) {
+  RefCountedPtr& operator=(T* ptr) {
     if (FUN_LIKELY(ptr != ptr_)) {
       T* old_ptr = ptr_;
       ptr_ = ptr;
@@ -80,11 +75,11 @@ class RefCountedPtr {
     return *this;
   }
 
-  RefCountedPtr& operator = (const RefCountedPtr& rhs) {
+  RefCountedPtr& operator=(const RefCountedPtr& rhs) {
     return (*this = rhs.ptr_);
   }
 
-  RefCountedPtr& operator = (RefCountedPtr&& rhs) {
+  RefCountedPtr& operator=(RefCountedPtr&& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       T* old_ptr = ptr_;
       ptr_ = rhs.ptr_;
@@ -97,12 +92,12 @@ class RefCountedPtr {
   }
 
   template <typename OtherType>
-  RefCountedPtr& operator = (const RefCountedPtr<OtherType>& rhs) {
+  RefCountedPtr& operator=(const RefCountedPtr<OtherType>& rhs) {
     return (*this = rhs.ptr_);
   }
 
   template <typename OtherType>
-  RefCountedPtr& operator = (RefCountedPtr<OtherType>&& rhs) {
+  RefCountedPtr& operator=(RefCountedPtr<OtherType>&& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       T* old_ptr = ptr_;
       ptr_ = rhs.ptr_;
@@ -113,7 +108,6 @@ class RefCountedPtr {
     }
     return *this;
   }
-
 
   //
   // Casting
@@ -129,82 +123,66 @@ class RefCountedPtr {
     return RefCountedPtr<CastToType>(static_cast<CastToType*>(ptr_), true);
   }
 
-
   //
   // Dereferencings
   //
 
-  T* operator -> () {
+  T* operator->() {
     fun_check_ptr(ptr_);
     return ptr_;
   }
 
-  const T* operator -> () const {
+  const T* operator->() const {
     fun_check_ptr(ptr_);
     return ptr_;
   }
 
-  T& operator * () {
+  T& operator*() {
     fun_check_ptr(ptr_);
     return *ptr_;
   }
 
-  const T& operator * () const {
+  const T& operator*() const {
     fun_check_ptr(ptr_);
     return *ptr_;
   }
 
-  operator T*() const {
-    return ptr_;
-  }
+  operator T*() const { return ptr_; }
 
   T** GetInitReference() {
     *this = nullptr;
     return &ptr_;
   }
 
-  T* GetReference() const {
-    return ptr_;
-  }
+  T* GetReference() const { return ptr_; }
 
-  T* Get() const {
-    return ptr_;
-  }
-
+  T* Get() const { return ptr_; }
 
   //
   // Comparisons
   //
 
-  friend bool operator == (const RefCountedPtr& lhs, const RefCountedPtr& rhs) {
+  friend bool operator==(const RefCountedPtr& lhs, const RefCountedPtr& rhs) {
     return lhs.ptr_ == rhs.ptr_;
   }
 
-  friend bool operator == (const RefCountedPtr& lhs, T* rhs) {
+  friend bool operator==(const RefCountedPtr& lhs, T* rhs) {
     return lhs.ptr_ == rhs;
   }
 
-  friend bool operator == (T* lhs, const RefCountedPtr& rhs) {
+  friend bool operator==(T* lhs, const RefCountedPtr& rhs) {
     return lhs == rhs.ptr_;
   }
 
-  //TODO 대소 비교도 해야하나??
+  // TODO 대소 비교도 해야하나??
 
-  bool IsValid() const {
-    return ptr_ != nullptr;
-  }
+  bool IsValid() const { return ptr_ != nullptr; }
 
-  explicit operator bool() const {
-    return IsValid();
-  }
+  explicit operator bool() const { return IsValid(); }
 
-  bool operator !() const {
-    return ptr_ == nullptr;
-  }
+  bool operator!() const { return ptr_ == nullptr; }
 
-  void SafeRelease() {
-    *this = nullptr;
-  }
+  void SafeRelease() { *this = nullptr; }
 
   T* AddRef() {
     if (ptr_) {
@@ -231,16 +209,12 @@ class RefCountedPtr {
     return count;
   }
 
-  bool IsUnique() const {
-    return GetReferencedCount() == 1;
-  }
+  bool IsUnique() const { return GetReferencedCount() == 1; }
 
-  void Swap(RefCountedPtr& other) {
-    fun::Swap(ptr_, other.ptr_);
-  }
+  void Swap(RefCountedPtr& other) { fun::Swap(ptr_, other.ptr_); }
 
  private:
   T* ptr_;
 };
 
-} // namespace fun
+}  // namespace fun

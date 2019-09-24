@@ -7,10 +7,7 @@ namespace fun {
 
 class FUN_BASE_API SharedLibrayImpl {
  public:
-  enum Flags {
-    SHLIB_GLOBAL_IMPL = 1,
-    SHLIB_LOCAL_IMPL  = 2
-  };
+  enum Flags { SHLIB_GLOBAL_IMPL = 1, SHLIB_LOCAL_IMPL = 2 };
 
   SharedLibrayImpl();
   virtual ~SharedLibrayImpl();
@@ -32,4 +29,4 @@ class FUN_BASE_API SharedLibrayImpl {
   static FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

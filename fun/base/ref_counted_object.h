@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
 #include "fun/base/atomic_counter.h"
+#include "fun/base/base.h"
 
-//TODO thread-safe issue checking.
-//atomic...
+// TODO thread-safe issue checking.
+// atomic...
 
 /*
 
@@ -48,7 +48,7 @@ class IRefCountedObject {
   virtual uint32 GetReferencedCount() const = 0;
 };
 
-//TODO thread safety issue
+// TODO thread safety issue
 
 /**
  * The base class of reference counted objects.
@@ -57,13 +57,9 @@ class RefCountedObject : public IRefCountedObject {
  public:
   RefCountedObject() : referenced_count_(0) {}
 
-  virtual ~RefCountedObject() {
-    fun_check(referenced_count_ == 0);
-  }
+  virtual ~RefCountedObject() { fun_check(referenced_count_ == 0); }
 
-  uint32 AddRef() const {
-    return uint32(++referenced_count_);
-  }
+  uint32 AddRef() const { return uint32(++referenced_count_); }
 
   uint32 Release() const {
     uint32 refs = uint32(--referenced_count_);
@@ -73,12 +69,10 @@ class RefCountedObject : public IRefCountedObject {
     return refs;
   }
 
-  uint32 GetReferencedCount() const {
-    return uint32(referenced_count_);
-  }
+  uint32 GetReferencedCount() const { return uint32(referenced_count_); }
 
  private:
   mutable AtomicCounter32 referenced_count_;
 };
 
-} // namespace fun
+}  // namespace fun

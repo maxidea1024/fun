@@ -11,7 +11,7 @@
 namespace fun {
 
 DirectoryIteratorImpl::DirectoryIteratorImpl(const String& path)
-  : dir_(nullptr), rc_(1) {
+    : dir_(nullptr), rc_(1) {
   Path p(path);
   p.MakeFile();
 
@@ -46,4 +46,4 @@ const String& DirectoryIteratorImpl::Next() {
   return current_;
 }
 
-} // namespace fun
+}  // namespace fun

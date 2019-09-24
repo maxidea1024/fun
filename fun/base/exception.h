@@ -1,8 +1,8 @@
 ﻿#pragma once
 
+#include <exception>
 #include "fun/base/base.h"
 #include "fun/base/string/string.h"
-#include <exception>
 
 namespace fun {
 
@@ -32,7 +32,8 @@ class FUN_BASE_API Exception : public std::exception {
    * Creates an exception and stores a clone
    * of the nested exception.
    */
-  Exception(const String& message, const Exception& nested_exception, int32 code = 0);
+  Exception(const String& message, const Exception& nested_exception,
+            int32 code = 0);
 
   /**
    * Copy constructor.
@@ -52,7 +53,7 @@ class FUN_BASE_API Exception : public std::exception {
   /**
    * Assignment operator.
    */
-  Exception& operator = (const Exception& rhs);
+  Exception& operator=(const Exception& rhs);
 
   /**
    * Returns a static string describing the exception.
@@ -146,7 +147,6 @@ class FUN_BASE_API Exception : public std::exception {
   }
 };
 
-
 //
 // inlines
 //
@@ -163,13 +163,12 @@ FUN_ALWAYS_INLINE void Exception::SetMessage(const String& message) {
   message_ = message;
 }
 
-FUN_ALWAYS_INLINE int32 Exception::GetCode() const {
-  return code_;
-}
+FUN_ALWAYS_INLINE int32 Exception::GetCode() const { return code_; }
 
-//NOTE
-//추가 필드가 없거나, 생성자의 인자가 추가 되지 않은 경우에는 아래의 매크로를 사용해서 손십게 적용하면 됩니다.
-//그렇지 않은 경우에는 다음과 같은 형태로 직접 Exception 클래스를 상속받아서 작성해 주어야 합니다.
+// NOTE
+//추가 필드가 없거나, 생성자의 인자가 추가 되지 않은 경우에는 아래의 매크로를
+//사용해서 손십게 적용하면 됩니다. 그렇지 않은 경우에는 다음과 같은 형태로 직접
+//Exception 클래스를 상속받아서 작성해 주어야 합니다.
 
 //
 // Macros for quickly declaring and implementing exception classes.
@@ -185,58 +184,50 @@ FUN_ALWAYS_INLINE int32 Exception::GetCode() const {
 
     const char* GetName() const throw() override;
 */
-#define FUN_DECLARE_EXCEPTION_CODE(API, Class, ExSuper, Code) \
-  class API Class : public ExSuper { \
-   public: \
-    typedef ExSuper Super; \
-    Class(const std::exception& std_exception); \
-    Class(fun::int32 code = Code); \
-    Class(const fun::String& message, fun::int32 code = Code); \
-    Class(const fun::String& message, const fun::String& arg, fun::int32 code = Code); \
-    Class(const fun::String& message, const fun::Exception& nested_exception, fun::int32 code = Code); \
-    ~Class() throw(); \
-    Class(const Class& rhs); \
-    Class& operator = (const Class& rhs); \
-    const char* GetName() const throw() override; \
-    const char* GetClassName() const throw() override; \
-    fun::Exception* Clone() const override; \
-    void Rethrow() const override; \
+#define FUN_DECLARE_EXCEPTION_CODE(API, Class, ExSuper, Code)                 \
+  class API Class : public ExSuper {                                          \
+   public:                                                                    \
+    typedef ExSuper Super;                                                    \
+    Class(const std::exception& std_exception);                               \
+    Class(fun::int32 code = Code);                                            \
+    Class(const fun::String& message, fun::int32 code = Code);                \
+    Class(const fun::String& message, const fun::String& arg,                 \
+          fun::int32 code = Code);                                            \
+    Class(const fun::String& message, const fun::Exception& nested_exception, \
+          fun::int32 code = Code);                                            \
+    ~Class() throw();                                                         \
+    Class(const Class& rhs);                                                  \
+    Class& operator=(const Class& rhs);                                       \
+    const char* GetName() const throw() override;                             \
+    const char* GetClassName() const throw() override;                        \
+    fun::Exception* Clone() const override;                                   \
+    void Rethrow() const override;                                            \
   };
 
 #define FUN_DECLARE_EXCEPTION(API, Class, ExSuper) \
   FUN_DECLARE_EXCEPTION_CODE(API, Class, ExSuper, 0)
 
-#define FUN_IMPLEMENT_EXCEPTION(Class, FriendlyName) \
-  Class::Class(const std::exception& std_exception) \
-    : Super(std_exception) {} \
-  Class::Class(fun::int32 code) \
-    : Super(code) {} \
-  Class::Class(const fun::String& message, fun::int32 code) \
-    : Super(message, code) {} \
-  Class::Class(const fun::String& message, const fun::String& arg, fun::int32 code) \
-    : Super(message, arg, code) {} \
-  Class::Class(const fun::String& message, const fun::Exception& nested_exception, fun::int32 code) \
-    : Super(message, nested_exception, code) {} \
-  Class::Class(const Class& rhs) \
-    : Super(rhs) {} \
-  Class::~Class() {} \
-  Class& Class::operator = (const Class& rhs) { \
-    Super::operator = (rhs); \
-    return *this; \
-  } \
-  const char* Class::GetName() const throw() { \
-    return FriendlyName; \
-  } \
-  const char* Class::GetClassName() const throw() { \
-    return #Class; \
-  } \
-  fun::Exception* Class::Clone() const { \
-    return new Class(*this); \
-  } \
-  void Class::Rethrow() const { \
-    throw *this; \
-  }
-
+#define FUN_IMPLEMENT_EXCEPTION(Class, FriendlyName)                          \
+  Class::Class(const std::exception& std_exception) : Super(std_exception) {} \
+  Class::Class(fun::int32 code) : Super(code) {}                              \
+  Class::Class(const fun::String& message, fun::int32 code)                   \
+      : Super(message, code) {}                                               \
+  Class::Class(const fun::String& message, const fun::String& arg,            \
+               fun::int32 code)                                               \
+      : Super(message, arg, code) {}                                          \
+  Class::Class(const fun::String& message,                                    \
+               const fun::Exception& nested_exception, fun::int32 code)       \
+      : Super(message, nested_exception, code) {}                             \
+  Class::Class(const Class& rhs) : Super(rhs) {}                              \
+  Class::~Class() {}                                                          \
+  Class& Class::operator=(const Class& rhs) {                                 \
+    Super::operator=(rhs);                                                    \
+    return *this;                                                             \
+  }                                                                           \
+  const char* Class::GetName() const throw() { return FriendlyName; }         \
+  const char* Class::GetClassName() const throw() { return #Class; }          \
+  fun::Exception* Class::Clone() const { return new Class(*this); }           \
+  void Class::Rethrow() const { throw *this; }
 
 //
 // Standard exception classes
@@ -260,18 +251,23 @@ FUN_DECLARE_EXCEPTION(FUN_BASE_API, NotFoundException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, ExistsException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, TimeoutException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, SystemException, RuntimeException)
-FUN_DECLARE_EXCEPTION(FUN_BASE_API, RegularExpressionException, RuntimeException)
+FUN_DECLARE_EXCEPTION(FUN_BASE_API, RegularExpressionException,
+                      RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, LibraryLoadException, RuntimeException)
-FUN_DECLARE_EXCEPTION(FUN_BASE_API, LibraryAlreadyLoadedException, RuntimeException)
-FUN_DECLARE_EXCEPTION(FUN_BASE_API, NoThreadAvailableException, RuntimeException)
-FUN_DECLARE_EXCEPTION(FUN_BASE_API, PropertyNotSupportedException, RuntimeException)
+FUN_DECLARE_EXCEPTION(FUN_BASE_API, LibraryAlreadyLoadedException,
+                      RuntimeException)
+FUN_DECLARE_EXCEPTION(FUN_BASE_API, NoThreadAvailableException,
+                      RuntimeException)
+FUN_DECLARE_EXCEPTION(FUN_BASE_API, PropertyNotSupportedException,
+                      RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, PoolOverflowException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, NoPermissionException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, OutOfMemoryException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, DataException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, InterruptedException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, IndexOutOfBoundsException, RuntimeException)
-FUN_DECLARE_EXCEPTION(FUN_BASE_API, UnsupportedOperationException, RuntimeException)
+FUN_DECLARE_EXCEPTION(FUN_BASE_API, UnsupportedOperationException,
+                      RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, EmptyStackException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, StackOverflowException, RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, ArithmeticException, RuntimeException)
@@ -294,7 +290,8 @@ FUN_DECLARE_EXCEPTION(FUN_BASE_API, WriteFileException, FileException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, ReadFileException, FileException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, DirectoryNotEmptyException, FileException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, UnknownUriSchemeException, RuntimeException)
-FUN_DECLARE_EXCEPTION(FUN_BASE_API, TooManyUriRedirectsException, RuntimeException)
+FUN_DECLARE_EXCEPTION(FUN_BASE_API, TooManyUriRedirectsException,
+                      RuntimeException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, UriSyntaxException, SyntaxException)
 
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, ApplicationException, Exception)
@@ -302,10 +299,9 @@ FUN_DECLARE_EXCEPTION(FUN_BASE_API, BadCastException, RuntimeException)
 
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, TypeIncompatibleException, RuntimeException)
 
-
-//TODO net 폴더로 이동시켜주는게 좋을듯...
-//TODO net 폴더로 이동시켜주는게 좋을듯...
-//TODO net 폴더로 이동시켜주는게 좋을듯...
+// TODO net 폴더로 이동시켜주는게 좋을듯...
+// TODO net 폴더로 이동시켜주는게 좋을듯...
+// TODO net 폴더로 이동시켜주는게 좋을듯...
 
 //
 // Network exceptions
@@ -337,4 +333,4 @@ FUN_DECLARE_EXCEPTION(FUN_BASE_API, HtmlFormException, NetException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, WebSocketException, NetException)
 FUN_DECLARE_EXCEPTION(FUN_BASE_API, UnsupportedFamilyException, NetException)
 
-} // namespace fun
+}  // namespace fun

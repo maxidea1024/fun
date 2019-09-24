@@ -42,9 +42,7 @@ class DelegateBase {
    * Returns the unwrapped delegate. Must be overridden by decorators
    * like Expire.
    */
-  virtual const DelegateBase* Unwrap() const {
-    return this;
-  }
+  virtual const DelegateBase* Unwrap() const { return this; }
 };
 
 /**
@@ -85,9 +83,7 @@ class DelegateBase<void> {
    * Returns the unwrapped delegate. Must be overridden by decorators
    * like Expire.
    */
-  virtual const DelegateBase* Unwrap() const {
-    return this;
-  }
+  virtual const DelegateBase* Unwrap() const { return this; }
 };
 
-} // namespace fun
+}  // namespace fun

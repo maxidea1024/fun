@@ -17,11 +17,14 @@ class LanListener_S : public Runnable {
   bool IsListening() const;
 
  private:
-  bool AcceptNewSocket(InternalSocket* new_socket, const InetAddress& remote_addr);
+  bool AcceptNewSocket(InternalSocket* new_socket,
+                       const InetAddress& remote_addr);
   InternalSocket* NewAcceptPendedSocket();
 
   void CatchThreadUnexpectedExit(const char* where, const char* reason);
-  void CatchThreadExceptionAndPurgeClient(LanClient_S* client, const char* where, const char* reason);
+  void CatchThreadExceptionAndPurgeClient(LanClient_S* client,
+                                          const char* where,
+                                          const char* reason);
 
   LanServerImpl* owner_;
   FUN_ALIGNED_VOLATILE bool should_stop_;
@@ -31,5 +34,5 @@ class LanListener_S : public Runnable {
   void Run() override;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -1,6 +1,6 @@
 ﻿#include "fun/base/notification_queue.h"
-#include "fun/base/notification_center.h"
 #include "fun/base/notification.h"
+#include "fun/base/notification_center.h"
 #include "fun/base/singleton.h"
 
 namespace fun {
@@ -144,4 +144,4 @@ NotificationQueue& NotificationQueue::DefaultQueue() {
   return *h.Get();
 }
 
-} // namespace fun
+}  // namespace fun

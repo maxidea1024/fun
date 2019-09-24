@@ -13,21 +13,17 @@ namespace fun {
 template <typename ArgsType>
 class PriorityDelegateBase : public DelegateBase<ArgsType> {
  public:
-  PriorityDelegateBase(int32 priority)
-    : priority_(priority) {}
+  PriorityDelegateBase(int32 priority) : priority_(priority) {}
 
   PriorityDelegateBase(const PriorityDelegateBase& delegate)
-    : DelegateBase<ArgsType>(delegate),
-      priority_(delegate.priority_) {}
+      : DelegateBase<ArgsType>(delegate), priority_(delegate.priority_) {}
 
   virtual ~PriorityDelegateBase() {}
 
-  int32 GetPriority() const {
-    return priority_;
-  }
+  int32 GetPriority() const { return priority_; }
 
  protected:
   int32 priority_;
 };
 
-} // namespace fun
+}  // namespace fun

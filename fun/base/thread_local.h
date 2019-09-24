@@ -30,7 +30,7 @@ class TlsSlot : public TlsSlotBase {
   T& Value() { return value_; }
 
   TlsSlot(const TlsSlot&) = delete;
-  TlsSlot& operator = (const TlsSlot&) = delete;
+  TlsSlot& operator=(const TlsSlot&) = delete;
 
   T value_;
 };
@@ -97,14 +97,14 @@ class ThreadLocal {
   ThreadLocal() {}
   ~ThreadLocal() {}
 
-  T* operator -> () { return &Get(); }
+  T* operator->() { return &Get(); }
 
   /**
    * "Dereferences" the smart pointer and returns a reference
    * to the underlying data object. The reference can be used
    * to modify the object.
    */
-  T& operator * () { return Get(); }
+  T& operator*() { return Get(); }
 
   /**
    * Returns a reference to the underlying data object.
@@ -119,7 +119,7 @@ class ThreadLocal {
   }
 
   ThreadLocal(const ThreadLocal&) = delete;
-  ThreadLocal& operator = (const ThreadLocal&) = delete;
+  ThreadLocal& operator=(const ThreadLocal&) = delete;
 };
 
-} // namespace fun
+}  // namespace fun

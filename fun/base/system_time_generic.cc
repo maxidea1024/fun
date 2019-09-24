@@ -2,8 +2,8 @@
 #include "fun/base/system_time.h"
 
 #if FUN_PLATFORM_HAS_BSD_TIME
-#include <sys/time.h>
 #include <sched.h>
+#include <sys/time.h>
 #endif
 
 namespace fun {
@@ -19,7 +19,10 @@ double SystemTimeGeneric::InitTiming() {
   return SystemTime::Seconds();
 }
 
-void SystemTimeGeneric::GetSystemTime(int32& year, int32& month, int32& day_of_week, int32& day, int32& hour, int32& min, int32& sec, int32& msec) {
+void SystemTimeGeneric::GetSystemTime(int32& year, int32& month,
+                                      int32& day_of_week, int32& day,
+                                      int32& hour, int32& min, int32& sec,
+                                      int32& msec) {
   // query for calendar time
   struct timeval tv;
   gettimeofday(&tv, nullptr);
@@ -39,7 +42,9 @@ void SystemTimeGeneric::GetSystemTime(int32& year, int32& month, int32& day_of_w
   msec = tv.tv_usec / 1000;
 }
 
-void SystemTimeGeneric::GetUtcTime(int32& year, int32& month, int32& day_of_week, int32& day, int32& hour, int32& min, int32& sec, int32& msec) {
+void SystemTimeGeneric::GetUtcTime(int32& year, int32& month,
+                                   int32& day_of_week, int32& day, int32& hour,
+                                   int32& min, int32& sec, int32& msec) {
   // query for calendar time
   struct timeval tv;
   gettimeofday(&tv, nullptr);
@@ -58,7 +63,7 @@ void SystemTimeGeneric::GetUtcTime(int32& year, int32& month, int32& day_of_week
   sec = gm_tm.tm_sec;
   msec = tv.tv_usec / 1000;
 }
-#endif // FUN_PLATFORM_HAS_BSD_TIME
+#endif  // FUN_PLATFORM_HAS_BSD_TIME
 
 uint32 SystemTimeGeneric::Milliseconds() {
   return uint32(SystemTime::Cycles() * seconds_per_cycle_ * 1000.0);
@@ -68,4 +73,4 @@ uint64 SystemTimeGeneric::Milliseconds64() {
   return uint64(SystemTime::Cycles64() * seconds_per_cycle64_ * 1000.0);
 }
 
-} // namespace fun
+}  // namespace fun

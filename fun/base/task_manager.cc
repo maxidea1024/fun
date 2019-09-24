@@ -4,17 +4,18 @@
 
 namespace fun {
 
-const int TaskManager::MIN_PROGRESS_NOTIFICATION_INTERVAL = 100000; // 100 milliseconds
+const int TaskManager::MIN_PROGRESS_NOTIFICATION_INTERVAL =
+    100000;  // 100 milliseconds
 
 TaskManager::TaskManager(ThreadPool::ThreadAffinityPolicy affinity_policy)
-  : thread_pool_(ThreadPool::DefaultPool(affinity_policy)) {}
+    : thread_pool_(ThreadPool::DefaultPool(affinity_policy)) {}
 
 TaskManager::TaskManager(ThreadPool& pool) : thread_pool_(pool) {}
 
 TaskManager::~TaskManager() {}
 
 void TaskManager::Start(Task* task, int32 cpu) {
-  TaskPtr auto_task(task); // take ownership immediately
+  TaskPtr auto_task(task);  // take ownership immediately
   FastMutex::ScopedLock guard(mutex_);
 
   auto_task->SetOwner(this);
@@ -32,7 +33,7 @@ void TaskManager::Start(Task* task, int32 cpu) {
 }
 
 void TaskManager::StartSync(Task* task) {
-  TaskPtr auto_task(task); // take ownership immediately
+  TaskPtr auto_task(task);  // take ownership immediately
   ScopedLockWithUnlock<FastMutex> guard(mutex_);
 
   auto_task->SetOwner(this);
@@ -60,9 +61,7 @@ void TaskManager::CancelAll() {
   }
 }
 
-void TaskManager::JoinAll() {
-  thread_pool_.JoinAll();
-}
+void TaskManager::JoinAll() { thread_pool_.JoinAll(); }
 
 TaskManager::TaskList TaskManager::GetTaskList() const {
   FastMutex::ScopedLock guard(mutex_);
@@ -78,9 +77,7 @@ void TaskManager::RemoveObserver(const ObserverBase& observer) {
   nc_.RemoveObserver(observer);
 }
 
-void TaskManager::Post(const Notification::Ptr& noti) {
-  nc_.Post(noti);
-}
+void TaskManager::Post(const Notification::Ptr& noti) { nc_.Post(noti); }
 
 void TaskManager::OnTaskStarted(Task* task) {
   nc_.Post(new TaskStartedNotification(task));
@@ -89,7 +86,8 @@ void TaskManager::OnTaskStarted(Task* task) {
 void TaskManager::OnProgress(Task* task, float progress) {
   ScopedLockWithUnlock<FastMutex> guard(mutex_);
 
-  if (last_progress_notification_time_.IsElapsed(MIN_PROGRESS_NOTIFICATION_INTERVAL)) {
+  if (last_progress_notification_time_.IsElapsed(
+          MIN_PROGRESS_NOTIFICATION_INTERVAL)) {
     last_progress_notification_time_.Update();
     guard.Unlock();
 
@@ -109,7 +107,7 @@ void TaskManager::OnTaskFinished(Task* task) {
 
   for (auto it = task_list_.begin(); it != task_list_.end(); ++it) {
     if (*it == task) {
-      current_task = *it; // hold reference for notifying
+      current_task = *it;  // hold reference for notifying
       task_list_.Remove(it);
     }
   }
@@ -123,4 +121,4 @@ void TaskManager::OnTaskFailed(Task* task, const Exception& e) {
   nc_.Post(new TaskFailedNotification(task, e));
 }
 
-} // namespace fun
+}  // namespace fun

@@ -9,7 +9,7 @@ class ResultInfo;
 class Exception;
 class RpcHint;
 
-//TODO Function<...>으로 대체하도록 하자.
+// TODO Function<...>으로 대체하도록 하자.
 class INetCoreCallbacks {
  public:
   virtual ~INetCoreCallbacks() {}
@@ -21,11 +21,9 @@ class INetCoreCallbacks {
 
   virtual void OnNoRpcProcessed(RpcId rpc_id) = 0;
 
-  virtual void OnReceiveFreeform(
-        HostId sender,
-        const RpcHint& rpc_hint,
-        const ByteArray& payload) {}
+  virtual void OnReceiveFreeform(HostId sender, const RpcHint& rpc_hint,
+                                 const ByteArray& payload) {}
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

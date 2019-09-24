@@ -1,11 +1,11 @@
-﻿#include "CorePrivatePCH.h"
-#include "Platform/Windows/WindowsStackWalk.h"
-#include "Platform/Windows/AllowWindowsTypes.h"
-#include <DbgHelp.h>
+﻿#include <DbgHelp.h>
 #include <Shlwapi.h>
 #include <TlHelp32.h>
 #include <psapi.h>
+#include "CorePrivatePCH.h"
+#include "Platform/Windows/AllowWindowsTypes.h"
 #include "Platform/Windows/HideWindowsTypes.h"
+#include "Platform/Windows/WindowsStackWalk.h"
 
 #include "Modules/ModuleManager.h"
 
@@ -19,18 +19,24 @@ namespace fun {
 static bool GStackWalkingInitialized = false;
 static bool GNeedToRefreshSymbols = false;
 
-static const TCHAR* CrashReporterSettings = TEXT("/Script/FunEd.CrashReporterSettings");
+static const TCHAR* CrashReporterSettings =
+    TEXT("/Script/FunEd.CrashReporterSettings");
 
-// NOTE: Make sure to enable Stack Frame pointers: bOmitFramePointers = false, or /Oy-
-// If GStackWalkingInitialized is true, traces will work anyway but will be much slower.
-#define USE_FAST_STACKTRACE  0
+// NOTE: Make sure to enable Stack Frame pointers: bOmitFramePointers = false,
+// or /Oy- If GStackWalkingInitialized is true, traces will work anyway but will
+// be much slower.
+#define USE_FAST_STACKTRACE 0
 
-
-typedef bool (WINAPI *TFEnumProcesses)(uint32* lpidProcess, uint32 cb, uint32* cbNeeded);
-typedef bool (WINAPI *TFEnumProcessModules)(HANDLE hProcess, HMODULE *lphModule, uint32 cb, LPDWORD lpcbNeeded);
-typedef uint32 (WINAPI *TFGetModuleBaseName)(HANDLE hProcess, HMODULE hModule, LPWSTR lpBaseName, uint32 nSize);
-typedef uint32 (WINAPI *TFGetModuleFileNameEx)(HANDLE hProcess, HMODULE hModule, LPWSTR lpFilename, uint32 nSize);
-typedef bool (WINAPI *TFGetModuleInformation)(HANDLE hProcess, HMODULE hModule, LPMODULEINFO lpmodinfo, uint32 cb);
+typedef bool(WINAPI* TFEnumProcesses)(uint32* lpidProcess, uint32 cb,
+                                      uint32* cbNeeded);
+typedef bool(WINAPI* TFEnumProcessModules)(HANDLE hProcess, HMODULE* lphModule,
+                                           uint32 cb, LPDWORD lpcbNeeded);
+typedef uint32(WINAPI* TFGetModuleBaseName)(HANDLE hProcess, HMODULE hModule,
+                                            LPWSTR lpBaseName, uint32 nSize);
+typedef uint32(WINAPI* TFGetModuleFileNameEx)(HANDLE hProcess, HMODULE hModule,
+                                              LPWSTR lpFilename, uint32 nSize);
+typedef bool(WINAPI* TFGetModuleInformation)(HANDLE hProcess, HMODULE hModule,
+                                             LPMODULEINFO lpmodinfo, uint32 cb);
 
 static TFEnumProcesses FEnumProcesses;
 static TFEnumProcessModules FEnumProcessModules;
@@ -38,19 +44,21 @@ static TFGetModuleBaseName FGetModuleBaseName;
 static TFGetModuleFileNameEx FGetModuleFileNameEx;
 static TFGetModuleInformation FGetModuleInformation;
 
-
-// Helper function performing the actual stack walk. This code relies on the symbols being loaded for best results
-// walking the stack albeit at a significant performance penalty.
+// Helper function performing the actual stack walk. This code relies on the
+// symbols being loaded for best results walking the stack albeit at a
+// significant performance penalty.
 //
-// This helper function is designed to be called within a structured exception handler.
+// This helper function is designed to be called within a structured exception
+// handler.
 //
 // @param backtrace - Array to write backtrace to
-// @param max_depth - Maximum depth to walk - needs to be less than or equal to array size
+// @param max_depth - Maximum depth to walk - needs to be less than or equal to
+// array size
 // @param context - Thread context information
 //
 // @return EXCEPTION_EXECUTE_HANDLER
-static int32 CaptureStackTraceHelper(uint64* backtrace, uint32 max_depth, CONTEXT* context)
-{
+static int32 CaptureStackTraceHelper(uint64* backtrace, uint32 max_depth,
+                                     CONTEXT* context) {
   STACKFRAME64 stack_frame64;
   HANDLE process_handle;
   HANDLE thread_handle;
@@ -80,23 +88,18 @@ static int32 CaptureStackTraceHelper(uint64* backtrace, uint32 max_depth, CONTEX
     stack_frame64.AddrStack.Offset = context->Rsp;
     stack_frame64.AddrFrame.Offset = context->Rbp;
     machine_type = IMAGE_FILE_MACHINE_AMD64;
-#else   //FUN_64_BIT
+#else   // FUN_64_BIT
     stack_frame64.AddrPC.Offset = context->Eip;
     stack_frame64.AddrStack.Offset = context->Esp;
     stack_frame64.AddrFrame.Offset = context->Ebp;
-#endif  //FUN_64_BIT
+#endif  // FUN_64_BIT
 
     // Walk the stack one frame at a time.
     while (stackwalk_succeded && (current_depth < max_depth)) {
-      stackwalk_succeded = !!StackWalk64(machine_type,
-                        process_handle,
-                        thread_handle,
-                        &stack_frame64,
-                        &context_copy,
-                        nullptr,
-                        SymFunctionTableAccess64,
-                        SymGetModuleBase64,
-                        nullptr);
+      stackwalk_succeded =
+          !!StackWalk64(machine_type, process_handle, thread_handle,
+                        &stack_frame64, &context_copy, nullptr,
+                        SymFunctionTableAccess64, SymGetModuleBase64, nullptr);
 
       backtrace[current_depth++] = stack_frame64.AddrPC.Offset;
 
@@ -107,7 +110,8 @@ static int32 CaptureStackTraceHelper(uint64* backtrace, uint32 max_depth, CONTEX
       }
 
       // Stop if the frame pointer is NULL.
-      // Note that the thread's PC 'stack_frame64.AddrPC.Offset' COULD be 0 in case something calls a nullptr.
+      // Note that the thread's PC 'stack_frame64.AddrPC.Offset' COULD be 0 in
+      // case something calls a nullptr.
       if (stack_frame64.AddrFrame.Offset == 0) {
         break;
       }
@@ -115,8 +119,8 @@ static int32 CaptureStackTraceHelper(uint64* backtrace, uint32 max_depth, CONTEX
   }
 #if !PLATFORM_SEH_EXCEPTIONS_DISABLED
   __except (EXCEPTION_EXECUTE_HANDLER) {
-    // We need to catch any exceptions within this function so they don't get sent to
-    // the engine's error handler, hence causing an infinite loop.
+    // We need to catch any exceptions within this function so they don't get
+    // sent to the engine's error handler, hence causing an infinite loop.
     return EXCEPTION_EXECUTE_HANDLER;
   }
 #endif
@@ -129,16 +133,17 @@ static int32 CaptureStackTraceHelper(uint64* backtrace, uint32 max_depth, CONTEX
   return EXCEPTION_EXECUTE_HANDLER;
 }
 
-
-PRAGMA_DISABLE_OPTIMIZATION // Work around "flow in or out of inline asm code suppresses global optimization" warning C4740.
+PRAGMA_DISABLE_OPTIMIZATION  // Work around "flow in or out of inline asm code
+                             // suppresses global optimization" warning C4740.
 
 #if USE_FAST_STACKTRACE
-NTSYSAPI uint16 NTAPI RtlCaptureStackBackTrace(
-  __in uint32 FramesToSkip,
-  __in uint32 FramesToCapture,
-  __out_ecount(FramesToCapture) PVOID* backtrace,
-  __out_opt PDWORD BackTraceHash
-  );
+                                 NTSYSAPI uint16 NTAPI
+                                 RtlCaptureStackBackTrace(
+                                     __in uint32 FramesToSkip,
+                                     __in uint32 FramesToCapture,
+                                     __out_ecount(FramesToCapture)
+                                         PVOID* backtrace,
+                                     __out_opt PDWORD BackTraceHash);
 
 /** Maximum callstack depth that is supported by the current OS. */
 static ULONG GMaxCallstackDepth = 62;
@@ -147,16 +152,15 @@ static ULONG GMaxCallstackDepth = 62;
 static bool GMaxCallstackDepthInitialized = false;
 
 /** Maximum callstack depth we support, no matter what OS we're running on. */
-#define MAX_CALLSTACK_DEPTH  128
+#define MAX_CALLSTACK_DEPTH 128
 
-/** Checks the current OS version and sets up the GMaxCallstackDepth variable. */
-void DetermineMaxCallstackDepth()
-{
+/** Checks the current OS version and sets up the GMaxCallstackDepth variable.
+ */
+void DetermineMaxCallstackDepth() {
   // Check that we're running on Vista or newer (version 6.0+).
   if (CWindowsMisc::VerifyWindowsVersion(6, 0)) {
     GMaxCallstackDepth = MAX_CALLSTACK_DEPTH;
-  }
-  else {
+  } else {
     GMaxCallstackDepth = MathBase::Min<ULONG>(62, MAX_CALLSTACK_DEPTH);
   }
   GMaxCallstackDepthInitialized = true;
@@ -164,20 +168,27 @@ void DetermineMaxCallstackDepth()
 
 #endif
 
-void StackwalkWin::StackwalkAndDump(ANSICHAR* HumanReadableString, size_t HumanReadableStringSize, int32 IgnoreCount, void* context)
-{
+void StackwalkWin::StackwalkAndDump(ANSICHAR* HumanReadableString,
+                                    size_t HumanReadableStringSize,
+                                    int32 IgnoreCount, void* context) {
   InitStackWalking();
 
-  CGenericPlatformStackWalk::StackwalkAndDump(HumanReadableString, HumanReadableStringSize, IgnoreCount, context);
+  CGenericPlatformStackWalk::StackwalkAndDump(
+      HumanReadableString, HumanReadableStringSize, IgnoreCount, context);
 }
 
-void StackwalkWin::ThreadStackwalkAndDump(ANSICHAR* HumanReadableString, size_t HumanReadableStringSize, int32 IgnoreCount, uint32 thread_id)
-{
+void StackwalkWin::ThreadStackwalkAndDump(ANSICHAR* HumanReadableString,
+                                          size_t HumanReadableStringSize,
+                                          int32 IgnoreCount, uint32 thread_id) {
   InitStackWalking();
 
-  const HANDLE thread_handle = OpenThread(THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_TERMINATE | THREAD_SUSPEND_RESUME, false, thread_id);
+  const HANDLE thread_handle =
+      OpenThread(THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_TERMINATE |
+                     THREAD_SUSPEND_RESUME,
+                 false, thread_id);
   if (thread_handle) {
-    // Suspend the thread before grabbing its context (possible fix for incomplete callstacks)
+    // Suspend the thread before grabbing its context (possible fix for
+    // incomplete callstacks)
     SuspendThread(thread_handle);
 
     // Give task scheduler some time to actually suspend the thread
@@ -186,7 +197,9 @@ void StackwalkWin::ThreadStackwalkAndDump(ANSICHAR* HumanReadableString, size_t 
     CONTEXT thread_context;
     thread_context.ContextFlags = CONTEXT_CONTROL;
     if (GetThreadContext(thread_handle, &thread_context)) {
-      CGenericPlatformStackWalk::StackwalkAndDump(HumanReadableString, HumanReadableStringSize, IgnoreCount, &thread_context);
+      CGenericPlatformStackWalk::StackwalkAndDump(HumanReadableString,
+                                                  HumanReadableStringSize,
+                                                  IgnoreCount, &thread_context);
     }
 
     ResumeThread(thread_handle);
@@ -201,36 +214,37 @@ Capture a stack backtrace and optionally use the passed in exception pointers.
 @param max_depth - Entries in backtrace array
 @param context - Optional thread context information
 */
-void StackwalkWin::CaptureStackBackTrace(uint64* backtrace, uint32 max_depth, void* context)
-{
-  // Make sure we have place to store the information before we go through the process of raising
-  // an exception and handling it.
+void StackwalkWin::CaptureStackBackTrace(uint64* backtrace, uint32 max_depth,
+                                         void* context) {
+  // Make sure we have place to store the information before we go through the
+  // process of raising an exception and handling it.
   if (backtrace == nullptr || max_depth == 0) {
     return;
   }
 
   if (context) {
     CaptureStackTraceHelper(backtrace, max_depth, (CONTEXT*)context);
-  }
-  else {
+  } else {
 #if USE_FAST_STACKTRACE
-    // NOTE: Make sure to enable Stack Frame pointers: bOmitFramePointers = false, or /Oy-
-    // If GStackWalkingInitialized is true, traces will work anyway but will be much slower.
+    // NOTE: Make sure to enable Stack Frame pointers: bOmitFramePointers =
+    // false, or /Oy- If GStackWalkingInitialized is true, traces will work
+    // anyway but will be much slower.
     if (GStackWalkingInitialized) {
       CONTEXT helper_context;
       RtlCaptureContext(&helper_context);
 
       // Capture the back trace.
       CaptureStackTraceHelper(backtrace, max_depth, &helper_context);
-    }
-    else {
+    } else {
       if (!GMaxCallstackDepthInitialized) {
         DetermineMaxCallstackDepth();
       }
       PVOID WinBackTrace[MAX_CALLSTACK_DEPTH];
-      uint16 NumFrames = RtlCaptureStackBackTrace(0, MathBase::Min<ULONG>(GMaxCallstackDepth,max_depth), WinBackTrace, nullptr);
+      uint16 NumFrames = RtlCaptureStackBackTrace(
+          0, MathBase::Min<ULONG>(GMaxCallstackDepth, max_depth), WinBackTrace,
+          nullptr);
       for (uint16 FrameIndex = 0; FrameIndex < NumFrames; ++FrameIndex) {
-        backtrace[FrameIndex] = (uint64) WinBackTrace[FrameIndex];
+        backtrace[FrameIndex] = (uint64)WinBackTrace[FrameIndex];
       }
 
       while (NumFrames < max_depth) {
@@ -238,20 +252,22 @@ void StackwalkWin::CaptureStackBackTrace(uint64* backtrace, uint32 max_depth, vo
       }
     }
 #elif FUN_64_BIT
-    // Raise an exception so CaptureStackBackTraceHelper has access to context record.
+    // Raise an exception so CaptureStackBackTraceHelper has access to context
+    // record.
     __try {
-      RaiseException(0,          // Application-defined exception code.
-              0,          // Zero indicates continuable exception.
-              0,          // Number of arguments in args array (ignored if args is NULL)
-              nullptr);   // Array of arguments
+      RaiseException(
+          0,  // Application-defined exception code.
+          0,  // Zero indicates continuable exception.
+          0,  // Number of arguments in args array (ignored if args is NULL)
+          nullptr);  // Array of arguments
     }
     // Capture the back trace.
-    __except (CaptureStackTraceHelper(backtrace, max_depth, (GetExceptionInformation())->ContextRecord))
-    {
+    __except (CaptureStackTraceHelper(
+        backtrace, max_depth, (GetExceptionInformation())->ContextRecord)) {
     }
 #elif 1
-    // Use a bit of inline assembly to capture the information relevant to stack walking which is
-    // basically EIP and EBP.
+    // Use a bit of inline assembly to capture the information relevant to stack
+    // walking which is basically EIP and EBP.
     CONTEXT helper_context;
     memset(&helper_context, 0, sizeof(CONTEXT));
     helper_context.ContextFlags = CONTEXT_FULL;
@@ -270,8 +286,9 @@ void StackwalkWin::CaptureStackBackTrace(uint64* backtrace, uint32 max_depth, vo
     CaptureStackTraceHelper(backtrace, max_depth, &helper_context);
 #else
     CONTEXT helper_context;
-    // RtlCaptureContext relies on EBP being untouched so if the below crashes it is because frame pointer
-    // omission is enabled. It is implied by /Ox or /O2 and needs to be manually disabled via /Oy-
+    // RtlCaptureContext relies on EBP being untouched so if the below crashes
+    // it is because frame pointer omission is enabled. It is implied by /Ox or
+    // /O2 and needs to be manually disabled via /Oy-
     RtlCaptureContext(helper_context);
 
     // Capture the back trace.
@@ -282,9 +299,10 @@ void StackwalkWin::CaptureStackBackTrace(uint64* backtrace, uint32 max_depth, vo
 
 PRAGMA_ENABLE_OPTIMIZATION
 
-void StackwalkWin::ProgramCounterToSymbolInfo(uint64 ProgramCounter, CProgramCounterSymbolInfo& OutSymbolInfo)
-{
-  // Initialize stack walking as it loads up symbol information which we require.
+void StackwalkWin::ProgramCounterToSymbolInfo(
+    uint64 ProgramCounter, CProgramCounterSymbolInfo& OutSymbolInfo) {
+  // Initialize stack walking as it loads up symbol information which we
+  // require.
   InitStackWalking();
 
   // Set the program counter.
@@ -294,7 +312,8 @@ void StackwalkWin::ProgramCounterToSymbolInfo(uint64 ProgramCounter, CProgramCou
   HANDLE process_handle = GetCurrentProcess();
 
   // Initialize symbol.
-  ANSICHAR SymbolBuffer[sizeof(IMAGEHLP_SYMBOL64) + CProgramCounterSymbolInfo::MAX_NAME_LENGHT] = {0};
+  ANSICHAR SymbolBuffer[sizeof(IMAGEHLP_SYMBOL64) +
+                        CProgramCounterSymbolInfo::MAX_NAME_LENGHT] = {0};
   IMAGEHLP_SYMBOL64* Symbol = (IMAGEHLP_SYMBOL64*)SymbolBuffer;
   Symbol->SizeOfStruct = sizeof(SymbolBuffer);
   Symbol->MaxNameLength = CProgramCounterSymbolInfo::MAX_NAME_LENGHT;
@@ -308,10 +327,11 @@ void StackwalkWin::ProgramCounterToSymbolInfo(uint64 ProgramCounter, CProgramCou
     }
 
     // Write out function name.
-    CStringTraitsA::Strncpy(OutSymbolInfo.FunctionName, Symbol->Name + Offset, CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
-    CStringTraitsA::Strncat(OutSymbolInfo.FunctionName, "()", CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
-  }
-  else {
+    CStringTraitsA::Strncpy(OutSymbolInfo.FunctionName, Symbol->Name + Offset,
+                            CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
+    CStringTraitsA::Strncat(OutSymbolInfo.FunctionName, "()",
+                            CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
+  } else {
     // No symbol found for this address.
     last_error = GetLastError();
   }
@@ -319,11 +339,13 @@ void StackwalkWin::ProgramCounterToSymbolInfo(uint64 ProgramCounter, CProgramCou
   // Get filename and line number.
   IMAGEHLP_LINE64 ImageHelpLine = {0};
   ImageHelpLine.SizeOfStruct = sizeof(ImageHelpLine);
-  if (SymGetLineFromAddr64(process_handle, ProgramCounter, (::DWORD *)&OutSymbolInfo.SymbolDisplacement, &ImageHelpLine)) {
-    CStringTraitsA::Strncpy(OutSymbolInfo.Filename, ImageHelpLine.FileName, CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
+  if (SymGetLineFromAddr64(process_handle, ProgramCounter,
+                           (::DWORD*)&OutSymbolInfo.SymbolDisplacement,
+                           &ImageHelpLine)) {
+    CStringTraitsA::Strncpy(OutSymbolInfo.Filename, ImageHelpLine.FileName,
+                            CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
     OutSymbolInfo.LineNumber = ImageHelpLine.LineNumber;
-  }
-  else {
+  } else {
     last_error = GetLastError();
   }
 
@@ -332,9 +354,9 @@ void StackwalkWin::ProgramCounterToSymbolInfo(uint64 ProgramCounter, CProgramCou
   ImageHelpModule.SizeOfStruct = sizeof(ImageHelpModule);
   if (SymGetModuleInfo64(process_handle, ProgramCounter, &ImageHelpModule)) {
     // Write out module information.
-    CStringTraitsA::Strncpy(OutSymbolInfo.ModuleName, ImageHelpModule.ImageName, CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
-  }
-  else {
+    CStringTraitsA::Strncpy(OutSymbolInfo.ModuleName, ImageHelpModule.ImageName,
+                            CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
+  } else {
     last_error = GetLastError();
   }
 }
@@ -343,15 +365,16 @@ void StackwalkWin::ProgramCounterToSymbolInfo(uint64 ProgramCounter, CProgramCou
 // On error this method returns NULL.
 //
 // IMPORTANT: Returned value must be deallocated by UnsafeMemory::Free().
-static HMODULE* GetProcessModules(HANDLE process_handle)
-{
+static HMODULE* GetProcessModules(HANDLE process_handle) {
   const int32 NumModules = StackwalkWin::GetProcessModuleCount();
   // Allocate start size (last element reserved for NULL value)
   uint32 ResultBytes = NumModules * sizeof(HMODULE);
-  HMODULE* ResultData = (HMODULE*)UnsafeMemory::Malloc(ResultBytes + sizeof(HMODULE));
+  HMODULE* ResultData =
+      (HMODULE*)UnsafeMemory::Malloc(ResultBytes + sizeof(HMODULE));
 
   uint32 BytesRequired = 0;
-  if (!FEnumProcessModules(process_handle, ResultData, ResultBytes, (::DWORD *)&BytesRequired)) {
+  if (!FEnumProcessModules(process_handle, ResultData, ResultBytes,
+                           (::DWORD*)&BytesRequired)) {
     UnsafeMemory::Free(ResultData);
     // Can't get process module list
     return nullptr;
@@ -373,13 +396,14 @@ static HMODULE* GetProcessModules(HANDLE process_handle)
 //   Game designers use game from source (without prebuild game .dll-files).
 //   In this case all game .dll-files are compiled locally.
 //   For post-mortem debug programmers need .dll and .pdb files from designers.
-bool StackwalkWin::UploadLocalSymbols()
-{
+bool StackwalkWin::UploadLocalSymbols() {
   InitStackWalking();
 
   // Upload locally compiled files to symbol storage.
   String SymbolStorage;
-  if (!g_config->GetString(CrashReporterSettings, TEXT("UploadSymbolsPath"), SymbolStorage, GEditorPerProjectIni) || SymbolStorage.IsEmpty()) {
+  if (!g_config->GetString(CrashReporterSettings, TEXT("UploadSymbolsPath"),
+                           SymbolStorage, GEditorPerProjectIni) ||
+      SymbolStorage.IsEmpty()) {
     // Nothing to do.
     return true;
   }
@@ -404,15 +428,18 @@ bool StackwalkWin::UploadLocalSymbols()
 #endif
 
   // Upload all locally built modules.
-  for (int32 ModuleIndex = 0; ModuleHandlePointer[ModuleIndex]; ModuleIndex++)
-  {
+  for (int32 ModuleIndex = 0; ModuleHandlePointer[ModuleIndex]; ModuleIndex++) {
     WCHAR ImageName[MAX_PATH] = {0};
-    FGetModuleFileNameEx(process_handle, ModuleHandlePointer[ModuleIndex], ImageName, MAX_PATH);
+    FGetModuleFileNameEx(process_handle, ModuleHandlePointer[ModuleIndex],
+                         ImageName, MAX_PATH);
 
 #if FUN_WITH_EDITOR
     WCHAR RelativePath[MAX_PATH];
-    // Skip binaries inside FUN Engine Editor directory (non-game editor binaries)
-    if (PathRelativePathTo(RelativePath, *EnginePath, FILE_ATTRIBUTE_DIRECTORY, ImageName, 0) && CCharTraits::Strncmp(RelativePath, TEXT("..\\"), 3)) {
+    // Skip binaries inside FUN Engine Editor directory (non-game editor
+    // binaries)
+    if (PathRelativePathTo(RelativePath, *EnginePath, FILE_ATTRIBUTE_DIRECTORY,
+                           ImageName, 0) &&
+        CCharTraits::Strncmp(RelativePath, TEXT("..\\"), 3)) {
       continue;
     }
 #endif
@@ -424,15 +451,23 @@ bool StackwalkWin::UploadLocalSymbols()
       // Upload only if found .pdb file
       if (PathFileExistsW(DebugName)) {
         // Upload original file
-        fun_log(LogWindows, Trace, TEXT("Uploading to symbol storage: %s"), ImageName);
-        if (!SymSrvStoreFileW(process_handle, *SymbolStorage, ImageName, SYMSTOREOPT_PASS_IF_EXISTS)) {
-          fun_log(LogWindows, Warning, TEXT("Uploading to symbol storage failed: %s. Error: %d"), ImageName, GetLastError());
+        fun_log(LogWindows, Trace, TEXT("Uploading to symbol storage: %s"),
+                ImageName);
+        if (!SymSrvStoreFileW(process_handle, *SymbolStorage, ImageName,
+                              SYMSTOREOPT_PASS_IF_EXISTS)) {
+          fun_log(LogWindows, Warning,
+                  TEXT("Uploading to symbol storage failed: %s. Error: %d"),
+                  ImageName, GetLastError());
         }
 
         // Upload debug symbols
-        fun_log(LogWindows, Trace, TEXT("Uploading to symbol storage: %s"), DebugName);
-        if (!SymSrvStoreFileW(process_handle, *SymbolStorage, DebugName, SYMSTOREOPT_PASS_IF_EXISTS)) {
-          fun_log(LogWindows, Warning, TEXT("Uploading to symbol storage failed: %s. Error: %d"), DebugName, GetLastError());
+        fun_log(LogWindows, Trace, TEXT("Uploading to symbol storage: %s"),
+                DebugName);
+        if (!SymSrvStoreFileW(process_handle, *SymbolStorage, DebugName,
+                              SYMSTOREOPT_PASS_IF_EXISTS)) {
+          fun_log(LogWindows, Warning,
+                  TEXT("Uploading to symbol storage failed: %s. Error: %d"),
+                  DebugName, GetLastError());
         }
       }
     }
@@ -441,8 +476,7 @@ bool StackwalkWin::UploadLocalSymbols()
 }
 
 // Loads modules for current process.
-static void LoadProcessModules(const String& RemoteStorage)
-{
+static void LoadProcessModules(const String& RemoteStorage) {
   int32 ErrorCode = 0;
   HANDLE process_handle = GetCurrentProcess();
 
@@ -459,18 +493,24 @@ static void LoadProcessModules(const String& RemoteStorage)
     WCHAR ModuleName[CProgramCounterSymbolInfo::MAX_NAME_LENGHT] = {0};
     WCHAR ImageName[CProgramCounterSymbolInfo::MAX_NAME_LENGHT] = {0};
 #if FUN_64_BIT
-    static_assert(sizeof(MODULEINFO) == 24, "Broken alignment for 64bit Windows include.");
+    static_assert(sizeof(MODULEINFO) == 24,
+                  "Broken alignment for 64bit Windows include.");
 #else
-    static_assert(sizeof(MODULEINFO) == 12, "Broken alignment for 32bit Windows include.");
+    static_assert(sizeof(MODULEINFO) == 12,
+                  "Broken alignment for 32bit Windows include.");
 #endif
-    FGetModuleInformation(process_handle, ModuleHandlePointer[ModuleIndex], &ModuleInfo, sizeof(ModuleInfo));
-    FGetModuleFileNameEx(process_handle, ModuleHandlePointer[ModuleIndex], ImageName, CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
-    FGetModuleBaseName(process_handle, ModuleHandlePointer[ModuleIndex], ModuleName, CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
+    FGetModuleInformation(process_handle, ModuleHandlePointer[ModuleIndex],
+                          &ModuleInfo, sizeof(ModuleInfo));
+    FGetModuleFileNameEx(process_handle, ModuleHandlePointer[ModuleIndex],
+                         ImageName, CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
+    FGetModuleBaseName(process_handle, ModuleHandlePointer[ModuleIndex],
+                       ModuleName, CProgramCounterSymbolInfo::MAX_NAME_LENGHT);
 
     // Set the search path to find PDBs in the same folder as the DLL.
     WCHAR SearchPath[MAX_PATH] = {0};
     WCHAR* FileName = nullptr;
-    const auto Result = GetFullPathNameW(ImageName, MAX_PATH, SearchPath, &FileName);
+    const auto Result =
+        GetFullPathNameW(ImageName, MAX_PATH, SearchPath, &FileName);
 
     String SearchPathList;
     if (Result != 0 && Result < MAX_PATH) {
@@ -487,28 +527,32 @@ static void LoadProcessModules(const String& RemoteStorage)
     SymSetSearchPathW(process_handle, *SearchPathList);
 
     // Load module.
-    const DWORD64 BaseAddress = SymLoadModuleExW(process_handle, ModuleHandlePointer[ModuleIndex], ImageName, ModuleName, (DWORD64) ModuleInfo.lpBaseOfDll, (uint32) ModuleInfo.SizeOfImage, nullptr, 0);
+    const DWORD64 BaseAddress =
+        SymLoadModuleExW(process_handle, ModuleHandlePointer[ModuleIndex],
+                         ImageName, ModuleName, (DWORD64)ModuleInfo.lpBaseOfDll,
+                         (uint32)ModuleInfo.SizeOfImage, nullptr, 0);
     if (!BaseAddress) {
       ErrorCode = GetLastError();
-      fun_log(LogWindows, Warning, TEXT("SymLoadModuleExW. Error: %d"), GetLastError());
+      fun_log(LogWindows, Warning, TEXT("SymLoadModuleExW. Error: %d"),
+              GetLastError());
     }
   }
 
-  // Free the module handle pointer allocated in case the static array was insufficient.
+  // Free the module handle pointer allocated in case the static array was
+  // insufficient.
   UnsafeMemory::Free(ModuleHandlePointer);
 }
 
-int32 StackwalkWin::GetProcessModuleCount()
-{
+int32 StackwalkWin::GetProcessModuleCount() {
   CPlatformStackWalk::InitStackWalking();
 
   HANDLE process_handle = GetCurrentProcess();
   uint32 BytesRequired = 0;
 
   // Enumerate process modules.
-  bool bEnumProcessModulesSucceeded = FEnumProcessModules(process_handle, nullptr, 0, (::DWORD *)&BytesRequired);
-  if (!bEnumProcessModulesSucceeded)
-  {
+  bool bEnumProcessModulesSucceeded =
+      FEnumProcessModules(process_handle, nullptr, 0, (::DWORD*)&BytesRequired);
+  if (!bEnumProcessModulesSucceeded) {
     return 0;
   }
 
@@ -517,16 +561,15 @@ int32 StackwalkWin::GetProcessModuleCount()
   return ModuleCount;
 }
 
-int32 StackwalkWin::GetProcessModuleSignatures(CStackWalkModuleInfo *ModuleSignatures, const int32 ModuleSignaturesSize)
-{
+int32 StackwalkWin::GetProcessModuleSignatures(
+    CStackWalkModuleInfo* ModuleSignatures, const int32 ModuleSignaturesSize) {
   CPlatformStackWalk::InitStackWalking();
 
   HANDLE process_handle = GetCurrentProcess();
 
   // Enumerate process modules.
   HMODULE* ModuleHandlePointer = GetProcessModules(process_handle);
-  if (!ModuleHandlePointer)
-  {
+  if (!ModuleHandlePointer) {
     return 0;
   }
 
@@ -537,22 +580,29 @@ int32 StackwalkWin::GetProcessModuleSignatures(CStackWalkModuleInfo *ModuleSigna
   int32 SignatureIndex = 0;
 
   // Load the modules.
-  for (int32 ModuleIndex = 0; ModuleHandlePointer[ModuleIndex] && SignatureIndex < ModuleSignaturesSize; ModuleIndex++)
-  {
+  for (int32 ModuleIndex = 0; ModuleHandlePointer[ModuleIndex] &&
+                              SignatureIndex < ModuleSignaturesSize;
+       ModuleIndex++) {
     MODULEINFO ModuleInfo = {0};
     WCHAR ModuleName[MAX_PATH] = {0};
     WCHAR ImageName[MAX_PATH] = {0};
 #if FUN_64_BIT
-    static_assert(sizeof(MODULEINFO) == 24, "Broken alignment for 64bit Windows include.");
+    static_assert(sizeof(MODULEINFO) == 24,
+                  "Broken alignment for 64bit Windows include.");
 #else
-    static_assert(sizeof(MODULEINFO) == 12, "Broken alignment for 32bit Windows include.");
+    static_assert(sizeof(MODULEINFO) == 12,
+                  "Broken alignment for 32bit Windows include.");
 #endif
-    FGetModuleInformation(process_handle, ModuleHandlePointer[ModuleIndex], &ModuleInfo, sizeof(ModuleInfo));
-    FGetModuleFileNameEx(process_handle, ModuleHandlePointer[ModuleIndex], ImageName, MAX_PATH);
-    FGetModuleBaseName(process_handle, ModuleHandlePointer[ModuleIndex], ModuleName, MAX_PATH);
+    FGetModuleInformation(process_handle, ModuleHandlePointer[ModuleIndex],
+                          &ModuleInfo, sizeof(ModuleInfo));
+    FGetModuleFileNameEx(process_handle, ModuleHandlePointer[ModuleIndex],
+                         ImageName, MAX_PATH);
+    FGetModuleBaseName(process_handle, ModuleHandlePointer[ModuleIndex],
+                       ModuleName, MAX_PATH);
 
     // Load module.
-    if (SymGetModuleInfoW64(process_handle, (DWORD64)ModuleInfo.lpBaseOfDll, &Img)) {
+    if (SymGetModuleInfoW64(process_handle, (DWORD64)ModuleInfo.lpBaseOfDll,
+                            &Img)) {
       CStackWalkModuleInfo Info = {0};
       Info.BaseOfImage = Img.BaseOfImage;
       CCharTraits::Strcpy(Info.ImageName, Img.ImageName);
@@ -569,42 +619,46 @@ int32 StackwalkWin::GetProcessModuleSignatures(CStackWalkModuleInfo *ModuleSigna
     }
   }
 
-  // Free the module handle pointer allocated in case the static array was insufficient.
+  // Free the module handle pointer allocated in case the static array was
+  // insufficient.
   UnsafeMemory::Free(ModuleHandlePointer);
 
   return SignatureIndex;
 }
 
-// Callback from the modules system that the loaded modules have changed and we need to reload symbols.
-static void OnModulesChanged(CName ModuleThatChanged, EModuleChangeReason ReasonForChange)
-{
+// Callback from the modules system that the loaded modules have changed and we
+// need to reload symbols.
+static void OnModulesChanged(CName ModuleThatChanged,
+                             EModuleChangeReason ReasonForChange) {
   GNeedToRefreshSymbols = true;
 }
 
-String StackwalkWin::GetDownstreamStorage()
-{
+String StackwalkWin::GetDownstreamStorage() {
   String DownstreamStorage;
-  if (g_config->GetString(CrashReporterSettings, TEXT("DownstreamStorage"), DownstreamStorage, GEditorPerProjectIni) && !DownstreamStorage.IsEmpty())
-  {
-    DownstreamStorage = CPaths::ConvertRelativePathToFull(CPaths::RootDir(), DownstreamStorage);
-  }
-  else
-  {
-    DownstreamStorage = CPaths::ConvertRelativePathToFull(CPaths::EngineIntermediateDir(), TEXT("Symbols"));
+  if (g_config->GetString(CrashReporterSettings, TEXT("DownstreamStorage"),
+                          DownstreamStorage, GEditorPerProjectIni) &&
+      !DownstreamStorage.IsEmpty()) {
+    DownstreamStorage =
+        CPaths::ConvertRelativePathToFull(CPaths::RootDir(), DownstreamStorage);
+  } else {
+    DownstreamStorage = CPaths::ConvertRelativePathToFull(
+        CPaths::EngineIntermediateDir(), TEXT("Symbols"));
   }
   CPaths::MakePlatformFilename(DownstreamStorage);
   return DownstreamStorage;
 }
 
 // Create path symbol path.
-// Reference: https://msdn.microsoft.com/en-us/library/ms681416%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-static String GetRemoteStorage(const String& DownstreamStorage)
-{
+// Reference:
+// https://msdn.microsoft.com/en-us/library/ms681416%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+static String GetRemoteStorage(const String& DownstreamStorage) {
   TArray<String> RemoteStorage;
-  g_config->GetArray(CrashReporterSettings, TEXT("RemoteStorage"), RemoteStorage, GEditorPerProjectIni);
+  g_config->GetArray(CrashReporterSettings, TEXT("RemoteStorage"),
+                     RemoteStorage, GEditorPerProjectIni);
   if (RemoteStorage.Num() > 0) {
     String SymbolStorage;
-    for (int StorageIndex = 0; StorageIndex < RemoteStorage.Num(); ++StorageIndex) {
+    for (int StorageIndex = 0; StorageIndex < RemoteStorage.Num();
+         ++StorageIndex) {
       if (StorageIndex > 0) {
         SymbolStorage.Append(';');
       }
@@ -614,16 +668,14 @@ static String GetRemoteStorage(const String& DownstreamStorage)
       SymbolStorage.Append(RemoteStorage[StorageIndex]);
     }
     return SymbolStorage;
-  }
-  else {
+  } else {
     return String();
   }
 }
 
-bool StackwalkWin::InitStackWalking()
-{
-  // DbgHelp functions are not thread safe, but this function can potentially be called from different
-  // threads in our engine, so we take a critical section
+bool StackwalkWin::InitStackWalking() {
+  // DbgHelp functions are not thread safe, but this function can potentially be
+  // called from different threads in our engine, so we take a critical section
   static CCriticalSection CriticalSection;
   CScopedLock Lock(CriticalSection);
 
@@ -635,14 +687,22 @@ bool StackwalkWin::InitStackWalking()
     }
 
     // Load dynamically linked PSAPI routines.
-    FEnumProcesses          = (TFEnumProcesses)         CPlatformProcess::GetDllExport(DllHandle,TEXT("EnumProcesses"));
-    FEnumProcessModules     = (TFEnumProcessModules)    CPlatformProcess::GetDllExport(DllHandle,TEXT("EnumProcessModules"));
-    FGetModuleFileNameEx    = (TFGetModuleFileNameEx)   CPlatformProcess::GetDllExport(DllHandle,TEXT("GetModuleFileNameExW"));
-    FGetModuleBaseName      = (TFGetModuleBaseName)     CPlatformProcess::GetDllExport(DllHandle,TEXT("GetModuleBaseNameW"));
-    FGetModuleInformation   = (TFGetModuleInformation)  CPlatformProcess::GetDllExport(DllHandle,TEXT("GetModuleInformation"));
+    FEnumProcesses = (TFEnumProcesses)CPlatformProcess::GetDllExport(
+        DllHandle, TEXT("EnumProcesses"));
+    FEnumProcessModules = (TFEnumProcessModules)CPlatformProcess::GetDllExport(
+        DllHandle, TEXT("EnumProcessModules"));
+    FGetModuleFileNameEx =
+        (TFGetModuleFileNameEx)CPlatformProcess::GetDllExport(
+            DllHandle, TEXT("GetModuleFileNameExW"));
+    FGetModuleBaseName = (TFGetModuleBaseName)CPlatformProcess::GetDllExport(
+        DllHandle, TEXT("GetModuleBaseNameW"));
+    FGetModuleInformation =
+        (TFGetModuleInformation)CPlatformProcess::GetDllExport(
+            DllHandle, TEXT("GetModuleInformation"));
 
     // Abort if we can't look up the functions.
-    if (!FEnumProcesses || !FEnumProcessModules || !FGetModuleFileNameEx || !FGetModuleBaseName || !FGetModuleInformation) {
+    if (!FEnumProcesses || !FEnumProcessModules || !FGetModuleFileNameEx ||
+        !FGetModuleBaseName || !FGetModuleInformation) {
       return false;
     }
 
@@ -654,10 +714,12 @@ bool StackwalkWin::InitStackWalking()
     SymOpts |= SYMOPT_DEFERRED_LOADS;
     SymOpts |= SYMOPT_EXACT_SYMBOLS;
 
-    // This option allows for undecorated names to be handled by the symbol engine.
+    // This option allows for undecorated names to be handled by the symbol
+    // engine.
     SymOpts |= SYMOPT_UNDNAME;
 
-    // Disable by default as it can be very spammy/slow.  Turn it on if you are debugging symbol look-up!
+    // Disable by default as it can be very spammy/slow.  Turn it on if you are
+    // debugging symbol look-up!
     //      SymOpts |= SYMOPT_DEBUG;
 
     // Not sure these are important or desirable
@@ -668,7 +730,8 @@ bool StackwalkWin::InitStackWalking()
 
     // Initialize the symbol engine.
     const String RemoteStorage = GetRemoteStorage(GetDownstreamStorage());
-    SymInitializeW(GetCurrentProcess(), RemoteStorage.IsEmpty() ? nullptr : *RemoteStorage, true);
+    SymInitializeW(GetCurrentProcess(),
+                   RemoteStorage.IsEmpty() ? nullptr : *RemoteStorage, true);
 
     GNeedToRefreshSymbols = false;
     GStackWalkingInitialized = true;
@@ -684,10 +747,9 @@ bool StackwalkWin::InitStackWalking()
   return GStackWalkingInitialized;
 }
 
-void StackwalkWin::RegisterOnModulesChanged()
-{
+void StackwalkWin::RegisterOnModulesChanged() {
   // Register for callback so we can reload symbols when new modules are loaded
   CModuleManager::Get().OnModulesChanged().AddStatic(&OnModulesChanged);
 }
 
-} // namespace fun
+}  // namespace fun

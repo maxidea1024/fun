@@ -1,7 +1,7 @@
 ﻿#pragma once
 
+#include "P2PGroup_C.h"  // P2PGroups_C
 #include "TcpTransport_S.h"
-#include "P2PGroup_C.h" // P2PGroups_C
 
 namespace fun {
 namespace net {
@@ -14,18 +14,17 @@ typedef Map<HostId, LanRemotePeer_C*> LanRemotePeers_C;
 /**
  * Peer의 Accepted 된 정보
  */
-class AcceptedInfo
-  : public IInternalSocketDelegate,
-    public ICompletionContext,
-    public UseCount {
+class AcceptedInfo : public IInternalSocketDelegate,
+                     public ICompletionContext,
+                     public UseCount {
   CCriticalSection2 mutex_;
 
  public:
   LanClientImpl* owner_;
-  double accepted_time_; // 억셉이 완료된 시간
+  double accepted_time_;  // 억셉이 완료된 시간
   SharedPtr<InternalSocket> socket_;
-  StreamQueue recv_stream_; //받는 스트림.
-  bool is_timedout_;//타임아웃 여부.
+  StreamQueue recv_stream_;  //받는 스트림.
+  bool is_timedout_;         //타임아웃 여부.
   bool recv_issued_;
 
   AcceptedInfo(LanClientImpl* owner);
@@ -52,16 +51,14 @@ class AcceptedInfo
   }
 };
 
-
-class LanRemotePeer_C
-  : public ISendDest_C,
-    public IP2PGroupMember,
-    public ITaskSubject,
-    public ICompletionContext,
-    public ListNode<LanRemotePeer_C>,
-    public ITcpTransportOwner_S,
-    public UseCount,
-    public IHostObject {
+class LanRemotePeer_C : public ISendDest_C,
+                        public IP2PGroupMember,
+                        public ITaskSubject,
+                        public ICompletionContext,
+                        public ListNode<LanRemotePeer_C>,
+                        public ITcpTransportOwner_S,
+                        public UseCount,
+                        public IHostObject {
  private:
   const char* dispose_caller_;
 
@@ -76,7 +73,7 @@ class LanRemotePeer_C
   double recent_ping_;
 
   /** 측정된 송신 대기량(tcp) */
-  //int32 send_queued_amount_in_byte_;
+  // int32 send_queued_amount_in_byte_;
 
   /** 이 peer와 server와의 랙 */
   double peer_to_server_ping_;
@@ -127,21 +124,21 @@ class LanRemotePeer_C
     SocketErrorCode socket_error;
 
     inline DisposeWaiter()
-      : reason(ResultCode::Ok),
-        detail(ResultCode::Ok),
-        socket_error(SocketErrorCode::Ok),
-        created_time(0) {}
+        : reason(ResultCode::Ok),
+          detail(ResultCode::Ok),
+          socket_error(SocketErrorCode::Ok),
+          created_time(0) {}
   };
   // 평소에는 null이지만 일단 세팅되면 모든 스레드에서 종료할 때까지 기다린다.
   SharedPtr<DisposeWaiter> dispose_waiter_;
 
-  //dispose를 서버에 요청.
+  // dispose를 서버에 요청.
   bool dispose_requested_;
 
   LanRemotePeer_C(LanClientImpl* owner);
   virtual ~LanRemotePeer_C();
 
-  //void GetPeerInfo(PeerInfo& out_result);
+  // void GetPeerInfo(PeerInfo& out_result);
 
   // 이 remote peer에 직접 p2p 연결 시도를 하는 과정을 시작한다.
   void CreateP2PHolepunchAttemptContext();
@@ -149,7 +146,7 @@ class LanRemotePeer_C
   void Heartbeat(double absolute_time);
   double GetIndirectServerTimeDiff();
 
-  //virtual double GetAbsoluteTime();
+  // virtual double GetAbsoluteTime();
 
   ResultCode ExtractMessagesFromTcpStream(ReceivedMessageList& out_result);
 
@@ -178,10 +175,8 @@ class LanRemotePeer_C
   void EnqueueIssueSendReadyRemotes();
   bool IsDispose();
   double GetAbsoluteTime();
-  void IssueDispose(ResultCode result_code,
-                    ResultCode detail_code,
-                    const ByteArray& comment,
-                    const char* where,
+  void IssueDispose(ResultCode result_code, ResultCode detail_code,
+                    const ByteArray& comment, const char* where,
                     SocketErrorCode socket_error);
   bool IsValidEnd();
 
@@ -192,12 +187,10 @@ class LanRemotePeer_C
   CCriticalSection2& GetMutex();
   void Decrease();
   void OnIssueSendFail(const char* where, SocketErrorCode socket_error);
-  void SendWhenReady( HostId sender_id,
-                      const InetAddress& sender_addr,
-                      HostId dest_id,
-                      const SendFragRefs& data,
-                      const UdpSendOption& option);
+  void SendWhenReady(HostId sender_id, const InetAddress& sender_addr,
+                     HostId dest_id, const SendFragRefs& data,
+                     const UdpSendOption& option);
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

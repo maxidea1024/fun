@@ -32,21 +32,17 @@ class MessageSummary {
   inline MessageSummary() {}
 
   /** Detailed constructor. */
-  inline MessageSummary(int32 payload_length,
-                        RpcId rpc_id,
-                        const char* rpc_name,
-                        EncryptionMode encryption_mode,
+  inline MessageSummary(int32 payload_length, RpcId rpc_id,
+                        const char* rpc_name, EncryptionMode encryption_mode,
                         CompressionMode compression_mode,
                         const String& arguments)
-    : payload_length(payload_length)
-    , rpc_id(rpc_id)
-    , rpc_name(rpc_name)
-    , encryption_mode(encryption_mode)
-    , compression_mode(compression_mode)
-    , arguments(arguments) {
-  }
+      : payload_length(payload_length),
+        rpc_id(rpc_id),
+        rpc_name(rpc_name),
+        encryption_mode(encryption_mode),
+        compression_mode(compression_mode),
+        arguments(arguments) {}
 };
-
 
 /**
  * Summary before RPC call
@@ -69,17 +65,13 @@ class BeforeRpcSummary {
   inline BeforeRpcSummary() {}
 
   /** Detailed constructor. */
-  inline BeforeRpcSummary(RpcId rpc_id,
-                          const char* rpc_name,
-                          HostId host_id,
+  inline BeforeRpcSummary(RpcId rpc_id, const char* rpc_name, HostId host_id,
                           void* host_tag)
-    : rpc_id(rpc_id)
-    , rpc_name(rpc_name)
-    , host_id(host_id)
-    , host_tag(host_tag) {
-  }
+      : rpc_id(rpc_id),
+        rpc_name(rpc_name),
+        host_id(host_id),
+        host_tag(host_tag) {}
 };
-
 
 /**
  * Summary after RPC call
@@ -108,18 +100,14 @@ class AfterRpcSummary {
   inline AfterRpcSummary() {}
 
   /** Detailed constructor. */
-  inline AfterRpcSummary( RpcId rpc_id,
-                          const char* rpc_name,
-                          HostId host_id,
-                          void* host_tag,
-                          uint32 elapsed_time)
-    : rpc_id(rpc_id)
-    , rpc_name(rpc_name)
-    , host_id(host_id)
-    , host_tag(host_tag)
-    , elapsed_time(elapsed_time) {
-  }
+  inline AfterRpcSummary(RpcId rpc_id, const char* rpc_name, HostId host_id,
+                         void* host_tag, uint32 elapsed_time)
+      : rpc_id(rpc_id),
+        rpc_name(rpc_name),
+        host_id(host_id),
+        host_tag(host_tag),
+        elapsed_time(elapsed_time) {}
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -13,7 +13,6 @@ class IThreadPoolCallbacks {
   virtual void OnThreadEnd() = 0;
 };
 
-
 class ThreadPool2 {
  public:
   FUN_NETX_API static ThreadPool2* New();
@@ -25,5 +24,5 @@ class ThreadPool2 {
   virtual void Stop() = 0;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

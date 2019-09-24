@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
 #include "fun/base/atomics.h"
+#include "fun/base/base.h"
 
 namespace fun {
 
@@ -10,8 +10,10 @@ namespace fun {
 레퍼런스 초기 값은 다음과 같은 의미를 가짐.
 
    0 : 공유 불가
-  -1 : Persistent (공유는 되지만, 카운팅은 안됨. Ref/Deref가 호출되더라도 무시됨.  주로, 읽기전용으로 공유되는 static 객체들에 사용됨.)
-   1 : 일반적인 공유 가능 상태. 정상적으로, 카운팅이 됨. (참조 동작에 의해서 증가/증감 후 카운터가 0이 되는 순간 객체 제거)
+  -1 : Persistent (공유는 되지만, 카운팅은 안됨. Ref/Deref가 호출되더라도
+무시됨.  주로, 읽기전용으로 공유되는 static 객체들에 사용됨.) 1 : 일반적인 공유
+가능 상태. 정상적으로, 카운팅이 됨. (참조 동작에 의해서 증가/증감 후 카운터가
+0이 되는 순간 객체 제거)
 
   어떠한 경우에도, -1 보다 크거나 같아야함.
 
@@ -19,8 +21,10 @@ namespace fun {
 The reference initial value has the following meaning.
 
    0: Not shareable
-  -1: Persistent (shared, but not counted, ignored even when Ref / Deref is called, mainly used for static objects that are shared read-only)
-   1: Common shareable state. Normally, counting. (Increase / decrease by reference operation, remove object at the moment when counter becomes 0)
+  -1: Persistent (shared, but not counted, ignored even when Ref / Deref is
+called, mainly used for static objects that are shared read-only) 1: Common
+shareable state. Normally, counting. (Increase / decrease by reference
+operation, remove object at the moment when counter becomes 0)
 
   In any case, it must be greater than or equal to -1.
 */
@@ -47,7 +51,6 @@ class FUN_BASE_API RefCounter {
   void InitAsOwned();
   void InitAsUnsharable();
 };
-
 
 //
 // inlines
@@ -93,8 +96,7 @@ FUN_ALWAYS_INLINE bool RefCounter::SetSharable(bool sharable) {
 
   if (sharable) {
     return !!Atomics::CompareExchange(&counter_, 0, 1);
-  }
-  else {
+  } else {
     return !!Atomics::CompareExchange(&counter_, 1, 0);
   }
 }
@@ -109,21 +111,20 @@ FUN_ALWAYS_INLINE bool RefCounter::IsPersistent() const {
 }
 
 FUN_ALWAYS_INLINE bool RefCounter::IsShared() const {
-  return counter_ != INITIAL_OWNED_COUNTER_VALUE && counter_ != UNSHARABLE_COUNTER_VALUE;
+  return counter_ != INITIAL_OWNED_COUNTER_VALUE &&
+         counter_ != UNSHARABLE_COUNTER_VALUE;
 }
 
-FUN_ALWAYS_INLINE int32 RefCounter::GetCounter() const {
-  return counter_;
-}
+FUN_ALWAYS_INLINE int32 RefCounter::GetCounter() const { return counter_; }
 
 FUN_ALWAYS_INLINE void RefCounter::InitAsOwned() {
-  //Atomics::Exchange(&counter_, INITIAL_OWNED_COUNTER_VALUE);
+  // Atomics::Exchange(&counter_, INITIAL_OWNED_COUNTER_VALUE);
   counter_ = INITIAL_OWNED_COUNTER_VALUE;
 }
 
 FUN_ALWAYS_INLINE void RefCounter::InitAsUnsharable() {
-  //Atomics::Exchange(&counter_, UNSHARABLE_COUNTER_VALUE);
+  // Atomics::Exchange(&counter_, UNSHARABLE_COUNTER_VALUE);
   counter_ = UNSHARABLE_COUNTER_VALUE;
 }
 
-} // namespace fun
+}  // namespace fun

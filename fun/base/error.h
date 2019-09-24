@@ -23,4 +23,4 @@ class FUN_BASE_API Error {
 #endif
 };
 
-} // namespace fun
+}  // namespace fun

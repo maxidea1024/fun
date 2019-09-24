@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
+#include "fun/base/container/list.h"
+#include "fun/base/event.h"
+#include "fun/base/mutex.h"
 #include "fun/base/notification.h"
 #include "fun/base/notification_center.h"
-#include "fun/base/mutex.h"
-#include "fun/base/event.h"
-#include "fun/base/container/list.h"
 
 namespace fun {
 
@@ -14,7 +14,7 @@ namespace fun {
  * notifications. This is especially useful for sending notifications
  * from one thread to another, for example from a background thread to
  * the main (user interface) thread.
- * 
+ *
  * The NotificationQueue can also be used to distribute work from
  * a controlling thread to one or more worker threads. Each worker thread
  * repeatedly calls WaitDequeue() and processes the
@@ -64,7 +64,7 @@ class NotificationQueue {
    * Returns 0 (null) if no notification is available.
    * The caller gains ownership of the notification and
    * is expected to release it when done with it.
-   * 
+   *
    * It is highly recommended that the result is immediately
    * assigned to a Notification::Ptr, to avoid potential
    * memory management issues.
@@ -79,7 +79,7 @@ class NotificationQueue {
    * is expected to release it when done with it.
    * This method returns 0 (null) if WakeUpAll()
    * has been called by another thread.
-   * 
+   *
    * It is highly recommended that the result is immediately
    * assigned to a Notification::Ptr, to avoid potential
    * memory management issues.
@@ -93,7 +93,7 @@ class NotificationQueue {
    * Returns 0 (null) if no notification is available.
    * The caller gains ownership of the notification and
    * is expected to release it when done with it.
-   * 
+   *
    * It is highly recommended that the result is immediately
    * assigned to a Notification::Ptr, to avoid potential
    * memory management issues.
@@ -157,4 +157,4 @@ class NotificationQueue {
   FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

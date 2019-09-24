@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/windows_less.h"
 #include "fun/base/string/string.h"
+#include "fun/base/windows_less.h"
 
 namespace fun {
 
@@ -24,7 +24,6 @@ class FUN_BASE_API DirectoryIteratorImpl {
   int rc_;
 };
 
-
 //
 // inlines
 //
@@ -33,9 +32,7 @@ FUN_ALWAYS_INLINE const String& DirectoryIteratorImpl::Get() const {
   return current_;
 }
 
-FUN_ALWAYS_INLINE void DirectoryIteratorImpl::AddRef() {
-  ++rc_;
-}
+FUN_ALWAYS_INLINE void DirectoryIteratorImpl::AddRef() { ++rc_; }
 
 FUN_ALWAYS_INLINE void DirectoryIteratorImpl::Release() {
   if (--rc_ == 0) {
@@ -43,4 +40,4 @@ FUN_ALWAYS_INLINE void DirectoryIteratorImpl::Release() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

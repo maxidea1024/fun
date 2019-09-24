@@ -17,11 +17,9 @@ class IThreadReferer {
   virtual ~IThreadReferer() {}
 };
 
-
-class ThreadPoolImpl
-  : public ThreadPool2
-  , public ICompletionPortCallbacks
-  , public Runnable {
+class ThreadPoolImpl : public ThreadPool2,
+                       public ICompletionPortCallbacks,
+                       public Runnable {
  public:
   ThreadPoolImpl();
   virtual ~ThreadPoolImpl();
@@ -37,7 +35,8 @@ class ThreadPoolImpl
   void Stop() override;
 
  protected:
-  void OnCompletionPortWarning(CompletionPort* completion_port, const char* msg) override;
+  void OnCompletionPortWarning(CompletionPort* completion_port,
+                               const char* msg) override;
 
  public:
   void AssertIsLockedByCurrentThread() {
@@ -67,5 +66,5 @@ class ThreadPoolImpl
   List<IThreadReferer*> referers_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

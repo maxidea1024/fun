@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/instantiator.h"
-#include "fun/base/ref_counted_ptr.h"
-#include "fun/base/exception.h"
-#include "fun/base/mutex.h"
 #include "fun/base/container/map.h"
+#include "fun/base/exception.h"
 #include "fun/base/ftl/unique_ptr.h"
+#include "fun/base/instantiator.h"
+#include "fun/base/mutex.h"
+#include "fun/base/ref_counted_ptr.h"
 
 namespace fun {
 
@@ -36,7 +36,7 @@ class DynamicFactory {
 
   // Disable copy.
   DynamicFactory(const DynamicFactory&) = delete;
-  DynamicFactory& operator = (const DynamicFactory&) = delete;
+  DynamicFactory& operator=(const DynamicFactory&) = delete;
 
   /**
    * Creates a new instance of the class with the given name.
@@ -78,7 +78,8 @@ class DynamicFactory {
     {
       FastMutex::ScopedLock guard(mutex_);
 
-      UniquePtr<FactoryBase> ptr(factory); // 이미 등록되어 있을 경우 객체를 자동으로 파괴하는 역활을함.
+      UniquePtr<FactoryBase> ptr(factory);  // 이미 등록되어 있을 경우 객체를
+                                            // 자동으로 파괴하는 역활을함.
 
       if (!map_.Contains(class_name)) {
         map_.Add(class_name, ptr.Detach());
@@ -120,4 +121,4 @@ class DynamicFactory {
   FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

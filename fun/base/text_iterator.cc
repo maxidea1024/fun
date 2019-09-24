@@ -1,40 +1,35 @@
 ﻿#include "fun/base/text_iterator.h"
-#include "fun/base/encoding/text_encoding.h"
 #include <algorithm>
+#include "fun/base/encoding/text_encoding.h"
 
 namespace fun {
 
 TextIterator::TextIterator() : encoding_(nullptr) {}
 
 TextIterator::TextIterator(const String& str, const TextEncoding& encoding)
-  : encoding_(&encoding), current_(str.begin()), end_(str.end()) {}
+    : encoding_(&encoding), current_(str.begin()), end_(str.end()) {}
 
-TextIterator::TextIterator( const String::ConstIterator& begin,
-                            const String::ConstIterator& end,
-                            const TextEncoding& encoding)
-  : encoding_(&encoding), current_(begin), end_(end) {}
+TextIterator::TextIterator(const String::ConstIterator& begin,
+                           const String::ConstIterator& end,
+                           const TextEncoding& encoding)
+    : encoding_(&encoding), current_(begin), end_(end) {}
 
 // 이 생성자는 그냥 끝(end())을 나타내는 용도로 사용됨.
 TextIterator::TextIterator(const String& str)
-  : encoding_(0),
-  // current_(str.begin()),
-    current_(str.end()), //note: end가 맞음...
-    end_(str.end()) {
-}
+    : encoding_(0),
+      // current_(str.begin()),
+      current_(str.end()),  // note: end가 맞음...
+      end_(str.end()) {}
 
 TextIterator::TextIterator(const String::ConstIterator& end)
-  : encoding_(nullptr),
-    current_(end),
-    end_(end) {}
+    : encoding_(nullptr), current_(end), end_(end) {}
 
 TextIterator::~TextIterator() {}
 
 TextIterator::TextIterator(const TextIterator& it)
-  : encoding_(it.encoding_),
-    current_(it.current_),
-    end_(it.end_) {}
+    : encoding_(it.encoding_), current_(it.current_), end_(it.end_) {}
 
-TextIterator& TextIterator::operator = (const TextIterator& it) {
+TextIterator& TextIterator::operator=(const TextIterator& it) {
   if (FUN_LIKELY(&it != this)) {
     encoding_ = it.encoding_;
     current_ = it.current_;
@@ -50,7 +45,7 @@ void TextIterator::Swap(TextIterator& it) {
   fun::Swap(end_, it.end_);
 }
 
-int TextIterator::operator * () const {
+int TextIterator::operator*() const {
   fun_check_ptr(encoding_);
   fun_check(current_ != end_);
   String::ConstIterator it = current_;
@@ -83,7 +78,7 @@ int TextIterator::operator * () const {
   }
 }
 
-TextIterator& TextIterator::operator ++ () {
+TextIterator& TextIterator::operator++() {
   fun_check_ptr(encoding_);
   fun_check(current_ != end_);
 
@@ -116,10 +111,10 @@ TextIterator& TextIterator::operator ++ () {
   return *this;
 }
 
-TextIterator TextIterator::operator ++ (int) {
+TextIterator TextIterator::operator++(int) {
   TextIterator prev(*this);
-  operator ++ ();
+  operator++();
   return prev;
 }
 
-} // namespace fun
+}  // namespace fun

@@ -13,17 +13,16 @@ bool RpcHeader::Read(IMessageIn& input) {
   return true;
 }
 
-void RpcHeader::Write(IMessageOut& output,
-                      int32 result_code,
+void RpcHeader::Write(IMessageOut& output, int32 result_code,
                       const String& error_message) {
   lf::WriteOptimalInt32(output, result_code);
   lf::Write(output, error_message);
 }
 
 void RpcHeader::WriteOk(IMessageOut& output) {
-  output.WriteFixed8(0); // OK
-  output.WriteFixed8(0); // Empty error message (zero-length)
+  output.WriteFixed8(0);  // OK
+  output.WriteFixed8(0);  // Empty error message (zero-length)
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

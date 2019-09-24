@@ -14,11 +14,10 @@ class ISendSpeedMeasurerDelegate {
   virtual void OnMeasureComplete(double speed) = 0;
 };
 
-class SendSpeedMeasurer
-  : public IInternalSocketDelegate
-  , public ICompletionPortCallbacks
-  , public ICompletionContext
-  , public Runnable {
+class SendSpeedMeasurer : public IInternalSocketDelegate,
+                          public ICompletionPortCallbacks,
+                          public ICompletionContext,
+                          public Runnable {
  private:
   // send for UDP, recv for ICMP
   InternalSocketPtr send_socket_;
@@ -33,7 +32,8 @@ class SendSpeedMeasurer
   bool force_measure_now_;
 
   enum {
-    PAKCET_LENGTH = 600 // MTU보다는 작아야 하지만 너무 작아서 패킷 헤더 낭비도 줄여야 한다.
+    PAKCET_LENGTH = 600  // MTU보다는 작아야 하지만 너무 작아서 패킷 헤더 낭비도
+                         // 줄여야 한다.
   };
 
   static uint8 g_send_packet[PAKCET_LENGTH];
@@ -99,5 +99,5 @@ class SendSpeedMeasurer
 
 typedef SharedPtr<SendSpeedMeasurer> SendSpeedMeasurerPtr;
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

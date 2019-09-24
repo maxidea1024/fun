@@ -5,7 +5,8 @@ namespace net {
 
 /**
  * NetClientInfoPtr, NetPeerInfoPtr 때문에 전방 참조가 불가능하다.
- * 이를 해소하려면, 정방 선언에 모두 모아두던지, include순서를 수정해야할듯 싶다.
+ * 이를 해소하려면, 정방 선언에 모두 모아두던지, include순서를 수정해야할듯
+ * 싶다.
  *
  * 복사 연산자의 비용이 크므로 꼭 배열에 사용시 주의할 것
  */
@@ -64,5 +65,5 @@ class LocalEvent {
   LocalEvent(LocalEventType type) : type(type) {}
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

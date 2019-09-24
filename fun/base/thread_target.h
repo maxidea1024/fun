@@ -12,10 +12,10 @@ namespace fun {
  * Note that it is possible to pass those entities directly to Thread::Start().
  * This adapter is provided as a convenience for higher abstraction level
  * scenarios where Runnable abstract class is used.
- * 
+ *
  * For using a non-static member function as a thread target, please
  * see the RunnableAdapter class.
- * 
+ *
  * Usage:
  *   class MyObject {
  *     static void DoSomething() {}
@@ -24,11 +24,11 @@ namespace fun {
  *   ThreadTarget ra(&MyObject::DoSomething);
  *   Thread thread;
  *   thread.Start(ra);
- * 
+ *
  * or:
- * 
+ *
  *   void DoSomething() {}
- * 
+ *
  *   ThreadTarget ra(DoSomething);
  *   Thread thread;
  *   thread.Start(ra);
@@ -41,7 +41,7 @@ class FUN_BASE_API ThreadTarget : public Runnable {
   ~ThreadTarget();
 
   ThreadTarget(const ThreadTarget& rhs);
-  ThreadTarget& operator = (const ThreadTarget& rhs);
+  ThreadTarget& operator=(const ThreadTarget& rhs);
 
   void Run() override;
 
@@ -51,13 +51,10 @@ class FUN_BASE_API ThreadTarget : public Runnable {
   Callback method_;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE void ThreadTarget::Run() {
-  method_();
-}
+FUN_ALWAYS_INLINE void ThreadTarget::Run() { method_(); }
 
-} // namespace fun
+}  // namespace fun

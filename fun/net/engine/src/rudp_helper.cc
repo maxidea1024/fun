@@ -1,7 +1,7 @@
-﻿#include "fun/net/net.h"
+﻿#include "RUdpFrame.h"
 #include "RUdpHelper.h"
-#include "RUdpFrame.h"
 #include "SendData.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -9,13 +9,13 @@ namespace net {
 using lf = LiteFormat;
 
 FrameNumber RUdpHelper::GetRandomFrameNumber(RandomMT& Random) {
-  return (FrameNumber)Random.RangedInt(1, int32_MAX - 1); // 0은 허용안함.
+  return (FrameNumber)Random.RangedInt(1, int32_MAX - 1);  // 0은 허용안함.
 }
 
 void RUdpHelper::BuildSendDataFromFrame(RUdpFrame& frame,
                                         SendFragRefs& out_result,
                                         MessageOut& out_header) {
-  out_result.Clear(); // just in case
+  out_result.Clear();  // just in case
 
   lf::Write(out_header, MessageType::RUdp_Frame);
   lf::Write(out_header, frame.type);
@@ -49,8 +49,8 @@ void RUdpHelper::BuildRelayed2LongDataFrame(FrameNumber frame_number,
   // Build long frame, compatible to reliable UDP data frame
   out_result.type = RUdpFrameType::Data;
   out_result.frame_number = frame_number;
-  out_result.data = content.ToBytes(); // Copy
+  out_result.data = content.ToBytes();  // Copy
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

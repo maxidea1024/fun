@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
 #include "INetCoreCallbacks.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -15,9 +15,8 @@ class ByteArray;
 class INetClientCallbacks : public INetCoreCallbacks {
  public:
   INetClientCallbacks()
-    : bHolsterMoreCallback_FORONETHREADEDMODEL(false)
-    , bPostponeThisCallback_FORONETHREADEDMODEL(false) {
-  }
+      : bHolsterMoreCallback_FORONETHREADEDMODEL(false),
+        bPostponeThisCallback_FORONETHREADEDMODEL(false) {}
 
   /**
    * 클라가 서버에 정상적으로 접속을 한 직후 호출되는 콜백입니다.
@@ -33,17 +32,15 @@ class INetClientCallbacks : public INetCoreCallbacks {
   /**
    * 새로운 멤버가 P2P 그룹에 진입했을 경우에 호출되는 콜백입니다.
    */
-  virtual void OnP2PMemberJoined( HostId member_id,
-                                  HostId group_id,
-                                  int32 member_count,
-                                  const ByteArray& custom_field) = 0;
+  virtual void OnP2PMemberJoined(HostId member_id, HostId group_id,
+                                 int32 member_count,
+                                 const ByteArray& custom_field) = 0;
 
   /**
    * 멤버가 P2P 그룹에서 나갔을 경우에 호출되는 콜백입니다.
    */
-  virtual void OnP2PMemberLeft( HostId member_id,
-                                HostId group_id,
-                                int32 member_count) = 0;
+  virtual void OnP2PMemberLeft(HostId member_id, HostId group_id,
+                               int32 member_count) = 0;
 
   /**
    * Peer P2P의 상태가 변경 되었을때 호출되는 콜백입니다.
@@ -60,7 +57,7 @@ class INetClientCallbacks : public INetCoreCallbacks {
    */
   virtual void OnSynchronizeServerTime() = 0;
 
-  //TODO 딱히 쓸모 없어보임...
+  // TODO 딱히 쓸모 없어보임...
   bool bHolsterMoreCallback_FORONETHREADEDMODEL;
   bool bPostponeThisCallback_FORONETHREADEDMODEL;
 
@@ -68,5 +65,5 @@ class INetClientCallbacks : public INetCoreCallbacks {
   FUN_NETX_API void PostponeThisCallback();
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

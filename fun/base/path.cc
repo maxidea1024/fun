@@ -1,6 +1,6 @@
 ﻿#include "fun/base/path.h"
-#include "fun/base/file.h"
 #include "fun/base/exception.h"
+#include "fun/base/file.h"
 
 #if FUN_PLATFORM_UNIX_FAMILY
 #include "fun/base/path_unix.cc"
@@ -41,59 +41,57 @@ Path::Path(const char* path, Style style) {
 }
 
 Path::Path(const Path& path)
-  : node_(path.node_),
-    device_(path.device_),
-    name_(path.name_),
-    version_(path.version_),
-    dirs_(path.dirs_),
-    absolute_(path.absolute_) {}
+    : node_(path.node_),
+      device_(path.device_),
+      name_(path.name_),
+      version_(path.version_),
+      dirs_(path.dirs_),
+      absolute_(path.absolute_) {}
 
 Path::Path(const Path& parent, const String& filename)
-  : node_(parent.node_),
-    device_(parent.device_),
-    name_(parent.name_),
-    version_(parent.version_),
-    dirs_(parent.dirs_),
-    absolute_(parent.absolute_) {
+    : node_(parent.node_),
+      device_(parent.device_),
+      name_(parent.name_),
+      version_(parent.version_),
+      dirs_(parent.dirs_),
+      absolute_(parent.absolute_) {
   fun_check(filename.IsNulTerm());
   MakeDirectory();
   name_ = filename;
 }
 
 Path::Path(const Path& parent, const char* filename)
-  : node_(parent.node_),
-    device_(parent.device_),
-    name_(parent.name_),
-    version_(parent.version_),
-    dirs_(parent.dirs_),
-    absolute_(parent.absolute_) {
+    : node_(parent.node_),
+      device_(parent.device_),
+      name_(parent.name_),
+      version_(parent.version_),
+      dirs_(parent.dirs_),
+      absolute_(parent.absolute_) {
   MakeDirectory();
   name_ = filename;
 }
 
 Path::Path(const Path& parent, const Path& relative)
-  : node_(parent.node_),
-    device_(parent.device_),
-    name_(parent.name_),
-    version_(parent.version_),
-    dirs_(parent.dirs_),
-    absolute_(parent.absolute_) {
+    : node_(parent.node_),
+      device_(parent.device_),
+      name_(parent.name_),
+      version_(parent.version_),
+      dirs_(parent.dirs_),
+      absolute_(parent.absolute_) {
   Resolve(relative);
 }
 
 Path::~Path() {}
 
-Path& Path::operator = (const Path& path) {
-  return Assign(path);
-}
+Path& Path::operator=(const Path& path) { return Assign(path); }
 
-Path& Path::operator = (const String& path) {
+Path& Path::operator=(const String& path) {
   fun_check(CStringTraitsA::Strlen(path.c_str()) == path.Len());
 
   return Assign(path);
 }
 
-Path& Path::operator = (const char* path) {
+Path& Path::operator=(const char* path) {
   fun_check_ptr(path);
 
   return Assign(path);
@@ -152,9 +150,7 @@ Path& Path::Assign(const String& path, Style style) {
   return *this;
 }
 
-Path& Path::Assign(const char* path) {
-  return Assign(String(path));
-}
+Path& Path::Assign(const char* path) { return Assign(String(path)); }
 
 String Path::ToString() const {
 #if FUN_PLATFORM_WINDOWS_FAMILY
@@ -232,9 +228,7 @@ Path& Path::MakeFile() {
   return *this;
 }
 
-Path& Path::MakeAbsolute() {
-  return MakeAbsolute(Current());
-}
+Path& Path::MakeAbsolute() { return MakeAbsolute(Current()); }
 
 Path& Path::MakeAbsolute(const Path& base) {
   if (!absolute_) {
@@ -336,7 +330,7 @@ const String& Path::GetDirectory(int32 n) const {
   }
 }
 
-const String& Path::operator [] (int32 n) const {
+const String& Path::operator[](int32 n) const {
   fun_check(0 <= n && n <= dirs_.Count());
 
   if (n < dirs_.Count()) {
@@ -431,13 +425,9 @@ Path& Path::Clear() {
   return *this;
 }
 
-String Path::Current() {
-  return PathImpl::GetCurrentImpl();
-}
+String Path::Current() { return PathImpl::GetCurrentImpl(); }
 
-String Path::GetHome() {
-  return PathImpl::GetHomeImpl();
-}
+String Path::GetHome() { return PathImpl::GetHomeImpl(); }
 
 String Path::GetConfigHome() {
 #if FUN_PLATFORM_UNIX_FAMILY || FUN_PLATFORM_WINDOWS_FAMILY
@@ -463,13 +453,9 @@ String Path::GetCacheHome() {
 #endif
 }
 
-String Path::GetSelf() {
-  return PathImpl::GetSelfImpl();
-}
+String Path::GetSelf() { return PathImpl::GetSelfImpl(); }
 
-String Path::GetTemp() {
-  return PathImpl::GetTempImpl();
-}
+String Path::GetTemp() { return PathImpl::GetTempImpl(); }
 
 String Path::GetConfig() {
 #if FUN_PLATFORM_UNIX_FAMILY || FUN_PLATFORM_WINDOWS_FAMILY
@@ -479,25 +465,23 @@ String Path::GetConfig() {
 #endif
 }
 
-String Path::GetNull() {
-  return PathImpl::GetNullImpl();
-}
+String Path::GetNull() { return PathImpl::GetNullImpl(); }
 
 String Path::Expand(const String& path) {
   fun_check(path.IsNulTerm());
   return PathImpl::ExpandImpl(path);
 }
 
-void Path::ListRoots(Array<String>& roots) {
-  PathImpl::ListRootsImpl(roots);
-}
+void Path::ListRoots(Array<String>& roots) { PathImpl::ListRootsImpl(roots); }
 
-bool Path::Find(const Array<String>& path_list, const String& name, Path& path) {
+bool Path::Find(const Array<String>& path_list, const String& name,
+                Path& path) {
   fun_check(name.IsNulTerm());
   for (const auto& elem : path_list) {
 #if FUN_PLATFORM_WINDOWS_FAMILY
     String clean_path(elem);
-    if (clean_path.Len() > 1 && clean_path[0] == '"' && clean_path[clean_path.Len() - 1] == '"') {
+    if (clean_path.Len() > 1 && clean_path[0] == '"' &&
+        clean_path[clean_path.Len() - 1] == '"') {
       clean_path = clean_path.Mid(1, clean_path.Len() - 2);
     }
 
@@ -516,12 +500,14 @@ bool Path::Find(const Array<String>& path_list, const String& name, Path& path) 
   return false;
 }
 
-bool Path::Find(const Array<StringRef>& path_list, const String& name, Path& path) {
+bool Path::Find(const Array<StringRef>& path_list, const String& name,
+                Path& path) {
   fun_check(name.IsNulTerm());
   for (const auto& elem : path_list) {
 #if FUN_PLATFORM_WINDOWS_FAMILY
     String clean_path(elem);
-    if (clean_path.Len() > 1 && clean_path[0] == '"' && clean_path[clean_path.Len() - 1] == '"') {
+    if (clean_path.Len() > 1 && clean_path[0] == '"' &&
+        clean_path[clean_path.Len() - 1] == '"') {
       clean_path = clean_path.Mid(1, clean_path.Len() - 2);
     }
 
@@ -541,7 +527,8 @@ bool Path::Find(const Array<StringRef>& path_list, const String& name, Path& pat
 }
 
 bool Path::Find(const String& path_list, const String& name, Path& path) {
-  Array<String> st = path_list.Split(PathSeparator(), 0, StringSplitOption::TrimmingAndCullEmpty);
+  Array<String> st = path_list.Split(PathSeparator(), 0,
+                                     StringSplitOption::TrimmingAndCullEmpty);
   return Find(st, name, path);
 }
 
@@ -576,7 +563,7 @@ void Path::ParseUnix(const String& path) {
         if (dirs_.IsEmpty()) {
           if (!name.IsEmpty() && name.Last() == ':') {
             absolute_ = true;
-            device_ = name.Mid(0, name.Len() - 1); // without last character
+            device_ = name.Mid(0, name.Len() - 1);  // without last character
           } else {
             PushDirectory(name);
           }
@@ -597,7 +584,7 @@ void Path::ParseUnix(const String& path) {
 void Path::ParseWindows(const String& path) {
   Clear();
 
-  String::ConstIterator cur  = path.begin();
+  String::ConstIterator cur = path.begin();
   String::ConstIterator end = path.end();
 
   if (cur != end) {
@@ -606,7 +593,7 @@ void Path::ParseWindows(const String& path) {
       ++cur;
     }
 
-    if (absolute_ && cur != end && (*cur == '\\' || *cur == '/')) { // UNC
+    if (absolute_ && cur != end && (*cur == '\\' || *cur == '/')) {  // UNC
       ++cur;
       while (cur != end && *cur != '\\' && *cur != '/') {
         node_ += *cur++;
@@ -617,7 +604,7 @@ void Path::ParseWindows(const String& path) {
       }
     } else if (cur != end) {
       char d = *cur++;
-      if (cur != end && *cur == ':') { // drive letter
+      if (cur != end && *cur == ':') {  // drive letter
         if (!((d >= 'a' && d <= 'z') || (d >= 'A' && d <= 'Z'))) {
           throw PathSyntaxException(path);
         }
@@ -661,7 +648,7 @@ void Path::ParseWindows(const String& path) {
 void Path::ParseVMS(const String& path) {
   Clear();
 
-  String::ConstIterator cur  = path.begin();
+  String::ConstIterator cur = path.begin();
   String::ConstIterator end = path.end();
 
   if (cur != end) {
@@ -797,17 +784,26 @@ void Path::ParseGuess(const String& path) {
   bool has_slash = false;
   bool hash_open_bracket = false;
   bool hash_close_bracket = false;
-  bool is_windows = path.Len() > 2 && path[1] == ':' && (path[2] == '/' || path[2] == '\\');
+  bool is_windows =
+      path.Len() > 2 && path[1] == ':' && (path[2] == '/' || path[2] == '\\');
   String::ConstIterator end = path.end();
   String::ConstIterator semi_it = end;
   if (!is_windows) {
     for (String::ConstIterator cur = path.begin(); cur != end; ++cur) {
       switch (*cur) {
-        case '\\': has_blackslash = true; break;
-        case '/':  has_slash = true; break;
-        case '[':  hash_open_bracket = true;
-        case ']':  hash_close_bracket = hash_open_bracket;
-        case ';':  semi_it = cur; break;
+        case '\\':
+          has_blackslash = true;
+          break;
+        case '/':
+          has_slash = true;
+          break;
+        case '[':
+          hash_open_bracket = true;
+        case ']':
+          hash_close_bracket = hash_open_bracket;
+        case ';':
+          semi_it = cur;
+          break;
       }
     }
   }
@@ -822,7 +818,8 @@ void Path::ParseGuess(const String& path) {
       ++semi_it;
       while (semi_it != end) {
         if (*semi_it < '0' || *semi_it > '9') {
-          is_vms = false; break;
+          is_vms = false;
+          break;
         }
         ++semi_it;
       }
@@ -915,10 +912,13 @@ String Path::BuildVMS() const {
 String Path::Transcode(const String& path) {
 #if FUN_PLATFORM_WINDOWS_FAMILY
   UString upath = UString::FromUtf8(path);
-  DWORD len = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS, upath.c_str(), upath.Len(), NULL, 0, NULL, NULL);
+  DWORD len = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS, upath.c_str(),
+                                  upath.Len(), NULL, 0, NULL, NULL);
   if (len > 0) {
     Array<char> buffer(len, NoInit);
-    DWORD rc = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS, upath.c_str(), upath.Len(), buffer.MutableData(), buffer.Count(), NULL, NULL);
+    DWORD rc = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS, upath.c_str(),
+                                   upath.Len(), buffer.MutableData(),
+                                   buffer.Count(), NULL, NULL);
     if (rc) {
       return String(buffer.ConstData(), buffer.Count());
     }
@@ -927,4 +927,4 @@ String Path::Transcode(const String& path) {
   return path;
 }
 
-} // namespace fun
+}  // namespace fun

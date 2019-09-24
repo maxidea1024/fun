@@ -1,10 +1,10 @@
-﻿//TODO common/server/client로 각각 나누어서 빼주도록 하자.
-//TODO SuperPeer지원은 없애는게 좋을듯 한데??
+﻿// TODO common/server/client로 각각 나누어서 빼주도록 하자.
+// TODO SuperPeer지원은 없애는게 좋을듯 한데??
 #pragma once
 
-#include "fun/net/net.h"
 #include "INetClientCallbacks.h"
 #include "INetServerCallbacks.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -37,15 +37,14 @@ class RpcHost {
   /** Get the local host id. */
   virtual HostId GetLocalHostId() = 0;
 
-  virtual void ConvertGroupToIndividualsAndUnion( int32 sendto_count,
-                                                  const HostId* sendto_list,
-                                                  HostIdArray& out_result) = 0;
+  virtual void ConvertGroupToIndividualsAndUnion(int32 sendto_count,
+                                                 const HostId* sendto_list,
+                                                 HostIdArray& out_result) = 0;
 
   virtual void ShowError_NOLOCK(SharedPtr<ResultInfo> result_info) = 0;
 
   /** Running user functions asynchronously. (C ++ 11 lambda support) */
   virtual bool RunAsync(HostId task_owner_id, Function<void()> UserFunc) = 0;
-
 
   /** Attach a RPC proxy object. */
   virtual void AttachProxy(RpcProxy* proxy) = 0;
@@ -57,53 +56,53 @@ class RpcHost {
   /** Detach a RPC stub object. */
   virtual void DetachStub(RpcStub* stub) = 0;
 
+  // TODO 아래의 함수들은 예외로 처리하고, 그냥 제거하는게 좋을듯함.  전반적으로
+  // 상황을 살핀후 제거하도록 하자.
 
-  //TODO 아래의 함수들은 예외로 처리하고, 그냥 제거하는게 좋을듯함.  전반적으로 상황을 살핀후 제거하도록 하자.
-
-  virtual void ShowNotImplementedRpcWarning(RpcId rpc_id, const char* rpc_name) = 0;
-  virtual void PostCheckReadMessage(IMessageIn& msg, RpcId rpc_id, const char* rpc_name) = 0;
-
+  virtual void ShowNotImplementedRpcWarning(RpcId rpc_id,
+                                            const char* rpc_name) = 0;
+  virtual void PostCheckReadMessage(IMessageIn& msg, RpcId rpc_id,
+                                    const char* rpc_name) = 0;
 
   /**\name RPC proxy/stub tracking.
    * @{ */
-  /** Called whenever the RPC proxy function is called. Can be used to debug sending content. */
-  virtual void NotifySendByProxy(HostId sendto, const MessageSummary& summary, const RpcCallOption& rpc_call_opt) {}
+  /** Called whenever the RPC proxy function is called. Can be used to debug
+   * sending content. */
+  virtual void NotifySendByProxy(HostId sendto, const MessageSummary& summary,
+                                 const RpcCallOption& rpc_call_opt) {}
 
-  /** Called whenever RPC stub function is called. Can be used to debug incoming content. */
-  virtual void NotifyCallFromStub(RpcId rpc_id, const String& rpc_name, const String& params_as_string) {}
+  /** Called whenever RPC stub function is called. Can be used to debug incoming
+   * content. */
+  virtual void NotifyCallFromStub(RpcId rpc_id, const String& rpc_name,
+                                  const String& params_as_string) {}
   /** Called just before calling the RPC stub function. */
   virtual void BeforeRpcInvocation(const BeforeRpcSummary& summary) {}
-  /** Called immediately after the RPC stub function is called. (You can check the time required.) */
+  /** Called immediately after the RPC stub function is called. (You can check
+   * the time required.) */
   virtual void AfterRpcInvocation(const AfterRpcSummary& summary) {}
-   /** @} */
-
+  /** @} */
 
   /**\name Visuallier
    * @{ */
-  virtual void EnableVizAgent(const char* viz_server_ip,
-                              int32 viz_server_port,
+  virtual void EnableVizAgent(const char* viz_server_ip, int32 viz_server_port,
                               const String& login_key) = 0;
 
-  virtual void Viz_NotifySendByProxy( const HostId* rpc_sendto_list,
-                                      int32 rpc_sendto_count,
-                                      const MessageSummary& summary,
-                                      const RpcCallOption& rpc_call_opt) = 0;
+  virtual void Viz_NotifySendByProxy(const HostId* rpc_sendto_list,
+                                     int32 rpc_sendto_count,
+                                     const MessageSummary& summary,
+                                     const RpcCallOption& rpc_call_opt) = 0;
 
-  virtual void Viz_NotifyRecvToStub(HostId rpc_recvfrom,
-                                    RpcId rpc_id,
+  virtual void Viz_NotifyRecvToStub(HostId rpc_recvfrom, RpcId rpc_id,
                                     const char* rpc_name,
                                     const char* params_as_string) = 0;
-   /** @} */
+  /** @} */
 
  protected:
   friend class RpcProxy;
 
-  virtual bool Send(const SendFragRefs& send_data,
-                    const SendOption& send_opt,
-                    const HostId* sendto_list,
-                    int32 sendto_count) = 0;
+  virtual bool Send(const SendFragRefs& send_data, const SendOption& send_opt,
+                    const HostId* sendto_list, int32 sendto_count) = 0;
 };
-
 
 class NetServerStats {
  public:
@@ -123,20 +122,28 @@ class NetServerStats {
   int32 real_udp_enabled_client_count;
   int32 occupied_udp_port_count;
 
-  inline uint64 GetTotalSendCount() const { return total_tcp_send_count + total_udp_send_count; }
-  inline uint64 GetTotalReceiveCount() const { return total_tcp_recv_count + total_udp_recv_count; }
-  inline uint64 GetTotalSendBytes() const { return total_tcp_send_bytes + total_udp_send_bytes; }
-  inline uint64 GetTotalReceiveBytes() const { return total_tcp_recv_bytes + total_udp_recv_bytes; }
+  inline uint64 GetTotalSendCount() const {
+    return total_tcp_send_count + total_udp_send_count;
+  }
+  inline uint64 GetTotalReceiveCount() const {
+    return total_tcp_recv_count + total_udp_recv_count;
+  }
+  inline uint64 GetTotalSendBytes() const {
+    return total_tcp_send_bytes + total_udp_send_bytes;
+  }
+  inline uint64 GetTotalReceiveBytes() const {
+    return total_tcp_recv_bytes + total_udp_recv_bytes;
+  }
 
   FUN_NETX_API NetServerStats();
   FUN_NETX_API void Reset();
   FUN_NETX_API String ToString() const;
 
-  inline friend TextStream& operator << (TextStream& stream, const NetServerStats& v) {
+  inline friend TextStream& operator<<(TextStream& stream,
+                                       const NetServerStats& v) {
     return stream << v.ToString();
   }
 };
-
 
 class NetClientStats {
  public:
@@ -150,18 +157,22 @@ class NetClientStats {
   bool server_udp_enabled;
   int32 direct_p2p_enabled_peer_count;
 
-  inline uint64 GetTotalSendBytes() const { return total_tcp_send_bytes + total_udp_send_bytes; }
-  inline uint64 GetTotalReceiveBytes() const { return total_tcp_recv_bytes + total_udp_recv_bytes; }
+  inline uint64 GetTotalSendBytes() const {
+    return total_tcp_send_bytes + total_udp_send_bytes;
+  }
+  inline uint64 GetTotalReceiveBytes() const {
+    return total_tcp_recv_bytes + total_udp_recv_bytes;
+  }
 
   FUN_NETX_API NetClientStats();
   FUN_NETX_API void Reset();
   FUN_NETX_API String ToString() const;
 
-  inline friend TextStream& operator << (TextStream& stream, const NetClientStats& v) {
+  inline friend TextStream& operator<<(TextStream& stream,
+                                       const NetClientStats& v) {
     return stream << v.ToString();
   }
 };
-
 
 class TickResult {
  public:
@@ -172,22 +183,15 @@ class TickResult {
   int32 processed_event_count;
 
   /** Default constructor. */
-  inline TickResult()
-    : processed_message_count(0)
-    , processed_event_count(0) {
-  }
+  inline TickResult() : processed_message_count(0), processed_event_count(0) {}
 };
-
 
 class ServerConnectionState {
  public:
   bool real_udp_enabled;
 
-  inline ServerConnectionState()
-    : real_udp_enabled(false) {
-  }
+  inline ServerConnectionState() : real_udp_enabled(false) {}
 };
-
 
 class DirectP2PInfo {
  public:
@@ -196,10 +200,9 @@ class DirectP2PInfo {
   InetAddress remote_to_local_addr;
 
   inline DirectP2PInfo()
-    : local_to_remote_addr(InetAddress::None)
-    , remote_to_local_addr(InetAddress::None)
-    , local_udp_socket_addr(InetAddress::None) {
-  }
+      : local_to_remote_addr(InetAddress::None),
+        remote_to_local_addr(InetAddress::None),
+        local_udp_socket_addr(InetAddress::None) {}
 
   /**
    * 홀펀칭이 정상적으로 이루어져 있는지 확인.
@@ -210,22 +213,17 @@ class DirectP2PInfo {
    *    3. 원격지에서 로컬로 접근할 수 있는 소켓 주소.
    */
   inline bool HasBeenHolepunched() const {
-    return  local_udp_socket_addr.IsUnicast() &&
-            local_to_remote_addr.IsUnicast() &&
-            remote_to_local_addr.IsUnicast();
+    return local_udp_socket_addr.IsUnicast() &&
+           local_to_remote_addr.IsUnicast() && remote_to_local_addr.IsUnicast();
   }
 };
-
 
 class ApplicationHint {
  public:
   double recent_frame_rate;
 
-  inline ApplicationHint()
-    : recent_frame_rate(0) {
-  }
+  inline ApplicationHint() : recent_frame_rate(0) {}
 };
-
 
 class SuperPeerRating {
  public:
@@ -240,10 +238,9 @@ class SuperPeerRating {
   double frame_rate;
 };
 
-
-//SuperPeerSelectionPolicy
+// SuperPeerSelectionPolicy
 class SuperPeerSelectionPolicy {
-public:
+ public:
   double real_udp_weight;
   double no_nat_device_weight;
   double server_lag_weight;
@@ -254,23 +251,24 @@ public:
 
   FUN_NETX_API SuperPeerSelectionPolicy();
 
-  inline friend bool operator == (const SuperPeerSelectionPolicy& a, const SuperPeerSelectionPolicy& b) {
-    return  a.real_udp_weight == b.real_udp_weight &&
-            a.no_nat_device_weight == b.no_nat_device_weight &&
-            a.server_lag_weight == b.server_lag_weight &&
-            a.peer_lag_weight == b.peer_lag_weight &&
-            a.send_speed_weight == b.send_speed_weight &&
-            a.frame_rate_weight == b.frame_rate_weight;
+  inline friend bool operator==(const SuperPeerSelectionPolicy& a,
+                                const SuperPeerSelectionPolicy& b) {
+    return a.real_udp_weight == b.real_udp_weight &&
+           a.no_nat_device_weight == b.no_nat_device_weight &&
+           a.server_lag_weight == b.server_lag_weight &&
+           a.peer_lag_weight == b.peer_lag_weight &&
+           a.send_speed_weight == b.send_speed_weight &&
+           a.frame_rate_weight == b.frame_rate_weight;
   }
 
-  inline friend bool operator != (const SuperPeerSelectionPolicy& a, const SuperPeerSelectionPolicy& b) {
+  inline friend bool operator!=(const SuperPeerSelectionPolicy& a,
+                                const SuperPeerSelectionPolicy& b) {
     return !(a == b);
   }
 
   FUN_NETX_API static SuperPeerSelectionPolicy GetOrdinary();
   FUN_NETX_API static SuperPeerSelectionPolicy GetNull();
 };
-
 
 class P2PConnectionStats {
  public:
@@ -284,7 +282,6 @@ class P2PConnectionStats {
   int32 to_remote_peer_send_udp_message_success_count;
 };
 
-
 class P2PPairConnectionStats {
  public:
   int32 to_remote_b_send_udp_message_attempt_count;
@@ -293,17 +290,16 @@ class P2PPairConnectionStats {
   int32 to_remote_a_send_udp_message_success_count;
 };
 
-
 /**
-@todo Thread관련된곳으로 옮기는것도... 하지만 고민이 좀 필요할듯.. 놔두는것도 나쁘지 않은 선택인듯 싶다.
+@todo Thread관련된곳으로 옮기는것도... 하지만 고민이 좀 필요할듯.. 놔두는것도
+나쁘지 않은 선택인듯 싶다.
 */
 class ThreadInfo {
  public:
   uint32 thread_id;
-  //TODO platform dependent
+  // TODO platform dependent
   HANDLE thread_handle;
 };
-
 
 class ClientWorkerInfo {
  public:
@@ -319,7 +315,6 @@ class ClientWorkerInfo {
   int32 worker_thread_id;
 };
 
-
 class SocketInfo {
  public:
   /** TCP socket handle */
@@ -328,11 +323,8 @@ class SocketInfo {
   SOCKET udp_socket;
 
   inline SocketInfo()
-    : tcp_socket(INVALID_SOCKET)
-    , udp_socket(INVALID_SOCKET) {
-  }
+      : tcp_socket(INVALID_SOCKET), udp_socket(INVALID_SOCKET) {}
 };
-
 
 /**
  * NetClient::Disconnect()에 사용하는 파라메터 블럭.
@@ -347,7 +339,6 @@ class DisconnectArgs {
 
   FUN_NETX_API static const DisconnectArgs Default;
 };
-
 
 class NetServer : public RpcHost {
  public:
@@ -377,13 +368,13 @@ class NetServer : public RpcHost {
    * \param member_count - Number of member client id list.
    * \param custom_field - Extra hint data.
    * \param option - Option for group creation.
-   * \param assigned_host_id - Not allocate new group id if this value is specified.
+   * \param assigned_host_id - Not allocate new group id if this value is
+   * specified.
    *
    * \return Group host id which is created.
    */
   virtual HostId CreateP2PGroup(
-      const HostId* member_list,
-      int32 member_count,
+      const HostId* member_list, int32 member_count,
       const ByteArray& custom_field = ByteArray(),
       const P2PGroupOption& option = P2PGroupOption::Default,
       HostId assigned_host_id = HostId_None) = 0;
@@ -393,7 +384,8 @@ class NetServer : public RpcHost {
    *
    * \param custom_field - Extra hint data.
    * \param option - Option for group creation.
-   * \param assigned_host_id - Not allocate new group id if this value is specified.
+   * \param assigned_host_id - Not allocate new group id if this value is
+   * specified.
    *
    * \return Group host id which is created.
    */
@@ -410,16 +402,17 @@ class NetServer : public RpcHost {
    * \param member_id - Member client id.
    * \param custom_field - Extra hint data.
    * \param option - Option for group creation.
-   * \param assigned_host_id - Not allocate new group id if this value is specified.
+   * \param assigned_host_id - Not allocate new group id if this value is
+   * specified.
    *
    * \return Group host id which is created.
    */
   inline HostId CreateP2PGroup(
-      HostId member_id,
-      const ByteArray& custom_field = ByteArray(),
+      HostId member_id, const ByteArray& custom_field = ByteArray(),
       const P2PGroupOption& option = P2PGroupOption::Default,
       HostId assigned_host_id = HostId_None) {
-    return CreateP2PGroup(&member_id, 1, custom_field, option, assigned_host_id);
+    return CreateP2PGroup(&member_id, 1, custom_field, option,
+                          assigned_host_id);
   }
 
   /**
@@ -448,7 +441,7 @@ class NetServer : public RpcHost {
 
   virtual int32 GetClientHostIds(HostId* output, int32 output_length) = 0;
 
-  //TODO predicate를 통한 enumeration을 지원.
+  // TODO predicate를 통한 enumeration을 지원.
 
   virtual bool GetJoinedP2PGroups(HostId client_id, HostIdArray& output) = 0;
 
@@ -468,7 +461,8 @@ class NetServer : public RpcHost {
 
   virtual double GetP2PRecentPing(HostId host_a, HostId host_b) = 0;
 
-  virtual bool GetP2PGroupInfo(HostId group_id, P2PGroupInfo& out_group_info) = 0;
+  virtual bool GetP2PGroupInfo(HostId group_id,
+                               P2PGroupInfo& out_group_info) = 0;
 
   virtual bool IsValidHostId(HostId host_id) = 0;
 
@@ -484,15 +478,15 @@ class NetServer : public RpcHost {
 
   virtual double GetTime() = 0;
 
-  virtual bool JoinP2PGroup(HostId member_id,
-                            HostId group_id,
+  virtual bool JoinP2PGroup(HostId member_id, HostId group_id,
                             const ByteArray& custom_field = ByteArray()) = 0;
 
   virtual bool LeaveP2PGroup(HostId member_id, HostId group_id) = 0;
 
   virtual void SetCallbacks(INetServerCallbacks* callbacks) = 0;
 
-  virtual bool Start(const StartServerArgs& args, SharedPtr<ResultInfo>& out_error) = 0;
+  virtual bool Start(const StartServerArgs& args,
+                     SharedPtr<ResultInfo>& out_error) = 0;
 
   virtual void Stop() = 0;
 
@@ -500,10 +494,11 @@ class NetServer : public RpcHost {
 
   virtual NamedInetAddress GetRemoteIdentifiableLocalAddr() = 0;
 
-  //TODO 여러개의 리스닝 포트를 지원하게 되면, 목록 형태로 받아야할듯...
+  // TODO 여러개의 리스닝 포트를 지원하게 되면, 목록 형태로 받아야할듯...
   virtual InetAddress GetTcpListenerLocalAddr() = 0;
 
-  virtual void GetUdpListenerLocalAddrs(Array<InetAddress>& out_address_list) = 0;
+  virtual void GetUdpListenerLocalAddrs(
+      Array<InetAddress>& out_address_list) = 0;
 
   virtual void SetDefaultTimeoutTimeMilisec(uint32 timeout_msec) = 0;
 
@@ -522,37 +517,42 @@ class NetServer : public RpcHost {
 
   virtual bool IsNagleAlgorithmEnabled() = 0;
 
-  virtual void SetMaxDirectP2PConnectionCount(HostId client_id, int32 max_count) = 0;
+  virtual void SetMaxDirectP2PConnectionCount(HostId client_id,
+                                              int32 max_count) = 0;
 
-  virtual bool SetDirectP2PStartCondition(DirectP2PStartCondition condition) = 0;
+  virtual bool SetDirectP2PStartCondition(
+      DirectP2PStartCondition condition) = 0;
 
   virtual HostId GetMostSuitableSuperPeerInGroup(
       HostId group_id,
-      const SuperPeerSelectionPolicy& policy = SuperPeerSelectionPolicy::GetOrdinary(),
+      const SuperPeerSelectionPolicy& policy =
+          SuperPeerSelectionPolicy::GetOrdinary(),
       const Array<HostId>& excludess = Array<HostId>()) = 0;
 
   virtual HostId GetMostSuitableSuperPeerInGroup(
-      HostId group_id,
-      const SuperPeerSelectionPolicy& policy,
+      HostId group_id, const SuperPeerSelectionPolicy& policy,
       HostId excludee) = 0;
 
   virtual int32 GetSuitableSuperPeerRankListInGroup(
-      HostId group_id,
-      super_peer_rating_* out_ratings,
+      HostId group_id, super_peer_rating_* out_ratings,
       int32 out_rantings_max_count,
-      const SuperPeerSelectionPolicy& policy = SuperPeerSelectionPolicy::GetOrdinary(),
+      const SuperPeerSelectionPolicy& policy =
+          SuperPeerSelectionPolicy::GetOrdinary(),
       const Array<HostId>& excludess = Array<HostId>()) = 0;
 
   virtual void GetUdpSocketAddrList(Array<InetAddress>& OutAddr) = 0;
 
   //@maxidea: newer
-  //virtual ResultCode GetUnreliablemessagingLossRatioPercentage(HostId remote_peer_id, int32& out_percentage) = 0;
+  // virtual ResultCode GetUnreliablemessagingLossRatioPercentage(HostId
+  // remote_peer_id, int32& out_percentage) = 0;
 
   virtual uint32 GetInternalVersion() = 0;
 
-  virtual bool GetP2PConnectionStats(HostId remote_id, P2PConnectionStats& out_stats) = 0;
+  virtual bool GetP2PConnectionStats(HostId remote_id,
+                                     P2PConnectionStats& out_stats) = 0;
 
-  virtual bool GetP2PConnectionStats(HostId remote_a, HostId remote_b, P2PPairConnectionStats& out_stats) = 0;
+  virtual bool GetP2PConnectionStats(HostId remote_a, HostId remote_b,
+                                     P2PPairConnectionStats& out_stats) = 0;
 
   virtual void GetUserWorkerThreadInfo(Array<ThreadInfo>& out_info) = 0;
 
@@ -561,20 +561,17 @@ class NetServer : public RpcHost {
   virtual bool SendFreeform(const HostId* rpc_sendto_list,
                             int32 rpc_sendto_count,
                             const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) = 0;
+                            const uint8* payload, int32 payload_length) = 0;
 
-  inline bool SendFreeform( HostId rpc_sendto,
-                            const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) {
+  inline bool SendFreeform(HostId rpc_sendto, const RpcCallOption& rpc_call_opt,
+                           const uint8* payload, int32 payload_length) {
     return SendFreeform(&rpc_sendto, 1, rpc_call_opt, payload, payload_length);
   }
 
   virtual void TEST_SetOverSendSuspectingThresholdInBytes(int32 threshold) = 0;
-  virtual void TEST_SetTestping(HostId host_id0, HostId host_id1, double ping) = 0;
+  virtual void TEST_SetTestping(HostId host_id0, HostId host_id1,
+                                double ping) = 0;
 };
-
 
 class NetClient : public RpcHost {
  public:
@@ -584,7 +581,8 @@ class NetClient : public RpcHost {
   // 가상으로 랙 유발을 시킨다. 송신, 수신시에 모두 적용된다.
   // 통상적으로 300, 100이 약간 심한 랙 환경을 흉내낸다.
 #ifdef DEPRECATE_SIMLAG
-  virtual void SimulateBadTraffic(int32 min_extra_ping, int32 extra_ping_variance) = 0;
+  virtual void SimulateBadTraffic(int32 min_extra_ping,
+                                  int32 extra_ping_variance) = 0;
 #endif
 
   virtual bool Connect(const NetConnectionArgs& args) = 0;
@@ -597,7 +595,8 @@ class NetClient : public RpcHost {
 
   virtual void Tick(TickResult* out_result = nullptr) = 0;
 
-  virtual void GetGroupMembers(HostId group_id, HostIdArray& out_member_list) = 0;
+  virtual void GetGroupMembers(HostId group_id,
+                               HostIdArray& out_member_list) = 0;
 
   virtual double GetIndirectServerTime(HostId peer_id) = 0;
 
@@ -621,7 +620,7 @@ class NetClient : public RpcHost {
   virtual bool GetPeerInfo(HostId peer_id, PeerInfo& out_info) = 0;
 
   //@maxidea: newer...
-  //virtual bool GetClientInfo(HostId client_id, NetClientInfo& out_info) = 0;
+  // virtual bool GetClientInfo(HostId client_id, NetClientInfo& out_info) = 0;
 
   virtual bool SetHostTag(HostId host_id, void* host_tag) = 0;
 
@@ -630,7 +629,8 @@ class NetClient : public RpcHost {
   virtual double GetServerTimeDiff() = 0;
 
   virtual ConnectionState GetServerConnectionState() = 0;
-  virtual ConnectionState GetServerConnectionState(ServerConnectionState& out_state) = 0;
+  virtual ConnectionState GetServerConnectionState(
+      ServerConnectionState& out_state) = 0;
 
   virtual void GetWorkerState(ClientWorkerInfo& out_info) = 0;
 
@@ -684,17 +684,15 @@ class NetClient : public RpcHost {
   virtual bool SendFreeform(const HostId* rpc_sendto_list,
                             int32 rpc_sendto_count,
                             const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) = 0;
+                            const uint8* payload, int32 payload_length) = 0;
 
-  inline bool SendFreeform( HostId rpc_sendto,
-                            const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) {
+  inline bool SendFreeform(HostId rpc_sendto, const RpcCallOption& rpc_call_opt,
+                           const uint8* payload, int32 payload_length) {
     return SendFreeform(&rpc_sendto, 1, rpc_call_opt, payload, payload_length);
   }
 
-  virtual bool SendEmergencyLogData(const String& server_ip, int32 server_port) = 0;
+  virtual bool SendEmergencyLogData(const String& server_ip,
+                                    int32 server_port) = 0;
 
   virtual void SetDefaultTimeoutTimeSec(double timeout_sec) = 0;
 
@@ -711,7 +709,6 @@ class NetClient : public RpcHost {
 
   virtual double GetAbsoluteTime() = 0;
 };
-
 
 class RUdpHostStats {
  public:
@@ -741,7 +738,6 @@ class RUdpHostStats {
   int32 total_receive_data_count;
 };
 
-
 /**
  * @deprecated
  *  주의:
@@ -754,7 +750,6 @@ class TestStats {
   static double test_recent_recv_speed;
   static double test_recent_send_speed_at_receiver_side;
 };
-
 
 /**
  * @deprecated
@@ -769,11 +764,10 @@ class TestStats2 {
   bool c2c_reply_recent_recv_speed_done;
 
   inline TestStats2()
-    : c2s_reply_recent_recv_speed_done(false)
-    , c2c_request_recent_recv_speed_done(false)
-    , c2c_reply_recent_recv_speed_done(false) {
-  }
+      : c2s_reply_recent_recv_speed_done(false),
+        c2c_request_recent_recv_speed_done(false),
+        c2c_reply_recent_recv_speed_done(false) {}
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -38,4 +38,4 @@ void PipeImpl::CloseWrite() {
   // NOOP
 }
 
-} // namespace fun
+}  // namespace fun

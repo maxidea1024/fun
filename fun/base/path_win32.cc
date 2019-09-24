@@ -1,6 +1,6 @@
 ﻿#include "fun/base/path_win32.h"
-#include "fun/base/environment_win32.h"
 #include "fun/base/container/array.h"
+#include "fun/base/environment_win32.h"
 #include "fun/base/exception.h"
 #include "fun/base/windows_less.h"
 
@@ -25,9 +25,11 @@ String PathImpl::GetCurrentImpl() {
 
 String PathImpl::GetSystemImpl() {
   Array<wchar_t> buffer(MAX_PATH_LEN, NoInit);
-  DWORD n = GetSystemDirectoryW(buffer.MutableData(), static_cast<DWORD>(buffer.Count()));
+  DWORD n = GetSystemDirectoryW(buffer.MutableData(),
+                                static_cast<DWORD>(buffer.Count()));
   if (n > 0) {
-    n = GetLongPathNameW(buffer.MutableData(), buffer.MutableData(), static_cast<DWORD>(buffer.Count()));
+    n = GetLongPathNameW(buffer.MutableData(), buffer.MutableData(),
+                         static_cast<DWORD>(buffer.Count()));
     if (n <= 0) {
       throw SystemException("Cannot get system directory long path name");
     }
@@ -45,7 +47,8 @@ String PathImpl::GetHomeImpl() {
   String result;
   if (EnvironmentImpl::HasImpl("USERPROFILE")) {
     result = EnvironmentImpl::GetImpl("USERPROFILE");
-  } else if (EnvironmentImpl::HasImpl("HOMEDRIVE") && EnvironmentImpl::HasImpl("HOMEPATH")) {
+  } else if (EnvironmentImpl::HasImpl("HOMEDRIVE") &&
+             EnvironmentImpl::HasImpl("HOMEPATH")) {
     result = EnvironmentImpl::GetImpl("HOMEDRIVE");
     result.Append(EnvironmentImpl::GetImpl("HOMEPATH"));
   } else {
@@ -93,13 +96,12 @@ String PathImpl::GetDataHomeImpl() {
   return result;
 }
 
-String PathImpl::GetCacheHomeImpl() {
-  return GetTempImpl();
-}
+String PathImpl::GetCacheHomeImpl() { return GetTempImpl(); }
 
 String PathImpl::GetSelfImpl() {
   Array<wchar_t> buffer(MAX_PATH_LEN, NoInit);
-  DWORD n = GetModuleFileNameW(NULL, buffer.MutableData(), static_cast<DWORD>(buffer.Count()));
+  DWORD n = GetModuleFileNameW(NULL, buffer.MutableData(),
+                               static_cast<DWORD>(buffer.Count()));
   DWORD err = GetLastError();
   if (n > 0) {
     if (err == ERROR_INSUFFICIENT_BUFFER) {
@@ -114,9 +116,11 @@ String PathImpl::GetSelfImpl() {
 
 String PathImpl::GetTempImpl() {
   Array<wchar_t> buffer(MAX_PATH_LEN, NoInit);
-  DWORD n = GetTempPathW(static_cast<DWORD>(buffer.Count()), buffer.MutableData());
+  DWORD n =
+      GetTempPathW(static_cast<DWORD>(buffer.Count()), buffer.MutableData());
   if (n > 0) {
-    n = GetLongPathNameW(buffer.MutableData(), buffer.MutableData(), static_cast<DWORD>(buffer.Count()));
+    n = GetLongPathNameW(buffer.MutableData(), buffer.MutableData(),
+                         static_cast<DWORD>(buffer.Count()));
     if (n <= 0) {
       throw SystemException("Cannot get temporary directory long path name");
     }
@@ -133,7 +137,8 @@ String PathImpl::GetTempImpl() {
 String PathImpl::GetConfigImpl() {
   String result;
 
-  // if PROGRAMDATA environment variable not exist, return system directory instead
+  // if PROGRAMDATA environment variable not exist, return system directory
+  // instead
   try {
     result = EnvironmentImpl::GetImpl("PROGRAMDATA");
   } catch (NotFoundException&) {
@@ -147,14 +152,13 @@ String PathImpl::GetConfigImpl() {
   return result;
 }
 
-String PathImpl::GetNullImpl() {
-  return "NUL:";
-}
+String PathImpl::GetNullImpl() { return "NUL:"; }
 
 String PathImpl::ExpandImpl(const String& path) {
   UString upath = UString::FromUtf8(path);
   Array<wchar_t> buffer(MAX_PATH_LEN, NoInit);
-  DWORD n = ExpandEnvironmentStringsW(upath.c_str(), buffer.MutableData(), static_cast<DWORD>(buffer.Count()));
+  DWORD n = ExpandEnvironmentStringsW(upath.c_str(), buffer.MutableData(),
+                                      static_cast<DWORD>(buffer.Count()));
   if (n > 0 && n < buffer.Count() - 1) {
     buffer[n + 1] = 0;
     String result = WCHAR_TO_UTF8(buffer.ConstData());
@@ -184,4 +188,4 @@ void PathImpl::ListRootsImpl(Array<String>& roots) {
   }
 }
 
-} // namespace fun
+}  // namespace fun

@@ -4,15 +4,11 @@ namespace fun {
 
 Pipe::Pipe() : impl_(new PipeImpl) {}
 
-Pipe::Pipe(const Pipe& rhs) : impl_(rhs.impl_) {
-  impl_->AddRef();
-}
+Pipe::Pipe(const Pipe& rhs) : impl_(rhs.impl_) { impl_->AddRef(); }
 
-Pipe::~Pipe() {
-  impl_->Release();
-}
+Pipe::~Pipe() { impl_->Release(); }
 
-Pipe& Pipe::operator = (const Pipe& rhs) {
+Pipe& Pipe::operator=(const Pipe& rhs) {
   if (FUN_LIKELY(&rhs != this)) {
     impl_->Release();
     impl_ = rhs.impl_;
@@ -36,4 +32,4 @@ void Pipe::Close(CloseMode mode) {
   }
 }
 
-} // namespace fun
+}  // namespace fun

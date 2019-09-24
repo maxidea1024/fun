@@ -1,9 +1,9 @@
 ﻿#include "fun/base/pipe_impl_posix.h"
 #include "fun/base/exception.h"
 
+#include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <errno.h>
 
 namespace fun {
 
@@ -53,13 +53,9 @@ int PipeImpl::ReadBytes(void* buf, int len) {
   }
 }
 
-PipeImpl::Handle PipeImpl::ReadHandle() const {
-  return read_fd_;
-}
+PipeImpl::Handle PipeImpl::ReadHandle() const { return read_fd_; }
 
-PipeImpl::Handle PipeImpl::WriteHandle() const {
-  return write_fd_;
-}
+PipeImpl::Handle PipeImpl::WriteHandle() const { return write_fd_; }
 
 void PipeImpl::CloseRead() {
   if (read_fd_ != -1) {
@@ -75,4 +71,4 @@ void PipeImpl::CloseWrite() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

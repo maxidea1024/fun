@@ -29,4 +29,4 @@ class FUN_BASE_API RWLockImpl {
   uint32 writers_;
 };
 
-} // namespace fun
+}  // namespace fun

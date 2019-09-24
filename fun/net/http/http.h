@@ -1,13 +1,13 @@
 ﻿#pragma once
 
 // common
-#include "silkt/http/request.h"
-#include "silkt/http/response.h"
-#include "silkt/http/types.h"
+#include "fun/http/request.h"
+#include "fun/http/response.h"
+#include "fun/http/types.h"
 
 // client side
-#include "silkt/http/api.h"
-#include "silkt/http/session.h"
+#include "fun/http/api.h"
+#include "fun/http/session.h"
 
 // server side
-#include "silkt/http/server.h"
+#include "fun/http/server.h"

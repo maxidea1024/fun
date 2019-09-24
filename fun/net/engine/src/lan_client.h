@@ -10,10 +10,10 @@
 #include "GeneratedRPCs/lan_LanS2C_stub.h"
 
 #include "LanListener_C.h"
-#include "TcpTransport_C.h"
-#include "thread_pool_impl.h"
 #include "LanRemotePeer.h"
+#include "TcpTransport_C.h"
 #include "Tracer.h"
+#include "thread_pool_impl.h"
 
 namespace fun {
 namespace net {
@@ -21,21 +21,20 @@ namespace net {
 class LanRemotePeer_C;
 class MessageSummary;
 
-class LanClientImpl
-  : public NetCoreImpl
-  , public LanClient
-  , public ISocketIoCompletionDelegate
-  // , public IInternalSocketDelegate
-  , public ICompletionPortCallbacks
-  , public ICompletionContext
-  , public ITaskSubject
-  , public ISendDest_C
-  , public IP2PGroupMember
-  , public IUserTaskQueueOwner
-  , public ITcpTransportOwner_C
-  , public ICompletionKey
-  , public IThreadReferer
-  , public IThreadPoolCallbacks {
+class LanClientImpl : public NetCoreImpl,
+                      public LanClient,
+                      public ISocketIoCompletionDelegate,
+                      // public IInternalSocketDelegate,
+                      public ICompletionPortCallbacks,
+                      public ICompletionContext,
+                      public ITaskSubject,
+                      public ISendDest_C,
+                      public IP2PGroupMember,
+                      public IUserTaskQueueOwner,
+                      public ITcpTransportOwner_C,
+                      public ICompletionKey,
+                      public IThreadReferer,
+                      public IThreadPoolCallbacks {
  private:
   IntervalAlaram reliable_ping_alarm_;
   CCriticalSection2 mutex_;
@@ -86,7 +85,8 @@ class LanClientImpl
   // 가장 마지막에 TCP 스트림을 받은 시간
   // 디스 여부를 감지하기 위함
   // 양쪽 호스트가 모두 감지해야 한다.
-  // TCP는 shutdown 직후 closesocket을 호출해도 상대가 못 받을 가능성이 있기 때문이다.
+  // TCP는 shutdown 직후 closesocket을 호출해도 상대가 못 받을 가능성이 있기
+  // 때문이다.
   FUN_ALIGNED_VOLATILE double last_tcp_stream_recv_time_;
 
   FUN_ALIGNED_VOLATILE double stepped_elapsed_time_;
@@ -109,15 +109,17 @@ class LanClientImpl
   CCriticalSection2 to_server_tcp_mutex_;
   SharedPtr<TcpTransport_C> to_server_tcp_;
 
-  // mutex_ locked인 경우 local event를 enque하기만 해야 한다. mutex_ unlock인 경우에는 콜백 허용
+  // mutex_ locked인 경우 local event를 enque하기만 해야 한다. mutex_ unlock인
+  // 경우에는 콜백 허용
   ILanClientCallbacks* callbacks_;
 
   NetSettings settings_;
 
   SessionKey self_p2p_session_key_;
 
-  //LanRemotePeers_C remote_peers_;
-  Set<LanRemotePeer_C*> remote_peer_instances_; // 실제로 RP들의 소유권을 가지는 곳
+  // LanRemotePeers_C remote_peers_;
+  Set<LanRemotePeer_C*>
+      remote_peer_instances_;  // 실제로 RP들의 소유권을 가지는 곳
 
   // TCP P2P 연결이 완료되기 전에는 Remotepeer 객체는 여기에 잔존한다.
   LanRemotePeers_C candidate_remote_peers_;
@@ -131,11 +133,12 @@ class LanClientImpl
   List<LanRemotePeer_C*> remote_peer_garbages_;
 
   typedef Map<InetAddress, AcceptedInfo*> AcceptedPeers;
-  AcceptedPeers accepted_peers_; // 자신에게 연결된 peer의 정보 인증이 완료되면 삭제된다.
+  AcceptedPeers
+      accepted_peers_;  // 자신에게 연결된 peer의 정보 인증이 완료되면 삭제된다.
 
   bool user_task_is_running_;
 
-  //bool intra_logging_on_;
+  // bool intra_logging_on_;
 
   // 서버 인스턴스의 GUID
   // 서버 연결 성공시 발급받는다.
@@ -176,11 +179,12 @@ class LanClientImpl
   // PreFinalRecvQueue용 lock을 따로둔다.
   // (mainlock을 사용하는것보다 contention을 줄이기위함.)
   CCriticalSection2 pre_final_recv_queue_mutex_;
-  List<ReceivedMessage> pre_final_recv_queue_; // requires mutex_ lock before access
+  List<ReceivedMessage>
+      pre_final_recv_queue_;  // requires mutex_ lock before access
 
  public:
-  //double min_extra_ping_;
-  //double extra_ping_variance_;
+  // double min_extra_ping_;
+  // double extra_ping_variance_;
 
   RandomMT random_;
 
@@ -195,10 +199,12 @@ class LanClientImpl
   // 종료시에만 설정됨
 
   // Stop()이 return하기 전까지는 이벤트 콜백이 있어야하므로 삭제한다.
-  //FUN_ALIGNED_VOLATILE bool tear_down_;
+  // FUN_ALIGNED_VOLATILE bool tear_down_;
 
   bool suppress_subsequenct_disconnection_events_;
-  typedef Array<ISendDest_C*, InlineAllocator<NetConfig::OrdinaryHeavyS2CMulticastCount>> ILanSendDestList_C;
+  typedef Array<ISendDest_C*,
+                InlineAllocator<NetConfig::OrdinaryHeavyS2CMulticastCount>>
+      ILanSendDestList_C;
 
  private:
   P2PGroups_C p2p_groups_;
@@ -210,12 +216,13 @@ class LanClientImpl
     void* host_tag_;
 
     inline ServerAsSendDest(LanClientImpl* owner)
-      : owner_(owner)
-      , host_tag_(nullptr) {}
+        : owner_(owner), host_tag_(nullptr) {}
 
     HostId GetHostId() const override { return HostId_Server; }
 
-    double GetIndirectServerTimeDiff() override { return owner_->GetIndirectServerTimeDiff(); }
+    double GetIndirectServerTimeDiff() override {
+      return owner_->GetIndirectServerTimeDiff();
+    }
   };
   ServerAsSendDest server_as_send_dest_;
 
@@ -265,7 +272,8 @@ class LanClientImpl
   void Heartbeat_Disconnecting();
 
   bool LoopbackRecvCompletionCase();
-  bool ProcessMessage_EngineLayer(ReceivedMessage& received_msg, ITaskSubject* subject);
+  bool ProcessMessage_EngineLayer(ReceivedMessage& received_msg,
+                                  ITaskSubject* subject);
   bool IsFromRemoteClientPeer(ReceivedMessage& received_msg);
   void ProcessMessage_NotifyServerConnectionHint(MessageIn& msg);
   void ProcessMessage_NotifyCSSessionKeySuccess(MessageIn& msg);
@@ -273,11 +281,17 @@ class LanClientImpl
   void ProcessMessage_ReplyServerTime(MessageIn& msg);
   void ProcessMessage_NotifyServerDeniedConnection(MessageIn& msg);
   void ProcessMessage_NotifyServerConnectSuccess(MessageIn& msg);
-  void ProcessMessage_NotifyConnectPeerRequestSuccess(HostId peer_id, MessageIn& msg);
-  void ProcessMessage_P2PIndirectServerTimeAndPing(ReceivedMessage& received_msg);
-  void ProcessMessage_P2PIndirectServerTimeAndPong(ReceivedMessage& received_msg);
-  void ProcessMessage_RPC(ReceivedMessage& received_msg, ITaskSubject* subject, bool& ref_msg_processed);
-  void ProcessMessage_FreeformMessage(ReceivedMessage& received_msg, ITaskSubject* subject, bool& ref_msg_processed);
+  void ProcessMessage_NotifyConnectPeerRequestSuccess(HostId peer_id,
+                                                      MessageIn& msg);
+  void ProcessMessage_P2PIndirectServerTimeAndPing(
+      ReceivedMessage& received_msg);
+  void ProcessMessage_P2PIndirectServerTimeAndPong(
+      ReceivedMessage& received_msg);
+  void ProcessMessage_RPC(ReceivedMessage& received_msg, ITaskSubject* subject,
+                          bool& ref_msg_processed);
+  void ProcessMessage_FreeformMessage(ReceivedMessage& received_msg,
+                                      ITaskSubject* subject,
+                                      bool& ref_msg_processed);
 
   void PostEveryRemote_IssueSend();
   void EveryRemote_IssueSendOnNeed(Array<IHostObject*>& pool);
@@ -298,26 +312,43 @@ class LanClientImpl
   void SetState(ConnectionState new_state);
   ConnectionState GetState() const { return state_; }
 
-  void OnIoCompletion(Array<IHostObject*>& send_issued_pool, ReceivedMessageList& msg_list, CompletionStatus& completion) override;
+  void OnIoCompletion(Array<IHostObject*>& send_issued_pool,
+                      ReceivedMessageList& msg_list,
+                      CompletionStatus& completion) override;
   void ProcessEveryMessageOrMoveToFinalRecvQueue_ToServerTcp();
-  bool ProcessMessage_EngineLayer(ReceivedMessage& received_msg, AcceptedInfo* accepted_info);
-  void ProcessMessage_NotifyConnectionPeerRequestData(MessageIn& msg, AcceptedInfo* accepted_info);
+  bool ProcessMessage_EngineLayer(ReceivedMessage& received_msg,
+                                  AcceptedInfo* accepted_info);
+  void ProcessMessage_NotifyConnectionPeerRequestData(
+      MessageIn& msg, AcceptedInfo* accepted_info);
 
-  void IoCompletion_ToServerTcp(CompletionStatus& completion, ReceivedMessageList& received_msg_list);
-  void IoCompletion_PerRemotePeer(CompletionStatus& completion, ReceivedMessageList& received_msg_list);
-  void IoCompletion_AcceptedInfo(CompletionStatus& completion, ReceivedMessageList& received_msg_list);
+  void IoCompletion_ToServerTcp(CompletionStatus& completion,
+                                ReceivedMessageList& received_msg_list);
+  void IoCompletion_PerRemotePeer(CompletionStatus& completion,
+                                  ReceivedMessageList& received_msg_list);
+  void IoCompletion_AcceptedInfo(CompletionStatus& completion,
+                                 ReceivedMessageList& received_msg_list);
 
-  void IoCompletion_TcpRecvCompletionCase(CompletionStatus& completion,ReceivedMessageList& received_msg_list, LanRemotePeer_C* lp);
-  void IoCompletion_TcpSendCompletionCase(CompletionStatus& completion, LanRemotePeer_C* lp);
-  void IoCompletion_TcpConnectExCompletionCase(CompletionStatus& completion, LanRemotePeer_C* lp);
-  void IoCompletion_TcpPeerAcceptedCase(CompletionStatus& completion, AcceptedInfo* accepted_info);
+  void IoCompletion_TcpRecvCompletionCase(
+      CompletionStatus& completion, ReceivedMessageList& received_msg_list,
+      LanRemotePeer_C* lp);
+  void IoCompletion_TcpSendCompletionCase(CompletionStatus& completion,
+                                          LanRemotePeer_C* lp);
+  void IoCompletion_TcpConnectExCompletionCase(CompletionStatus& completion,
+                                               LanRemotePeer_C* lp);
+  void IoCompletion_TcpPeerAcceptedCase(CompletionStatus& completion,
+                                        AcceptedInfo* accepted_info);
   void IoCompletion_NewAcceptedPeerCase(AcceptedInfo* accepted_info);
-  void IoCompletion_TcpRecvCompletionCase(CompletionStatus& completion, ReceivedMessageList& received_msg_list, AcceptedInfo* accepted_info);
+  void IoCompletion_TcpRecvCompletionCase(
+      CompletionStatus& completion, ReceivedMessageList& received_msg_list,
+      AcceptedInfo* accepted_info);
 
-  void IoCompletion_ProcessMessageOrMoveToFinalRecvQueue(LanRemotePeer_C* lp, ReceivedMessageList& extracted_msg_list);
+  void IoCompletion_ProcessMessageOrMoveToFinalRecvQueue(
+      LanRemotePeer_C* lp, ReceivedMessageList& extracted_msg_list);
 
   void CatchThreadUnexpectedExit(const char* where, const char* reason);
-  void CatchThreadExceptionAndPurgeClient(LanRemotePeer_C* Peer, const char* where, const char* reason);
+  void CatchThreadExceptionAndPurgeClient(LanRemotePeer_C* Peer,
+                                          const char* where,
+                                          const char* reason);
   void Heartbeat_ConnectFailCase(SocketErrorCode Code);
 
   ISocketIoCompletionDelegate* GetIoCompletionDelegate() override;
@@ -327,23 +358,28 @@ class LanClientImpl
  private:
   double GetReliablePingTimerInterval();
   bool CreateTcpListenSocketAndInit(SharedPtr<ResultInfo>& out_error);
-  bool CreateTcpConnectSocketAndInit(const String& ip, int32 port, SharedPtr<ResultInfo>& out_error);
+  bool CreateTcpConnectSocketAndInit(const String& ip, int32 port,
+                                     SharedPtr<ResultInfo>& out_error);
   // 새로운 member가 들어와서 p2p group을 update한다.
-  void UpdateP2PGroup_MemberJoin(HostId group_id, HostId member_id, const ByteArray& custom_field,
-    uint32 event_id, const ByteArray& p2p_aes_session_key, const ByteArray& p2p_rc4_session_key, const Uuid& connection_tag);
+  void UpdateP2PGroup_MemberJoin(HostId group_id, HostId member_id,
+                                 const ByteArray& custom_field, uint32 event_id,
+                                 const ByteArray& p2p_aes_session_key,
+                                 const ByteArray& p2p_rc4_session_key,
+                                 const Uuid& connection_tag);
   void ConditionalAssignRemotePeerInfo(LanRemotePeer_C* lp);
   void ProcessOnPeerDisposeCanSafe(LanRemotePeer_C* lp);
 
  private:
   // LookaheadP2PSend Message를 모아놓을 큐
 
-  //typedef Deque<ByteArray> ByteArrayQueue;
+  // typedef Deque<ByteArray> ByteArrayQueue;
   typedef List<ByteArray> ByteArrayQueue;
   typedef Map<HostId, ByteArrayQueue> LookaheadP2PSendQueueMap;
   LookaheadP2PSendQueueMap lookahead_p2p_send_queue_map_;
 
   /** 지금 당장 보내지 못하는 메세지들을 큐에 쌓는다. */
-  void AddLookaheadP2PSendQueueMap(HostId peer_id, const ByteArray& data_to_send);
+  void AddLookaheadP2PSendQueueMap(HostId peer_id,
+                                   const ByteArray& data_to_send);
 
   /** 해당 peer에게 보낼 메세지를 삭제한다. */
   void RemoveLookaheadP2PSendQueueMap(LanRemotePeer_C* lp);
@@ -359,13 +395,21 @@ class LanClientImpl
   LanClientImpl();
   virtual ~LanClientImpl();
 
-  bool Send_BroadcastLayer(const SendFragRefs& payload, const SendOption& send_opt, const HostId* sendto_list, int32 sendto_count);
+  bool Send_BroadcastLayer(const SendFragRefs& payload,
+                           const SendOption& send_opt,
+                           const HostId* sendto_list, int32 sendto_count);
 
-  void Send_ToServer_Directly_Copy(MessageReliability Reliability, const SendFragRefs& data_to_send);
+  void Send_ToServer_Directly_Copy(MessageReliability Reliability,
+                                   const SendFragRefs& data_to_send);
 
-  void ConvertGroupToIndividualsAndUnion(int32 sendto_count, const HostId* sendto_list, HostIdArray& output);
-  void ConvertGroupToIndividualsAndUnion(int32 sendto_count, const HostId* sendto_list, ILanSendDestList_C& SendDestList);
-  bool ConvertAndAppendP2PGroupToPeerList(HostId sendto, ILanSendDestList_C& SendTo2);
+  void ConvertGroupToIndividualsAndUnion(int32 sendto_count,
+                                         const HostId* sendto_list,
+                                         HostIdArray& output);
+  void ConvertGroupToIndividualsAndUnion(int32 sendto_count,
+                                         const HostId* sendto_list,
+                                         ILanSendDestList_C& SendDestList);
+  bool ConvertAndAppendP2PGroupToPeerList(HostId sendto,
+                                          ILanSendDestList_C& SendTo2);
   P2PGroupPtr_C GetP2PGroupByHostId_INTERNAL(HostId group_id);
   ISendDest_C* GetSendDestByHostId(HostId peer_id);
   LanRemotePeer_C* GetPeerByHostId_NOLOCK(HostId peer_id);
@@ -382,11 +426,16 @@ class LanClientImpl
   // Local events.
   void EnqueueError(SharedPtr<ResultInfo> result_info);
   void EnqueueWarning(SharedPtr<ResultInfo> result_info);
-  void EnqueueDisconnectionEvent(ResultCode result_code, ResultCode detail_code);
+  void EnqueueDisconnectionEvent(ResultCode result_code,
+                                 ResultCode detail_code);
   void EnqueueLocalEvent(LocalEvent& event);
-  void EnqueueConnectFailEvent(ResultCode result_code, SharedPtr<ResultInfo> result_info);
-  void EnqueueConnectFailEvent(ResultCode result_code, SocketErrorCode socket_error = SocketErrorCode::Ok);
-  void EnqueueHackSuspectEvent(LanRemotePeer_C* lp, const char* statement, HackType hack_type);
+  void EnqueueConnectFailEvent(ResultCode result_code,
+                               SharedPtr<ResultInfo> result_info);
+  void EnqueueConnectFailEvent(
+      ResultCode result_code,
+      SocketErrorCode socket_error = SocketErrorCode::Ok);
+  void EnqueueHackSuspectEvent(LanRemotePeer_C* lp, const char* statement,
+                               HackType hack_type);
 
   void OnSocketWarning(InternalSocket* socket, const String& msg);
   void OnCompletionPortWarning(CompletionPort* port, const char* msg);
@@ -394,13 +443,15 @@ class LanClientImpl
 
   void EnqueueUserTask(Function<void()> func);
 
-  virtual bool Connect(LanConnectionArgs& args, SharedPtr<ResultInfo>& out_error);
+  virtual bool Connect(LanConnectionArgs& args,
+                       SharedPtr<ResultInfo>& out_error);
 
   void Disconnect();
   void Disconnect(double graceful_disconnect_timeout, const ByteArray& comment);
 
-  //void DisconnectNoWait();
-  //void DisconnectNoWait(double graceful_disconnect_timeout_, const ByteArray& comment);
+  // void DisconnectNoWait();
+  // void DisconnectNoWait(double graceful_disconnect_timeout_, const ByteArray&
+  // comment);
 
   String DumpGroupStatus();
   void GetGroupMembers(HostId group_id, HostIdArray& output);
@@ -431,7 +482,7 @@ class LanClientImpl
   double GetIndirectServerTimeDiff() { return dx_server_time_diff_; }
   double GetElapsedTime();
   double GetAbsoluteTime();
-  //double GetSimLag()
+  // double GetSimLag()
   //{
   //  return min_extra_ping + random_.NextDouble() * extra_ping_variance;
   //}
@@ -452,38 +503,38 @@ class LanClientImpl
   void DisposeIssuedRemotePeers();
   void DisconnectRemotePeerOnTimeout();
   void RemoveRemotePeerIfNoGroupRelationDetected(LanRemotePeer_C* member);
-  void IssueDisposeRemotePeer(LanRemotePeer_C* lp,
-                              ResultCode result_code,
-                              ResultCode detail_code,
-                              const ByteArray& comment,
-                              const char* where,
-                              SocketErrorCode socket_error,
+  void IssueDisposeRemotePeer(LanRemotePeer_C* lp, ResultCode result_code,
+                              ResultCode detail_code, const ByteArray& comment,
+                              const char* where, SocketErrorCode socket_error,
                               bool remove_from_collection = true);
   void ShowError_NOLOCK(SharedPtr<ResultInfo> result_info);
   void RemotePeer_RemoveFromCollections(LanRemotePeer_C* lp);
 
  private:
-  bool Send(const SendFragRefs& data_to_send, const SendOption& send_opt, const HostId* sendto_list, int32 sendto_count);
+  bool Send(const SendFragRefs& data_to_send, const SendOption& send_opt,
+            const HostId* sendto_list, int32 sendto_count);
 
-  //CNetCoreImpl에 이미 구현되어 있는데, 왜 이래 해야 abstract가 아니라고 나오는걸까??
+  // CNetCoreImpl에 이미 구현되어 있는데, 왜 이래 해야 abstract가 아니라고
+  // 나오는걸까??
   void ShowNotImplementedRpcWarning(RpcId rpc_id, const char* rpc_name);
-  //CNetCoreImpl에 이미 구현되어 있는데, 왜 이래 해야 abstract가 아니라고 나오는걸까??
-  void PostCheckReadMessage(IMessageIn& msg, RpcId rpc_id, const char* rpc_name);
+  // CNetCoreImpl에 이미 구현되어 있는데, 왜 이래 해야 abstract가 아니라고
+  // 나오는걸까??
+  void PostCheckReadMessage(IMessageIn& msg, RpcId rpc_id,
+                            const char* rpc_name);
 
   ITaskSubject* GetTaskSubjectByHostId_NOLOCK(HostId subject_host_id);
 
-  void EnableVizAgent(const char* server_ip, int32 server_port, const String& login_key);
+  void EnableVizAgent(const char* server_ip, int32 server_port,
+                      const String& login_key);
 
-  void Viz_NotifySendByProxy( const HostId* sendto_list,
-                              int32 sendto_count,
-                              const MessageSummary& summary,
-                              const RpcCallOption& opt);
-  void Viz_NotifyRecvToStub(HostId sender,
-                            RpcId rpc_id,
-                            const char* rpc_name,
+  void Viz_NotifySendByProxy(const HostId* sendto_list, int32 sendto_count,
+                             const MessageSummary& summary,
+                             const RpcCallOption& opt);
+  void Viz_NotifyRecvToStub(HostId sender, RpcId rpc_id, const char* rpc_name,
                             const char* params_as_string);
 
-  void Disconnect_INTERNAL(double graceful_disconnect_timeout, const ByteArray& comment);
+  void Disconnect_INTERNAL(double graceful_disconnect_timeout,
+                           const ByteArray& comment);
 
  public:
   bool IsValidHostId_NOLOCK(HostId host_id);
@@ -494,11 +545,9 @@ class LanClientImpl
   void Tcp_LongTick();
   void ConditionalReportLanP2PPeerPing();
   void NotifyP2PDisconnected(LanRemotePeer_C* lp, ResultCode reason);
-  void EnqueuePeerLeaveEvent( LanRemotePeer_C* lp,
-                              ResultCode result_code,
-                              ResultCode detail_code,
-                              const ByteArray& comment,
-                              SocketErrorCode socket_error);
+  void EnqueuePeerLeaveEvent(LanRemotePeer_C* lp, ResultCode result_code,
+                             ResultCode detail_code, const ByteArray& comment,
+                             SocketErrorCode socket_error);
   void EnqueuePeerConnectionEstablishEvent(LanRemotePeer_C* lp);
   void EnqueuePeerDisconnectEvent(LanRemotePeer_C* lp, ResultCode reason);
   void EveryClientDispose();
@@ -528,13 +577,11 @@ class LanClientImpl
     GetMutex().AssertIsNotLockedByCurrentThread();
   }
 
-  bool SendFreeform(const HostId* sendto_list,
-                    int32 sendto_count,
-                    const RpcCallOption& opt,
-                    const uint8* payload,
-                    int32 payload_length)
-  {
-    return NetCoreImpl::SendFreeform(sendto_list, sendto_count, opt, payload, payload_length);
+  bool SendFreeform(const HostId* sendto_list, int32 sendto_count,
+                    const RpcCallOption& opt, const uint8* payload,
+                    int32 payload_length) {
+    return NetCoreImpl::SendFreeform(sendto_list, sendto_count, opt, payload,
+                                     payload_length);
   }
 
   P2PGroupPtr_C CreateP2PGroupObject_INTERNAL(HostId group_id);
@@ -542,5 +589,5 @@ class LanClientImpl
   bool RunAsync(HostId task_owner_id, Function<void()> func) override;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

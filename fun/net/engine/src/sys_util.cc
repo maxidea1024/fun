@@ -1,7 +1,7 @@
 ﻿//@deprecated
 //없애도록 하되, 대체가 가능한 부분이 있다면 찾아서 대체하도록 하자.
-#include "fun/net/net.h"
 #include "SysUtil.h"
+#include "fun/net/net.h"
 
 #include <tlhelp32.h>
 
@@ -9,29 +9,29 @@ namespace fun {
 
 //#define INFO_BUFFER_SIZE 1024
 //
-//int32 CWindowsMisc::NumberOfCoresIncludingHyperthreads()
-//int32 GetNoofProcessors()
+// int32 CWindowsMisc::NumberOfCoresIncludingHyperthreads()
+// int32 GetNoofProcessors()
 //{
 //	SYSTEM_INFO SI;
 //	GetSystemInfo(&SI);
 //	return (int32)SI.dwNumberOfProcessors;
 //}
 //
-//size_t GetOccupiedPhysicalMemory()
+// size_t GetOccupiedPhysicalMemory()
 //{
 //	MEMORYSTATUS MS;
 //	GlobalMemoryStatus(&MS);
 //	return MS.dwTotalPhys - MS.dwAvailPhys;
 //}
 //
-//size_t GetTotalPhysicalMemory()
+// size_t GetTotalPhysicalMemory()
 //{
 //	MEMORYSTATUS MS;
 //	GlobalMemoryStatus(&MS);
 //	return MS.dwTotalPhys;
 //}
 //
-//String GetComputerName()
+// String GetComputerName()
 //{
 //	char Name[1024];
 //	DWORD NameLen = COUNTOF(Name);
@@ -45,7 +45,7 @@ namespace fun {
 //	}
 //}
 //
-//void SetCurrentDirectoryWhereProgramExists()
+// void SetCurrentDirectoryWhereProgramExists()
 //{
 //	char ModuleFilename[_MAX_PATH];
 //	GetModuleFileName(nullptr, ModuleFilename, _MAX_PATH);
@@ -56,17 +56,15 @@ namespace fun {
 //	char CName[_MAX_PATH];
 //	char Ext[_MAX_PATH];
 //#if (_MSC_VER >= 1400)
-//	_tsplitpath_s(ModuleFilename, Drive, _MAX_PATH, Dir, _MAX_PATH, CName, _MAX_PATH, Ext, _MAX_PATH);
-//	_tmakepath_s(Path, _MAX_PATH, Drive, Dir, TEXT(""), TEXT(""));
-//#else
-//	_tsplitpath(ModuleFilename, Drive, Dir, CName, Ext);
-//	_tmakepath(Path, Drive, Dir, TEXT(""), TEXT(""));
-//#endif
+//	_tsplitpath_s(ModuleFilename, Drive, _MAX_PATH, Dir, _MAX_PATH, CName,
+//_MAX_PATH, Ext, _MAX_PATH); 	_tmakepath_s(Path, _MAX_PATH, Drive, Dir,
+//TEXT(""), TEXT("")); #else 	_tsplitpath(ModuleFilename, Drive, Dir, CName,
+//Ext); 	_tmakepath(Path, Drive, Dir, TEXT(""), TEXT("")); #endif
 //
 //	SetCurrentDirectory(Path);
 //}
 //
-//bool EnableLowFragmentationHeap()
+// bool EnableLowFragmentationHeap()
 //{
 //	static FUN_ALIGNED_VOLATILE LONG Did = 0;
 //
@@ -85,12 +83,12 @@ namespace fun {
 //	return true;
 //}
 //
-//bool IsIocpSupported()
+// bool IsIocpSupported()
 //{
 //	return Kernel32Api::Get().CreateIoCompletionPort != nullptr;
 //}
 //
-//bool IsServiceMode()
+// bool IsServiceMode()
 //{
 //	// 서비스 모드로 실행중인지 확인하기
 //	char UserName[INFO_BUFFER_SIZE];
@@ -110,12 +108,11 @@ namespace fun {
 //	return false;
 //}
 
-bool IsGqcsExSupported()
-{
-	return Kernel32Api::Get().GetQueuedCompletionStatusEx != nullptr;
+bool IsGqcsExSupported() {
+  return Kernel32Api::Get().GetQueuedCompletionStatusEx != nullptr;
 }
 
-//DWORD CountSetBits(ULONG_PTR BitMask)
+// DWORD CountSetBits(ULONG_PTR BitMask)
 //{
 //	DWORD LSHIFT = sizeof(ULONG_PTR) * 8 - 1;
 //	DWORD BitSetCount = 0;
@@ -131,7 +128,7 @@ bool IsGqcsExSupported()
 //	return BitSetCount;
 //}
 //
-//bool IsHyperThreading()
+// bool IsHyperThreading()
 //{
 //	if (Kernel32Api::Get().GetLogicalProcessInformation == nullptr)
 //	{
@@ -154,8 +151,8 @@ bool IsGqcsExSupported()
 //	DWORD ReturnLength = 0;
 //	DWORD ByteOffset = 0;
 //
-//	DWORD rc = Kernel32Api::Get().GetLogicalProcessInformation(Buffer, &ReturnLength);
-//	if (FALSE == rc)
+//	DWORD rc = Kernel32Api::Get().GetLogicalProcessInformation(Buffer,
+//&ReturnLength); 	if (FALSE == rc)
 //	{
 //		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 //		{
@@ -164,14 +161,15 @@ bool IsGqcsExSupported()
 //				free(Buffer);
 //			}
 //
-//			Buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)::malloc(ReturnLength);
-//			if (Buffer == nullptr)
+//			Buffer =
+//(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)::malloc(ReturnLength); 			if (Buffer ==
+//nullptr)
 //			{
 //				return false;
 //			}
 //
-//			rc = Kernel32Api::Get().GetLogicalProcessInformation(Buffer, &ReturnLength);
-//			if (FALSE == rc)
+//			rc = Kernel32Api::Get().GetLogicalProcessInformation(Buffer,
+//&ReturnLength); 			if (FALSE == rc)
 //			{
 //				free(Buffer);
 //				return false;
@@ -185,7 +183,8 @@ bool IsGqcsExSupported()
 //	}
 //
 //	Ptr = Buffer;
-//	while (ByteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= ReturnLength)
+//	while (ByteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <=
+//ReturnLength)
 //	{
 //		switch (Ptr->Relationship)
 //		{
@@ -198,12 +197,12 @@ bool IsGqcsExSupported()
 //		case RelationProcessorCore:
 //			ProcessorCoreCount++;
 //
-//			// A hyperthreaded core supplies more than one logical processor.
-//			LogicalProcessorCount += CountSetBits(Ptr->ProcessorMask);
-//			break;
+//			// A hyperthreaded core supplies more than one logical
+//processor. 			LogicalProcessorCount += CountSetBits(Ptr->ProcessorMask); 			break;
 //
 //		//case RelationCache:
-//		//	// Cache data is in Ptr->Cache, one CACHE_DESCRIPTOR structure for each cache.
+//		//	// Cache data is in Ptr->Cache, one CACHE_DESCRIPTOR
+//structure for each cache.
 //		//	Cache = &Ptr->Cache;
 //		//	if (Cache->Level == 1)
 //		//	{
@@ -235,7 +234,7 @@ bool IsGqcsExSupported()
 //	return (ProcessorCoreCount != LogicalProcessorCount);
 //}
 //
-//String GetFullPath(const char* fileName)
+// String GetFullPath(const char* fileName)
 //{
 //	//	CSingleLock Lock(&m_mutex, 1);
 //
@@ -251,20 +250,20 @@ bool IsGqcsExSupported()
 //	//return String(path);
 //}
 //
-//String GetCurrentDirectory()
+// String GetCurrentDirectory()
 //{
 //	char CWD[_MAX_PATH];
 //	::GetCurrentDirectory(_MAX_PATH, CWD);
 //	return CWD;
 //}
 //
-//BOOL CreateDirectory(LPCTSTR Path)
+// BOOL CreateDirectory(LPCTSTR Path)
 //{
 //	String FullPath = GetFullPath(Path);
 //	return ::CreateDirectory(FullPath, 0);
 //}
 //
-//BOOL CreateFullDirectory(const char* lpPathName, String& OutCreatedDirectory)
+// BOOL CreateFullDirectory(const char* lpPathName, String& OutCreatedDirectory)
 //{
 //	String refinedPath;
 //	refinedPath = GetFullPath(lpPathName);
@@ -280,7 +279,8 @@ bool IsGqcsExSupported()
 //		incPath += resToken;
 //		incPath += TEXT("\\");
 //
-//		if (!CreateDirectory(incPath) && GetLastError() != ERROR_FILE_EXISTS && GetLastError() != ERROR_ALREADY_EXISTS)
+//		if (!CreateDirectory(incPath) && GetLastError() !=
+//ERROR_FILE_EXISTS && GetLastError() != ERROR_ALREADY_EXISTS)
 //		{
 //			return FALSE;
 //		}
@@ -291,45 +291,59 @@ bool IsGqcsExSupported()
 //	return TRUE;
 //}
 //
-Kernel32Api::Kernel32Api()
-{
-	kernel32_dll_handle_ = LoadLibraryA("kernel32.dll");
-	if (kernel32_dll_handle_ == nullptr)
-	{
-		throw Exception(TEXT("Cannot find kernel32.dll handle!"));
-	}
+Kernel32Api::Kernel32Api() {
+  kernel32_dll_handle_ = LoadLibraryA("kernel32.dll");
+  if (kernel32_dll_handle_ == nullptr) {
+    throw Exception(TEXT("Cannot find kernel32.dll handle!"));
+  }
 
 #pragma warning(push)
 #pragma warning(disable : 4191)
-	CreateIoCompletionPort = (CreateIoCompletionPortProc)GetProcAddress(kernel32_dll_handle_, "CreateIoCompletionPort");
-	//HeapSetInformation = (HeapSetInformationProc)GetProcAddress(kernel32_dll_handle_, "HeapSetInformation");
-	//QueueUserWorkItem = (QueueUserWorkItemProc)GetProcAddress(kernel32_dll_handle_, "QueueUserWorkItem");
-	GetQueuedCompletionStatus = (GetQueuedCompletionStatusProc)GetProcAddress(kernel32_dll_handle_, "GetQueuedCompletionStatus");
-	GetQueuedCompletionStatusEx = (GetQueuedCompletionStatusExProc)GetProcAddress(kernel32_dll_handle_, "GetQueuedCompletionStatusEx");
-	AddVectoredExceptionHandler = (AddVectoredExceptionHandlerProc)GetProcAddress(kernel32_dll_handle_, "AddVectoredExceptionHandler");
+  CreateIoCompletionPort = (CreateIoCompletionPortProc)GetProcAddress(
+      kernel32_dll_handle_, "CreateIoCompletionPort");
+  // HeapSetInformation =
+  // (HeapSetInformationProc)GetProcAddress(kernel32_dll_handle_,
+  // "HeapSetInformation"); QueueUserWorkItem =
+  // (QueueUserWorkItemProc)GetProcAddress(kernel32_dll_handle_,
+  // "QueueUserWorkItem");
+  GetQueuedCompletionStatus = (GetQueuedCompletionStatusProc)GetProcAddress(
+      kernel32_dll_handle_, "GetQueuedCompletionStatus");
+  GetQueuedCompletionStatusEx = (GetQueuedCompletionStatusExProc)GetProcAddress(
+      kernel32_dll_handle_, "GetQueuedCompletionStatusEx");
+  AddVectoredExceptionHandler = (AddVectoredExceptionHandlerProc)GetProcAddress(
+      kernel32_dll_handle_, "AddVectoredExceptionHandler");
 
-	//CreateTimerQueue = (CreateTimerQueueProc)GetProcAddress(kernel32_dll_handle_, "CreateTimerQueue");
-	//CreateTimerQueueTimer = (CreateTimerQueueTimerProc)GetProcAddress(kernel32_dll_handle_, "CreateTimerQueueTimer");
-	//DeleteTimerQueueTimer = (DeleteTimerQueueTimerProc)GetProcAddress(kernel32_dll_handle_, "DeleteTimerQueueTimer");
-	//DeleteTimerQueueEx = (DeleteTimerQueueExProc)GetProcAddress(kernel32_dll_handle_, "DeleteTimerQueueEx");
-	InitializeCriticalSectionEx = (InitializeCriticalSectionExProc)GetProcAddress(kernel32_dll_handle_, "InitializeCriticalSectionEx");
-	//GetLogicalProcessInformation = (GetLogicalProcessorInformation)GetProcAddress(kernel32_dll_handle_, "GetLogicalProcessorInformation");
+  // CreateTimerQueue =
+  // (CreateTimerQueueProc)GetProcAddress(kernel32_dll_handle_,
+  // "CreateTimerQueue"); CreateTimerQueueTimer =
+  // (CreateTimerQueueTimerProc)GetProcAddress(kernel32_dll_handle_,
+  // "CreateTimerQueueTimer"); DeleteTimerQueueTimer =
+  // (DeleteTimerQueueTimerProc)GetProcAddress(kernel32_dll_handle_,
+  // "DeleteTimerQueueTimer"); DeleteTimerQueueEx =
+  // (DeleteTimerQueueExProc)GetProcAddress(kernel32_dll_handle_,
+  // "DeleteTimerQueueEx");
+  InitializeCriticalSectionEx = (InitializeCriticalSectionExProc)GetProcAddress(
+      kernel32_dll_handle_, "InitializeCriticalSectionEx");
+  // GetLogicalProcessInformation =
+  // (GetLogicalProcessorInformation)GetProcAddress(kernel32_dll_handle_,
+  // "GetLogicalProcessorInformation");
 #pragma warning(pop)
 }
 
-Kernel32Api& Kernel32Api::Get()
-{
-	static Kernel32Api instance;
-	// 여러스레드에서 동시다발적으로 ctor가 실행돼도 문제는 없음. 파괴자 루틴도 없겠다, 따라서 그냥 이렇게 고고고.
-	return instance;
+Kernel32Api& Kernel32Api::Get() {
+  static Kernel32Api instance;
+  // 여러스레드에서 동시다발적으로 ctor가 실행돼도 문제는 없음. 파괴자 루틴도
+  // 없겠다, 따라서 그냥 이렇게 고고고.
+  return instance;
 }
 
-//CLocale::CLocale()
+// CLocale::CLocale()
 //{
 //	LanguageId = 0;
 //
 //	char Nation[7];
-//	if (0 != GetLocaleInfoA(LOCALE_SYSTEM_DEFAULT, LOCALE_ICOUNTRY, Nation, 7))
+//	if (0 != GetLocaleInfoA(LOCALE_SYSTEM_DEFAULT, LOCALE_ICOUNTRY, Nation,
+//7))
 //	{
 //		LanguageId = atoi(Nation);
 //	}
@@ -346,27 +360,25 @@ Kernel32Api& Kernel32Api::Get()
 //}
 //
 //
-//CLocale& CLocale::Get()
+// CLocale& CLocale::Get()
 //{
 //	return __super::Get();
 //}
 
-
-//SystemInfo::CSystemInfo()
+// SystemInfo::CSystemInfo()
 //
 //	UnsafeMemory::Memzero(&Info);
 //	::GetSystemInfo(&Info);
 //
 //
 //
-//SystemInfo& CSystemInfo::Get()
+// SystemInfo& CSystemInfo::Get()
 //
 //	return __super::Get();
 //
 
-
 // FunNet 사용자가 실수한 경우에만 보여주는 에러다.
-//void ShowUserMisuseError(const char* text)
+// void ShowUserMisuseError(const char* text)
 //{
 //	if (NetConfig::UserMisuseErrorReaction == EErrorReaction::MessageBox)
 //	{
@@ -375,7 +387,8 @@ Kernel32Api& Kernel32Api::Get()
 //		// 대화 상자를 표시한다.
 //		::MessageBox(nullptr, text, TEXT("FunNet"), MB_OK|MB_ICONHAND);
 //	}
-//	else if (NetConfig::UserMisuseErrorReaction == EErrorReaction::DebugOutput)
+//	else if (NetConfig::UserMisuseErrorReaction ==
+//EErrorReaction::DebugOutput)
 //	{
 //		// DebugOutput으로 출력한다.
 //		::OutputDebugString(text);
@@ -383,27 +396,29 @@ Kernel32Api& Kernel32Api::Get()
 //	else
 //	{
 //		// 크래시를 유발한다.
-//		//  아래 것은 덤프가 안잡힐때가 많다. 그러므로 크래시 유발은 이코드로 하자.
-//		int32* X = nullptr;
-//		*X = 100;
+//		//  아래 것은 덤프가 안잡힐때가 많다. 그러므로 크래시 유발은
+//이코드로 하자. 		int32* X = nullptr; 		*X = 100;
 //	}
 //}
 
 //
-//String GetProcessName()
+// String GetProcessName()
 //{
 //	static char ModuleFilename[_MAX_PATH] = {0};
 //	if (ModuleFilename[0] == '\0')
 //	{
-//		GetModuleFileName(nullptr, ModuleFilename, COUNTOF(ModuleFilename));
+//		GetModuleFileName(nullptr, ModuleFilename,
+//COUNTOF(ModuleFilename));
 //	}
 //	return ModuleFilename;
 //}
 //
-//int32 GetTotalThreadCount()
+// int32 GetTotalThreadCount()
 //{
-//	// http://weseetips.com/2008/05/02/how-to-iterate-all-running-process-in-your-system/ 에서 발췌
-//	HANDLE hProcessSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
+//	//
+//http://weseetips.com/2008/05/02/how-to-iterate-all-running-process-in-your-system/
+//에서 발췌 	HANDLE hProcessSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL,
+//0);
 //
 //	// Initialize the process entry structure.
 //	PROCESSENTRY32 ProcessEntry = { 0 };
@@ -448,12 +463,12 @@ Kernel32Api& Kernel32Api::Get()
 //	return -1;
 //}
 //
-//uint32 GetSysTicks()
+// uint32 GetSysTicks()
 //{
 //	return ::GetTickCount();
 //}
 //
-//String GetSystemErrorMessage(int32 Error)
+// String GetSystemErrorMessage(int32 Error)
 //{
 //	String result;
 //	GetSystemErrorMessage(result.GetBuffer(2048), 2048, Error);
@@ -462,7 +477,8 @@ Kernel32Api& Kernel32Api::Get()
 //}
 //
 //@maxidea: todo: platform issue
-//const char* GetSystemErrorMessage(char* OutBuffer, int32 BufferCount, int32 Error)
+// const char* GetSystemErrorMessage(char* OutBuffer, int32 BufferCount, int32
+// Error)
 //{
 //	fun_check(OutBuffer && BufferCount);
 //	*OutBuffer = TEXT('\0');
@@ -471,8 +487,10 @@ Kernel32Api& Kernel32Api::Get()
 //		Error = GetLastError();
 //	}
 //
-//	//FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, Error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), OutBuffer, BufferCount, nullptr);
-//	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, Error, MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT), OutBuffer, BufferCount, nullptr);
+//	//FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, Error,
+//MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), OutBuffer, BufferCount, nullptr);
+//	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, Error,
+//MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT), OutBuffer, BufferCount, nullptr);
 //	char* Found = _tcschr(OutBuffer, TEXT('\r'));
 //	if (Found != nullptr)
 //	{
@@ -486,4 +504,4 @@ Kernel32Api& Kernel32Api::Get()
 //	return OutBuffer;
 //}
 
-} // namespace fun
+}  // namespace fun

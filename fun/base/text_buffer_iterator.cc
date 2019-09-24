@@ -4,32 +4,30 @@
 namespace fun {
 
 TextBufferIterator::TextBufferIterator()
-  : encoding_(nullptr), current_(nullptr), end_(nullptr) {}
+    : encoding_(nullptr), current_(nullptr), end_(nullptr) {}
 
-TextBufferIterator::TextBufferIterator( const char* begin,
-                                        const TextEncoding& encoding)
-  : encoding_(&encoding), current_(begin), end_(begin + std::strlen(begin)) {}
+TextBufferIterator::TextBufferIterator(const char* begin,
+                                       const TextEncoding& encoding)
+    : encoding_(&encoding), current_(begin), end_(begin + std::strlen(begin)) {}
 
-TextBufferIterator::TextBufferIterator( const char* begin,
-                                        size_t length,
-                                        const TextEncoding& encoding)
-  : encoding_(&encoding), current_(begin), end_(begin + length) {}
+TextBufferIterator::TextBufferIterator(const char* begin, size_t length,
+                                       const TextEncoding& encoding)
+    : encoding_(&encoding), current_(begin), end_(begin + length) {}
 
-TextBufferIterator::TextBufferIterator( const char* begin,
-                                        const char* end,
-                                        const TextEncoding& encoding)
-  : encoding_(&encoding), current_(begin), end_(end) {}
+TextBufferIterator::TextBufferIterator(const char* begin, const char* end,
+                                       const TextEncoding& encoding)
+    : encoding_(&encoding), current_(begin), end_(end) {}
 
 TextBufferIterator::TextBufferIterator(const char* end)
-  : encoding_(nullptr), current_(end), end_(end) {}
+    : encoding_(nullptr), current_(end), end_(end) {}
 
 TextBufferIterator::~TextBufferIterator() {}
 
 TextBufferIterator::TextBufferIterator(const TextBufferIterator& it)
-  : encoding_(it.encoding_), current_(it.current_), end_(it.end_) {}
+    : encoding_(it.encoding_), current_(it.current_), end_(it.end_) {}
 
-TextBufferIterator&
-TextBufferIterator::operator = (const TextBufferIterator& it) {
+TextBufferIterator& TextBufferIterator::operator=(
+    const TextBufferIterator& it) {
   if (FUN_LIKELY(&it != this)) {
     encoding_ = it.encoding_;
     current_ = it.current_;
@@ -45,7 +43,7 @@ void TextBufferIterator::Swap(TextBufferIterator& it) {
   fun::Swap(end_, it.end_);
 }
 
-int TextBufferIterator::operator * () const {
+int TextBufferIterator::operator*() const {
   fun_check_ptr(encoding_);
   fun_check(current_ != end_);
   const char* it = current_;
@@ -78,7 +76,7 @@ int TextBufferIterator::operator * () const {
   }
 }
 
-TextBufferIterator& TextBufferIterator::operator ++ () {
+TextBufferIterator& TextBufferIterator::operator++() {
   fun_check_ptr(encoding_);
   fun_check(current_ != end_);
 
@@ -111,10 +109,10 @@ TextBufferIterator& TextBufferIterator::operator ++ () {
   return *this;
 }
 
-TextBufferIterator TextBufferIterator::operator ++ (int) {
+TextBufferIterator TextBufferIterator::operator++(int) {
   TextBufferIterator prev(*this);
-  operator ++ ();
+  operator++();
   return prev;
 }
 
-} // namespace fun
+}  // namespace fun

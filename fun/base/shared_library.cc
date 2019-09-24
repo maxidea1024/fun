@@ -11,34 +11,26 @@ namespace fun {
 
 SharedLibrary::SharedLibrary() {}
 
-SharedLibrary::SharedLibrary(const String& path) {
-  LoadImpl(path, 0);
-}
+SharedLibrary::SharedLibrary(const String& path) { LoadImpl(path, 0); }
 
 SharedLibrary::SharedLibrary(const String& path, int32 flags) {
   LoadImpl(path, flags);
 }
 
 SharedLibrary::~SharedLibrary() {
-  //TODO 안해도 되남??
-  //Unload();
+  // TODO 안해도 되남??
+  // Unload();
 }
 
-void SharedLibrary::Load(const String& path) {
-  LoadImpl(path, 0);
-}
+void SharedLibrary::Load(const String& path) { LoadImpl(path, 0); }
 
 void SharedLibrary::Load(const String& path, int32 flags) {
   LoadImpl(path, flags);
 }
 
-void SharedLibrary::Unload() {
-  UnloadImpl();
-}
+void SharedLibrary::Unload() { UnloadImpl(); }
 
-bool SharedLibrary::IsLoaded() const {
-  return IsLoadedImpl();
-}
+bool SharedLibrary::IsLoaded() const { return IsLoadedImpl(); }
 
 bool SharedLibrary::HasSymbol(const String& symbol) {
   return FindSymbolImpl(symbol) != nullptr;
@@ -52,20 +44,14 @@ void* SharedLibrary::GetSymbol(const String& symbol) {
   throw NotFoundException(symbol);
 }
 
-const String& SharedLibrary::GetPath() const {
-  return GetPathImpl();
-}
+const String& SharedLibrary::GetPath() const { return GetPathImpl(); }
 
-String SharedLibrary::Prefix() {
-  return PrefixImpl();
-}
+String SharedLibrary::Prefix() { return PrefixImpl(); }
 
-String SharedLibrary::Suffix() {
-  return SuffixImpl();
-}
+String SharedLibrary::Suffix() { return SuffixImpl(); }
 
 String SharedLibrary::GetOsName(const String& name) {
   return Prefix() + name + Suffix();
 }
 
-} // namespace fun
+}  // namespace fun

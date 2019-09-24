@@ -7,11 +7,9 @@ namespace fun {
 //
 
 TraverseBase::TraverseBase(DepthFunPtr depth_determiner, uint16 max_depth)
-  : depth_determiner_(depth_determiner), max_depth_(max_depth) {}
+    : depth_determiner_(depth_determiner), max_depth_(max_depth) {}
 
-bool TraverseBase::IsFiniteDepth() {
-  return max_depth_ != D_INFINITE;
-}
+bool TraverseBase::IsFiniteDepth() { return max_depth_ != D_INFINITE; }
 
 bool TraverseBase::IsDirectory(fun::File& file) {
   try {
@@ -21,23 +19,23 @@ bool TraverseBase::IsDirectory(fun::File& file) {
   }
 }
 
-
 //
 // ChildrenFirstTraverse
 //
 
-ChildrenFirstTraverse::ChildrenFirstTraverse(DepthFunPtr depth_determiner, uint16 max_depth)
-  : TraverseBase(depth_determiner, max_depth) {}
+ChildrenFirstTraverse::ChildrenFirstTraverse(DepthFunPtr depth_determiner,
+                                             uint16 max_depth)
+    : TraverseBase(depth_determiner, max_depth) {}
 
-const String ChildrenFirstTraverse::Next(Stack* it_stack, bool* is_finished)
-{
+const String ChildrenFirstTraverse::Next(Stack* it_stack, bool* is_finished) {
   // pointer mustn't point to NULL and iteration mustn't be finished
   fun_check_ptr(is_finished);
   fun_check(!(*is_finished));
 
   // go deeper into not empty directory
   // (if depth limit allows)
-  bool is_depth_limit_reached = IsFiniteDepth() && depth_determiner_(*it_stack) >= max_depth_;
+  bool is_depth_limit_reached =
+      IsFiniteDepth() && depth_determiner_(*it_stack) >= max_depth_;
   if (!is_depth_limit_reached && IsDirectory(*it_stack->top())) {
     try {
       DirectoryIterator child_it(it_stack->top().GetPath());
@@ -71,13 +69,13 @@ const String ChildrenFirstTraverse::Next(Stack* it_stack, bool* is_finished)
   return it_stack->top()->GetPath();
 }
 
-
 //
 // SiblingsFirstTraverse
 //
 
-SiblingsFirstTraverse::SiblingsFirstTraverse(DepthFunPtr depth_determiner, uint16 max_depth)
-  : TraverseBase(depth_determiner, max_depth) {
+SiblingsFirstTraverse::SiblingsFirstTraverse(DepthFunPtr depth_determiner,
+                                             uint16 max_depth)
+    : TraverseBase(depth_determiner, max_depth) {
   dirs_stack_.push(std::queue<String>());
 }
 
@@ -87,7 +85,8 @@ const String SiblingsFirstTraverse::Next(Stack* it_stack, bool* is_finished) {
   fun_check(!(*is_finished));
 
   // add dirs to queue (if depth limit allows)
-  bool is_depth_limit_reached = IsFiniteDepth() && depth_determiner_(*it_stack) >= max_depth_;
+  bool is_depth_limit_reached =
+      IsFiniteDepth() && depth_determiner_(*it_stack) >= max_depth_;
   if (!is_depth_limit_reached && IsDirectory(*it_stack->top())) {
     const String& p = it_stack->top()->GetPath();
     dirs_stack_.top().push(p);
@@ -132,4 +131,4 @@ const String SiblingsFirstTraverse::Next(Stack* it_stack, bool* is_finished) {
   return it_stack->top()->GetPath();
 }
 
-} // namespace fun
+}  // namespace fun

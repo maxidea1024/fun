@@ -31,7 +31,6 @@ class FUN_BASE_API TaskNotification : public Notification {
   Task* task_;
 };
 
-
 /**
  * This notification is posted by the TaskManager for
  * every task that has been started.
@@ -43,7 +42,6 @@ class FUN_BASE_API TaskStartedNotification : public TaskNotification {
  protected:
   ~TaskStartedNotification();
 };
-
 
 /**
  * This notification is posted by the TaskManager for
@@ -57,7 +55,6 @@ class FUN_BASE_API TaskCancelledNotification : public TaskNotification {
   ~TaskCancelledNotification();
 };
 
-
 /**
  * This notification is posted by the TaskManager for
  * every task that has finished.
@@ -69,7 +66,6 @@ class FUN_BASE_API TaskFinishedNotification : public TaskNotification {
  protected:
   ~TaskFinishedNotification();
 };
-
 
 /**
  * This notification is posted by the TaskManager for
@@ -88,11 +84,10 @@ class FUN_BASE_API TaskFailedNotification : public TaskNotification {
   Exception* exception_;
 };
 
-
 /**
  * This notification is posted by the TaskManager for
  * a task when its progress changes.
-*/
+ */
 class FUN_BASE_API TaskProgressNotification : public TaskNotification {
  public:
   TaskProgressNotification(Task* task, float progress);
@@ -106,7 +101,6 @@ class FUN_BASE_API TaskProgressNotification : public TaskNotification {
   float progress_;
 };
 
-
 /**
  * This is a template for "custom" notification.
  * Unlike other notifications, this notification
@@ -118,13 +112,9 @@ template <typename C>
 class TaskCustomNotification : public TaskNotification {
  public:
   TaskCustomNotification(Task* task, const C& custom)
-    : TaskNotification(task),
-      custom_(custom) {
-  }
+      : TaskNotification(task), custom_(custom) {}
 
-  const C& GetCustom() const {
-    return custom_;
-  }
+  const C& GetCustom() const { return custom_; }
 
  protected:
   ~TaskCustomNotification() {}
@@ -133,14 +123,11 @@ class TaskCustomNotification : public TaskNotification {
   C custom_;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE Task* TaskNotification::GetTask() const {
-  return task_;
-}
+FUN_ALWAYS_INLINE Task* TaskNotification::GetTask() const { return task_; }
 
 FUN_ALWAYS_INLINE const Exception& TaskFailedNotification::GetReason() const {
   return *exception_;
@@ -150,4 +137,4 @@ FUN_ALWAYS_INLINE float TaskProgressNotification::GetProgress() const {
   return progress_;
 }
 
-} // namespace fun
+}  // namespace fun

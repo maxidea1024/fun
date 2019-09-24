@@ -15,7 +15,6 @@ class FUN_BASE_API Environment {
    */
   typedef uint8 NodeId[6];
 
-
   /**
    * Returns the value of the environment variable
    * with the given name. Throws a NotFoundException
@@ -135,4 +134,4 @@ class FUN_BASE_API Environment {
   static bool IsWindows();
 };
 
-} // namespace fun
+}  // namespace fun

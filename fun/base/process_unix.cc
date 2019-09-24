@@ -3,14 +3,14 @@
 #include "fun/base/pipe.h"
 #include "fun/base/thread.h"
 
-#include <limits>
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/resource.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/resource.h>
 #include <sys/wait.h>
+#include <limits>
 
 #if defined(__QNX__)
 #include <process.h>
@@ -25,16 +25,11 @@ namespace fun {
 //
 
 ProcessHandleImpl::ProcessHandleImpl(pid_t pid)
-  : pid_(pid),
-    mutex_(),
-    event_(EventResetType::Manual),
-    status_() {}
+    : pid_(pid), mutex_(), event_(EventResetType::Manual), status_() {}
 
 ProcessHandleImpl::~ProcessHandleImpl() {}
 
-pid_t ProcessHandleImpl::GetId() const {
-  return pid_;
-}
+pid_t ProcessHandleImpl::GetId() const { return pid_; }
 
 int ProcessHandleImpl::Wait() const {
   if (Wait(0) != pid_) {
@@ -72,7 +67,8 @@ int ProcessHandleImpl::Wait(int options) const {
     status_ = status;
     event_.Set();
   } else if (rc < 0 && errno == ECHILD) {
-    // Looks like another thread was lucky and it should update the status for us shortly
+    // Looks like another thread was lucky and it should update the status for
+    // us shortly
     event_.Wait();
 
     ScopedLock<FastMutex> guard(mutex_);
@@ -84,14 +80,11 @@ int ProcessHandleImpl::Wait(int options) const {
   return rc;
 }
 
-
 //
 // ProcessImpl
 //
 
-ProcessImpl::PIDImpl ProcessImpl::CurrentPidImpl() {
-  return getpid();
-}
+ProcessImpl::PIDImpl ProcessImpl::CurrentPidImpl() { return getpid(); }
 
 void ProcessImpl::GetTimesImpl(long& user_time, long& kernel_time) {
   struct rusage usage;
@@ -100,13 +93,11 @@ void ProcessImpl::GetTimesImpl(long& user_time, long& kernel_time) {
   kernel_time = usage.ru_stime.tv_sec;
 }
 
-ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
-                                            const ArgsImpl& args,
-                                            const String& initial_directory,
-                                            Pipe* in_pipe,
-                                            Pipe* out_pipe,
-                                            Pipe* err_pipe,
-                                            const EnvImpl& env) {
+ProcessHandleImpl* ProcessImpl::LaunchImpl(const String& command,
+                                           const ArgsImpl& args,
+                                           const String& initial_directory,
+                                           Pipe* in_pipe, Pipe* out_pipe,
+                                           Pipe* err_pipe, const EnvImpl& env) {
 #if defined(__QNX__)
   if (initial_directory.IsEmpty()) {
     /// use QNX's spawn system call which is more efficient than fork/exec.
@@ -119,9 +110,10 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
     argv[i] = nullptr;
     struct inheritance inherit;
     UnsafeMemory::Memset(&inherit, 0, sizeof(inherit));
-    inherit.flags = SPAWN_ALIGN_DEFAULT | SPAWN_CHECK_SCRIPT | SPAWN_SEARCH_PATH;
+    inherit.flags =
+        SPAWN_ALIGN_DEFAULT | SPAWN_CHECK_SCRIPT | SPAWN_SEARCH_PATH;
     int fd_map[3];
-    fd_map[0] = in_pipe  ? in_pipe->ReadHandle()   : 0;
+    fd_map[0] = in_pipe ? in_pipe->ReadHandle() : 0;
     fd_map[1] = out_pipe ? out_pipe->WriteHandle() : 1;
     fd_map[2] = err_pipe ? err_pipe->WriteHandle() : 2;
 
@@ -134,7 +126,9 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
       char* p = &env_chars[0];
       while (*p) {
         env_ptrs.Add(p);
-        while (*p) { ++p; }
+        while (*p) {
+          ++p;
+        }
         ++p;
       }
       env_ptrs.Add(0);
@@ -161,20 +155,19 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
 
     return new ProcessHandleImpl(pid);
   } else {
-    return LaunchByForkExecImpl(command, args, initial_directory, in_pipe, out_pipe, err_pipe, env);
+    return LaunchByForkExecImpl(command, args, initial_directory, in_pipe,
+                                out_pipe, err_pipe, env);
   }
 #else
-  return LaunchByForkExecImpl(command, args, initial_directory, in_pipe, out_pipe, err_pipe, env);
+  return LaunchByForkExecImpl(command, args, initial_directory, in_pipe,
+                              out_pipe, err_pipe, env);
 #endif
 }
 
-ProcessHandleImpl* ProcessImpl::LaunchByForkExecImpl( const String& command,
-                                                      const ArgsImpl& args,
-                                                      const String& initial_directory,
-                                                      Pipe* in_pipe,
-                                                      Pipe* out_pipe,
-                                                      Pipe* err_pipe,
-                                                      const EnvImpl& env) {
+ProcessHandleImpl* ProcessImpl::LaunchByForkExecImpl(
+    const String& command, const ArgsImpl& args,
+    const String& initial_directory, Pipe* in_pipe, Pipe* out_pipe,
+    Pipe* err_pipe, const EnvImpl& env) {
 #if !defined(FUN_NO_FORK_EXEC)
   // We must not allocated memory after fork(),
   // therefore allocate all required buffers first.
@@ -187,7 +180,8 @@ ProcessHandleImpl* ProcessImpl::LaunchByForkExecImpl( const String& command,
   }
   argv[i] = nullptr;
 
-  const char* initial_directory_ptr = initial_directory.IsEmpty() ? 0 : initial_directory.c_str();
+  const char* initial_directory_ptr =
+      initial_directory.IsEmpty() ? 0 : initial_directory.c_str();
 
   int pid = fork();
   if (pid < 0) {
@@ -299,4 +293,4 @@ void ProcessImpl::RequestTerminationImpl(PIDImpl pid) {
   }
 }
 
-} // namespace fun
+}  // namespace fun

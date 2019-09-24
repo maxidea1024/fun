@@ -1,5 +1,5 @@
-﻿//TODO 클라이언트 전용/서버 전용/공용 이런식으로 정리가 필요해보임.
-//TODO 상수 정의와 수정가능한 값을 분리하도록 하자.
+﻿// TODO 클라이언트 전용/서버 전용/공용 이런식으로 정리가 필요해보임.
+// TODO 상수 정의와 수정가능한 값을 분리하도록 하자.
 
 #pragma once
 
@@ -10,7 +10,7 @@ namespace net {
 
 class NetConfig {
  public:
-  //static double issued_state;
+  // static double issued_state;
 
   static int32 udp_issue_recv_length;
   static int32 tcp_issue_recv_length;
@@ -68,37 +68,43 @@ class NetConfig {
   static double every_remote_issue_send_on_need_interval_sec;
 
   inline static double GetFallbackServerUdpToTcpTimeout() {
-    // 나중에, UdpPingInterval로 개명하자. C-S UDP가 증발하건 P2P UDP가 증발하건 한쪽이 증발하면 나머지도 불안한건 매한가지 이므로.
+    // 나중에, UdpPingInterval로 개명하자. C-S UDP가 증발하건 P2P UDP가 증발하건
+    // 한쪽이 증발하면 나머지도 불안한건 매한가지 이므로.
     fun_check(cs_ping_interval_sec == p2p_ping_interval_sec);
 
-    // 연속 3번 보낸 것을 못 받는다는 것은 80% 이상 패킷 로스라는 의미. 이 정도면 홀펀칭 되어 있어도 막장이다.
-    // 따라서 10->4 하향.
+    // 연속 3번 보낸 것을 못 받는다는 것은 80% 이상 패킷 로스라는 의미. 이
+    // 정도면 홀펀칭 되어 있어도 막장이다. 따라서 10->4 하향.
     return cs_ping_interval_sec * 4;
   }
 
   inline static double GetFallbackP2PUdpToTcpTimeout() {
-    // 나중에, UdpPingInterval로 개명하자. C-S UDP가 증발하건 P2P UDP가 증발하건 한쪽이 증발하면 나머지도 불안한건 매한가지 이므로.
+    // 나중에, UdpPingInterval로 개명하자. C-S UDP가 증발하건 P2P UDP가 증발하건
+    // 한쪽이 증발하면 나머지도 불안한건 매한가지 이므로.
     fun_check(cs_ping_interval_sec == p2p_ping_interval_sec);
 
-    // 연속 3번 보낸 것을 못 받는다는 것은 80% 이상 패킷 로스라는 의미. 이 정도면 홀펀칭 되어 있어도 막장이다.
-    // 따라서 10->4 하향.
-    // GetFallbackServerUdpToTcpTimeout과 GetFallbackP2PUdpToTcpTimeout은 서로 같은 값이어야.
-    // C-S UDP가 증발하건 P2P UDP가 증발하건 한쪽이 증발하면 나머지도 불안한건 매한가지 이므로.
+    // 연속 3번 보낸 것을 못 받는다는 것은 80% 이상 패킷 로스라는 의미. 이
+    // 정도면 홀펀칭 되어 있어도 막장이다. 따라서 10->4 하향.
+    // GetFallbackServerUdpToTcpTimeout과 GetFallbackP2PUdpToTcpTimeout은 서로
+    // 같은 값이어야. C-S UDP가 증발하건 P2P UDP가 증발하건 한쪽이 증발하면
+    // 나머지도 불안한건 매한가지 이므로.
     return p2p_ping_interval_sec * 4;
   }
 
   // TCP 핑 타임 아웃에 걸리는 시간
-  // 참고: TCP 핑 타임 아웃을 감지하기 위해 핑을 주고 받는 주기는 NetClientImpl::GetReliablePingTimerInterval 에서 결정.
+  // 참고: TCP 핑 타임 아웃을 감지하기 위해 핑을 주고 받는 주기는
+  // NetClientImpl::GetReliablePingTimerInterval 에서 결정.
   /**
    * TCP 핑 타임 아웃에 걸리는 시간입니다.
    */
   inline static double GetDefaultNoPingTimeoutTime() {
-    // 중국처럼 인터넷이 괴랄한 곳에서는 15초 동안 TCP 가 밀려도 정상적일 수 있으므로 이 정도는 잡아야.
+    // 중국처럼 인터넷이 괴랄한 곳에서는 15초 동안 TCP 가 밀려도 정상적일 수
+    // 있으므로 이 정도는 잡아야.
     return 60;
   }
 
   /**
-   * 랙을 순간적으로 변경하지 않고, 완만하게 변하게 하기 위한 linear-interpolation 팩터입니다.
+   * 랙을 순간적으로 변경하지 않고, 완만하게 변하게 하기 위한
+   * linear-interpolation 팩터입니다.
    */
   static double log_linear_programming_factor;
 
@@ -132,7 +138,8 @@ class NetConfig {
   const static int32 MessageMaxLengthInServerLan = 1024 * 1024;
 
   /**
-   * 메시지의 최소 길이입니다.  메시지 작성시 최소로 잡히는 메모리의 길이이며, 메시지 길이를 제한하기 위한 값이 아닙니다.
+   * 메시지의 최소 길이입니다.  메시지 작성시 최소로 잡히는 메모리의 길이이며,
+   * 메시지 길이를 제한하기 위한 값이 아닙니다.
    * TODO 이름을 변경하는건 어떨런지?
    */
   static const int32 MessageMinLength = 128;
@@ -153,11 +160,11 @@ class NetConfig {
 
   ///**
   //*/
-  //static const bool bEnableTestSplitter;
+  // static const bool bEnableTestSplitter;
 
   ///**
   //*/
-  //static const int32 ClientListHashTableValue = 101;
+  // static const int32 ClientListHashTableValue = 101;
 
  private:
   static CCriticalSection2 write_mutex;
@@ -186,7 +193,7 @@ class NetConfig {
 
   static bool networker_thread_priority_is_high;
 
-  //static double report_p2p_group_ping_interval_sec;
+  // static double report_p2p_group_ping_interval_sec;
   static double report_lan_p2p_peer_ping_interval_sec;
   static double report_p2p_peer_ping_test_interval_sec;
   static double report_server_time_and_ping_interval_sec;
@@ -197,14 +204,14 @@ class NetConfig {
 
   static int32 default_over_send_suspecting_threshold_in_byte;
 
-  //static bool force_unsafe_heap_to_safe_heap;
+  // static bool force_unsafe_heap_to_safe_heap;
   static bool send_break_enabled;
   static double viz_reconnect_try_interval_sec;
   static double super_peer_selection_premium;
 
   static double host_id_recycle_allow_time_sec;
 
-// send_queue_
+  // send_queue_
 
   /**
   송신큐의 내용이 과한지 여부를 판단하는 임계치입니다.
@@ -253,10 +260,11 @@ class NetConfig {
   static bool deadlock_checking_enabled;
 
   /**
-  MaxDirectP2PMulticast를 할 경우 같은 LAN환경에 있을경우에만 수행할지 여부를 설정합니다.
+  MaxDirectP2PMulticast를 할 경우 같은 LAN환경에 있을경우에만 수행할지 여부를
+  설정합니다.
   */
   static bool use_is_same_lan_to_local_for_max_direct_p2p_multicast;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

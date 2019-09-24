@@ -20,4 +20,4 @@ class FUN_BASE_API Runnable {
   virtual void Run() = 0;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
 #include <assert.h>
+#include "fun/net/net.h"
 
 namespace fun {
 
@@ -12,21 +12,23 @@ class StackGuard {
   uint8 sentinel[ARRAY_LENGTH];
 
   StackGuard() {
-    //auto start = (reinterpret_cast<intptr_t>(sentinel) + 4095) & ~4095;
-    //auto byteCount = reinterpret_cast<size_t>(sentinel + ARRAY_LENGTH - start) & ~4095;
+    // auto start = (reinterpret_cast<intptr_t>(sentinel) + 4095) & ~4095;
+    // auto byteCount = reinterpret_cast<size_t>(sentinel + ARRAY_LENGTH -
+    // start) & ~4095;
     //
-    //DWORD oldProtect;
-    //auto result = VirtualProtect(reinterpret_cast<void*>(start), byteCount, PAGE_READONLY, &oldProtect);
-    //assert(result);
+    // DWORD oldProtect;
+    // auto result = VirtualProtect(reinterpret_cast<void*>(start), byteCount,
+    // PAGE_READONLY, &oldProtect); assert(result);
   }
-  
+
   ~StackGuard() {
-    //auto start = (reinterpret_cast<intptr_t>(sentinel) + 4095) & ~4095;
-    //auto byteCount = reinterpret_cast<size_t>(sentinel + ARRAY_LENGTH - start) & ~4095;
+    // auto start = (reinterpret_cast<intptr_t>(sentinel) + 4095) & ~4095;
+    // auto byteCount = reinterpret_cast<size_t>(sentinel + ARRAY_LENGTH -
+    // start) & ~4095;
     //
-    //DWORD oldProtect;
-    //auto result = VirtualProtect(reinterpret_cast<void*>(start), byteCount, PAGE_READWRITE, &oldProtect);
-    //assert(result);
+    // DWORD oldProtect;
+    // auto result = VirtualProtect(reinterpret_cast<void*>(start), byteCount,
+    // PAGE_READWRITE, &oldProtect); assert(result);
   }
 
   inline void Check() const {
@@ -36,7 +38,7 @@ class StackGuard {
 
     for (int32 i = 0; i < countof(sentinel); i++) {
       const int32 offset = i;
-      //assert(sentinel[offset] == FILLER_VALUE);
+      // assert(sentinel[offset] == FILLER_VALUE);
       if (sentinel[offset] != FILLER_VALUE) {
         int halted = 0;
       }
@@ -44,6 +46,6 @@ class StackGuard {
   }
 };
 
-//extern StackGuard<2048>* GGuard;
+// extern StackGuard<2048>* GGuard;
 
-} // namespace fun
+}  // namespace fun

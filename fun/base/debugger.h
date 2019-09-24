@@ -58,4 +58,4 @@ class FUN_BASE_API Debugger {
   static void Enter(const String& msg, int32 line);
 };
 
-} // namespace fun
+}  // namespace fun

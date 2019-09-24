@@ -39,24 +39,25 @@ class ResultInfo {
    */
   ByteArray last_received_msg;
 
-  //HRESULT HResult; //TODO 윈도우즈 전용이므로 제거 고려...
-  //String source; //TODO DB sql statement string이므로, 제거 고려...
+  // HRESULT HResult; //TODO 윈도우즈 전용이므로 제거 고려...
+  // String source; //TODO DB sql statement string이므로, 제거 고려...
 
  public:
   FUN_NETX_API ResultInfo();
 
   inline bool IsOk() const { return result_code == ResultCode::Ok; }
 
-  FUN_NETX_API static SharedPtr<ResultInfo> FromSocketError(ResultCode result_code, SocketErrorCode socket_error);
-  FUN_NETX_API static SharedPtr<ResultInfo> From(ResultCode result_code,
-                                            HostId remote = HostId_None,
-                                            const String& comment = String(),
-                                            const ByteArray& last_received_msg = ByteArray());
+  FUN_NETX_API static SharedPtr<ResultInfo> FromSocketError(
+      ResultCode result_code, SocketErrorCode socket_error);
+  FUN_NETX_API static SharedPtr<ResultInfo> From(
+      ResultCode result_code, HostId remote = HostId_None,
+      const String& comment = String(),
+      const ByteArray& last_received_msg = ByteArray());
 
   FUN_NETX_API String ToString() const;
 
   FUN_NETX_API static const char* TypeToString(ResultCode result_code);
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

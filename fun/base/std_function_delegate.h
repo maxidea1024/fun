@@ -2,8 +2,8 @@
 
 #include "fun/base/base.h"
 #include "fun/base/delegate_base.h"
-#include "fun/base/mutex.h"
 #include "fun/base/ftl/function.h"
+#include "fun/base/mutex.h"
 
 #include <atomic>
 
@@ -12,29 +12,27 @@ namespace fun {
 /**
  * Wraps a std::function or lambda for use as a Delegate.
  */
-template <typename ArgsType, bool with_sender = true, bool sender_is_const = true>
+template <typename ArgsType, bool with_sender = true,
+          bool sender_is_const = true>
 class StdFunctionDelegate : public DelegateBase<ArgsType> {
  public:
-  typedef TFunction<void (const void*, ArgsType&)> NotifyMethod;
+  typedef TFunction<void(const void*, ArgsType&)> NotifyMethod;
 
   StdFunctionDelegate() = delete;
 
   StdFunctionDelegate(NotifyMethod method)
-    : DelegateBase<ArgsType>(),
-      receiver_method_(method),
-      id_(++id_generator) {
-  }
+      : DelegateBase<ArgsType>(),
+        receiver_method_(method),
+        id_(++id_generator) {}
 
   StdFunctionDelegate(const StdFunctionDelegate& rhs)
-    : DelegateBase<ArgsType>(rhs),
-      receiver_method_(rhs.receiver_method_),
-      id_(rhs.id_) {
-  }
+      : DelegateBase<ArgsType>(rhs),
+        receiver_method_(rhs.receiver_method_),
+        id_(rhs.id_) {}
 
-  ~StdFunctionDelegate() {
-  }
+  ~StdFunctionDelegate() {}
 
-  StdFunctionDelegate& operator = (const StdFunctionDelegate& rhs) {
+  StdFunctionDelegate& operator=(const StdFunctionDelegate& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       target_ = rhs.target_;
       receiver_method_ = rhs.receiver_method_;
@@ -54,13 +52,12 @@ class StdFunctionDelegate : public DelegateBase<ArgsType> {
   }
 
   bool Equals(const DelegateBase<ArgsType>& other) const {
-    const StdFunctionDelegate* other_delegate = dynamic_cast<const StdFunctionDelegate*>(other.Unwrap());
+    const StdFunctionDelegate* other_delegate =
+        dynamic_cast<const StdFunctionDelegate*>(other.Unwrap());
     return other_delegate && id_ == other_delegate->id_;
   }
 
-  DelegateBase<ArgsType>* Clone() const {
-    return StdFunctionDelegate(*this);
-  }
+  DelegateBase<ArgsType>* Clone() const { return StdFunctionDelegate(*this); }
 
   void Disable() {
     ScopedLock guard(mutex_);
@@ -76,8 +73,8 @@ class StdFunctionDelegate : public DelegateBase<ArgsType> {
   static std::atomic_int id_generator_;
 };
 
-
 template <typename ArgsType, bool with_sender, bool sender_is_const>
-std::atomic_int StdFunctionDelegate<ArgsType, with_sender, sender_is_const>::id_generator_;
+std::atomic_int
+    StdFunctionDelegate<ArgsType, with_sender, sender_is_const>::id_generator_;
 
-} // namespace fun
+}  // namespace fun

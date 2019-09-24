@@ -51,7 +51,7 @@ class FUN_BASE_API Pipe {
      */
     CLOSE_BOTH = 0x03
   };
-  //TODO flags를 적용하는게 좋을까나...??
+  // TODO flags를 적용하는게 좋을까나...??
 
   /**
    * Creates the Pipe.
@@ -74,7 +74,7 @@ class FUN_BASE_API Pipe {
   /**
    * Releases the Pipe's PipeImpl and assigns another one.
    */
-  Pipe& operator = (const Pipe& rhs);
+  Pipe& operator=(const Pipe& rhs);
 
   /**
    * Sends the contents of the given buffer through
@@ -122,7 +122,6 @@ class FUN_BASE_API Pipe {
   PipeImpl* impl_;
 };
 
-
 //
 // inlines
 //
@@ -143,4 +142,4 @@ FUN_ALWAYS_INLINE Pipe::Handle Pipe::WriteHandle() const {
   return impl_->WriteHandle();
 }
 
-} // namespace fun
+}  // namespace fun

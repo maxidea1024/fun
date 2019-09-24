@@ -2,24 +2,25 @@
 
 #include "fun/base/base.h"
 
-#include "fun/base/string/string.h"
 #include "fun/base/container/array.h"
+#include "fun/base/string/string.h"
 
-#include <vector>
 #include <ostream>
 #include <typeinfo>
 #include <utility>
+#include <vector>
 
-#if FUN_COMPILER_GCC && (FUN_PLATFORM == FUN_PLATFORM_LINUX) && (FUN_PLATFORM != FUN_PLATFORM_CYGWIN)
-  #define FUN_HAS_BACKTRACE
+#if FUN_COMPILER_GCC && (FUN_PLATFORM == FUN_PLATFORM_LINUX) && \
+    (FUN_PLATFORM != FUN_PLATFORM_CYGWIN)
+#define FUN_HAS_BACKTRACE
 #endif
 
 #ifdef FUN_HAS_BACKTRACE
-  #ifdef FUN_COMPILER_GCC
-    #include <cxxabi.h>
-    #include <execinfo.h>
-    #include <dlfcn.h>
-  #endif
+#ifdef FUN_COMPILER_GCC
+#include <cxxabi.h>
+#include <dlfcn.h>
+#include <execinfo.h>
+#endif
 #endif
 
 namespace fun {
@@ -32,7 +33,7 @@ class FUN_BASE_API Ndc {
   Ndc(const Ndc& rhs);
   ~Ndc();
 
-  Ndc& operator = (const Ndc& rhs);
+  Ndc& operator=(const Ndc& rhs);
 
   void Push(const String& info);
   void Push(const String& info, int32 line, const char* file);
@@ -40,7 +41,8 @@ class FUN_BASE_API Ndc {
   int32 GetDepth() const;
   String ToString() const;
   void Dump(std::ostream& ostr) const;
-  void Dump(std::ostream& ostr, const String& delimeter, bool name_only = false) const;
+  void Dump(std::ostream& ostr, const String& delimeter,
+            bool name_only = false) const;
   void Clear();
 
   static Ndc& Current();
@@ -53,7 +55,8 @@ class FUN_BASE_API Ndc {
 #ifdef FUN_COMPILER_GCC
     int status = 0;
 #if (FUN_PLATFORM == FUN_PLATFORM_CYGWIN)
-    char* name_ptr = __cxxabiv1::__cxa_demangle(typeid(T).name(), 0, 0, &status);
+    char* name_ptr =
+        __cxxabiv1::__cxa_demangle(typeid(T).name(), 0, 0, &status);
 #else
     char* name_ptr = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
 #endif
@@ -62,21 +65,19 @@ class FUN_BASE_API Ndc {
     }
     free(name_ptr);
 
-    if (!full) { // strip scope, if any
+    if (!full) {  // strip scope, if any
       std::size_t pos = name.rfind("::");
       if (pos != std::string::npos) {
         name = name.substr(pos + 2);
       }
     }
-  #endif // TODO: demangle other compilers
+#endif  // TODO: demangle other compilers
 #endif
     return name;
   }
 
-  static String Backtrace(int32 skip_end = 1,
-                          int32 skip_begin = 0,
-                          int32 stack_size = 128,
-                          int32 buf_size = 1024);
+  static String Backtrace(int32 skip_end = 1, int32 skip_begin = 0,
+                          int32 stack_size = 128, int32 buf_size = 1024);
 
   static bool HasBacktrace();
 
@@ -90,14 +91,12 @@ class FUN_BASE_API Ndc {
   Array<Context> stack_;
 };
 
-
 class FUN_BASE_API ScopedNdc {
  public:
   ScopedNdc(const String& info);
   ScopedNdc(const String& info, int32 line, const char* file);
   ~ScopedNdc();
 };
-
 
 //
 // inlines
@@ -115,7 +114,8 @@ FUN_ALWAYS_INLINE ScopedNdc::ScopedNdc(const String& info) {
   Ndc::Current().Push(info);
 }
 
-FUN_ALWAYS_INLINE ScopedNdc::ScopedNdc(const String& info, int32 line, const char* file) {
+FUN_ALWAYS_INLINE ScopedNdc::ScopedNdc(const String& info, int32 line,
+                                       const char* file) {
   Ndc::Current().Push(info, line, file);
 }
 
@@ -127,7 +127,6 @@ FUN_ALWAYS_INLINE ScopedNdc::~ScopedNdc() {
   }
 }
 
-
 //
 // helper macros
 //
@@ -135,33 +134,28 @@ FUN_ALWAYS_INLINE ScopedNdc::~ScopedNdc() {
 #define fun_ndc_func \
   fun::ScopedNdc ndc_scope_(__func__), __LINE__, __FILE__);
 
-#define fun_ndc(func) \
-  fun::ScopedNdc ndc_scope_(#func, __LINE__, __FILE__);
+#define fun_ndc(func) fun::ScopedNdc ndc_scope_(#func, __LINE__, __FILE__);
 
-#define fun_ndc_str(str) \
-  fun::ScopedNdc ndc_scope_(str, __LINE__, __FILE__);
+#define fun_ndc_str(str) fun::ScopedNdc ndc_scope_(str, __LINE__, __FILE__);
 
 #define fun_ndc_bt(from, to) \
   fun::ScopedNdc ndc_scope_(Ndc::Backtrace(from, to), __LINE__, __FILE__);
 
-
 #if defined(_DEBUG)
-  #define fun_ndc_func_dbg \
-      fun::ScopedNdc ndc_scope_(__func__, __LINE__, __FILE__);
+#define fun_ndc_func_dbg \
+  fun::ScopedNdc ndc_scope_(__func__, __LINE__, __FILE__);
 
-  #define fun_ndc_dbg(func) \
-      fun::ScopedNdc ndc_scope_(#func, __LINE__, __FILE__);
+#define fun_ndc_dbg(func) fun::ScopedNdc ndc_scope_(#func, __LINE__, __FILE__);
 
-  #define fun_ndc_dbg_str(str) \
-      fun::ScopedNdc ndc_scope_(str, __LINE__, __FILE__);
+#define fun_ndc_dbg_str(str) fun::ScopedNdc ndc_scope_(str, __LINE__, __FILE__);
 
-  #define fun_ndc_bt_dbg(from, to) \
-    fun::ScopedNdc ndc_scope_(Ndc::Backtrace(from, to), __LINE__, __FILE__);
+#define fun_ndc_bt_dbg(from, to) \
+  fun::ScopedNdc ndc_scope_(Ndc::Backtrace(from, to), __LINE__, __FILE__);
 #else
-  #define fun_ndc_func_dbg
-  #define fun_ndc_dbg(func)
-  #define fun_ndc_dbg_str(str)
-  #define fun_ndc_bt_dbg(from, to)
+#define fun_ndc_func_dbg
+#define fun_ndc_dbg(func)
+#define fun_ndc_dbg_str(str)
+#define fun_ndc_bt_dbg(from, to)
 #endif
 
-} // namespace fun
+}  // namespace fun

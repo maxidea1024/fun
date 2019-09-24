@@ -45,7 +45,8 @@ class RUdpSender {
 
   /**
    * 조정된 송신 최대 속도. 즉 window size와 관련된다.
-   * 너무 크게 잡히면 송신 과부하로 drop되는 패킷이 많아지고 반대로 너무 적으면 비효율.
+   * 너무 크게 잡히면 송신 과부하로 drop되는 패킷이 많아지고 반대로 너무 적으면
+   * 비효율.
    */
   int32 send_speed_limit_;
 
@@ -57,8 +58,8 @@ class RUdpSender {
 
   // 송신 대기중인 frames, 즉 송신 윈도
   typedef List<SenderFrame> SenderWindow;
-  SenderWindow first_sender_window_; //초송신큐
-  SenderWindow resend_window_; //재송신 큐
+  SenderWindow first_sender_window_;  //초송신큐
+  SenderWindow resend_window_;        //재송신 큐
 
   // 통계
   int32 total_send_stream_length_;
@@ -69,8 +70,8 @@ class RUdpSender {
   double recent_send_frame_to_udp_start_time_;
   int32 recent_send_frame_to_udp_speed_;
 
-  // 시작 이래 가장 오랫동안 resend가 시도된 시간. 이 모듈에 의해 계속 업데이트된다.
-  // 타임아웃을 찾기 위한 용도로 사용 가능.
+  // 시작 이래 가장 오랫동안 resend가 시도된 시간. 이 모듈에 의해 계속
+  // 업데이트된다. 타임아웃을 찾기 위한 용도로 사용 가능.
   double max_resend_elapsed_time_;
 
   FrameNumber last_expected_frame_number_at_sender_;
@@ -115,5 +116,5 @@ class RUdpSender {
   void SendOneFrame(RUdpFrame& frame, bool resend);
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

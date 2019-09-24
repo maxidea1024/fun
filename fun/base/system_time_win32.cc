@@ -1,29 +1,27 @@
-﻿#include "fun/base/system_time.h"
-#include <iostream>
+﻿#include <iostream>
+#include "fun/base/system_time.h"
 
 namespace fun {
 
 double WindowsSystemTime::InitTiming() {
   LARGE_INTEGER freq;
-  //fun_verify(QueryPerformanceFrequency(&freq));
+  // fun_verify(QueryPerformanceFrequency(&freq));
   QueryPerformanceFrequency(&freq);
 
   SystemTime::seconds_per_cycle_ = 1.0f / (float)freq.QuadPart;
   SystemTime::seconds_per_cycle64_ = 1.0 / (double)freq.QuadPart;
 
-  std::cout << "SystemTime::seconds_per_cycle_ => " << SystemTime::seconds_per_cycle_ << std::endl;
-  std::cout << "SystemTime::seconds_per_cycle64_ => " << SystemTime::seconds_per_cycle64_ << std::endl;
+  std::cout << "SystemTime::seconds_per_cycle_ => "
+            << SystemTime::seconds_per_cycle_ << std::endl;
+  std::cout << "SystemTime::seconds_per_cycle64_ => "
+            << SystemTime::seconds_per_cycle64_ << std::endl;
 
   return SystemTime::Seconds();
 }
 
-void WindowsSystemTime::GetSystemTime(int32& year,
-                                      int32& month,
-                                      int32& day_of_week,
-                                      int32& day,
-                                      int32& hour,
-                                      int32& min,
-                                      int32& sec,
+void WindowsSystemTime::GetSystemTime(int32& year, int32& month,
+                                      int32& day_of_week, int32& day,
+                                      int32& hour, int32& min, int32& sec,
                                       int32& msec) {
   SYSTEMTIME sys_time;
   ::GetLocalTime(&sys_time);
@@ -38,7 +36,9 @@ void WindowsSystemTime::GetSystemTime(int32& year,
   msec = sys_time.wMilliseconds;
 }
 
-void WindowsSystemTime::GetUtcTime(int32& year, int32& month, int32& day_of_week, int32& day, int32& hour, int32& min, int32& sec, int32& msec) {
+void WindowsSystemTime::GetUtcTime(int32& year, int32& month,
+                                   int32& day_of_week, int32& day, int32& hour,
+                                   int32& min, int32& sec, int32& msec) {
   SYSTEMTIME sys_time;
   ::GetSystemTime(&sys_time);
 
@@ -52,4 +52,4 @@ void WindowsSystemTime::GetUtcTime(int32& year, int32& month, int32& day_of_week
   msec = sys_time.wMilliseconds;
 }
 
-} // namespace fun
+}  // namespace fun

@@ -24,5 +24,5 @@ class P2PGroup_C {
   void GetInfo(P2PGroupInfo& out_info) const;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

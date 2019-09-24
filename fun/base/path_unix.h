@@ -20,4 +20,4 @@ class PathImpl {
   static void ListRootsImpl(Array<String>& roots);
 };
 
-} // namespace fun
+}  // namespace fun

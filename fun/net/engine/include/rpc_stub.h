@@ -32,13 +32,14 @@ class FUN_NETX_API RpcStub {
   virtual const RpcId* GetDeclaredRpcIds() const = 0;
   virtual const char** GetDeclaredRpcNames() const = 0;
 
-  virtual bool ProcessReceivedMessage(ReceivedMessage& received_msg, void* host_tag) = 0;
+  virtual bool ProcessReceivedMessage(ReceivedMessage& received_msg,
+                                      void* host_tag) = 0;
   void ShowUnknownHostIdWarning(HostId remote_id);
 
   RpcStub();
   virtual ~RpcStub();
 
-  //TODO 이것도 제거하는게 좋을듯 싶다...
+  // TODO 이것도 제거하는게 좋을듯 싶다...
   //실제로 그다지 필요해보이지가 않음.
   //효용성에 대해서는 좀더 고민해보도록 하자.
   bool bHolsterMoreCallback_FORONETHREADEDMODEL;
@@ -48,5 +49,5 @@ class FUN_NETX_API RpcStub {
   void PostponeThisCallback();
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

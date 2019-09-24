@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/runnable.h"
-#include "fun/base/mutex.h"
 #include "fun/base/event.h"
+#include "fun/base/mutex.h"
 #include "fun/base/ref_counted_object.h"
+#include "fun/base/runnable.h"
 
 namespace fun {
 
@@ -42,7 +42,7 @@ class FUN_BASE_API Task : public Runnable, public RefCountedObject {
 
   Task() = delete;
   Task(const Task&) = delete;
-  Task& operator = (const Task&) = delete;
+  Task& operator=(const Task&) = delete;
 
  protected:
   bool Sleep(int32 milliseconds);
@@ -59,21 +59,18 @@ class FUN_BASE_API Task : public Runnable, public RefCountedObject {
   TaskManager* owner_;
   float progress_;
   TaskState state_;
-  //TODO pooling
+  // TODO pooling
   Event cancel_event_;
   mutable FastMutex mutex_;
 
   friend class TaskManager;
 };
 
-
 //
 // inlines
 //
 
-inline const String& Task::GetName() const {
-  return name_;
-}
+inline const String& Task::GetName() const { return name_; }
 
 inline float Task::GetProgress() const {
   FastMutex::ScopedLock guard(mutex_);
@@ -84,13 +81,11 @@ inline bool Task::IsCancelled() const {
   return state_ == TaskState::Cancelling;
 }
 
-inline Task::TaskState Task::GetState() const {
-  return state_;
-}
+inline Task::TaskState Task::GetState() const { return state_; }
 
 inline TaskManager* Task::GetOwner() const {
   FastMutex::ScopedLock guard(mutex_);
   return owner_;
 }
 
-} // namespace fun
+}  // namespace fun

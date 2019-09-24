@@ -47,9 +47,8 @@ class FUN_BASE_API TextIterator {
    * The encoding object must not be deleted as long as the iterator
    * is in use.
    */
-  TextIterator( const String::ConstIterator& begin,
-                const String::ConstIterator& end,
-                const TextEncoding& encoding);
+  TextIterator(const String::ConstIterator& begin,
+               const String::ConstIterator& end, const TextEncoding& encoding);
 
   /**
    * Creates an end TextIterator for the given string.
@@ -74,7 +73,7 @@ class FUN_BASE_API TextIterator {
   /**
    * Assignment operator.
    */
-  TextIterator& operator = (const TextIterator& it);
+  TextIterator& operator=(const TextIterator& it);
 
   /**
    * Swaps the iterator with another one.
@@ -86,27 +85,27 @@ class FUN_BASE_API TextIterator {
    * If there is no valid character at the current position,
    * -1 is returned.
    */
-  int operator * () const;
+  int operator*() const;
 
   /**
    * Prefix increment operator.
    */
-  TextIterator& operator ++ ();
+  TextIterator& operator++();
 
   /**
    * Postfix increment operator.
    */
-  TextIterator operator ++ (int);
+  TextIterator operator++(int);
 
   /**
    * Compares two iterators for equality.
    */
-  bool operator == (const TextIterator& it) const;
+  bool operator==(const TextIterator& it) const;
 
   /**
    * Compares two iterators for inequality.
    */
-  bool operator != (const TextIterator& it) const;
+  bool operator!=(const TextIterator& it) const;
 
   /**
    * Returns the end iterator for the range handled
@@ -120,16 +119,15 @@ class FUN_BASE_API TextIterator {
   String::ConstIterator end_;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE bool TextIterator::operator == (const TextIterator& it) const {
+FUN_ALWAYS_INLINE bool TextIterator::operator==(const TextIterator& it) const {
   return current_ == it.current_;
 }
 
-FUN_ALWAYS_INLINE bool TextIterator::operator != (const TextIterator& it) const {
+FUN_ALWAYS_INLINE bool TextIterator::operator!=(const TextIterator& it) const {
   return current_ != it.current_;
 }
 
@@ -141,4 +139,4 @@ FUN_ALWAYS_INLINE TextIterator TextIterator::end() const {
   return TextIterator(end_);
 }
 
-} // namespace fun
+}  // namespace fun

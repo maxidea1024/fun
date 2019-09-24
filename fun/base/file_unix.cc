@@ -1,44 +1,46 @@
 ﻿#include "fun/base/file_unix.h"
 #include "fun/base/container/array.h"
-#include "fun/base/exception.h"
 #include "fun/base/error.h"
+#include "fun/base/exception.h"
 
-#include <algorithm>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <algorithm>
 
 #if FUN_PLATFORM_BSD_FAMILY
-#include <sys/param.h>
 #include <sys/mount.h>
-#elif (FUN_PLATFORM == FUN_PLATFORM_SOLARIS) || (FUN_PLATFORM == FUN_PLATFORM_QNX)
+#include <sys/param.h>
+#elif (FUN_PLATFORM == FUN_PLATFORM_SOLARIS) || \
+    (FUN_PLATFORM == FUN_PLATFORM_QNX)
 #include <sys/statvfs.h>
 #else
 #include <sys/statfs.h>
 #endif
 
-#include <fcntl.h>
 #include <errno.h>
-#include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <cstring>
 
 #if FUN_PLATFORM == FUN_PLATFORM_SOLARIS
-#define STATFSFN      statvfs
-#define STATFSSTRUCT  statvfs
+#define STATFSFN statvfs
+#define STATFSSTRUCT statvfs
 #else
-#define STATFSFN      statfs
-#define STATFSSTRUCT  statfs
+#define STATFSFN statfs
+#define STATFSSTRUCT statfs
 #endif
 
 namespace {
 
-// Convert timespec structures (seconds and remaining nano secs) to TimeVal (microseconds)
+// Convert timespec structures (seconds and remaining nano secs) to TimeVal
+// (microseconds)
 fun::Timestamp::TimeVal Timespec2Microsecs(const struct timespec& ts) {
   return ts.tv_sec * 1000000L + ts.tv_nsec / 1000L;
 }
 
-} // namespace
+}  // namespace
 
 namespace fun {
 
@@ -53,9 +55,7 @@ FileImpl::FileImpl(const String& path) : path_(path) {
 
 FileImpl::~FileImpl() {}
 
-void FileImpl::SwapImpl(FileImpl& file) {
-  fun::Swap(path_, file.path_);
-}
+void FileImpl::SwapImpl(FileImpl& file) { fun::Swap(path_, file.path_); }
 
 void FileImpl::SetPathImpl(const String& path) {
   path_ = path;
@@ -185,14 +185,17 @@ bool FileImpl::IsHiddenImpl() const {
 Timestamp FileImpl::GetCreatedImpl() const {
   fun_check(!path_.IsEmpty());
 // first, platforms with birthtime attributes
-#if defined(__APPLE__) && defined(st_birthtime) && !defined(FUN_NO_STAT64) // st_birthtime is available only on 10.5
-  // a macro st_birthtime makes sure there is a st_birthtimespec (nano sec precision)
+#if defined(__APPLE__) && defined(st_birthtime) && \
+    !defined(FUN_NO_STAT64)  // st_birthtime is available only on 10.5
+  // a macro st_birthtime makes sure there is a st_birthtimespec (nano sec
+  // precision)
   struct stat64 st;
   if (stat64(path_.c_str(), &st) == 0) {
     return Timestamp(Timespec2Microsecs(st.st_birthtimespec));
   }
 #elif defined(__FreeBSD__) && defined(st_birthtime)
-  // a macro st_birthtime makes sure there is a st_birthtimespec (nano sec precision)
+  // a macro st_birthtime makes sure there is a st_birthtimespec (nano sec
+  // precision)
   struct stat st;
   if (stat(path_.c_str(), &st) == 0) {
     return Timestamp(Timespec2Microsecs(st.st_birthtimespec));
@@ -204,8 +207,8 @@ Timestamp FileImpl::GetCreatedImpl() const {
   }
 // then platforms with POSIX 2008-09 compatibility (nanosec precision)
 // (linux 2.6 and later)
-#elif (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200809L) \
-  || (defined(_XOPEN_SOURCE) && _XOPEN_SOURCE >= 700)
+#elif (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200809L) || \
+    (defined(_XOPEN_SOURCE) && _XOPEN_SOURCE >= 700)
   struct stat st;
   if (stat(path_.c_str(), &st) == 0) {
     return Timestamp(Timespec2Microsecs(st.st_ctim));
@@ -228,9 +231,9 @@ Timestamp FileImpl::GetLastModifiedImpl() const {
 
   struct stat st;
   if (stat(path_.c_str(), &st) == 0) {
-#if (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200809L) \
-  || (defined(_XOPEN_SOURCE) && _XOPEN_SOURCE >= 700) \
-  || defined(_BSD_SOURCE) || defined(_SVID_SOURCE)
+#if (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200809L) || \
+    (defined(_XOPEN_SOURCE) && _XOPEN_SOURCE >= 700) ||         \
+    defined(_BSD_SOURCE) || defined(_SVID_SOURCE)
     return Timestamp(Timespec2Microsecs(st.st_mtim));
 #elif defined(__APPLE__)
     return Timestamp(Timespec2Microsecs(st.st_mtimespec));
@@ -247,8 +250,8 @@ void FileImpl::SetLastModifiedImpl(const Timestamp& ts) {
   fun_check(!path_.IsEmpty());
 
   struct timeval tb[2];
-  tb[0].tv_sec  = ts.EpochMicroseconds() / 1000000;
-  tb[0].tv_usec  = ts.EpochMicroseconds() % 1000000;
+  tb[0].tv_sec = ts.EpochMicroseconds() / 1000000;
+  tb[0].tv_usec = ts.EpochMicroseconds() % 1000000;
   tb[1] = tb[0];
   if (utimes(path_.c_str(), tb) != 0) {
     HandleLastErrorImpl(path_);
@@ -404,7 +407,8 @@ void FileImpl::RemoveImpl() {
 bool FileImpl::CreateFileImpl() {
   fun_check(!path_.IsEmpty());
 
-  int n = open(path_.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+  int n = open(path_.c_str(), O_WRONLY | O_CREAT | O_EXCL,
+               S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
   if (n != -1) {
     close(n);
     return true;
@@ -498,4 +502,4 @@ void FileImpl::HandleLastErrorImpl(const String& path) {
   }
 }
 
-} // namespace fun
+}  // namespace fun

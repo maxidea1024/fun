@@ -1,8 +1,8 @@
-﻿#include "fun/base/thread_std.h"
+﻿#include "fun/base/exception.h"
 #include "fun/base/thread.h"
-#include "fun/base/exception.h"
+#include "fun/base/thread_std.h"
 
-//TODO 제거하자 이미 포함되어 있음..
+// TODO 제거하자 이미 포함되어 있음..
 #if FUN_PLATFORM_WINDOWS_FAMILY
 #include "fun/base/windows_less.h"
 #endif
@@ -52,8 +52,6 @@ void ThreadImpl::SetAffinityImpl(int cpu) {
   data_->cpu = cpu;
 }
 
-int ThreadImpl::GetAffinityImpl() const {
-  return data_->cpu;
-}
+int ThreadImpl::GetAffinityImpl() const { return data_->cpu; }
 
-} // namespace fun
+}  // namespace fun

@@ -1,31 +1,30 @@
-﻿#include "fun/net/net.h"
+﻿#include <assert.h>  // CHECK에 버그가 있는지 확인을 위해서...
 #include "MessageStream.h"
-#include <assert.h> // CHECK에 버그가 있는지 확인을 위해서...
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
 
 using lf = LiteFormat;
 
-#define SPLITTER_VALUE_1  0x1122
-#define SPLITTER_VALUE_2  0x3344
+#define SPLITTER_VALUE_1 0x1122
+#define SPLITTER_VALUE_2 0x3344
 
 void MessageStream::AddStreamHeader(const SendFragRefs& payload,
-                                    SendFragRefs& output,
-                                    MessageOut& header) {
-  lf::Write(header, SPLITTER_VALUE);         // Spliiter marker
-  lf::Write(header, OptimalCounter32(payload.GetTotalLength()));  // Length of payload
+                                    SendFragRefs& output, MessageOut& header) {
+  lf::Write(header, SPLITTER_VALUE);  // Spliiter marker
+  lf::Write(header,
+            OptimalCounter32(payload.GetTotalLength()));  // Length of payload
 
   output.Add(header);   // header segment
   output.Add(payload);  // payload segment
 }
 
-int32 MessageStream::ExtractMessagesAndFlushStream(
-      StreamQueue& input,
-      ReceivedMessageList& output,
-      HostId sender_id,
-      int32 message_max_length,
-      ResultCode& out_error) {
+int32 MessageStream::ExtractMessagesAndFlushStream(StreamQueue& input,
+                                                   ReceivedMessageList& output,
+                                                   HostId sender_id,
+                                                   int32 message_max_length,
+                                                   ResultCode& out_error) {
   MessageStreamExtractor extractor;
   extractor.input = input.ConstData();
   extractor.input_length = input.Length();
@@ -34,7 +33,7 @@ int32 MessageStream::ExtractMessagesAndFlushStream(
   extractor.message_max_length = message_max_length;
 
   const int32 extracted_msg_count = extractor.Extract(out_error);
-  input.DequeueNoCopy(extractor.out_last_success_offset); // drain
+  input.DequeueNoCopy(extractor.out_last_success_offset);  // drain
   return extracted_msg_count;
 }
 
@@ -55,7 +54,8 @@ int32 MessageStreamExtractor::Extract(ResultCode& out_error) {
     return 0;
   }
 
-  // 여기에서만 사용될 것이므로, raw 형태로 attach해서 메모리 할당 및 복사를 제거하도록 함.
+  // 여기에서만 사용될 것이므로, raw 형태로 attach해서 메모리 할당 및 복사를
+  // 제거하도록 함.
   MessageIn reader(ByteArray::FromRawData((const char*)input, input_length));
 
   int32 extracted_msg_count = 0;
@@ -79,17 +79,19 @@ int32 MessageStreamExtractor::Extract(ResultCode& out_error) {
     // (C++ 예외 발생을 하지 말자. 디버깅시 혼란만 가중하고 fail over에 약하다)
     // 폐기한다.
     // 그리고 스트림을 끝까지 다 처리한 것처럼 간주한다.
-    // TCP인 경우라면 상대와의 연결을 끊고, UDP인 경우라면 제3자 해커가 쓰레기 메시지를 보낸
-    // 것일 수도 있으므로 무시한다.
+    // TCP인 경우라면 상대와의 연결을 끊고, UDP인 경우라면 제3자 해커가 쓰레기
+    // 메시지를 보낸 것일 수도 있으므로 무시한다.
 
     //수정사항:
-    // -> NetClientImpl::ExtractMessagesFromTcpStream 에서 최초 policy text 를 수신할때
+    // -> NetClientImpl::ExtractMessagesFromTcpStream 에서 최초 policy text 를
+    // 수신할때
     //    별도로 처리했으므로 아래와 같은 상황이 나오면 안됨.
     //    말 그대로 에러가 됨!!!
     if (splitter != MessageStream::SPLITTER_VALUE) {
-      LOG(LogNetEngine,Error,"Wrong splitter: %04Xh", splitter);
+      LOG(LogNetEngine, Error, "Wrong splitter: %04Xh", splitter);
 
-      out_last_success_offset = reader.GetLength(); // 그냥 다 읽어버린 걸로 처리
+      out_last_success_offset =
+          reader.GetLength();  // 그냥 다 읽어버린 걸로 처리
       out_error = ResultCode::InvalidPacketFormat;
       TRACE_SOURCE_LOCATION();
       return -1;
@@ -104,27 +106,31 @@ int32 MessageStreamExtractor::Extract(ResultCode& out_error) {
 
     // 메시지의 크기가 잘못된 크기이면 오류 처리를 한다.
 
-    //fun_check(__splitter1 == SPLITTER_VALUE_1);
-    //fun_check(__splitter2 == SPLITTER_VALUE_2);
-    
-    fun_check(message_max_length > 1024); //TODO 현재 문제점을 찾기 위해서 임시로 넣어둔것임.  어이하야 16바이트가 설정되는지??
+    // fun_check(__splitter1 == SPLITTER_VALUE_1);
+    // fun_check(__splitter2 == SPLITTER_VALUE_2);
+
+    fun_check(message_max_length >
+              1024);  // TODO 현재 문제점을 찾기 위해서 임시로 넣어둔것임.
+                      // 어이하야 16바이트가 설정되는지??
 
     if (payload_length < 0) {
-      out_last_success_offset = reader.Length(); // 그냥 다 읽어버린 걸로 처리
+      out_last_success_offset = reader.Length();  // 그냥 다 읽어버린 걸로 처리
       out_error = ResultCode::InvalidPacketFormat;
       TRACE_SOURCE_LOCATION();
       return -2;
     } else if (payload_length > message_max_length) {
-      LOG(LogNetEngine,Warning,"Heavy payload length: %d, message_max_length: %d", (int32)payload_length, message_max_length);
+      LOG(LogNetEngine, Warning,
+          "Heavy payload length: %d, message_max_length: %d",
+          (int32)payload_length, message_max_length);
 
-      out_last_success_offset = reader.Length(); // 그냥 다 읽어버린 걸로 처리
+      out_last_success_offset = reader.Length();  // 그냥 다 읽어버린 걸로 처리
       out_error = ResultCode::TooLargeMessageDetected;
       TRACE_SOURCE_LOCATION();
       return -3;
     }
 
-    // 밑에 부분에서 메모리 할당 부분이 있으므로, 데이터가 아직 모자를 경우에는 아예 시도를 하지 않는것이
-    // 최적화에 유리하겠다.
+    // 밑에 부분에서 메모리 할당 부분이 있으므로, 데이터가 아직 모자를 경우에는
+    // 아예 시도를 하지 않는것이 최적화에 유리하겠다.
     if (!reader.CanRead(payload_length)) {
       out_last_success_offset = last_success_offset;
       return extracted_msg_count;
@@ -134,8 +140,8 @@ int32 MessageStreamExtractor::Extract(ResultCode& out_error) {
 
     // 받을 메시지 버퍼를 준비한다.
     // 임시버퍼에서 데이터를 가져오므로, 복사를 제거할 수 없음...
-    //LiteFormat::Read 로 CByteString을 바로 읽어버리면, 앞에 길이가 있는걸로 간주하기 때문에
-    //여기서는 길이만큼 읽는걸로 대체해야함.
+    // LiteFormat::Read 로 CByteString을 바로 읽어버리면, 앞에 길이가 있는걸로
+    // 간주하기 때문에 여기서는 길이만큼 읽는걸로 대체해야함.
     /*
     //ByteArray payload;
     //if (!lf::Read(reader, payload))
@@ -151,7 +157,7 @@ int32 MessageStreamExtractor::Extract(ResultCode& out_error) {
     // success one packet.
     ReceivedMessage received_msg;
     received_msg.remote_id = sender_id;
-    received_msg.unsafe_message = MessageIn(payload); // shared
+    received_msg.unsafe_message = MessageIn(payload);  // shared
 
     output->Add(received_msg);
     extracted_msg_count++;
@@ -167,13 +173,12 @@ int32 MessageStreamExtractor::Extract(ResultCode& out_error) {
 }
 
 MessageStreamExtractor::MessageStreamExtractor()
-  : input(nullptr),
-    input_length(0),
-    output(nullptr),
-    sender_id(HostId_None),
-    message_max_length(0),
-    out_last_success_offset(0) {
-}
+    : input(nullptr),
+      input_length(0),
+      output(nullptr),
+      sender_id(HostId_None),
+      message_max_length(0),
+      out_last_success_offset(0) {}
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

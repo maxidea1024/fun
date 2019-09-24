@@ -1,16 +1,15 @@
 ﻿#include "fun/base/task.h"
-#include "fun/base/task_manager.h"
 #include "fun/base/exception.h"
+#include "fun/base/task_manager.h"
 
 namespace fun {
 
 Task::Task(const String& name)
-  : name_(name),
-    owner_(nullptr),
-    progress_(0),
-    state_(TaskState::Idle),
-    cancel_event_(EventResetType::Manual) {
-}
+    : name_(name),
+      owner_(nullptr),
+      progress_(0),
+      state_(TaskState::Idle),
+      cancel_event_(EventResetType::Manual) {}
 
 Task::~Task() {}
 
@@ -86,9 +85,7 @@ void Task::SetOwner(TaskManager* owner) {
   owner_ = owner;
 }
 
-void Task::SetState(TaskState state) {
-  state_ = state;
-}
+void Task::SetState(TaskState state) { state_ = state; }
 
 void Task::PostNotification(Notification* noti) {
   fun_check_ptr(noti);
@@ -100,4 +97,4 @@ void Task::PostNotification(Notification* noti) {
   }
 }
 
-} // namespace fun
+}  // namespace fun

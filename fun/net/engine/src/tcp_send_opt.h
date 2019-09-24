@@ -11,37 +11,33 @@ class TcpSendOption {
   uint64 unique_id;
   /** Lookback 허용 여부. */
   bool bounce;
-  //bool no_coalesce;
+  // bool no_coalesce;
 
  public:
   TcpSendOption()
-    : unique_id(0),
-      bounce(true)
-    //, no_coalesce(false)
-  {
-  }
+      : unique_id(0),
+        bounce(true)
+  //, no_coalesce(false)
+  {}
 
   TcpSendOption(const SendOption& src)
-    : unique_id(src.unique_id),
-      bounce(src.bounce)
-    //, no_coalesce(src.no_coalesce)
-  {
-  }
+      : unique_id(src.unique_id),
+        bounce(src.bounce)
+  //, no_coalesce(src.no_coalesce)
+  {}
 
   TcpSendOption(const RpcCallOption& src)
-    : unique_id(src.unique_id),
-      bounce(src.bounce)
-    //, no_coalesce(src.no_coalesce)
-  {
-  }
+      : unique_id(src.unique_id),
+        bounce(src.bounce)
+  //, no_coalesce(src.no_coalesce)
+  {}
 
   TcpSendOption(const UdpSendOption& src)
-    : unique_id(src.unique_id),
-      bounce(src.bounce)
-    //, no_coalesce(src.no_coalesce)
-  {
-  }
+      : unique_id(src.unique_id),
+        bounce(src.bounce)
+  //, no_coalesce(src.no_coalesce)
+  {}
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

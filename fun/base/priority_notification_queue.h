@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/notification.h"
-#include "fun/base/mutex.h"
 #include "fun/base/event.h"
+#include "fun/base/mutex.h"
+#include "fun/base/notification.h"
 
-#include <map>
 #include <deque>
+#include <map>
 
 namespace fun {
 
@@ -18,10 +18,10 @@ class NotificationCenter;
  * from one thread to another, for example from a background thread to
  * the main (user interface) thread.
  *
- * The PriorityNotificationQueue is quite similar to the NotificationQueue class.
- * The only difference to NotificationQueue is that each Notification is tagged
- * with a priority value. When inserting a Notification into the queue, the
- * Notification is inserted according to the given priority value, with
+ * The PriorityNotificationQueue is quite similar to the NotificationQueue
+ * class. The only difference to NotificationQueue is that each Notification is
+ * tagged with a priority value. When inserting a Notification into the queue,
+ * the Notification is inserted according to the given priority value, with
  * lower priority values being inserted before higher priority
  * values. Therefore, the lower the numerical priority value, the higher
  * the actual notification priority.
@@ -157,4 +157,4 @@ class FUN_BASE_API PriorityNotificationQueue {
   mutable FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

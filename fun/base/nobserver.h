@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/observer_base.h"
 #include "fun/base/mutex.h"
+#include "fun/base/observer_base.h"
 
 namespace fun {
 
-//TODO dynamic_cast를 써야만할까??
+// TODO dynamic_cast를 써야만할까??
 
 /**
  * This template class implements an adapter that sits between
@@ -16,7 +16,7 @@ namespace fun {
  * specific additional methods.
  * See the NotificationCenter class for information on how
  * to use this template class.
- * 
+ *
  * This class template is quite similar to the Observer class
  * template. The only difference is that the NObserver
  * expects the callback function to accept a const Ptr&
@@ -26,13 +26,12 @@ namespace fun {
 template <typename C, typename N>
 class NObserver : public ObserverBase {
  public:
-  NObserver(C& object, Callback method)
-    : object_(object), method_(method) {}
+  NObserver(C& object, Callback method) : object_(object), method_(method) {}
 
   NObserver(const NObserver& rhs)
-    : ObserverBase(rhs), object_(rhs.object_), method_(rhs.method_) {}
+      : ObserverBase(rhs), object_(rhs.object_), method_(rhs.method_) {}
 
-  NObserver& operator = (const NObserver& rhs) {
+  NObserver& operator=(const NObserver& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       object_ = rhs.object_;
       method_ = rhs.method_;
@@ -55,18 +54,15 @@ class NObserver : public ObserverBase {
   bool Equals(const ObserverBase& other) const {
     const NObserver* casted_other = dynamic_cast<const NObserver*>(&other);
 
-    return  casted_other &&
-            casted_other->object_ == object_ &&
-            casted_other->method_ == method_;
+    return casted_other && casted_other->object_ == object_ &&
+           casted_other->method_ == method_;
   }
 
   bool Accepts(Notification* noti) const {
     return dynamic_cast<N*>(noti) != nullptr;
   }
 
-  SharedPtr<ObserverBase> Clone() const {
-    return new NObserver(*this);
-  }
+  SharedPtr<ObserverBase> Clone() const { return new NObserver(*this); }
 
   void Disable() {
     ScopedLock guard(mutex_);
@@ -81,4 +77,4 @@ class NObserver : public ObserverBase {
   Mutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

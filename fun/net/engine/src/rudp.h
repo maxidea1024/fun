@@ -8,7 +8,7 @@ namespace net {
 // forward declarations
 class RemotePeer_C;
 class SendFragRefs;
-//class ReceivedMessageList;
+// class ReceivedMessageList;
 class ReceivedMessage;
 class RUdpHost;
 class IRUdpHostDelegate;
@@ -24,8 +24,10 @@ class RemotePeerRUdp : public IRUdpHostDelegate {
 
   void SendWhenReady(const SendFragRefs& data_to_send);
   FrameNumber NextFrameNumberForAnotherReliablySendingFrame();
-  bool EnqueueReceivedFrameAndGetFlushedMessages(RUdpFrame& frame, ReceivedMessageList& out_result, ResultCode& out_error);
-  bool EnqueueReceivedFrameAndGetFlushedMessages(MessageIn& msg, ReceivedMessageList& out_result, ResultCode& out_error);
+  bool EnqueueReceivedFrameAndGetFlushedMessages(
+      RUdpFrame& frame, ReceivedMessageList& out_result, ResultCode& out_error);
+  bool EnqueueReceivedFrameAndGetFlushedMessages(
+      MessageIn& msg, ReceivedMessageList& out_result, ResultCode& out_error);
 
   // 주기적으로 호출되어야하는 함수입니다.
   void Heartbeat();
@@ -45,9 +47,10 @@ class RemotePeerRUdp : public IRUdpHostDelegate {
   SharedPtr<RUdpHost> host_;
   // 이 객체를 소유하고 있는 RemotePeer 객체입니다.
   RemotePeer_C* owner_;
-  // P2P reliable 통신이 실패하면, 이 플래그가 true로 셋팅되며, true로 셋팅된 이후로는 서버를 경유해서 relaying하게 됩니다.
+  // P2P reliable 통신이 실패하면, 이 플래그가 true로 셋팅되며, true로 셋팅된
+  // 이후로는 서버를 경유해서 relaying하게 됩니다.
   bool panic_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

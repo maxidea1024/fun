@@ -1,15 +1,17 @@
-﻿//TODO 코드정리
-//@todo 첫번째 데이터(policy text) 수신시 splitter-test시 예외가 발생하는 문제점을 해소해야함.
+﻿// TODO 코드정리
+//@todo 첫번째 데이터(policy text) 수신시 splitter-test시 예외가 발생하는
+//문제점을 해소해야함.
 
-#include "fun/net/net.h"
 #include "TcpTransport.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
 
 using lf = LiteFormat;
 
-void TcpSendQueue::EnqueueCopy(const SendFragRefs& data_to_send, const TcpSendOption& send_opt) {
+void TcpSendQueue::EnqueueCopy(const SendFragRefs& data_to_send,
+                               const TcpSendOption& send_opt) {
   auto packet = packet_pool_.NewOrRecycle();
 
   packet->unique_id = send_opt.unique_id;
@@ -42,13 +44,13 @@ L1:
   CheckConsistency();
 }
 
-// length만큼 보낼 데이터들을 fragmented send buffer(WSABUF)에 포인터 리스트로서 채운다.
+// length만큼 보낼 데이터들을 fragmented send buffer(WSABUF)에 포인터 리스트로서
+// 채운다.
 void TcpSendQueue::FillSendBuf(FragmentedBuffer& output, int32 allowed_len) {
-  //output 은 임시변수 형태로만 사용되므로, 구지 아래처럼 비워줄 필요가 없을터...
-  //괜시리 capacity 재조정만 요구됨.
-  //일단은 혹시 모르니 남겨두고... 차후에 멤버변수로 가지고 있지 않을 경우에는
-  //제거하도록 하자.
-  output.Clear(); // keep capacity(이게 유지하는게 바람직할까??)
+  // output 은 임시변수 형태로만 사용되므로, 구지 아래처럼 비워줄 필요가
+  // 없을터... 괜시리 capacity 재조정만 요구됨. 일단은 혹시 모르니 남겨두고...
+  //차후에 멤버변수로 가지고 있지 않을 경우에는 제거하도록 하자.
+  output.Clear();  // keep capacity(이게 유지하는게 바람직할까??)
 
   if (allowed_len <= 0) {
     return;
@@ -57,8 +59,10 @@ void TcpSendQueue::FillSendBuf(FragmentedBuffer& output, int32 allowed_len) {
   int32 acc_total = 0;
 
   if (partial_sent_packet_) {
-    const uint8* ptr = (const uint8*)partial_sent_packet_->packet.ConstData() + partial_sent_len_;
-    const int32 remain_len = partial_sent_packet_->packet.Len() - partial_sent_len_;
+    const uint8* ptr = (const uint8*)partial_sent_packet_->packet.ConstData() +
+                       partial_sent_len_;
+    const int32 remain_len =
+        partial_sent_packet_->packet.Len() - partial_sent_len_;
     output.Add(ptr, remain_len);
     acc_total += remain_len;
   }
@@ -72,15 +76,13 @@ void TcpSendQueue::FillSendBuf(FragmentedBuffer& output, int32 allowed_len) {
 }
 
 TcpSendQueue::TcpSendQueue()
-  : total_len_(0),
-    partial_sent_len_(0),
-    partial_sent_packet_(nullptr) {}
+    : total_len_(0), partial_sent_len_(0), partial_sent_packet_(nullptr) {}
 
 // `len`만큼 패킷 큐에서 제거한다.
-// 
+//
 //   최우선: 보내다 만거, 차우선: 패킷 큐 상단
-//   패킷 큐에서 제거 후 남은건 partial sent packet으로 옮긴다. 그리고 offset도 변경.
-//   최종 처리 후 TotalLength로 변경됨.
+//   패킷 큐에서 제거 후 남은건 partial sent packet으로 옮긴다. 그리고 offset도
+//   변경. 최종 처리 후 TotalLength로 변경됨.
 void TcpSendQueue::DequeueNoCopy(int32 len) {
   if (len < 0) {
     throw InvalidArgumentException();
@@ -97,7 +99,8 @@ void TcpSendQueue::DequeueNoCopy(int32 len) {
   if (partial_sent_packet_) {
     // 새로 보낸 데이터 길이가 이전에 보내고 남은 것보다 작은 경우에는
     // 길이 카운터만 갱신하고 종료.
-    // (아직까지도 이전에 보내고 남은걸 다 보내지 못한 상황.. 언젠간 다 보내겠지...)
+    // (아직까지도 이전에 보내고 남은걸 다 보내지 못한 상황.. 언젠간 다
+    // 보내겠지...)
     if ((partial_sent_len_ + len) < partial_sent_packet_->packet.Len()) {
       partial_sent_len_ += len;
       total_len_ -= len;
@@ -106,7 +109,8 @@ void TcpSendQueue::DequeueNoCopy(int32 len) {
 
     // 이전에 보내고 남은거 이상으로는 다보냈으니, 완료처리.
     // 물론, 조금더 보낼것이 있을수 있으므로, 여기서 바로 종료하지는 않음.
-    const int32 Remainder = partial_sent_packet_->packet.Len() - partial_sent_len_;
+    const int32 Remainder =
+        partial_sent_packet_->packet.Len() - partial_sent_len_;
     total_len_ -= Remainder;
     len -= Remainder;
 
@@ -119,13 +123,14 @@ void TcpSendQueue::DequeueNoCopy(int32 len) {
   while (len > 0 && !queue_.IsEmpty()) {
     auto head_packet = queue_.Dequeue();
 
-    if (head_packet->packet.Len() <= len) { // 완전소진
+    if (head_packet->packet.Len() <= len) {  // 완전소진
       total_len_ -= head_packet->packet.Len();
       len -= head_packet->packet.Len();
       packet_pool_.ReturnToPool(head_packet);
-    } else { // 해당 패킷중 일부만 보냈음.
+    } else {  // 해당 패킷중 일부만 보냈음.
       partial_sent_packet_ = head_packet;
-      partial_sent_len_ = len; // 부분 패킷(마지막 보내던거) 전체를 보낸게 아니라 부분만 보낸것인데, 그 남은 길이임
+      partial_sent_len_ = len;  // 부분 패킷(마지막 보내던거) 전체를 보낸게
+                                // 아니라 부분만 보낸것인데, 그 남은 길이임
 
       total_len_ -= len;
       len = 0;
@@ -142,7 +147,8 @@ void TcpSendQueue::LongTick(double absolute_time) {
   RecentReceiveSpeedAtReceiverSide.LongTick(absolute_time);
 
   // 송신속도, 수신속도를 고려해서 최대송신가능속도를 결정
-  AllowedMaxSendSpeed.CalcNewValue(send_speed.GetRecentSpeed(), RecentReceiveSpeedAtReceiverSide.GetValue());
+  AllowedMaxSendSpeed.CalcNewValue(send_speed.GetRecentSpeed(),
+                                   RecentReceiveSpeedAtReceiverSide.GetValue());
 }
 
 TcpSendQueue::~TcpSendQueue() {
@@ -175,5 +181,5 @@ void TcpSendQueue::CheckConsistency() {
 #endif
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

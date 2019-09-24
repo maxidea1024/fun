@@ -1,6 +1,6 @@
-﻿#include "fun/net/net.h"
+﻿#include "RUdpConfig.h"
 #include "RUdpFrame.h"
-#include "RUdpConfig.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -12,7 +12,8 @@ void RUdpFrame::CloneTo(RUdpFrame& to) {
   to.data = data;
   to.type = type;
 
-  //TODO 사본을 꼭 만들어야하나??  AckedFrameNumbers이 외부에서 수정된다면, 사본을 만들어 주어야함.
+  // TODO 사본을 꼭 만들어야하나??  AckedFrameNumbers이 외부에서 수정된다면,
+  // 사본을 만들어 주어야함.
   // (AckedFrameNumbers는 COW 형태로 관리 되지 않으므로..)
   if (acked_frame_numbers) {
     to.acked_frame_numbers = acked_frame_numbers->Clone();
@@ -26,7 +27,7 @@ void RUdpFrame::CloneTo(RUdpFrame& to) {
 
 CompressedFrameNumbersPtr CompressedFrameNumbers::Clone() {
   CompressedFrameNumbersPtr to(new CompressedFrameNumbers);
-  to->array = array; // Copy
+  to->array = array;  // Copy
   return to;
 }
 
@@ -54,7 +55,8 @@ void CompressedFrameNumbers::AddSortedNumber(FrameNumber n) {
 
 void CompressedFrameNumbers::Write(MessageOut& output) {
   fun_check(RUdpConfig::max_ack_count_in_one_frame < 65534);
-  fun_check(array.Count() <= RUdpConfig::max_ack_count_in_one_frame); // 최대 258개라 이거지....
+  fun_check(array.Count() <=
+            RUdpConfig::max_ack_count_in_one_frame);  // 최대 258개라 이거지....
 
   const OptimalCounter32 length = array.Count();
   lf::Write(output, length);
@@ -77,7 +79,7 @@ bool CompressedFrameNumbers::Read(MessageIn& input) {
   OptimalCounter32 length;
   FUN_DO_CHECKED(lf::Read(input, length));
 
-  //array.ResizeUninitialized(length);
+  // array.ResizeUninitialized(length);
   array.Resize(length);
 
   for (int32 i = 0; i < length; ++i) {
@@ -103,7 +105,7 @@ void CompressedFrameNumbers::Decompress(DecompressedFrameNumberArray& output) {
   output.Clear();
 
   for (int32 i = 0; i < array.Count(); ++i) {
-    Elem e = array[i]; // Copy
+    Elem e = array[i];  // Copy
     while (true) {
       output.Add(e.left);
       if (e.left == e.right) {
@@ -114,5 +116,5 @@ void CompressedFrameNumbers::Decompress(DecompressedFrameNumberArray& output) {
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

@@ -52,13 +52,12 @@ class FUN_BASE_API Stopwatch {
 
  private:
   Stopwatch(const Stopwatch&);
-  Stopwatch& operator = (const Stopwatch&);
+  Stopwatch& operator=(const Stopwatch&);
 
   Clock start_;
   Clock::DiffType elapsed_;
   bool running_;
 };
-
 
 //
 // inlines
@@ -87,4 +86,4 @@ FUN_ALWAYS_INLINE Clock::ValueType Stopwatch::Resolution() {
   return Clock::Resolution();
 }
 
-} // namespace fun
+}  // namespace fun

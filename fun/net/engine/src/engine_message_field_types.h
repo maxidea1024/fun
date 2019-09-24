@@ -16,8 +16,9 @@ FUN_MESSAGEFIELD_ENUM_FXED8(RUdpFrameType);
 FUN_MESSAGEFIELD_ENUM_FXED8(ResultCode);
 FUN_MESSAGEFIELD_ENUM_VARINT(RpcId);
 
-//TODO TArray를 WellKownType으로 처리하고 있으므로 구지 필요 없을듯??
-template <> struct MessageFieldTypeTraits<HostIdArray> {
+// TODO TArray를 WellKownType으로 처리하고 있으므로 구지 필요 없을듯??
+template <>
+struct MessageFieldTypeTraits<HostIdArray> {
   typedef HostIdArray CppValueType;
 
   inline static void Write(IMessageOut& output, const CppValueType& value) {
@@ -44,7 +45,8 @@ template <> struct MessageFieldTypeTraits<HostIdArray> {
   }
 };
 
-template <> struct MessageFieldTypeTraits<RelayDest> {
+template <>
+struct MessageFieldTypeTraits<RelayDest> {
   typedef RelayDest CppValueType;
 
   inline static void Write(IMessageOut& output, const CppValueType& value) {
@@ -59,8 +61,9 @@ template <> struct MessageFieldTypeTraits<RelayDest> {
   }
 };
 
-//TODO TArray를 WellKownType으로 처리하고 있으므로 구지 필요 없을듯??
-template <> struct MessageFieldTypeTraits<RelayDestList> {
+// TODO TArray를 WellKownType으로 처리하고 있으므로 구지 필요 없을듯??
+template <>
+struct MessageFieldTypeTraits<RelayDestList> {
   typedef RelayDestList CppValueType;
 
   inline static void Write(IMessageOut& output, const CppValueType& value) {
@@ -87,15 +90,15 @@ template <> struct MessageFieldTypeTraits<RelayDestList> {
   }
 };
 
-//warning
-//쓰이는데가 한곳밖에 없기도 하고, 카운터가 들어가는 문제로 인해서 메시지를 읽어들이는데 문제가 있을수 있으므로
-//제거하자.
-//template <> struct MessageFieldTypeTraits<SendFragRefs> {
+// warning
+//쓰이는데가 한곳밖에 없기도 하고, 카운터가 들어가는 문제로 인해서 메시지를
+//읽어들이는데 문제가 있을수 있으므로 제거하자. template <> struct
+// MessageFieldTypeTraits<SendFragRefs> {
 //  typedef SendFragRefs CppValueType;
 //
 //  inline static void Write(IMessageOut& output, const CppValueType& value) {
-//    //FIXED 이 카운터가 의도치 않게 들어가다 보니, 메시지를 잘못읽어들이는 문제가 있었음.
-//    const OptimalCounter32 count = value.Count();
+//    //FIXED 이 카운터가 의도치 않게 들어가다 보니, 메시지를 잘못읽어들이는
+//    문제가 있었음. const OptimalCounter32 count = value.Count();
 //    LiteFormat::Write(output, count);
 //
 //    for (int32 i = 0; i < count; ++i) {
@@ -106,5 +109,5 @@ template <> struct MessageFieldTypeTraits<RelayDestList> {
 //  static bool Read(IMessageIn& input, CppValueType& out_value) = delete;
 //};
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

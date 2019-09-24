@@ -1,13 +1,13 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/mutex.h"
-#include "fun/base/task.h"
-#include "fun/base/ref_counted.h"
-#include "fun/base/notification_center.h"
-#include "fun/base/timestamp.h"
-#include "fun/base/thread_pool.h"
 #include "fun/base/container/list.h"
+#include "fun/base/mutex.h"
+#include "fun/base/notification_center.h"
+#include "fun/base/ref_counted.h"
+#include "fun/base/task.h"
+#include "fun/base/thread_pool.h"
+#include "fun/base/timestamp.h"
 
 namespace fun {
 
@@ -33,7 +33,8 @@ class FUN_BASE_API TaskManager {
   /**
    * Creates the TaskManager, using the default ThreadPool.
    */
-  TaskManager(ThreadPool::ThreadAffinityPolicy affinity_policy = ThreadPool::TAP_DEFAULT);
+  TaskManager(ThreadPool::ThreadAffinityPolicy affinity_policy =
+                  ThreadPool::TAP_DEFAULT);
 
   /**
    * Creates the TaskManager, using the given ThreadPool.
@@ -92,8 +93,8 @@ class FUN_BASE_API TaskManager {
    * Registers an observer with the NotificationCenter.
    *
    * Usage:
-   *     Observer<MyClass, MyNotification> obs(*this, &MyClass::HandleNotification);
-   *     notificationCenter.AddObserver(obs);
+   *     Observer<MyClass, MyNotification> obs(*this,
+   * &MyClass::HandleNotification); notificationCenter.AddObserver(obs);
    */
   void AddObserver(const ObserverBase& observer);
 
@@ -127,7 +128,6 @@ class FUN_BASE_API TaskManager {
   friend class Task;
 };
 
-
 //
 // inlines
 //
@@ -138,4 +138,4 @@ FUN_ALWAYS_INLINE size_t TaskManager::Count() const {
   return task_list_.Count();
 }
 
-} // namespace fun
+}  // namespace fun

@@ -4,9 +4,9 @@
 #include "fun/base/ref_counted.h"
 //#include <vector>
 //#include <map>
-#include "fun/base/windows_less.h"
 #include "fun/base/container/array.h"
 #include "fun/base/container/map.h"
+#include "fun/base/windows_less.h"
 
 namespace fun {
 
@@ -23,7 +23,7 @@ class FUN_BASE_API ProcessHandleImpl : public RefCountedObject {
   void CloseHandle();
 
   ProcessHandleImpl(const ProcessHandleImpl&) = delete;
-  ProcessHandleImpl& operator = (const ProcessHandleImpl&) = delete;
+  ProcessHandleImpl& operator=(const ProcessHandleImpl&) = delete;
 
  private:
   HANDLE process_handle_;
@@ -38,13 +38,11 @@ class FUN_BASE_API ProcessImpl {
 
   static PIDImpl CurrentPidImpl();
   static void GetTimesImpl(long& user_time, long& kernel_time);
-  static ProcessHandleImpl* LaunchImpl( const String& command,
-                                        const ArgsImpl& args,
-                                        const String& initial_directory,
-                                        Pipe* in_pipe,
-                                        Pipe* out_pipe,
-                                        Pipe* err_pipe,
-                                        const EnvImpl& env);
+  static ProcessHandleImpl* LaunchImpl(const String& command,
+                                       const ArgsImpl& args,
+                                       const String& initial_directory,
+                                       Pipe* in_pipe, Pipe* out_pipe,
+                                       Pipe* err_pipe, const EnvImpl& env);
   static void KillImpl(ProcessHandleImpl& handle);
   static void KillImpl(PIDImpl pid);
   static bool IsRunningImpl(const ProcessHandleImpl& handle);
@@ -53,4 +51,4 @@ class FUN_BASE_API ProcessImpl {
   static String TerminationEventName(PIDImpl pid);
 };
 
-} // namespace fun
+}  // namespace fun

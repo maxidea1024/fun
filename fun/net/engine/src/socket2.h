@@ -1,5 +1,5 @@
-﻿//TODO 어느정도 작업이 진행되면 제거할 코드임!
-//TODO 어짜피 제거할 놈이므로, public쪽으로 안빼줌.. 조용히 사라지면됨...
+﻿// TODO 어느정도 작업이 진행되면 제거할 코드임!
+// TODO 어짜피 제거할 놈이므로, public쪽으로 안빼줌.. 조용히 사라지면됨...
 #pragma once
 
 #include "fun/net/net.h"
@@ -51,15 +51,19 @@ class Socket2 {
   virtual SocketErrorCode Connect(const string& host, int32 port) = 0;
 
   virtual SocketErrorCode IssueRecvFrom(int32 len) = 0;
-  virtual SocketErrorCode IssueSendTo(const uint8* data, int32 len, const InetAddress& sendto) = 0;
+  virtual SocketErrorCode IssueSendTo(const uint8* data, int32 len,
+                                      const InetAddress& sendto) = 0;
 
   virtual SocketErrorCode IssueRecv(int32 len) = 0;
   virtual SocketErrorCode IssueSend(const uint8* data, int32 len) = 0;
 
   //@todo 타임아웃은 지정할 수 없는걸까??
-  virtual bool GetRecvOverlappedResult(bool wait_until_complete, OverlappedResult& out_overlapped_result) = 0;
-  virtual bool GetSendOverlappedResult(bool wait_until_complete, OverlappedResult& out_overlapped_result) = 0;
-  virtual bool GetAcceptExOverlappedResult(bool wait_until_complete, OverlappedResult& out_overlapped_result) = 0;
+  virtual bool GetRecvOverlappedResult(
+      bool wait_until_complete, OverlappedResult& out_overlapped_result) = 0;
+  virtual bool GetSendOverlappedResult(
+      bool wait_until_complete, OverlappedResult& out_overlapped_result) = 0;
+  virtual bool GetAcceptExOverlappedResult(
+      bool wait_until_complete, OverlappedResult& out_overlapped_result) = 0;
 
   virtual InetAddress GetSockName() = 0;
   virtual InetAddress GetPeerName() = 0;
@@ -82,9 +86,7 @@ class SocketSelectContextImpl : public SocketSelectContext {
   InternalSocketSelectContext selection_context_;
 };
 
-class Socket2Impl
-  : public Socket2
-  , public IInternalSocketDelegate {
+class Socket2Impl : public Socket2, public IInternalSocketDelegate {
  public:
   Socket2Impl(SOCKET exisiting_socket, ISocketDelegate* delegate);
   Socket2Impl(SocketType socket_type, ISocketDelegate* delegate);
@@ -96,13 +98,17 @@ class Socket2Impl
   SocketErrorCode Connect(const String& host, int32 port);
 
   SocketErrorCode IssueRecvFrom(int32 len);
-  SocketErrorCode IssueSendTo(const uint8* data, int32 len, const InetAddress& sendto);
+  SocketErrorCode IssueSendTo(const uint8* data, int32 len,
+                              const InetAddress& sendto);
   SocketErrorCode IssueRecv(int32 len);
   SocketErrorCode IssueSend(const uint8* data, int32 len);
 
-  bool GetRecvOverlappedResult(bool wait_until_complete, OverlappedResult& overlapped_result);
-  bool GetSendOverlappedResult(bool wait_until_complete, OverlappedResult& overlapped_result);
-  bool GetAcceptExOverlappedResult(bool wait_until_complete, OverlappedResult& overlapped_result);
+  bool GetRecvOverlappedResult(bool wait_until_complete,
+                               OverlappedResult& overlapped_result);
+  bool GetSendOverlappedResult(bool wait_until_complete,
+                               OverlappedResult& overlapped_result);
+  bool GetAcceptExOverlappedResult(bool wait_until_complete,
+                                   OverlappedResult& overlapped_result);
 
   InetAddress GetSockName();
   InetAddress GetPeerName();
@@ -124,5 +130,5 @@ class Socket2Impl
   }
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

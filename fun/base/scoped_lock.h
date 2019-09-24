@@ -17,12 +17,12 @@ class ScopedLock {
   typedef _MutexType MutexType;
 
   explicit ScopedLock(const MutexType& mutex)
-    : mutex_(const_cast<MutexType*>(&mutex)) {
+      : mutex_(const_cast<MutexType*>(&mutex)) {
     mutex_->Lock();
   }
 
   ScopedLock(const MutexType& mutex, int32 milliseconds)
-    : mutex_(const_cast<MutexType*>(&mutex)) {
+      : mutex_(const_cast<MutexType*>(&mutex)) {
     mutex_->Lock(milliseconds);
   }
 
@@ -37,22 +37,21 @@ class ScopedLock {
   // Disable default constructor and copy
   ScopedLock() = delete;
   ScopedLock(const ScopedLock&) = delete;
-  ScopedLock& operator = (const ScopedLock&) = delete;
+  ScopedLock& operator=(const ScopedLock&) = delete;
 
-  //void Lock() {
+  // void Lock() {
   //  mutex_.Lock();
   //}
   //
-  //void Unlock() {
+  // void Unlock() {
   //  mutex_.Unlock();
   //}
 
  private:
   MutexType* mutex_;
-  //TODO
+  // TODO
   bool locked_;
 };
-
 
 template <typename _MutexType>
 class ScopedLockWithUnlock {
@@ -60,12 +59,12 @@ class ScopedLockWithUnlock {
   typedef _MutexType MutexType;
 
   explicit ScopedLockWithUnlock(const MutexType& mutex)
-    : mutex_(const_cast<MutexType*>(&mutex)) {
+      : mutex_(const_cast<MutexType*>(&mutex)) {
     mutex_->Lock();
   }
 
   ScopedLockWithUnlock(const MutexType& mutex, int32 milliseconds)
-    : mutex_(const_cast<MutexType*>(&mutex)) {
+      : mutex_(const_cast<MutexType*>(&mutex)) {
     mutex_->Lock(milliseconds);
   }
 
@@ -77,21 +76,19 @@ class ScopedLockWithUnlock {
     }
   }
 
-  //void Lock() {
+  // void Lock() {
   //  mutex_->Lock();
   //}
   //
 
-  void Unlock() {
-    mutex_->Unlock();
-  }
+  void Unlock() { mutex_->Unlock(); }
 
   ScopedLockWithUnlock() = delete;
   ScopedLockWithUnlock(const ScopedLockWithUnlock&) = delete;
-  ScopedLockWithUnlock& operator = (const ScopedLockWithUnlock&) = delete;
+  ScopedLockWithUnlock& operator=(const ScopedLockWithUnlock&) = delete;
 
  private:
   MutexType* mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

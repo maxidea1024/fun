@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "P2PGroup_S.h"         // P2PGroupMemberBase_S
-#include "P2PPair.h"          // P2PConnectionStatePtr
-#include "FallbackableUdpTransport_S.h" // FallbackableUdpTransport_S
-#include "UdpSocket_S.h"        // UdpSocketPtr_S
+#include "FallbackableUdpTransport_S.h"  // FallbackableUdpTransport_S
+#include "P2PGroup_S.h"                  // P2PGroupMemberBase_S
+#include "P2PPair.h"                     // P2PConnectionStatePtr
 #include "TcpTransport_S.h"
+#include "UdpSocket_S.h"  // UdpSocketPtr_S
 
 namespace fun {
 namespace net {
@@ -26,23 +26,21 @@ class SpeedHackDetector {
 
  public:
   SpeedHackDetector()
-    : recent_ping_interval_(NetConfig::speedhack_detector_ping_interval_sec), // 정상 수치
-      first_ping_recv_time_(0),
-      last_ping_recv_time_(0),
-      hack_suspected_(false) {
-  }
+      : recent_ping_interval_(
+            NetConfig::speedhack_detector_ping_interval_sec),  // 정상 수치
+        first_ping_recv_time_(0),
+        last_ping_recv_time_(0),
+        hack_suspected_(false) {}
 };
 
-
-class RemoteClient_S
-  : public ISendDest_S,
-    public ITaskSubject,
-    public ICompletionContext,
-    public ListNode<RemoteClient_S>,
-    public P2PGroupMemberBase_S,
-    public ITcpTransportOwner_S,
-    public UseCount,
-    public IHostObject {
+class RemoteClient_S : public ISendDest_S,
+                       public ITaskSubject,
+                       public ICompletionContext,
+                       public ListNode<RemoteClient_S>,
+                       public P2PGroupMemberBase_S,
+                       public ITcpTransportOwner_S,
+                       public UseCount,
+                       public IHostObject {
  private:
   const char* dispose_caller_;
 
@@ -50,20 +48,19 @@ class RemoteClient_S
   inline const char* GetDisposeCaller() { return dispose_caller_; }
 
  public:
-  RemoteClient_S( NetServerImpl* owner,
-                  InternalSocket* new_socket,
-                  const InetAddress& tcp_remote_addr);
+  RemoteClient_S(NetServerImpl* owner, InternalSocket* new_socket,
+                 const InetAddress& tcp_remote_addr);
   ~RemoteClient_S();
 
   bool IsAuthed() const { return host_id_ != HostId_None; }
 
   ResultCode ExtractMessagesFromTcpStream(ReceivedMessageList& out_msg_list);
 
-  void ExtractMessagesFromUdpRecvQueue( const uint8* udp_packet,
-                                        int32 udp_packet_length,
-                                        const InetAddress& udp_addr_from_here,
-                                        int32 message_max_length,
-                                        ReceivedMessageList& out_msg_list);
+  void ExtractMessagesFromUdpRecvQueue(const uint8* udp_packet,
+                                       int32 udp_packet_length,
+                                       const InetAddress& udp_addr_from_here,
+                                       int32 message_max_length,
+                                       ReceivedMessageList& out_msg_list);
 
   void GetClientInfo(NetClientInfo& out_info);
   NetClientInfoPtr GetClientInfo();
@@ -94,10 +91,8 @@ class RemoteClient_S
   void EnqueueIssueSendReadyRemotes();
   bool IsDispose();
   double GetAbsoluteTime();
-  void IssueDispose(ResultCode result_code,
-                    ResultCode detail_code,
-                    const ByteArray& comment,
-                    const char* where,
+  void IssueDispose(ResultCode result_code, ResultCode detail_code,
+                    const ByteArray& comment, const char* where,
                     SocketErrorCode socket_error);
   bool IsValidEnd();
 
@@ -107,11 +102,9 @@ class RemoteClient_S
   SocketErrorCode IssueSend(double absolute_time);
   void Decrease();
   void OnIssueSendFail(const char* where, SocketErrorCode socket_error);
-  void SendWhenReady( HostId sender_id,
-                      const InetAddress& sender_addr,
-                      HostId dest_id,
-                      const SendFragRefs& data_to_send,
-                      const UdpSendOption& send_opt);
+  void SendWhenReady(HostId sender_id, const InetAddress& sender_addr,
+                     HostId dest_id, const SendFragRefs& data_to_send,
+                     const UdpSendOption& send_opt);
 
  public:
   void AssertIsLockedByCurrentThread() {
@@ -124,7 +117,7 @@ class RemoteClient_S
 
   bool IsLockedByCurrentThread();
 
-  //void ResetSpeedHackDetector();
+  // void ResetSpeedHackDetector();
 
  public:
   // 가장 마지막에 TCP 스트림을 받은 시간 (디스 여부를 감지하기 위함)
@@ -191,11 +184,10 @@ class RemoteClient_S
     // 문제 발생시 추적을 위함
     SocketErrorCode socket_error;
 
-    DisposeWaiter(),
-      : reason(ResultCode::Ok),
-        detail(ResultCode::Ok),
-        socket_error(SocketErrorCode::Ok),
-        created_time(0) {}
+    DisposeWaiter(), : reason(ResultCode::Ok),
+                       detail(ResultCode::Ok),
+                       socket_error(SocketErrorCode::Ok),
+                       created_time(0) {}
   };
   // 평소에는 null이지만 일단 세팅되면 모든 스레드에서 종료할 때까지 기다린다.
   SharedPtr<DisposeWaiter> dispose_waiter_;
@@ -238,5 +230,5 @@ class RemoteClient_S
   int32 borrowed_port_number_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

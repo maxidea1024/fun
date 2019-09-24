@@ -19,7 +19,9 @@ class ITcpTransportOwner_C : public IInternalSocketDelegate {
   virtual double GetAbsoluteTime() = 0;
   virtual NetClientWorker* GetWorker() { return nullptr; }
   virtual void AssociateSocket(InternalSocket* socket) = 0;
-  virtual ISocketIoCompletionDelegate* GetIoCompletionDelegate() { return nullptr; }
+  virtual ISocketIoCompletionDelegate* GetIoCompletionDelegate() {
+    return nullptr;
+  }
   virtual void LockMain_AssertIsLockedByCurrentThread() = 0;
   virtual void LockMain_AssertIsNotLockedByCurrentThread() = 0;
 
@@ -31,10 +33,9 @@ class ITcpTransportOwner_C : public IInternalSocketDelegate {
 /**
  * socket, event 등의 객체가 같은 lifetime을 가지므로 이렇게 뜯어냈다.
  */
-class TcpTransport_C
-  : public MessageStream,
-    public ICompletionContext,
-    public IHasOverlappedIo {
+class TcpTransport_C : public MessageStream,
+                       public ICompletionContext,
+                       public IHasOverlappedIo {
  public:
   TcpTransport_C(ITcpTransportOwner_C* owner);
   virtual ~TcpTransport_C();
@@ -77,5 +78,5 @@ class TcpTransport_C
 
 typedef SharedPtr<TcpTransport_C> TcpTransportPtr_C;
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

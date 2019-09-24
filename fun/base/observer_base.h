@@ -11,7 +11,7 @@ class FUN_BASE_API ObserverBase {
   ObserverBase(const ObserverBase& rhs);
   virtual ~ObserverBase();
 
-  ObserverBase& operator = (const ObserverBase& rhs);
+  ObserverBase& operator=(const ObserverBase& rhs);
 
   virtual void Notify(Notification* noti) const = 0;
   virtual bool Equals(const ObserverBase& other) const = 0;
@@ -20,4 +20,4 @@ class FUN_BASE_API ObserverBase {
   virtual void Disable() = 0;
 };
 
-} // namespace fun
+}  // namespace fun

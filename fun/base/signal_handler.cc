@@ -4,9 +4,9 @@
 
 #include "fun/base/thread.h"
 //#include "fun/base/number_formatter.h"
-#include "fun/base/exception.h"
-#include <cstdlib>
 #include <signal.h>
+#include <cstdlib>
+#include "fun/base/exception.h"
 
 namespace fun {
 
@@ -18,9 +18,7 @@ SignalHandler::SignalHandler() {
   list.push_back(buf);
 }
 
-SignalHandler::~SignalHandler() {
-  GetJumpBufferList().pop_back();
-}
+SignalHandler::~SignalHandler() { GetJumpBufferList().pop_back(); }
 
 sigjmp_buf& SignalHandler::GetJumpBuffer() {
   return GetJumpBufferList().back().buf;
@@ -45,12 +43,12 @@ void SignalHandler::Install() {
 #ifndef FUN_NO_SIGNAL_HANDLER
   struct sigaction sa;
   sa.sa_handler = HandleSignal;
-  sa.sa_flags   = 0;
+  sa.sa_flags = 0;
   sigemptyset(&sa.sa_mask);
-  sigaction(SIGILL,  &sa, 0);
-  sigaction(SIGBUS,  &sa, 0);
+  sigaction(SIGILL, &sa, 0);
+  sigaction(SIGBUS, &sa, 0);
   sigaction(SIGSEGV, &sa, 0);
-  sigaction(SIGSYS,  &sa, 0);
+  sigaction(SIGSYS, &sa, 0);
 #endif
 }
 
@@ -73,6 +71,6 @@ SignalHandler::JumpBufferList& SignalHandler::GetJumpBufferList() {
   }
 }
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_PLATFORM_UNIX_FAMILY
+#endif  // FUN_PLATFORM_UNIX_FAMILY

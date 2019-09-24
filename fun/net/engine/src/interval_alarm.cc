@@ -1,5 +1,5 @@
-﻿#include "fun/net/net.h"
-#include "fun/net/interval_alarm.h"
+﻿#include "fun/net/interval_alarm.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -44,5 +44,5 @@ void IntervalAlaram::Reset() {
   time_to_do_ = false;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

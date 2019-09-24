@@ -2,10 +2,10 @@
 #include "CorePrivatePCH.h"
 #include "fun/net/net.h"
 
-#include "RemoteClient.h"
+#include "LanClient.h"
 #include "LanRemoteClient.h"
 #include "NetClient.h"
-#include "LanClient.h"
+#include "RemoteClient.h"
 
 namespace fun {
 namespace net {
@@ -74,5 +74,5 @@ AcceptedInfo* LeanDynamicCastAcceptedInfo(ICompletionContext* x) {
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

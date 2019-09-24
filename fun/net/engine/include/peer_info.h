@@ -27,5 +27,5 @@ class PeerInfo {
   FUN_NETX_API String ToString(bool at_server);
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

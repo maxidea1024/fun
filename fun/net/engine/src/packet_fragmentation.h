@@ -1,4 +1,4 @@
-﻿//TODO 파일이름을 Fragmentation.h으로 변경 하도록 하자.
+﻿// TODO 파일이름을 Fragmentation.h으로 변경 하도록 하자.
 
 #pragma once
 
@@ -14,14 +14,14 @@ uint16로 하면 더 효과적일지 모르겠으나 아직은 모험하지 말�
 typedef uint32 PacketIdType;
 
 class FilterTag {
-public:
+ public:
   // sender, recver hostid의 하위 4비트들이 조합됨
   typedef uint8 Type;
 
   static Type Make(HostId src_id, HostId dest_id);
-  static bool ShouldBeFiltered(FilterTag::Type filter_tag, HostId src_id, HostId dest_id);
+  static bool ShouldBeFiltered(FilterTag::Type filter_tag, HostId src_id,
+                               HostId dest_id);
 };
-
 
 /**
 UDP 프래그먼트의 헤더입니다.
@@ -30,7 +30,8 @@ UDP 프래그먼트의 헤더입니다.
 */
 class FragHeader {
  public:
-  /** 앞부분.  fragment 타입 및 각 필드의 길이와 하위 8비트 twisted 값으로 구성되어 있음. */
+  /** 앞부분.  fragment 타입 및 각 필드의 길이와 하위 8비트 twisted 값으로
+   * 구성되어 있음. */
   uint16 splitter;
 
   /** 패킷의 바이트 단위 길이입니다. */
@@ -41,51 +42,63 @@ class FragHeader {
   uint32 frag_id;
 
   /** 전송중이 완료되기 전까지 유지되어야하므로, 멤버 형태로 가지고 있어야함. */
-  uint8 tx_buffer[14]; //14 = 2 + 4 + 4 + 4
+  uint8 tx_buffer[14];  // 14 = 2 + 4 + 4 + 4
 
   void Write(FragmentedBuffer& output);
   bool Read(IMessageIn& input);
 
  private:
   // 아래 Write* 함수들은 little-endian 기준으로 동작하도록 되어 있음.
-  // 현재 사용하고 있는 MessageFormat 체계도 little-endian 기준으로 동작하도록 되어 있기 때문에 문제 없음.
+  // 현재 사용하고 있는 MessageFormat 체계도 little-endian 기준으로 동작하도록
+  // 되어 있기 때문에 문제 없음.
 
-  inline static void WriteOptimalUInt32AndAdvance(uint8*& target, const uint32 value, const uint8 length_class) {
+  inline static void WriteOptimalUInt32AndAdvance(uint8*& target,
+                                                  const uint32 value,
+                                                  const uint8 length_class) {
     switch (length_class) {
-      case 0: WriteUInt8ToBufferAndAdvance(target, (uint8)value); break;
-      case 1: WriteUInt16ToBufferAndAdvance(target, (uint16)value); break;
-      case 3: WriteUInt32ToBufferAndAdvance(target, value); break;
-      default: fun_unexpected(); break;
+      case 0:
+        WriteUInt8ToBufferAndAdvance(target, (uint8)value);
+        break;
+      case 1:
+        WriteUInt16ToBufferAndAdvance(target, (uint16)value);
+        break;
+      case 3:
+        WriteUInt32ToBufferAndAdvance(target, value);
+        break;
+      default:
+        fun_unexpected();
+        break;
     }
   }
 
-  inline static void WriteUInt8ToBufferAndAdvance(uint8*& target, const uint8 value) {
+  inline static void WriteUInt8ToBufferAndAdvance(uint8*& target,
+                                                  const uint8 value) {
     *target++ = value;
   }
 
-  inline static void WriteUInt16ToBufferAndAdvance(uint8*& target, const uint16 value) {
+  inline static void WriteUInt16ToBufferAndAdvance(uint8*& target,
+                                                   const uint16 value) {
     *target++ = uint8(value);
     *target++ = uint8(value >> 8);
   }
 
-  inline static void WriteUInt32ToBufferAndAdvance(uint8*& target, const uint32 value) {
+  inline static void WriteUInt32ToBufferAndAdvance(uint8*& target,
+                                                   const uint32 value) {
     *target++ = uint8(value);
     *target++ = uint8(value >> 8);
     *target++ = uint8(value >> 16);
     *target++ = uint8(value >> 24);
   }
 
-  static bool ReadOptimalUInt32(IMessageIn& input, uint32& out_value, const uint8 length_class);
+  static bool ReadOptimalUInt32(IMessageIn& input, uint32& out_value,
+                                const uint8 length_class);
 };
-
 
 class PacketQueue;
 class SendFragRefs;
 class UdpPacketFraggerOutput;
 
-class UdpPacketContext
-  : public ListNode<UdpPacketContext>
-  , public Noncopyable {
+class UdpPacketContext : public ListNode<UdpPacketContext>, public Noncopyable {
  public:
   /** MTU보다 클 수 있다. */
   Array<uint8> packet;
@@ -98,15 +111,13 @@ class UdpPacketContext
 
   /**
   unique_id 와 함께 식별자로 사용.
-  ToServerUdp의 경우 릴레이 메시지와 서버에게 주는 메시지가 겹쳐서 문제 되므로 변경.
+  ToServerUdp의 경우 릴레이 메시지와 서버에게 주는 메시지가 겹쳐서 문제 되므로
+  변경.
   */
   HostId dest_id;
 
  public:
-  UdpPacketContext()
-    : unique_id(0),
-      ttl(-1),
-      dest_id(HostId_None) {}
+  UdpPacketContext() : unique_id(0), ttl(-1), dest_id(HostId_None) {}
 };
 
 class IUdpPacketFraggerDelegate {
@@ -114,7 +125,8 @@ class IUdpPacketFraggerDelegate {
   virtual ~IUdpPacketFraggerDelegate() {}
 
   virtual double GetAbsoluteTime() = 0;
-  virtual void RequestReceiveSpeedAtReceiverSide_NoRelay(const InetAddress& dst) = 0;
+  virtual void RequestReceiveSpeedAtReceiverSide_NoRelay(
+      const InetAddress& dst) = 0;
   virtual int32 GetOverSendSuspectingThresholdInByte() = 0;
 };
 
@@ -124,10 +136,9 @@ class IUdpPacketFraggerDelegate {
  */
 class UdpPacketFragger {
  public:
-  /** MTU 크기로 아직 쪼개지 않은 패킷들 콜렉션, 각 우선순위들을 모두 갖고 있음. */
-  struct PacketQueue
-    : public ListNode<PacketQueue>
-    , public Noncopyable {
+  /** MTU 크기로 아직 쪼개지 않은 패킷들 콜렉션, 각 우선순위들을 모두 갖고 있음.
+   */
+  struct PacketQueue : public ListNode<PacketQueue>, public Noncopyable {
     /** 1개 우선순위 내의 패킷 모음  */
     struct PerPriorityQueue {
       /** 조각난 UDP 패킷 목록 */
@@ -147,18 +158,21 @@ class UdpPacketFragger {
     PacketQueue 객체 자체는 new/delete 횟수가 잦으므로 고정 크기 배열.
     단, 바운드 체크를 준수하자.
     */
-    StaticArray<PerPriorityQueue,(int32)MessagePriority::Last> priorities_;
+    StaticArray<PerPriorityQueue, (int32)MessagePriority::Last> priorities_;
 
-    /** 가장 마지막에 패킷이 추가되거나 제거된 시간.  coalesce case도 포함해서. */
+    /** 가장 마지막에 패킷이 추가되거나 제거된 시간.  coalesce case도 포함해서.
+     */
     double last_accessed_time_;
     InetAddress remote_addr_;
     FilterTag::Type filter_tag_;
     UdpPacketFragger* owner_;
 
     // 도마.
-    // - 사용자가 보내려는 1개 이상의 메시지의 집합. MTU보다 크거나 작을 수 있다.
+    // - 사용자가 보내려는 1개 이상의 메시지의 집합. MTU보다 크거나 작을 수
+    // 있다.
     // - 이들을 1개의 긴 스트림으로 이어붙인 것이 도마이다.
-    // - 그리고 MTU 이하 단위로 하나씩 뜯어낸 후 헤더(FragHeader)를 붙인다. 그게 fragment다.
+    // - 그리고 MTU 이하 단위로 하나씩 뜯어낸 후 헤더(FragHeader)를 붙인다. 그게
+    // fragment다.
     // - Fragment가 실제 UDP 소켓으로 전달된다.
 
     Array<UdpPacketContext*> packets_;
@@ -190,8 +204,8 @@ class UdpPacketFragger {
       src_index_in_fragger_ = 0;
 
       // 아래 속도 제어를 위한 상태 변수는 초기화하면 안됨!
-      //send_brake_ = SendBrake();
-      //send_speed_ = RecentSpeedMeasurer();
+      // send_brake_ = SendBrake();
+      // send_speed_ = RecentSpeedMeasurer();
     }
 
     int32 GetTotalCount() const;
@@ -200,9 +214,10 @@ class UdpPacketFragger {
     이 함수를 별도 만들어서 성능 가속화.
     */
     inline bool IsEmpty() const {
-      const PerPriorityQueue* raw = priorities_.ConstData(); // 바운드체크 피함
+      const PerPriorityQueue* raw = priorities_.ConstData();  // 바운드체크 피함
       for (int32 i = 0; i < (int32)MessagePriority::Last; ++i) {
-        if (raw[i].fraggable_packets.Count() > 0 || raw[i].no_fraggable_packets.Count() > 0) {
+        if (raw[i].fraggable_packets.Count() > 0 ||
+            raw[i].no_fraggable_packets.Count() > 0) {
           return false;
         }
       }
@@ -211,7 +226,8 @@ class UdpPacketFragger {
 
     int32 GetTotalLengthInBytes();
 
-    void PopFragmentOrFullPacket(double absolute_time, UdpPacketFraggerOutput& output);
+    void PopFragmentOrFullPacket(double absolute_time,
+                                 UdpPacketFraggerOutput& output);
   };
 
  private:
@@ -248,18 +264,16 @@ class UdpPacketFragger {
   void Remove(const InetAddress& Key);
   void Clear();
 
-  bool send_brake_enabled_; // 이름 그대로. 서버에서는 이걸 false로 할거다.
+  bool send_brake_enabled_;  // 이름 그대로. 서버에서는 이걸 false로 할거다.
 
  public:
   UdpPacketFragger(IUdpPacketFraggerDelegate* delegate);
   ~UdpPacketFragger();
 
  public:
-  void AddNewPacket(HostId final_dest_id,
-                    FilterTag::Type filter_tag,
+  void AddNewPacket(HostId final_dest_id, FilterTag::Type filter_tag,
                     const InetAddress& send_to,
-                    const SendFragRefs& data_to_send,
-                    double added_time,
+                    const SendFragRefs& data_to_send, double added_time,
                     const UdpSendOption& send_opt);
 
   int32 GetTotalPacketCountOfAddr(const InetAddress& addr);
@@ -275,15 +289,18 @@ class UdpPacketFragger {
   }
 
   int32 FromTotalPacketInByteByAddr(const InetAddress& addr);
-  bool PopAnySendQueueFilledOneWithCoalesce(UdpPacketFraggerOutput& output, double absolute_time);
+  bool PopAnySendQueueFilledOneWithCoalesce(UdpPacketFraggerOutput& output,
+                                            double absolute_time);
   void LongTick(double absolute_time);
   void ShortTick(double absolute_time);
   bool HasNothingToSend() const;
-  void InitHashTableForClient(); // 클라이언트쪽 코드에서만 호출됨.  현재는 죽어있는 기능. 추후에 살리던지 해야지...
+  void InitHashTableForClient();  // 클라이언트쪽 코드에서만 호출됨.  현재는
+                                  // 죽어있는 기능. 추후에 살리던지 해야지...
   void SetReceiveSpeedAtReceiverSide(const InetAddress& dst, double speed);
-  int32 GetEndPointToQueueMapKeyCount() const { return address_to_queue_map_.map.Count(); }
+  int32 GetEndPointToQueueMapKeyCount() const {
+    return address_to_queue_map_.map.Count();
+  }
 };
-
 
 /**
  * send issue를 위해 packet fragger로부터 받은 출력물.
@@ -327,7 +344,7 @@ class UdpPacketFraggerOutput {
   */
   int32 ttl;
 
-  //virtual ~UdpPacketFraggerOutput();
+  // virtual ~UdpPacketFraggerOutput();
   ~UdpPacketFraggerOutput();
 
   /**
@@ -338,9 +355,11 @@ class UdpPacketFraggerOutput {
 
 /**
  * 조립중인 패킷 1개
- * 
- * 주의: new or delete를 쓰지 말고 NewInstance or Drop을 쓸 것! delete는 g_pool 전용!
- * TODO Capaicity 보존하는 부분만 제외하면 구태여 풀링을 할 필요도 없어보이는데...
+ *
+ * 주의: new or delete를 쓰지 말고 NewInstance or Drop을 쓸 것! delete는 g_pool
+ * 전용!
+ * TODO Capaicity 보존하는 부분만 제외하면 구태여 풀링을 할 필요도
+ * 없어보이는데...
  */
 class DefraggingPacket {
  public:
@@ -350,10 +369,7 @@ class DefraggingPacket {
   int32 frag_filled_count;
   double created_time;
 
-  inline DefraggingPacket()
-    : frag_filled_count(0),
-      created_time(0.0) {
-  }
+  inline DefraggingPacket() : frag_filled_count(0), created_time(0.0) {}
 
   //
   // Pooling
@@ -373,7 +389,6 @@ class DefraggingPacket {
   void ReturnToPool();
 };
 
-
 class DefraggingPackets;
 
 /**
@@ -385,13 +400,12 @@ class DefraggingPackets {
   RecentSpeedMeasurer recent_receive_speed;
 
   DefraggingPackets() {
-    //TODO 구현 주어야함. 이거 영 걸리적 거리네...
-    //map.SetOptimalLoad_BestLookup(); // 증감폭이 워낙 큰데다 rehash cost가 크기 때문에
+    // TODO 구현 주어야함. 이거 영 걸리적 거리네...
+    // map.SetOptimalLoad_BestLookup(); // 증감폭이 워낙 큰데다 rehash cost가
+    // 크기 때문에
   }
 
-  ~DefraggingPackets() {
-    Clear();
-  }
+  ~DefraggingPackets() { Clear(); }
 
   void Clear() {
     for (auto pair : map) {
@@ -409,17 +423,16 @@ class AssembledPacket {
  public:
   InetAddress sender_addr;
 
-  inline AssembledPacket()
-    : packet_string_ptr_(nullptr) {}
+  inline AssembledPacket() : packet_string_ptr_(nullptr) {}
 
   inline ~AssembledPacket() {
     if (packet_string_ptr_) {
-      packet_string_ptr_->ReturnToPool(); // 객체 풀에 반환
+      packet_string_ptr_->ReturnToPool();  // 객체 풀에 반환
     }
   }
 
   inline void TakeOwnership(DefraggingPacket* ptr) {
-    fun_check(packet_string_ptr_ == nullptr); // just once
+    fun_check(packet_string_ptr_ == nullptr);  // just once
     packet_string_ptr_ = ptr;
   }
 
@@ -437,12 +450,12 @@ class AssembledPacket {
   DefraggingPacket* packet_string_ptr_;
 };
 
-
 class IUdpPacketDefraggerDelegate {
  public:
   virtual ~IUdpPacketDefraggerDelegate() {}
 
-  virtual void EnqueuePacketDefragWarning(const InetAddress& sender, const char* text) = 0;
+  virtual void EnqueuePacketDefragWarning(const InetAddress& sender,
+                                          const char* text) = 0;
   virtual int32 GetMessageMaxLength() = 0;
   virtual double GetAbsoluteTime() = 0;
 
@@ -450,12 +463,11 @@ class IUdpPacketDefraggerDelegate {
   for filter tag
   addr이 localhost를 가리키는 경우도 체크해야 함!
   addr이 unicase addr이 아니면 none을 리턴해야 함!
-  보수적이어야 한다. 차라리 none을 리턴하는게 낫지, 엉뚱한 HostId를 리턴하면 안됨!
-  for filter tag
+  보수적이어야 한다. 차라리 none을 리턴하는게 낫지, 엉뚱한 HostId를 리턴하면
+  안됨! for filter tag
   */
   virtual HostId GetLocalHostId() = 0;
 };
-
 
 /**
 frag들을 받아 패킷으로 조립하는 공간. 수신자에서 씀.
@@ -484,22 +496,14 @@ class UdpPacketDefragger {
   void PruneTooOldDefragBoard();
 
  public:
-  enum class AssembledPacketError {
-    Ok,
-    Assembling,
-    Error
-  };
+  enum class AssembledPacketError { Ok, Assembling, Error };
 
   UdpPacketDefragger(IUdpPacketDefraggerDelegate* delegate);
 
   AssembledPacketError PushFragmentAndPopAssembledPacket(
-        uint8* frag_data,
-        int32 frag_len,
-        const InetAddress& sender_addr,
-        HostId src_host_id,
-        double absolute_time,
-        assembled_packet& output,
-        String& out_error);
+      uint8* frag_data, int32 frag_len, const InetAddress& sender_addr,
+      HostId src_host_id, double absolute_time, assembled_packet& output,
+      String& out_error);
 
   void LongTick(double absolute_time);
 
@@ -513,5 +517,5 @@ class UdpPacketDefragger {
   void LongTick(DefraggingPackets* packets, double absolute_time);
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

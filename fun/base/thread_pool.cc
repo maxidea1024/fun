@@ -1,12 +1,12 @@
 ﻿#include "fun/base/thread_pool.h"
+#include "fun/base/error_handler.h"
+#include "fun/base/event.h"
 #include "fun/base/runnable.h"
 #include "fun/base/thread.h"
-#include "fun/base/event.h"
 #include "fun/base/thread_local.h"
-#include "fun/base/error_handler.h"
 
-#include <sstream>
 #include <ctime>
+#include <sstream>
 
 #if defined(_WIN32_WCE) && _WIN32_WCE < 0x800
 #include "wce_time.h"
@@ -21,7 +21,8 @@ class PooledThread : public Runnable {
 
   void Start(int32 cpu = -1);
   void Start(Thread::Priority priority, Runnable& target, int32 cpu = -1);
-  void Start(Thread::Priority priority, Runnable& target, const String& name, int32 cpu = -1);
+  void Start(Thread::Priority priority, Runnable& target, const String& name,
+             int32 cpu = -1);
   bool IsIdle();
   int32 GetIdleTime();
   void Join();
@@ -42,15 +43,15 @@ class PooledThread : public Runnable {
 };
 
 PooledThread::PooledThread(const String& name, int32 stack_size)
-  : idle_(true),
-    idle_time_(0),
-    target_(0),
-    name_(name),
-    thread_(name),
-    target_ready_(),
-    target_completed_(EventResetType::Manual),
-    started_(),
-    mutex_() {
+    : idle_(true),
+      idle_time_(0),
+      target_(0),
+      name_(name),
+      thread_(name),
+      target_ready_(),
+      target_completed_(EventResetType::Manual),
+      started_(),
+      mutex_() {
   fun_check_dbg(stack_size >= 0);
   thread_.SetStackSize(stack_size);
 #if defined(_WIN32_WCE) && _WIN32_WCE < 0x800
@@ -60,8 +61,7 @@ PooledThread::PooledThread(const String& name, int32 stack_size)
 #endif
 }
 
-PooledThread::~PooledThread() {
-}
+PooledThread::~PooledThread() {}
 
 void PooledThread::Start(int32 cpu) {
   thread_.Start(*this);
@@ -71,7 +71,8 @@ void PooledThread::Start(int32 cpu) {
   }
 }
 
-void PooledThread::Start(Thread::Priority priority, Runnable& target, int32 cpu) {
+void PooledThread::Start(Thread::Priority priority, Runnable& target,
+                         int32 cpu) {
   ScopedLock<FastMutex> guard(mutex_);
 
   fun_check(target_ == 0);
@@ -84,10 +85,8 @@ void PooledThread::Start(Thread::Priority priority, Runnable& target, int32 cpu)
   }
 }
 
-void PooledThread::Start( Thread::Priority priority,
-                          Runnable& target,
-                          const String& name,
-                          int32 cpu) {
+void PooledThread::Start(Thread::Priority priority, Runnable& target,
+                         const String& name, int32 cpu) {
   ScopedLock<FastMutex> guard(mutex_);
 
   String full_name(name);
@@ -167,7 +166,7 @@ void PooledThread::Run() {
   for (;;) {
     target_ready_.Wait();
     mutex_.Lock();
-    if (target_) { // a NULL target means kill yourself
+    if (target_) {  // a NULL target means kill yourself
       Runnable* target = target_;
       mutex_.Unlock();
       try {
@@ -199,25 +198,20 @@ void PooledThread::Run() {
   }
 }
 
-
 //
 // ThreadPool
 //
 
-ThreadPool::ThreadPool(
-        int32 min_capacity,
-        int32 max_capacity,
-        int32 idle_time,
-        int32 stack_size,
-        ThreadAffinityPolicy affinity_policy)
-  : min_capacity_(min_capacity),
-    max_capacity_(max_capacity),
-    idle_time_(idle_time),
-    serial_(0),
-    age_(0),
-    stack_size_(stack_size),
-    affinity_policy_(affinity_policy),
-    last_cpu_(0) {
+ThreadPool::ThreadPool(int32 min_capacity, int32 max_capacity, int32 idle_time,
+                       int32 stack_size, ThreadAffinityPolicy affinity_policy)
+    : min_capacity_(min_capacity),
+      max_capacity_(max_capacity),
+      idle_time_(idle_time),
+      serial_(0),
+      age_(0),
+      stack_size_(stack_size),
+      affinity_policy_(affinity_policy),
+      last_cpu_(0) {
   fun_check(min_capacity >= 1 && max_capacity >= min_capacity && idle_time > 0);
 
   int32 cpu = -1;
@@ -234,22 +228,18 @@ ThreadPool::ThreadPool(
   }
 }
 
-ThreadPool::ThreadPool(
-        const String& name,
-        int32 min_capacity,
-        int32 max_capacity,
-        int32 idle_time,
-        int32 stack_size,
-        ThreadAffinityPolicy affinity_policy)
-  : name_(name),
-    min_capacity_(min_capacity),
-    max_capacity_(max_capacity),
-    idle_time_(idle_time),
-    serial_(0),
-    age_(0),
-    stack_size_(stack_size),
-    affinity_policy_(affinity_policy),
-    last_cpu_(0) {
+ThreadPool::ThreadPool(const String& name, int32 min_capacity,
+                       int32 max_capacity, int32 idle_time, int32 stack_size,
+                       ThreadAffinityPolicy affinity_policy)
+    : name_(name),
+      min_capacity_(min_capacity),
+      max_capacity_(max_capacity),
+      idle_time_(idle_time),
+      serial_(0),
+      age_(0),
+      stack_size_(stack_size),
+      affinity_policy_(affinity_policy),
+      last_cpu_(0) {
   fun_check(min_capacity >= 1 && max_capacity >= min_capacity && idle_time > 0);
 
   int32 cpu = -1;
@@ -321,20 +311,17 @@ int32 ThreadPool::GetAffinity(int32 cpu) {
     case TAP_UNIFORM_DISTRIBUTION: {
       cpu = last_cpu_.Value() % Environment::GetProcessorCount();
       last_cpu_++;
-    }
-    break;
+    } break;
 
     case TAP_DEFAULT: {
       cpu = -1;
-    }
-    break;
+    } break;
 
     case TAP_CUSTOM: {
       if ((cpu < -1) || (cpu >= Environment::GetProcessorCount())) {
         throw InvalidArgumentException("cpu argument is invalid");
       }
-    }
-    break;
+    } break;
   }
   return cpu;
 }
@@ -347,16 +334,13 @@ void ThreadPool::Start(Runnable& target, const String& name, int32 cpu) {
   GetThread()->Start(Thread::PRIO_NORMAL, target, name, GetAffinity(cpu));
 }
 
-void ThreadPool::StartWithPriority( Thread::Priority priority,
-                                    Runnable& target,
-                                    int32 cpu) {
+void ThreadPool::StartWithPriority(Thread::Priority priority, Runnable& target,
+                                   int32 cpu) {
   GetThread()->Start(priority, target, GetAffinity(cpu));
 }
 
-void ThreadPool::StartWithPriority( Thread::Priority priority,
-                                    Runnable& target,
-                                    const String& name,
-                                    int32 cpu) {
+void ThreadPool::StartWithPriority(Thread::Priority priority, Runnable& target,
+                                   const String& name, int32 cpu) {
   GetThread()->Start(priority, target, name, GetAffinity(cpu));
 }
 
@@ -464,4 +448,4 @@ PooledThread* ThreadPool::CreateThread() {
   return new PooledThread(thread_name, stack_size_);
 }
 
-} // namespace fun
+}  // namespace fun

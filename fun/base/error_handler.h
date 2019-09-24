@@ -8,17 +8,17 @@ namespace fun {
 
 /**
  * This is the base class for thread error handlers.
- * 
+ *
  * An unhandled exception that causes a thread to terminate is usually
  * silently ignored, since the class library cannot do anything meaningful
  * about it.
- * 
+ *
  * The Thread class provides the possibility to register a
  * global ErrorHandler that is invoked whenever a thread has
  * been terminated by an unhandled exception.
  * The ErrorHandler must be derived from this class and can
  * provide implementations of all three OnException() overloads.
- * 
+ *
  * The ErrorHandler is always invoked within the context of
  * the offending thread.
  */
@@ -46,4 +46,4 @@ class FUN_BASE_API ErrorHandler {
   static FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

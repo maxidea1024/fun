@@ -6,10 +6,10 @@
 #include "GeneratedRPCs/Lan_LanC2S_stub.h"
 #include "GeneratedRPCs/Lan_LanS2C_proxy.h"
 
-#include "thread_pool_impl.h" // ThreadPool
-#include "host_id_factory.h"  // IHostIdFactory
-#include "RCPair.h"           // RCPair
-#include "Tracer.h"           // LogWriter
+#include "RCPair.h"            // RCPair
+#include "Tracer.h"            // LogWriter
+#include "host_id_factory.h"   // IHostIdFactory
+#include "thread_pool_impl.h"  // ThreadPool
 
 namespace fun {
 namespace net {
@@ -27,22 +27,28 @@ class LanSendDestInfo_S {
 
   LanSendDestInfo_S() : host_id(HostId_None), object(nullptr) {}
 
-  friend bool operator == (const LanSendDestInfo_S& a, const LanSendDestInfo_S& b) {
+  friend bool operator==(const LanSendDestInfo_S& a,
+                         const LanSendDestInfo_S& b) {
     return a.host_id == b.host_id;
   }
 
-  friend bool operator != (const LanSendDestInfo_S& a, const LanSendDestInfo_S& b) {
+  friend bool operator!=(const LanSendDestInfo_S& a,
+                         const LanSendDestInfo_S& b) {
     return a.host_id != b.host_id;
   }
 
-  friend bool operator < (const LanSendDestInfo_S& a, const LanSendDestInfo_S& b) {
+  friend bool operator<(const LanSendDestInfo_S& a,
+                        const LanSendDestInfo_S& b) {
     return a.host_id < b.host_id;
   }
 };
 
-//class LanSendDestInfoList_S : public Array<LanSendDestInfo_S, InlineAllocator<NetConfig::OrdinaryHeavyS2CMulticastCount>> {};
-//class LanSendDestInfoList_S : public Array<LanSendDestInfo_S> {};
-typedef Array<LanSendDestInfo_S, InlineAllocator<NetConfig::OrdinaryHeavyS2CMulticastCount>> LanSendDestInfoList_S;
+// class LanSendDestInfoList_S : public Array<LanSendDestInfo_S,
+// InlineAllocator<NetConfig::OrdinaryHeavyS2CMulticastCount>> {}; class
+// LanSendDestInfoList_S : public Array<LanSendDestInfo_S> {};
+typedef Array<LanSendDestInfo_S,
+              InlineAllocator<NetConfig::OrdinaryHeavyS2CMulticastCount>>
+    LanSendDestInfoList_S;
 
 typedef Map<RCPair, LanP2PConnectionStatePtr> LCPairMap;
 
@@ -60,24 +66,25 @@ class LanP2PPairList {
   LanP2PConnectionStatePtr GetPair(HostId a, HostId b);
 
   void RemovePairOfAnySide(LanClient_S* client);
-  void AddPair(LanClient_S* client_a, LanClient_S* client_b, LanP2PConnectionStatePtr state);
-  void ReleasePair(LanServerImpl* owner, LanClient_S* client_a, LanClient_S* client_b);
+  void AddPair(LanClient_S* client_a, LanClient_S* client_b,
+               LanP2PConnectionStatePtr state);
+  void ReleasePair(LanServerImpl* owner, LanClient_S* client_a,
+                   LanClient_S* client_b);
 };
 
-class LanServerImpl
-  : public NetCoreImpl,
-    public IInternalSocketDelegate,
-    public ICompletionPortCallbacks,
-    public ISendDest_S,
-    public ITaskSubject,
-    public LanServer,
-    public ICompletionContext,
-    public LanP2PGroupMemberBase_S,
-    public IUserTaskQueueOwner,
-    public ISocketIoCompletionDelegate,
-    public ICompletionKey,
-    public IThreadReferer,
-    public IThreadPoolCallbacks {
+class LanServerImpl : public NetCoreImpl,
+                      public IInternalSocketDelegate,
+                      public ICompletionPortCallbacks,
+                      public ISendDest_S,
+                      public ITaskSubject,
+                      public LanServer,
+                      public ICompletionContext,
+                      public LanP2PGroupMemberBase_S,
+                      public IUserTaskQueueOwner,
+                      public ISocketIoCompletionDelegate,
+                      public ICompletionKey,
+                      public IThreadReferer,
+                      public IThreadPoolCallbacks {
  private:
   CCriticalSection2 main_mutex_;
   CCriticalSection2 start_stop_phase_mutex_;
@@ -94,7 +101,8 @@ class LanServerImpl
 
   // 이 메서드가 따로 있는 이유: cached time 값이 0인 경우를 피하기 위함
 
-  //주의 : AbsoluteTime_USE_GetAbsoluteTime 는 realtime이 아니고, heartbeat마다 갱신되는 값임.
+  //주의 : AbsoluteTime_USE_GetAbsoluteTime 는 realtime이 아니고, heartbeat마다
+  //갱신되는 값임.
 
   double GetAbsoluteTime() {
     if (AbsoluteTime_USE_GetAbsoluteTime == 0) {
@@ -116,15 +124,16 @@ class LanServerImpl
 
   NetSettings settings_;
 
-  // 이 객체 인스턴스의 GUID. 이 값은 전세계 어느 컴퓨터에서도 겹치지 않는 값이어야 한다.
-  // 같은 호스트에서 여러개의 서버를 실행시 p2p 홀펀칭 시도중 host_id, peer addr만 갖고는 어느 서버와 연결된 것에 대한 것인지
-  // 구별이 불가능하므로 이 기능을 쓰는 것이다.
+  // 이 객체 인스턴스의 GUID. 이 값은 전세계 어느 컴퓨터에서도 겹치지 않는
+  // 값이어야 한다. 같은 호스트에서 여러개의 서버를 실행시 p2p 홀펀칭 시도중
+  // host_id, peer addr만 갖고는 어느 서버와 연결된 것에 대한 것인지 구별이
+  // 불가능하므로 이 기능을 쓰는 것이다.
   Uuid instance_tag_;
 
   // 여기에 등록된 클라들은 곧 파괴될 것이다
-  // issue중이던 것들은 바로 dispose시 에러가 발생한다. 혹은 issuerecv/send에서 이벤트 없이 에러가 발생한다.
-  // 그래서 이 변수가 쓰이는거다.
-  // host_id=0인 경우, 즉 비인증 상태의 객체가 파괴되는 경우도 감안, EHostId를 키로 두지 않는다.
+  // issue중이던 것들은 바로 dispose시 에러가 발생한다. 혹은 issuerecv/send에서
+  // 이벤트 없이 에러가 발생한다. 그래서 이 변수가 쓰이는거다. host_id=0인 경우,
+  // 즉 비인증 상태의 객체가 파괴되는 경우도 감안, EHostId를 키로 두지 않는다.
   // key: object, value: disposed time
   typedef Map<LanClient_S*, double> DisposeIssuedLanClientMap;
   DisposeIssuedLanClientMap dispose_issued_lan_clients_map_;
@@ -173,14 +182,15 @@ class LanServerImpl
 
   Singleton<ServerSocketPool>::Ptr server_socket_pool_;
 
-  // cs locked인 경우 local event를 enque하기만 해야 한다. cs unlock인 경우에는 콜백 허용
+  // cs locked인 경우 local event를 enque하기만 해야 한다. cs unlock인 경우에는
+  // 콜백 허용
   ILanServerCallbacks* callbacks_;
 
   Clock clock_;
-  //UniquePtr<CompletionPort> completion_port_;
+  // UniquePtr<CompletionPort> completion_port_;
   UniquePtr<CompletionPort> tcp_accept_cp_;
 
-  //tcp 송신 이슈를 보호한다.
+  // tcp 송신 이슈를 보호한다.
   CCriticalSection2 tcp_issue_queue_mutex_;
 
   // TCP 송신 이슈가 걸린 것들
@@ -225,27 +235,46 @@ class LanServerImpl
   // completion handlers
   //
 
-  void IoCompletion_TcpRecvCompletionCase(CompletionStatus& completion, LanClient_S* lc, ReceivedMessageList& received_msg_list);
-  void IoCompletion_TcpSendCompletionCase(CompletionStatus& completion, LanClient_S* lc);
-  void IoCompletion_TcpCustomValueCase(CompletionStatus& completion, LanClient_S* lc);
+  void IoCompletion_TcpRecvCompletionCase(
+      CompletionStatus& completion, LanClient_S* lc,
+      ReceivedMessageList& received_msg_list);
+  void IoCompletion_TcpSendCompletionCase(CompletionStatus& completion,
+                                          LanClient_S* lc);
+  void IoCompletion_TcpCustomValueCase(CompletionStatus& completion,
+                                       LanClient_S* lc);
 
   void IoCompletion_NewClientCase(LanClient_S* lc);
-  void IoCompletion_ProcessMessageOrMoveToFinalRecvQueue(LanClient_S* lc, ReceivedMessageList& extracted_msg_list);
-  bool IoCompletion_ProcessMessage_EngineLayer(ReceivedMessage& received_msg, LanClient_S* lc);
+  void IoCompletion_ProcessMessageOrMoveToFinalRecvQueue(
+      LanClient_S* lc, ReceivedMessageList& extracted_msg_list);
+  bool IoCompletion_ProcessMessage_EngineLayer(ReceivedMessage& received_msg,
+                                               LanClient_S* lc);
 
-  void IoCompletion_ProcessMessage_NotifyCSEncryptedSessionKey(MessageIn& msg, LanClient_S* lc);
-  void IoCompletion_ProcessMessage_NotifyServerConnectionRequestData(MessageIn& msg, LanClient_S* lc);
-  void IoCompletion_ProcessMessage_RequestServerTimeAndKeepAlive(MessageIn& msg, LanClient_S* lc);
-  void IoCompletion_ProcessMessage_NotifyCSConnectionPeerSuccess(MessageIn& msg, LanClient_S* lc);
-  void IoCompletion_ProcessMessage_NotifyCSP2PDisconnected(MessageIn& msg, LanClient_S* lc);
-  void IoCompletion_ProcessMessage_RPC(ReceivedMessage& received_msg, bool msg_processed, LanClient_S* lc);
-  void IoCompletion_ProcessMessage_FreeformMessage(ReceivedMessage& received_msg, bool msg_processed, LanClient_S* lc);
+  void IoCompletion_ProcessMessage_NotifyCSEncryptedSessionKey(MessageIn& msg,
+                                                               LanClient_S* lc);
+  void IoCompletion_ProcessMessage_NotifyServerConnectionRequestData(
+      MessageIn& msg, LanClient_S* lc);
+  void IoCompletion_ProcessMessage_RequestServerTimeAndKeepAlive(
+      MessageIn& msg, LanClient_S* lc);
+  void IoCompletion_ProcessMessage_NotifyCSConnectionPeerSuccess(
+      MessageIn& msg, LanClient_S* lc);
+  void IoCompletion_ProcessMessage_NotifyCSP2PDisconnected(MessageIn& msg,
+                                                           LanClient_S* lc);
+  void IoCompletion_ProcessMessage_RPC(ReceivedMessage& received_msg,
+                                       bool msg_processed, LanClient_S* lc);
+  void IoCompletion_ProcessMessage_FreeformMessage(
+      ReceivedMessage& received_msg, bool msg_processed, LanClient_S* lc);
 
-  void UserTaskQueue_Add(LanClient_S* lc, ReceivedMessage& received_msg, FinalUserWorkItemType type);
+  void UserTaskQueue_Add(LanClient_S* lc, ReceivedMessage& received_msg,
+                         FinalUserWorkItemType type);
   void NotifyProtocolVersionMismatch(LanClient_S* lc);
-  void CatchThreadExceptionAndPurgeClient(LanClient_S* lc, const char* where, const char* reason);
-  void OnSocketIoCompletion(Array<IHostObject*>& send_issued_pool, ReceivedMessageList& msg_list, CompletionStatus& completion);
-  void OnIoCompletion(Array<IHostObject*>& send_issued_pool, ReceivedMessageList& msg_list, CompletionStatus& completion);
+  void CatchThreadExceptionAndPurgeClient(LanClient_S* lc, const char* where,
+                                          const char* reason);
+  void OnSocketIoCompletion(Array<IHostObject*>& send_issued_pool,
+                            ReceivedMessageList& msg_list,
+                            CompletionStatus& completion);
+  void OnIoCompletion(Array<IHostObject*>& send_issued_pool,
+                      ReceivedMessageList& msg_list,
+                      CompletionStatus& completion);
 
   //
   // UserTask
@@ -256,7 +285,8 @@ class LanServerImpl
   void DoUserTask();
 
   void UserWork_FinalReceiveRPC(FinalUserWorkItem& uwi, void* host_tag);
-  void UserWork_FinalReceiveFreeformMessage(FinalUserWorkItem& uwi, void* host_tag);
+  void UserWork_FinalReceiveFreeformMessage(FinalUserWorkItem& uwi,
+                                            void* host_tag);
   void UserWork_FinalUserTask(FinalUserWorkItem& uwi, void* host_tag);
   void UserWork_LocalEvent(FinalUserWorkItem& uwi);
 
@@ -272,13 +302,14 @@ class LanServerImpl
   void Stop();
 
  private:
-  bool CreateTcpListenSocketAndInit(int32 tcp_port, SharedPtr<ResultInfo>& out_error);
+  bool CreateTcpListenSocketAndInit(int32 tcp_port,
+                                    SharedPtr<ResultInfo>& out_error);
   virtual bool AsyncCallbackMayOccur();
 
  public:
   // 서버와의 연결이 완전히 완료되었으며 dispose issue가 발생하기 전의 LC들
   LanClients_S authed_lan_clients_;
-  RandomMT random_; //@todo 이놈은 왜 필요한건가??
+  RandomMT random_;  //@todo 이놈은 왜 필요한건가??
 
   struct CandidateLanClients : public Map<InetAddress, LanClient_S*> {
     void Remove(LanClient_S* lc);
@@ -303,18 +334,16 @@ class LanServerImpl
 
   void OnSocketWarning(InternalSocket* socket, const String& text);
   void OnCompletionPortWarning(CompletionPort* port, const char* text) {
-    //Console.WriteLine(text);
+    // Console.WriteLine(text);
   }
 
   bool IsValidHostId(HostId host_id);
   bool IsValidHostId_NOLOCK(HostId host_id);
   bool IsDisposeLanClient_NOLOCK(LanClient_S* lc);
 
-  void EnqueueClientLeaveEvent( LanClient_S* lc,
-                                ResultCode result_code,
-                                ResultCode detail_code,
-                                const ByteArray& comment,
-                                SocketErrorCode socket_error);
+  void EnqueueClientLeaveEvent(LanClient_S* lc, ResultCode result_code,
+                               ResultCode detail_code, const ByteArray& comment,
+                               SocketErrorCode socket_error);
 
   void ProcessOneLocalEvent(LocalEvent& event);
 
@@ -341,14 +370,23 @@ class LanServerImpl
   bool GetExpectedDecryptCount(HostId remote_id, CryptoCountType& out_count);
   bool NextDecryptCount(HostId remote_id);
 
-  virtual bool Send(const SendFragRefs& data_to_send, const SendOption& send_opt, const HostId* sendto_list, int32 sendto_count) override;
+  virtual bool Send(const SendFragRefs& data_to_send,
+                    const SendOption& send_opt, const HostId* sendto_list,
+                    int32 sendto_count) override;
 
  public:
-  bool Send_BroadcastLayer(const SendFragRefs& payload, const SendOption& send_opt, const HostId* sendto_list, int32 sendto_count);
+  bool Send_BroadcastLayer(const SendFragRefs& payload,
+                           const SendOption& send_opt,
+                           const HostId* sendto_list, int32 sendto_count);
 
-  bool SendWithSplitter_DirectlyToClient_Copy(HostId client_id, const SendFragRefs& data_to_send, MessageReliability reliability, const SendOption& send_opt);
+  bool SendWithSplitter_DirectlyToClient_Copy(HostId client_id,
+                                              const SendFragRefs& data_to_send,
+                                              MessageReliability reliability,
+                                              const SendOption& send_opt);
 
-  void ConvertGroupToIndividualsAndUnion(int32 sendto_count, const HostId* sendto_list, HostIdArray& out_send_dest_list);
+  void ConvertGroupToIndividualsAndUnion(int32 sendto_count,
+                                         const HostId* sendto_list,
+                                         HostIdArray& out_send_dest_list);
 
   virtual bool CloseConnection(HostId client_id);
   virtual void CloseAllConnections();
@@ -363,18 +401,25 @@ class LanServerImpl
   bool DestroyP2PGroup(HostId group_id);
 
   bool LeaveP2PGroup(HostId member_id, HostId group_id);
-  HostId CreateP2PGroup(const HostId* client_host_ids, int32 count, const ByteArray& custom_field);
-  bool JoinP2PGroup(HostId member_id, HostId group_id, const ByteArray& custom_field);
+  HostId CreateP2PGroup(const HostId* client_host_ids, int32 count,
+                        const ByteArray& custom_field);
+  bool JoinP2PGroup(HostId member_id, HostId group_id,
+                    const ByteArray& custom_field);
 
-  void EnqueueP2PAddMemberAckCompleteEvent(HostId group_id, HostId added_member_host_id, ResultCode result);
+  void EnqueueP2PAddMemberAckCompleteEvent(HostId group_id,
+                                           HostId added_member_host_id,
+                                           ResultCode result);
   void EnqueueGroupP2PConnectionCompleteEvent(HostId group_id);
   void EnqueueP2PConnectionEstablishedEvent(HostId member_id, HostId remote_id);
 
  private:
   uint32 joined_p2p_group_key_gen_;
 
-  void AddMemberAckWaiters_RemoveRelated_MayTriggerJoinP2PMemberCompleteEvent(LanP2PGroup_S* group, HostId member_id, ResultCode reason);
-  bool JoinP2PGroup_INTERNAL(HostId member_id, HostId group_id, const ByteArray& custom_field, uint32 joined_p2p_group_key_gen);
+  void AddMemberAckWaiters_RemoveRelated_MayTriggerJoinP2PMemberCompleteEvent(
+      LanP2PGroup_S* group, HostId member_id, ResultCode reason);
+  bool JoinP2PGroup_INTERNAL(HostId member_id, HostId group_id,
+                             const ByteArray& custom_field,
+                             uint32 joined_p2p_group_key_gen);
 
  public:
   // 그룹의 P2P Connection 상태를 업데이트한다.
@@ -402,13 +447,11 @@ class LanServerImpl
   bool PopFirstUserWorkItem(FinalUserWorkItem& output) override;
 
   // 클라이언트를 종료 모드로 바꾸도록 지시한다.
-  // 바로 객체를 파괴할 수 없다. NetWorkerThread에서 먼저 끝내줄 때까지 기다려야 하니까.
-  void IssueDisposeLanClient( LanClient_S* lc,
-                              ResultCode result_code,
-                              ResultCode detail_code,
-                              const ByteArray& comment,
-                              const char* where,
-                              SocketErrorCode socket_error);
+  // 바로 객체를 파괴할 수 없다. NetWorkerThread에서 먼저 끝내줄 때까지 기다려야
+  // 하니까.
+  void IssueDisposeLanClient(LanClient_S* lc, ResultCode result_code,
+                             ResultCode detail_code, const ByteArray& comment,
+                             const char* where, SocketErrorCode socket_error);
 
   void LanClient_RemoveFromCollections(LanClient_S* lc);
   void DisposeIssuedLanClients();
@@ -436,7 +479,8 @@ class LanServerImpl
     NetCoreImpl::ShowNotImplementedRpcWarning(rpc_id, rpc_name);
   }
 
-  void PostCheckReadMessage(IMessageIn& msg, RpcId rpc_id, const char* rpc_name) {
+  void PostCheckReadMessage(IMessageIn& msg, RpcId rpc_id,
+                            const char* rpc_name) {
     NetCoreImpl::PostCheckReadMessage(msg, rpc_id, rpc_name);
   }
 
@@ -450,7 +494,7 @@ class LanServerImpl
   // 너무 오랫동안 쓰이지 않은 TCP 송신 큐를 찾아서 제거한다.
   void Tcp_LongTick();
 
-  //void DisconnectLanClientOnTimeout();
+  // void DisconnectLanClientOnTimeout();
   void Heartbeat_PerClient();
 
   void GetUserWorkerThreadInfo(Array<ThreadInfo>& output);
@@ -470,9 +514,11 @@ class LanServerImpl
   virtual void EnableIntraLog(const char* log_filename);
   virtual void DisableIntraLog();
 
-  void EnqueueHackSuspectEvent(LanClient_S* lc, const char* statement, HackType hack_type);
+  void EnqueueHackSuspectEvent(LanClient_S* lc, const char* statement,
+                               HackType hack_type);
   void EnqueueP2PGroupRemoveEvent(HostId group_id);
-  void EnqueueP2PDisconnectEvent(HostId member_id, HostId remote_id, ResultCode error_type);
+  void EnqueueP2PDisconnectEvent(HostId member_id, HostId remote_id,
+                                 ResultCode error_type);
 
   virtual void SetMessageMaxLength(int32 MaxLength);
 
@@ -481,13 +527,14 @@ class LanServerImpl
  public:
   virtual uint32 GetInternalVersion();
 
-  //void EnqueueUnitTestFailEvent(const String& text);
+  // void EnqueueUnitTestFailEvent(const String& text);
   void EnqueueError(SharedPtr<ResultInfo> result_info);
   void EnqueueWarning(SharedPtr<ResultInfo> result_info);
 
   void EnqueueLocalEvent(LocalEvent& Event);
 
-  void EnqueueClientJoinApproveDetermine(const InetAddress& client_tcp_addr, const ByteArray& request);
+  void EnqueueClientJoinApproveDetermine(const InetAddress& client_tcp_addr,
+                                         const ByteArray& request);
   void ProcessOnClientJoinApproved(LanClient_S* lc, const ByteArray& response);
   void ProcessOnClientJoinRejected(LanClient_S* lc, const ByteArray& response);
 
@@ -511,25 +558,20 @@ class LanServerImpl
   virtual HostId GetLocalHostId();
   virtual bool IsNagleAlgorithmEnabled();
 
-//public:
+  // public:
   // 종료시에만 설정됨
   // Stop()이 return하기 전까지는 이벤트 콜백이 있어야하므로 삭제한다.
-  //FUN_ALIGNED_VOLATILE bool tear_down_;
+  // FUN_ALIGNED_VOLATILE bool tear_down_;
 
  public:
-  //void ConditionalLogFreqFail();
-  //void LogFreqFailNow();
+  // void ConditionalLogFreqFail();
+  // void LogFreqFailNow();
 
-  bool SendFreeform(const HostId* sendto_list,
-                    int32 sendto_count,
-                    const RpcCallOption& rpc_call_opt,
-                    const uint8* payload,
+  bool SendFreeform(const HostId* sendto_list, int32 sendto_count,
+                    const RpcCallOption& rpc_call_opt, const uint8* payload,
                     int32 payload_length) {
-    return NetCoreImpl::SendFreeform( sendto_list,
-                                      sendto_count,
-                                      rpc_call_opt,
-                                      payload,
-                                      payload_length);
+    return NetCoreImpl::SendFreeform(sendto_list, sendto_count, rpc_call_opt,
+                                     payload, payload_length);
   }
 
   bool RunAsync(HostId task_owner_id, Function<void()> func) override;
@@ -538,10 +580,16 @@ class LanServerImpl
   virtual NetClientImpl* QueryNetClient() { return nullptr; }
   virtual LanServerImpl* QueryLanServer() { return this; }
 
-  virtual void EnableVizAgent(const char* viz_server_ip, int32 viz_server_port, const String& login_key) {}
-  virtual void Viz_NotifySendByProxy(const HostId* sendto_list, int32 sendto_count, const MessageSummary& summary, const RpcCallOption& rpc_call_opt) {}
-  virtual void Viz_NotifyRecvToStub(HostId rpc_recvfrom, RpcId rpc_id, const char* rpc_name, const char* params_as_string) {}
+  virtual void EnableVizAgent(const char* viz_server_ip, int32 viz_server_port,
+                              const String& login_key) {}
+  virtual void Viz_NotifySendByProxy(const HostId* sendto_list,
+                                     int32 sendto_count,
+                                     const MessageSummary& summary,
+                                     const RpcCallOption& rpc_call_opt) {}
+  virtual void Viz_NotifyRecvToStub(HostId rpc_recvfrom, RpcId rpc_id,
+                                    const char* rpc_name,
+                                    const char* params_as_string) {}
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

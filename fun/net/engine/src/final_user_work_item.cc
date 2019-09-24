@@ -1,5 +1,5 @@
-﻿#include "fun/net/net.h"
-#include "FinalUserWorkItem.h"
+﻿#include "FinalUserWorkItem.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -21,21 +21,21 @@ void FinalUserWorkItem::From(FinalUserWorkItem_S& src, HostId host_id) {
   }
 }
 
-
 //
 // FinalUserWorkItem_HasLockedDtor
 //
 
-FinalUserWorkItem_HasLockedDtor::FinalUserWorkItem_HasLockedDtor(CCriticalSection2* mutex) {
+FinalUserWorkItem_HasLockedDtor::FinalUserWorkItem_HasLockedDtor(
+    CCriticalSection2* mutex) {
   mutex_ = mutex;
   UnsafeMemory::Memset(storage_, 0x00, sizeof(storage_));
-  uwi_ = new(storage_) FinalUserWorkItem();
+  uwi_ = new (storage_) FinalUserWorkItem();
 }
 
 FinalUserWorkItem_HasLockedDtor::~FinalUserWorkItem_HasLockedDtor() {
   CScopedLock2 guard(*mutex_);
-  uwi_->~FinalUserWorkItem(); //잠금 상태에서 객체 파괴
+  uwi_->~FinalUserWorkItem();  //잠금 상태에서 객체 파괴
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

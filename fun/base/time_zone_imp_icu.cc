@@ -13,18 +13,20 @@ namespace fun {
 // ICU utilities
 
 // Convert TimeType and NameType into ICU UCalendarDisplayNameType
-static UCalendarDisplayNameType ucalDisplayNameType(TimeZone::TimeType time_type, TimeZone::NameType name_type) {
-  // TODO ICU C UCalendarDisplayNameType does not support full set of C++ TimeZone::EDisplayType
+static UCalendarDisplayNameType ucalDisplayNameType(
+    TimeZone::TimeType time_type, TimeZone::NameType name_type) {
+  // TODO ICU C UCalendarDisplayNameType does not support full set of C++
+  // TimeZone::EDisplayType
   switch (name_type) {
-    case TimeZone::ShortName :
-    case TimeZone::OffsetName :
+    case TimeZone::ShortName:
+    case TimeZone::OffsetName:
       if (time_type == TimeZone::DaylightTime) {
         return UCAL_SHORT_DST;
       }
       // Includes GenericTime
       return UCAL_SHORT_STANDARD;
-    case TimeZone::DefaultName :
-    case TimeZone::LongName :
+    case TimeZone::DefaultName:
+    case TimeZone::LongName:
       if (time_type == TimeZone::DaylightTime) {
         return UCAL_DST;
       }
@@ -41,13 +43,15 @@ static String ucalDefaultTimeZoneId() {
   UErrorCode status = U_ZERO_ERROR;
 
   // size = ucal_getDefaultTimeZone(result, resultLength, status)
-  size = ucal_getDefaultTimeZone(reinterpret_cast<UChar *>(result.data()), size, &status);
+  size = ucal_getDefaultTimeZone(reinterpret_cast<UChar*>(result.data()), size,
+                                 &status);
 
   // If overflow, then resize and retry
   if (status == U_BUFFER_OVERFLOW_ERROR) {
     result.resize(size);
     status = U_ZERO_ERROR;
-    size = ucal_getDefaultTimeZone(reinterpret_cast<UChar *>(result.data()), size, &status);
+    size = ucal_getDefaultTimeZone(reinterpret_cast<UChar*>(result.data()),
+                                   size, &status);
   }
 
   // If successful on first or second go, resize and return
@@ -60,31 +64,27 @@ static String ucalDefaultTimeZoneId() {
 }
 
 // Qt wrapper around ucal_getTimeZoneDisplayName()
-static String ucalTimeZoneDisplayName(UCalendar* ucal, TimeZone::TimeType time_type,
-                     TimeZone::NameType name_type,
-                     const String& locale_code) {
+static String ucalTimeZoneDisplayName(UCalendar* ucal,
+                                      TimeZone::TimeType time_type,
+                                      TimeZone::NameType name_type,
+                                      const String& locale_code) {
   int32_t size = 50;
   String result(size, Qt::Uninitialized);
   UErrorCode status = U_ZERO_ERROR;
 
-  // size = ucal_getTimeZoneDisplayName(cal, type, locale, result, resultLength, status)
-  size = ucal_getTimeZoneDisplayName(ucal,
-                     ucalDisplayNameType(time_type, name_type),
-                     locale_code.toUtf8(),
-                     reinterpret_cast<UChar*>(result.data()),
-                     size,
-                     &status);
+  // size = ucal_getTimeZoneDisplayName(cal, type, locale, result, resultLength,
+  // status)
+  size = ucal_getTimeZoneDisplayName(
+      ucal, ucalDisplayNameType(time_type, name_type), locale_code.toUtf8(),
+      reinterpret_cast<UChar*>(result.data()), size, &status);
 
   // If overflow, then resize and retry
   if (status == U_BUFFER_OVERFLOW_ERROR) {
     result.resize(size);
     status = U_ZERO_ERROR;
-    size = ucal_getTimeZoneDisplayName(ucal,
-                       ucalDisplayNameType(time_type, name_type),
-                       locale_code.toUtf8(),
-                       reinterpret_cast<UChar*>(result.data()),
-                       size,
-                       &status);
+    size = ucal_getTimeZoneDisplayName(
+        ucal, ucalDisplayNameType(time_type, name_type), locale_code.toUtf8(),
+        reinterpret_cast<UChar*>(result.data()), size, &status);
   }
 
   // If successful on first or second go, resize and return
@@ -98,15 +98,14 @@ static String ucalTimeZoneDisplayName(UCalendar* ucal, TimeZone::TimeType time_t
 
 // Qt wrapper around ucal_get() for offsets
 static bool ucalOffsetsAtTime(UCalendar* ucal_, int64 at_msecs_since_epoch,
-                int *utc_offset, int *dst_offset) {
+                              int* utc_offset, int* dst_offset) {
   *utc_offset = 0;
   *dst_offset = 0;
 
   // Clone the ucal so we don't change the shared object
   UErrorCode status = U_ZERO_ERROR;
   UCalendar* ucal = ucal_clone(ucal_, &status);
-  if (!U_SUCCESS(status))
-    return false;
+  if (!U_SUCCESS(status)) return false;
 
   // Set the date to find the offset for
   status = U_ZERO_ERROR;
@@ -135,12 +134,13 @@ static bool ucalOffsetsAtTime(UCalendar* ucal_, int64 at_msecs_since_epoch,
   return false;
 }
 
-// ICU Draft api in v50, should be stable in ICU v51. Available in C++ api from ICU v3.8
+// ICU Draft api in v50, should be stable in ICU v51. Available in C++ api from
+// ICU v3.8
 #if U_ICU_VERSION_MAJOR_NUM == 50
 // Qt wrapper around qt_ucal_getTimeZoneTransitionDate & ucal_get
 static TimeZoneImpl::Data ucalTimeZoneTransition(UCalendar* ucal_,
-                           UTimeZoneTransitionType type,
-                           int64 at_msecs_since_epoch) {
+                                                 UTimeZoneTransitionType type,
+                                                 int64 at_msecs_since_epoch) {
   TimeZoneImpl::Data tran = TimeZoneImpl::InvalidData();
 
   // Clone the ucal so we don't change the shared object
@@ -187,14 +187,14 @@ static TimeZoneImpl::Data ucalTimeZoneTransition(UCalendar* ucal_,
   tran.daylight_time_offset = dst;
   // TODO No ICU API, use short name instead
   if (dst == 0)
-    tran.abbreviation = ucalTimeZoneDisplayName(ucal_, TimeZone::StandardTime,
-                          TimeZone::ShortName, Locale().GetName());
+    tran.abbreviation = ucalTimeZoneDisplayName(
+        ucal_, TimeZone::StandardTime, TimeZone::ShortName, Locale().GetName());
   else
-    tran.abbreviation = ucalTimeZoneDisplayName(ucal_, TimeZone::DaylightTime,
-                          TimeZone::ShortName, Locale().GetName());
+    tran.abbreviation = ucalTimeZoneDisplayName(
+        ucal_, TimeZone::DaylightTime, TimeZone::ShortName, Locale().GetName());
   return tran;
 }
-#endif // U_ICU_VERSION_SHORT
+#endif  // U_ICU_VERSION_SHORT
 
 // Convert a uenum to a Array<String>
 static Array<String> uenumToIdList(UEnumeration* uenum) {
@@ -216,7 +216,8 @@ static Array<String> uenumToIdList(UEnumeration* uenum) {
 // Qt wrapper around ucal_getDSTSavings()
 static int ucalDaylightOffset(const String& id) {
   UErrorCode status = U_ZERO_ERROR;
-  const int32_t dstMSecs = ucal_getDSTSavings(reinterpret_cast<const UChar *>(id.data()), &status);
+  const int32_t dstMSecs =
+      ucal_getDSTSavings(reinterpret_cast<const UChar*>(id.data()), &status);
   if (U_SUCCESS(status)) {
     return (dstMSecs / 1000);
   } else {
@@ -238,8 +239,8 @@ IcuTimeZoneImpl::IcuTimeZoneImpl(const String& iana_id) : ucal_(0) {
   }
 }
 
-IcuTimeZoneImpl::IcuTimeZoneImpl(const IcuTimeZoneImpl &other)
-  : TimeZoneImpl(other), ucal_(0) {
+IcuTimeZoneImpl::IcuTimeZoneImpl(const IcuTimeZoneImpl& other)
+    : TimeZoneImpl(other), ucal_(0) {
   // Clone the ucal so we don't close the shared object
   UErrorCode status = U_ZERO_ERROR;
   ucal_ = ucal_clone(other.ucal_, &status);
@@ -249,11 +250,9 @@ IcuTimeZoneImpl::IcuTimeZoneImpl(const IcuTimeZoneImpl &other)
   }
 }
 
-IcuTimeZoneImpl::~IcuTimeZoneImpl() {
-  ucal_close(ucal_);
-}
+IcuTimeZoneImpl::~IcuTimeZoneImpl() { ucal_close(ucal_); }
 
-IcuTimeZoneImpl *IcuTimeZoneImpl::Clone() const {
+IcuTimeZoneImpl* IcuTimeZoneImpl::Clone() const {
   return new IcuTimeZoneImpl(*this);
 }
 
@@ -262,9 +261,10 @@ void IcuTimeZoneImpl::Init(const String& iana_id) {
 
   const String id = String::fromUtf8(id_);
   UErrorCode status = U_ZERO_ERROR;
-  //TODO Use UCAL_GREGORIAN for now to match Locale, change to UCAL_DEFAULT once full ICU support
-  ucal_ = ucal_open(reinterpret_cast<const UChar *>(id.data()), id.size(),
-             Locale().name().toUtf8(), UCAL_GREGORIAN, &status);
+  // TODO Use UCAL_GREGORIAN for now to match Locale, change to UCAL_DEFAULT
+  // once full ICU support
+  ucal_ = ucal_open(reinterpret_cast<const UChar*>(id.data()), id.size(),
+                    Locale().name().toUtf8(), UCAL_GREGORIAN, &status);
 
   if (!U_SUCCESS(status)) {
     id_.Clear();
@@ -273,15 +273,16 @@ void IcuTimeZoneImpl::Init(const String& iana_id) {
 }
 
 String IcuTimeZoneImpl::GetDisplayName(TimeZone::TimeType time_type,
-                     TimeZone::NameType name_type,
-                     const Locale &locale) const {
+                                       TimeZone::NameType name_type,
+                                       const Locale& locale) const {
   // Return standard offset format name as ICU C api doesn't support it yet
   if (name_type == TimeZone::OffsetName) {
     const Data now_data = data(QDateTime::currentMSecsSinceEpoch());
     // We can't use transitions reliably to find out right dst offset
     // Instead use dst offset api to try get it if needed
     if (time_type == TimeZone::DaylightTime) {
-      return IsoOffsetFormat(now_data.offset_from_utc + ucalDaylightOffset(id_));
+      return IsoOffsetFormat(now_data.offset_from_utc +
+                             ucalDaylightOffset(id_));
     } else {
       return IsoOffsetFormat(now_data.offset_from_utc);
     }
@@ -292,35 +293,38 @@ String IcuTimeZoneImpl::GetDisplayName(TimeZone::TimeType time_type,
 String IcuTimeZoneImpl::GetAbbreviation(int64 at_msecs_since_epoch) const {
   // TODO No ICU API, use short name instead
   if (IsDaylightTime(at_msecs_since_epoch)) {
-    return GetDisplayName(TimeZone::DaylightTime, TimeZone::ShortName, String());
+    return GetDisplayName(TimeZone::DaylightTime, TimeZone::ShortName,
+                          String());
   } else {
-    return GetDisplayName(TimeZone::StandardTime, TimeZone::ShortName, String());
+    return GetDisplayName(TimeZone::StandardTime, TimeZone::ShortName,
+                          String());
   }
 }
 
 int32 IcuTimeZoneImpl::GetOffsetFromUtc(int64 at_msecs_since_epoch) const {
   int32 std_offset = 0;
   int32 dst_offset = 0;
-  ucalOffsetsAtTime(ucal_, at_msecs_since_epoch, &std_offset, & dst_offset);
+  ucalOffsetsAtTime(ucal_, at_msecs_since_epoch, &std_offset, &dst_offset);
   return std_offset + dst_offset;
 }
 
 int32 IcuTimeZoneImpl::GetStandardTimeOffset(int64 at_msecs_since_epoch) const {
   int32 std_offset = 0;
   int32 dst_offset = 0;
-  ucalOffsetsAtTime(ucal_, at_msecs_since_epoch, &std_offset, & dst_offset);
+  ucalOffsetsAtTime(ucal_, at_msecs_since_epoch, &std_offset, &dst_offset);
   return std_offset;
 }
 
 int32 IcuTimeZoneImpl::GetDaylightTimeOffset(int64 at_msecs_since_epoch) const {
   int32 std_offset = 0;
   int32 dst_offset = 0;
-  ucalOffsetsAtTime(ucal_, at_msecs_since_epoch, &std_offset, & dst_offset);
+  ucalOffsetsAtTime(ucal_, at_msecs_since_epoch, &std_offset, &dst_offset);
   return dst_offset;
 }
 
 bool IcuTimeZoneImpl::HasDaylightTime() const {
-  // TODO No direct ICU C api, work-around below not reliable?  Find a better way?
+  // TODO No direct ICU C api, work-around below not reliable?  Find a better
+  // way?
   return ucalDaylightOffset(id_) != 0;
 }
 
@@ -352,13 +356,13 @@ TimeZoneImpl::Data IcuTimeZoneImpl::GetData(int64 for_msecs_since_epoch) const {
   TimeZoneImpl::Data data = InvalidData();
 #if U_ICU_VERSION_MAJOR_NUM == 50
   data = ucalTimeZoneTransition(ucal_, UCAL_TZ_TRANSITION_PREVIOUS_INCLUSIVE,
-                  for_msecs_since_epoch);
+                                for_msecs_since_epoch);
 #else
   ucalOffsetsAtTime(ucal_, for_msecs_since_epoch, &data.offset_from_utc,
-            &data.daylight_time_offset);
+                    &data.daylight_time_offset);
   data.offset_from_utc = data.offset_from_utc + data.daylight_time_offset;
   data.abbreviation = GetAbbreviation(for_msecs_since_epoch);
-#endif // U_ICU_VERSION_MAJOR_NUM == 50
+#endif  // U_ICU_VERSION_MAJOR_NUM == 50
   data.at_msecs_since_epoch = for_msecs_since_epoch;
   return data;
 }
@@ -370,29 +374,33 @@ bool IcuTimeZoneImpl::HasTransitions() const {
   return true;
 #else
   return false;
-#endif // U_ICU_VERSION_MAJOR_NUM == 50
+#endif  // U_ICU_VERSION_MAJOR_NUM == 50
 }
 
-TimeZoneImpl::Data IcuTimeZoneImpl::NextTransition(int64 after_msecs_since_epoch) const {
+TimeZoneImpl::Data IcuTimeZoneImpl::NextTransition(
+    int64 after_msecs_since_epoch) const {
   // Available in ICU C++ api, and draft C api in v50
   // TODO When v51 released see if api is stable
 #if U_ICU_VERSION_MAJOR_NUM == 50
-  return ucalTimeZoneTransition(ucal_, UCAL_TZ_TRANSITION_NEXT, after_msecs_since_epoch);
+  return ucalTimeZoneTransition(ucal_, UCAL_TZ_TRANSITION_NEXT,
+                                after_msecs_since_epoch);
 #else
   FUN_UNUSED(after_msecs_since_epoch)
   return InvalidData();
-#endif // U_ICU_VERSION_MAJOR_NUM == 50
+#endif  // U_ICU_VERSION_MAJOR_NUM == 50
 }
 
-TimeZoneImpl::Data IcuTimeZoneImpl::PreviousTransition(int64 before_msecs_since_epoch) const {
+TimeZoneImpl::Data IcuTimeZoneImpl::PreviousTransition(
+    int64 before_msecs_since_epoch) const {
   // Available in ICU C++ api, and draft C api in v50
   // TODO When v51 released see if api is stable
 #if U_ICU_VERSION_MAJOR_NUM == 50
-  return ucalTimeZoneTransition(ucal_, UCAL_TZ_TRANSITION_PREVIOUS, before_msecs_since_epoch);
+  return ucalTimeZoneTransition(ucal_, UCAL_TZ_TRANSITION_PREVIOUS,
+                                before_msecs_since_epoch);
 #else
   FUN_UNUSED(before_msecs_since_epoch)
   return InvalidData();
-#endif // U_ICU_VERSION_MAJOR_NUM == 50
+#endif  // U_ICU_VERSION_MAJOR_NUM == 50
 }
 
 String IcuTimeZoneImpl::GetSystemTimeZoneId() const {
@@ -412,11 +420,13 @@ Array<String> IcuTimeZoneImpl::AvailableTimeZoneIds() const {
   return result;
 }
 
-Array<String> IcuTimeZoneImpl::AvailableTimeZoneIds(Locale::Country country) const {
+Array<String> IcuTimeZoneImpl::AvailableTimeZoneIds(
+    Locale::Country country) const {
   const QLatin1String regionCode = QLocalePrivate::countryToCode(country);
   const String regionCodeUtf8 = String(regionCode).toUtf8();
   UErrorCode status = U_ZERO_ERROR;
-  UEnumeration* uenum = ucal_openCountryTimeZones(regionCodeUtf8.data(), &status);
+  UEnumeration* uenum =
+      ucal_openCountryTimeZones(regionCodeUtf8.data(), &status);
   Array<String> result;
   if (U_SUCCESS(status)) {
     result = uenumToIdList(uenum);
@@ -426,10 +436,13 @@ Array<String> IcuTimeZoneImpl::AvailableTimeZoneIds(Locale::Country country) con
 }
 
 Array<String> IcuTimeZoneImpl::AvailableTimeZoneIds(int offset_from_utc) const {
-// TODO Available directly in C++ api but not C api, from 4.8 onwards new filter method works
-#if U_ICU_VERSION_MAJOR_NUM >= 49 || (U_ICU_VERSION_MAJOR_NUM == 4 && U_ICU_VERSION_MINOR_NUM == 8)
+// TODO Available directly in C++ api but not C api, from 4.8 onwards new filter
+// method works
+#if U_ICU_VERSION_MAJOR_NUM >= 49 || \
+    (U_ICU_VERSION_MAJOR_NUM == 4 && U_ICU_VERSION_MINOR_NUM == 8)
   UErrorCode status = U_ZERO_ERROR;
-  UEnumeration* uenum = ucal_openTimeZoneIDEnumeration(UCAL_ZONE_TYPE_ANY, 0, &offset_from_utc, &status);
+  UEnumeration* uenum = ucal_openTimeZoneIDEnumeration(
+      UCAL_ZONE_TYPE_ANY, 0, &offset_from_utc, &status);
   Array<String> result;
   if (U_SUCCESS(status)) {
     result = uenumToIdList(uenum);
@@ -441,4 +454,4 @@ Array<String> IcuTimeZoneImpl::AvailableTimeZoneIds(int offset_from_utc) const {
 #endif
 }
 
-} // namespace fun
+}  // namespace fun

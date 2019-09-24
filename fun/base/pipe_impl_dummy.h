@@ -22,4 +22,4 @@ class FUN_BASE_API PipeImpl : public RefCountedObject {
   void CloseWrite();
 };
 
-} // namespace fun
+}  // namespace fun

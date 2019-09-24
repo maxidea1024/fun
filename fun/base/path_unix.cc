@@ -1,11 +1,11 @@
 ﻿#include "fun/base/path_unix.h"
-#include "fun/base/exception.h"
 #include "fun/base/environment_unix.h"
+#include "fun/base/exception.h"
 //#include "fun/base/ascii.h"
 
-#include <unistd.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #if FUN_PLATFORM != FUN_PLATFORM_VXWORKS
 #include <pwd.h>
@@ -18,7 +18,7 @@
 #include <climits>
 
 #ifndef PATH_MAX
-#define PATH_MAX 1024 // fallback
+#define PATH_MAX 1024  // fallback
 #endif
 
 namespace fun {
@@ -27,14 +27,13 @@ namespace {
 
 // 패스는 반듯이 "/"로 끝나야함!
 FUN_ALWAYS_INLINE String& EnsurePathTerm(String& str) {
-  if (str.Len() > 0 && str[str.Len()-1] != '/') {
+  if (str.Len() > 0 && str[str.Len() - 1] != '/') {
     str << "/";
   }
   return str;
 }
 
-} // namespace
-
+}  // namespace
 
 String PathImpl::GetCurrentImpl() {
   String path;
@@ -169,26 +168,26 @@ String PathImpl::GetSelfImpl() {
   }
   return path;
 #elif FUN_PLATFORM == FUN_PLATFORM_LINUX || FUN_PLATFORM == FUN_PLATFORM_ANDROID
-  #ifdef PATH_MAX
-    std::size_t sz = PATH_MAX;
-  #else
-    std::size_t sz = 4096;
-  #endif
+#ifdef PATH_MAX
+  std::size_t sz = PATH_MAX;
+#else
+  std::size_t sz = 4096;
+#endif
   char buf[sz];
   ssize_t ret = readlink("/proc/self/exe", buf, sz);
   if (-1 == ret) {
     throw SystemException("cannot obtain path for executable");
   }
   fun_check_dbg(ret < sz);
-  buf[ret-1] = '\0';
+  buf[ret - 1] = '\0';
   return buf;
 #endif
   // TODO (see https://stackoverflow.com/a/1024937/205386)
   // Solaris: getexecname()
   // FreeBSD: sysctl CTL_KERN KERN_PROC KERN_PROC_PATHNAME -1
-  // FreeBSD if it has procfs: readlink /proc/curproc/file (FreeBSD doesn't have procfs by default)
-  // NetBSD: readlink /proc/curproc/exe
-  // DragonFly BSD: readlink /proc/curproc/file
+  // FreeBSD if it has procfs: readlink /proc/curproc/file (FreeBSD doesn't have
+  // procfs by default) NetBSD: readlink /proc/curproc/exe DragonFly BSD:
+  // readlink /proc/curproc/file
   return "";
 }
 
@@ -226,7 +225,7 @@ String PathImpl::GetNullImpl() {
 
 String PathImpl::ExpandImpl(const String& path) {
   String result;
-  String::const_iterator it  = path.begin();
+  String::const_iterator it = path.begin();
   String::const_iterator end = path.end();
   if (it != end && *it == '~') {
     ++it;
@@ -268,7 +267,7 @@ String PathImpl::ExpandImpl(const String& path) {
         }
       }
 
-      //TODO 별도의 체계를 추가해줄수도 있을듯...
+      // TODO 별도의 체계를 추가해줄수도 있을듯...
       char* val = getenv(var.c_str());
       if (val) {
         result += val;
@@ -281,7 +280,7 @@ String PathImpl::ExpandImpl(const String& path) {
   String::size_type found = result.find("//");
   while (found != String::npos) {
     result.replace(found, 2, "/");
-    found = result.find("//", found+1);
+    found = result.find("//", found + 1);
   }
   return result;
 }
@@ -291,4 +290,4 @@ void PathImpl::ListRootsImpl(Array<String>& roots) {
   roots.Add("/");
 }
 
-} // namespace fun
+}  // namespace fun

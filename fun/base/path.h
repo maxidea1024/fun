@@ -10,9 +10,9 @@ namespace fun {
  * This class represents filesystem paths in a platform-independent manner.
  * Unix, Windows and OpenVMS all use a different syntax for filesystem paths.
  * This class can work with all three formats.
- * A path is made up of an optional node name (only Windows and OpenVMS), an optional
- * device name (also only Windows and OpenVMS),
- * a list of Directory names and an optional filename.
+ * A path is made up of an optional node name (only Windows and OpenVMS), an
+ * optional device name (also only Windows and OpenVMS), a list of Directory
+ * names and an optional filename.
  */
 class FUN_BASE_API Path {
  public:
@@ -107,17 +107,17 @@ class FUN_BASE_API Path {
   /**
    * Assignment operator.
    */
-  Path& operator = (const Path& path);
+  Path& operator=(const Path& path);
 
   /**
    * Assigns a string containing a path in native format.
    */
-  Path& operator = (const String& path);
+  Path& operator=(const String& path);
 
   /**
    * Assigns a string containing a path in native format.
    */
-  Path& operator = (const char* path);
+  Path& operator=(const char* path);
 
   /**
    * Swaps the path with another one.
@@ -298,7 +298,7 @@ class FUN_BASE_API Path {
    * Returns the n'th directory in the directory list.
    * If n == GetDepth(), returns the filename.
    */
-  const String& operator [] (int n) const;
+  const String& operator[](int n) const;
 
   /**
    * Adds a directory to the directory list.
@@ -482,11 +482,14 @@ class FUN_BASE_API Path {
    * by it and end. A relative path may be given in name.
    *
    * If the file is found in one of the locations, the complete
-   * path of the file is stored in the path given as argument and true is returned.
-   * Otherwise false is returned and the path argument remains unchanged.
+   * path of the file is stored in the path given as argument and true is
+   * returned. Otherwise false is returned and the path argument remains
+   * unchanged.
    */
-  static bool Find(const Array<String>& path_list, const String& name, Path& path);
-  static bool Find(const Array<StringRef>& path_list, const String& name, Path& path);
+  static bool Find(const Array<String>& path_list, const String& name,
+                   Path& path);
+  static bool Find(const Array<StringRef>& path_list, const String& name,
+                   Path& path);
 
   /**
    * Searches the file with the given name in the locations (paths) specified
@@ -494,8 +497,9 @@ class FUN_BASE_API Path {
    * path separator (see PathSeparator()). A relative path may be given in name.
    *
    * If the file is found in one of the locations, the complete
-   * path of the file is stored in the path given as argument and true is returned.
-   * Otherwise false is returned and the path argument remains unchanged.
+   * path of the file is stored in the path given as argument and true is
+   * returned. Otherwise false is returned and the path argument remains
+   * unchanged.
    */
   static bool Find(const String& path_list, const String& name, Path& path);
 
@@ -530,54 +534,33 @@ class FUN_BASE_API Path {
   bool absolute_;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE bool Path::IsAbsolute() const {
-  return absolute_;
-}
+FUN_ALWAYS_INLINE bool Path::IsAbsolute() const { return absolute_; }
 
-FUN_ALWAYS_INLINE bool Path::IsRelative() const {
-  return !absolute_;
-}
+FUN_ALWAYS_INLINE bool Path::IsRelative() const { return !absolute_; }
 
-FUN_ALWAYS_INLINE bool Path::IsDirectory() const {
-  return name_.IsEmpty();
-}
+FUN_ALWAYS_INLINE bool Path::IsDirectory() const { return name_.IsEmpty(); }
 
-FUN_ALWAYS_INLINE bool Path::IsFile() const {
-  return !name_.IsEmpty();
-}
+FUN_ALWAYS_INLINE bool Path::IsFile() const { return !name_.IsEmpty(); }
 
-FUN_ALWAYS_INLINE Path& Path::Parse(const String& path) {
-  return Assign(path);
-}
+FUN_ALWAYS_INLINE Path& Path::Parse(const String& path) { return Assign(path); }
 
 FUN_ALWAYS_INLINE Path& Path::Parse(const String& path, Style style) {
   return Assign(path, style);
 }
 
-FUN_ALWAYS_INLINE const String& Path::GetNode() const {
-  return node_;
-}
+FUN_ALWAYS_INLINE const String& Path::GetNode() const { return node_; }
 
-FUN_ALWAYS_INLINE const String& Path::GetDevice() const {
-  return device_;
-}
+FUN_ALWAYS_INLINE const String& Path::GetDevice() const { return device_; }
 
-FUN_ALWAYS_INLINE const String& Path::GetFileName() const {
-  return name_;
-}
+FUN_ALWAYS_INLINE const String& Path::GetFileName() const { return name_; }
 
-FUN_ALWAYS_INLINE int Path::GetDepth() const {
-  return dirs_.Count();
-}
+FUN_ALWAYS_INLINE int Path::GetDepth() const { return dirs_.Count(); }
 
-FUN_ALWAYS_INLINE const String& Path::GetVersion() const {
-  return version_;
-}
+FUN_ALWAYS_INLINE const String& Path::GetVersion() const { return version_; }
 
 FUN_ALWAYS_INLINE Path Path::ForDirectory(const String& path) {
   Path p;
@@ -609,9 +592,7 @@ FUN_ALWAYS_INLINE char Path::PathSeparator() {
 #endif
 }
 
-//TODO 이건 제거하도록 하자.
-FUN_ALWAYS_INLINE void Swap(Path& x, Path& y) {
-  x.Swap(y);
-}
+// TODO 이건 제거하도록 하자.
+FUN_ALWAYS_INLINE void Swap(Path& x, Path& y) { x.Swap(y); }
 
-} // namespace fun
+}  // namespace fun

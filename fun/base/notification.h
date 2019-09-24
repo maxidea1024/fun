@@ -32,8 +32,8 @@ class Notification : public RefCountedObject {
    * Returns the name of the notification.
    * The default implementation returns the class name.
    */
-  //virtual const String& GetName() const;
+  // virtual const String& GetName() const;
   virtual String GetName() const;
 };
 
-} // namespace fun
+}  // namespace fun

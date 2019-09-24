@@ -8,17 +8,18 @@ class ErrorReporter {
   static void Report(const String& text);
 };
 
-//class CReportSocketDelegate : public IInternalSocketDelegate {
-//public:
-//  virtual void OnSocketWarning(InternalSocket* socket, const String& msg) override {}
+// class CReportSocketDelegate : public IInternalSocketDelegate {
+// public:
+//  virtual void OnSocketWarning(InternalSocket* socket, const String& msg)
+//  override {}
 //};
 //
 //
 ///**
 // * 클라, 서버 모두 쓴다.
 // */
-//class CErrorReporter_Indeed : public Singleton<CErrorReporter_Indeed> {
-//private:
+// class CErrorReporter_Indeed : public Singleton<CErrorReporter_Indeed> {
+// private:
 //  enum class ELogSocketState {
 //    Init,
 //    Connecting,
@@ -64,7 +65,7 @@ class ErrorReporter {
 //  static void StaticWorkerProc(void* context);
 //  void WorkerProc();
 //
-//public:
+// public:
 //  CErrorReporter_Indeed();
 //  ~CErrorReporter_Indeed();
 //
@@ -73,17 +74,17 @@ class ErrorReporter {
 //  static void Report(const String& text);
 //};
 //
-//class CErrorReporter_Slient : public Singleton<CErrorReporter_Slient> {
-//public:
+// class CErrorReporter_Slient : public Singleton<CErrorReporter_Slient> {
+// public:
 //  static void Report(const String& text) {}
 //};
 //
 //#ifdef NO_USE_ERROR_REPORTER
-//typedef CErrorReporter_Slient ErrorReporter;
+// typedef CErrorReporter_Slient ErrorReporter;
 //#else
-//typedef CErrorReporter_Indeed ErrorReporter;
+// typedef CErrorReporter_Indeed ErrorReporter;
 //#endif
 //
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

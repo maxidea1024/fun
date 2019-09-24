@@ -1,40 +1,36 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
-#include "fun/base/async_result.h"
 #include "fun/base/async_method.h"
-#include "fun/base/mutex.h"
+#include "fun/base/async_result.h"
+#include "fun/base/base.h"
 #include "fun/base/ftl/shared_ptr.h"
+#include "fun/base/mutex.h"
 
 namespace fun {
 
-template <
-    typename ArgsType,
-    typename StrategyType,
-    typename DelegateType,
-    typename MutexType = FastMutex
-  >
+template <typename ArgsType, typename StrategyType, typename DelegateType,
+          typename MutexType = FastMutex>
 class EventBase {
  public:
   typedef DelegateType* DelegateHandle;
   typedef ArgsType Args;
 
   EventBase()
-    : execute_async_(this, &EventBase::ExecuteAsyncImpl), enabled_(true) {}
+      : execute_async_(this, &EventBase::ExecuteAsyncImpl), enabled_(true) {}
 
   EventBase(const StrategyType& strategy)
-    : execute_async_(this, &EventBase::ExecuteAsyncImpl),
-      strategy_(strategy),
-      enabled_(true) {}
+      : execute_async_(this, &EventBase::ExecuteAsyncImpl),
+        strategy_(strategy),
+        enabled_(true) {}
 
   virtual ~EventBase() {}
 
-  void operator += (const DelegateType& delegate) {
+  void operator+=(const DelegateType& delegate) {
     ScopedLock<MutexType> guard(mutex_);
     strategy_.Add(delegate);
   }
 
-  void operator -= (const DelegateType& delegate) {
+  void operator-=(const DelegateType& delegate) {
     ScopedLock<MutexType> guard(mutex_);
     strategy_.Remove(delegate);
   }
@@ -49,17 +45,11 @@ class EventBase {
     strategy_.Remove(delegate_handle);
   }
 
-  bool HasDelegates() const {
-    return !strategy_.IsEmpty();
-  }
+  bool HasDelegates() const { return !strategy_.IsEmpty(); }
 
-  void operator () (const void* sender, ArgsType& args) {
-    Notify(sender, args);
-  }
+  void operator()(const void* sender, ArgsType& args) { Notify(sender, args); }
 
-  void operator () (ArgsType& args) {
-    Notify(nullptr, args);
-  }
+  void operator()(ArgsType& args) { Notify(nullptr, args); }
 
   void Notify(const void* sender, ArgsType& args) {
     ScopedLockWithUnlock<MutexType> guard(mutex_);
@@ -109,7 +99,7 @@ class EventBase {
     bool enabled;
 
     NotifyAsyncParams(const void* sender, const ArgsType& args)
-      : sender(sender), args(args), enabled(true) {}
+        : sender(sender), args(args), enabled(true) {}
   };
 
   AsyncMethod<ArgsType, NotifyAsyncParams, EventBase> execute_async_;
@@ -131,35 +121,29 @@ class EventBase {
 
  private:
   EventBase(const EventBase&) = delete;
-  EventBase& operator = (const EventBase&) = delete;
+  EventBase& operator=(const EventBase&) = delete;
 };
 
-
-template <
-    typename StrategyType,
-    typename DelegateType,
-    typename MutexType
-  >
+template <typename StrategyType, typename DelegateType, typename MutexType>
 class EventBase<void, StrategyType, DelegateType, MutexType> {
   typedef DelegateType* DelegateHandle;
 
   EventBase()
-    : execute_async_(this, &EventBase::ExecuteAsyncImpl),
-      enabled_(true) {}
+      : execute_async_(this, &EventBase::ExecuteAsyncImpl), enabled_(true) {}
 
   EventBase(const StrategyType& strategy)
-    : execute_async_(this, &EventBase::ExecuteAsyncImpl),
-      strategy_(strategy),
-      enabled_(true) {}
+      : execute_async_(this, &EventBase::ExecuteAsyncImpl),
+        strategy_(strategy),
+        enabled_(true) {}
 
   virtual ~EventBase() {}
 
-  void operator += (const DelegateType& delegate) {
+  void operator+=(const DelegateType& delegate) {
     ScopedLock<MutexType> guard(mutex_);
     strategy_.Add(delegate);
   }
 
-  void operator -= (const DelegateType& delegate) {
+  void operator-=(const DelegateType& delegate) {
     ScopedLock<MutexType> guard(mutex_);
     strategy_.Remove(delegate);
   }
@@ -174,17 +158,11 @@ class EventBase<void, StrategyType, DelegateType, MutexType> {
     strategy_.Remove(delegate_handle);
   }
 
-  bool HasDelegates() const {
-    return !strategy_.IsEmpty();
-  }
+  bool HasDelegates() const { return !strategy_.IsEmpty(); }
 
-  void operator () (const void* sender) {
-    Notify(sender);
-  }
+  void operator()(const void* sender) { Notify(sender); }
 
-  void operator () () {
-    Notify(nullptr);
-  }
+  void operator()() { Notify(nullptr); }
 
   void Notify(const void* sender) {
     ScopedLockWithUnlock<MutexType> guard(mutex_);
@@ -232,8 +210,7 @@ class EventBase<void, StrategyType, DelegateType, MutexType> {
     const void* sender;
     bool enabled;
 
-    NotifyAsyncParams(const void* sender)
-      : sender(sender), enabled(true) {}
+    NotifyAsyncParams(const void* sender) : sender(sender), enabled(true) {}
   };
 
   AsyncMethod<void, NotifyAsyncParams, EventBase> execute_async_;
@@ -254,7 +231,7 @@ class EventBase<void, StrategyType, DelegateType, MutexType> {
 
  private:
   EventBase(const EventBase&) = delete;
-  EventBase& operator = (const EventBase&) = delete;
+  EventBase& operator=(const EventBase&) = delete;
 };
 
-} // namespace fun
+}  // namespace fun

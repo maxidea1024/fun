@@ -1,17 +1,17 @@
 ﻿#include "fun/base/environment_win32.h"
-#include "fun/base/exception.h"
-#include "fun/base/container/array.h"
-#include "fun/base/string/string.h"
-#include <sstream>
-#include <cstring>
-#include "fun/base/windows_less.h"
+#include <iphlpapi.h>
+#include <wincrypt.h>
 #include <winsock2.h>
 #include <ws2ipdef.h>
-#include <wincrypt.h>
-#include <iphlpapi.h>
+#include <cstring>
+#include <sstream>
+#include "fun/base/container/array.h"
+#include "fun/base/exception.h"
+#include "fun/base/string/string.h"
+#include "fun/base/windows_less.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable : 4996) // GetVerwionExW deprecated warning.
+#pragma warning(disable : 4996)  // GetVerwionExW deprecated warning.
 #endif
 
 namespace fun {
@@ -26,7 +26,7 @@ String EnvironmentImpl::GetImpl(const String& name) {
   Array<wchar_t> buffer(len, NoInit);
   GetEnvironmentVariableW(uname.c_str(), buffer.MutableData(), len);
   String result;
-  //UnicodeConverter::ToUtf8(buffer.begin(), len - 1, result);
+  // UnicodeConverter::ToUtf8(buffer.begin(), len - 1, result);
   result = WCHAR_TO_UTF8_N(buffer.ConstData(), len - 1);
   return result;
 }
@@ -55,15 +55,19 @@ String EnvironmentImpl::GetOsNameImpl() {
   }
 
   switch (vi.dwPlatformId) {
-    case VER_PLATFORM_WIN32s: return "Windows 3.x";
-    case VER_PLATFORM_WIN32_WINDOWS: return vi.dwMinorVersion == 0 ? "Windows 95" : "Windows 98";
-    case VER_PLATFORM_WIN32_NT: return "Windows NT";
-    default: return "Unknown";
+    case VER_PLATFORM_WIN32s:
+      return "Windows 3.x";
+    case VER_PLATFORM_WIN32_WINDOWS:
+      return vi.dwMinorVersion == 0 ? "Windows 95" : "Windows 98";
+    case VER_PLATFORM_WIN32_NT:
+      return "Windows NT";
+    default:
+      return "Unknown";
   }
 }
 
 String EnvironmentImpl::GetOsDisplayNameImpl() {
-  OSVERSIONINFOEX vi; // OSVERSIONINFOEX is supported starting at Windows 2000
+  OSVERSIONINFOEX vi;  // OSVERSIONINFOEX is supported starting at Windows 2000
   vi.dwOSVersionInfoSize = sizeof(vi);
   if (GetVersionEx((OSVERSIONINFO*)&vi) == 0) {
     throw SystemException("Cannot get OS version information");
@@ -72,22 +76,39 @@ String EnvironmentImpl::GetOsDisplayNameImpl() {
   switch (vi.dwMajorVersion) {
     case 10:
       switch (vi.dwMinorVersion) {
-        case 0: return vi.wProductType == VER_NT_WORKSTATION ? "Windows 10" : "Windows Server 2016";
+        case 0:
+          return vi.wProductType == VER_NT_WORKSTATION ? "Windows 10"
+                                                       : "Windows Server 2016";
       }
     case 6:
       switch (vi.dwMinorVersion) {
-        case 0: return vi.wProductType == VER_NT_WORKSTATION ? "Windows Vista" : "Windows Server 2008";
-        case 1: return vi.wProductType == VER_NT_WORKSTATION ? "Windows 7" : "Windows Server 2008 R2";
-        case 2: return vi.wProductType == VER_NT_WORKSTATION ? "Windows 8" : "Windows Server 2012";
-        case 3: return vi.wProductType == VER_NT_WORKSTATION ? "Windows 8.1" : "Windows Server 2012 R2";
-        default: return "Unknown";
+        case 0:
+          return vi.wProductType == VER_NT_WORKSTATION ? "Windows Vista"
+                                                       : "Windows Server 2008";
+        case 1:
+          return vi.wProductType == VER_NT_WORKSTATION
+                     ? "Windows 7"
+                     : "Windows Server 2008 R2";
+        case 2:
+          return vi.wProductType == VER_NT_WORKSTATION ? "Windows 8"
+                                                       : "Windows Server 2012";
+        case 3:
+          return vi.wProductType == VER_NT_WORKSTATION
+                     ? "Windows 8.1"
+                     : "Windows Server 2012 R2";
+        default:
+          return "Unknown";
       }
     case 5:
       switch (vi.dwMinorVersion) {
-        case 0: return "Windows 2000";
-        case 1: return "Windows XP";
-        case 2: return "Windows Server 2003/Windows Server 2003 R2";
-        default: return "Unknown";
+        case 0:
+          return "Windows 2000";
+        case 1:
+          return "Windows XP";
+        case 2:
+          return "Windows Server 2003/Windows Server 2003 R2";
+        default:
+          return "Unknown";
       }
     default:
       return "Unknown";
@@ -102,7 +123,8 @@ String EnvironmentImpl::GetOsVersionImpl() {
   }
 
   String result;
-  result << (uint32)vi.dwMajorVersion << "." << (uint32)vi.dwMinorVersion << " (Build " << uint32(vi.dwBuildNumber & 0xFFFF);
+  result << (uint32)vi.dwMajorVersion << "." << (uint32)vi.dwMinorVersion
+         << " (Build " << uint32(vi.dwBuildNumber & 0xFFFF);
   if (vi.szCSDVersion[0]) {
     result << WCHAR_TO_UTF8(vi.szCSDVersion);
   }
@@ -114,18 +136,26 @@ String EnvironmentImpl::GetOsArchitectureImpl() {
   SYSTEM_INFO si;
   GetSystemInfo(&si);
   switch (si.wProcessorArchitecture) {
-    case PROCESSOR_ARCHITECTURE_INTEL: return "IA32";
-    case PROCESSOR_ARCHITECTURE_MIPS: return "MIPS";
-    case PROCESSOR_ARCHITECTURE_ALPHA: return "ALPHA";
-    case PROCESSOR_ARCHITECTURE_PPC: return "PPC";
-    case PROCESSOR_ARCHITECTURE_IA64: return "IA64";
+    case PROCESSOR_ARCHITECTURE_INTEL:
+      return "IA32";
+    case PROCESSOR_ARCHITECTURE_MIPS:
+      return "MIPS";
+    case PROCESSOR_ARCHITECTURE_ALPHA:
+      return "ALPHA";
+    case PROCESSOR_ARCHITECTURE_PPC:
+      return "PPC";
+    case PROCESSOR_ARCHITECTURE_IA64:
+      return "IA64";
 #ifdef PROCESSOR_ARCHITECTURE_IA32_ON_WIN64
-    case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64: return "IA64/32";
+    case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64:
+      return "IA64/32";
 #endif
 #ifdef PROCESSOR_ARCHITECTURE_AMD64
-    case PROCESSOR_ARCHITECTURE_AMD64: return "AMD64";
+    case PROCESSOR_ARCHITECTURE_AMD64:
+      return "AMD64";
 #endif
-    default: return "Unknown";
+    default:
+      return "Unknown";
   }
 }
 
@@ -152,24 +182,26 @@ void EnvironmentImpl::GetNodeIdImpl(NodeId& out_id) {
   // the necessary size into len
   DWORD rc = GetAdaptersInfo(pAdapterInfo, &len);
   if (rc == ERROR_BUFFER_OVERFLOW) {
-    delete [] reinterpret_cast<char*>(pAdapterInfo);
+    delete[] reinterpret_cast<char*>(pAdapterInfo);
     pAdapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(new char[len]);
   } else if (rc != ERROR_SUCCESS) {
     return;
   }
-  
+
   if (GetAdaptersInfo(pAdapterInfo, &len) == NO_ERROR) {
     pAdapter = pAdapterInfo;
     bool found = false;
     while (pAdapter && !found) {
-      if (pAdapter->Type == MIB_IF_TYPE_ETHERNET && pAdapter->AddressLength == sizeof(out_id)) {
+      if (pAdapter->Type == MIB_IF_TYPE_ETHERNET &&
+          pAdapter->AddressLength == sizeof(out_id)) {
         found = true;
-        UnsafeMemory::Memcpy(&out_id, pAdapter->Address, pAdapter->AddressLength);
+        UnsafeMemory::Memcpy(&out_id, pAdapter->Address,
+                             pAdapter->AddressLength);
       }
       pAdapter = pAdapter->Next;
     }
   }
-  delete [] reinterpret_cast<char*>(pAdapterInfo);
+  delete[] reinterpret_cast<char*>(pAdapterInfo);
 }
 
 uint32 EnvironmentImpl::GetProcessorCountImpl() {
@@ -178,4 +210,4 @@ uint32 EnvironmentImpl::GetProcessorCountImpl() {
   return si.dwNumberOfProcessors;
 }
 
-} // namespace fun
+}  // namespace fun

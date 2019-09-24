@@ -4,34 +4,29 @@
 namespace fun {
 
 SortedDirectoryIterator::SortedDirectoryIterator()
-  : DirectoryIterator(),
-    is_finished_(true) {
-}
+    : DirectoryIterator(), is_finished_(true) {}
 
 SortedDirectoryIterator::SortedDirectoryIterator(const String& path)
-  : DirectoryIterator(path),
-    is_finished_(false) {
+    : DirectoryIterator(path), is_finished_(false) {
   Scan();
   Next();
 }
 
-SortedDirectoryIterator::SortedDirectoryIterator(const SortedDirectoryIterator& iterator)
-  : DirectoryIterator(iterator),
-    is_finished_(false) {
+SortedDirectoryIterator::SortedDirectoryIterator(
+    const SortedDirectoryIterator& iterator)
+    : DirectoryIterator(iterator), is_finished_(false) {
   Scan();
   Next();
 }
 
 SortedDirectoryIterator::SortedDirectoryIterator(const File& file)
-  : DirectoryIterator(file),
-    is_finished_(false) {
+    : DirectoryIterator(file), is_finished_(false) {
   Scan();
   Next();
 }
 
 SortedDirectoryIterator::SortedDirectoryIterator(const Path& path)
-  : DirectoryIterator(path),
-    is_finished_(false) {
+    : DirectoryIterator(path), is_finished_(false) {
   Scan();
   Next();
 }
@@ -40,7 +35,7 @@ SortedDirectoryIterator::~SortedDirectoryIterator() {
   // NOOP
 }
 
-SortedDirectoryIterator& SortedDirectoryIterator::operator ++ () {
+SortedDirectoryIterator& SortedDirectoryIterator::operator++() {
   if (!is_finished_) {
     Next();
   }
@@ -53,7 +48,8 @@ void SortedDirectoryIterator::Scan() {
     bool is_dir = false;
     try {
       is_dir = (*this)->IsDirectory();
-    } catch (...) {}
+    } catch (...) {
+    }
 
     if (is_dir) {
       directories_.PushBack(path_.ToString());
@@ -64,10 +60,10 @@ void SortedDirectoryIterator::Scan() {
     DirectoryIterator::operator++();
   }
 
-  //TODO List라 sorting이 안될텐데...
+  // TODO List라 sorting이 안될텐데...
   //그냥 배열로 처리해야할까??
-  //std::sort(directories_.begin(), directories_.end());
-  //std::sort(files_.begin(), files_.end());
+  // std::sort(directories_.begin(), directories_.end());
+  // std::sort(files_.begin(), files_.end());
   directories_.Sort();
   files_.Sort();
 }
@@ -89,4 +85,4 @@ void SortedDirectoryIterator::Next() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

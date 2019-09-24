@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
-#include "fun/base/thread.h"
-#include "fun/base/mutex.h"
 #include "fun/base/atomic_counter.h"
+#include "fun/base/base.h"
 #include "fun/base/container/array.h"
+#include "fun/base/mutex.h"
 #include "fun/base/string/string.h"
+#include "fun/base/thread.h"
 
 namespace fun {
 
@@ -29,8 +29,7 @@ class PooledThread;
  * again, no-longer used threads are stopped and removed
  * from the pool.
  */
-class FUN_BASE_API ThreadPool
-{
+class FUN_BASE_API ThreadPool {
  public:
   enum ThreadAffinityPolicy {
     TAP_DEFAULT = 0,
@@ -47,11 +46,9 @@ class FUN_BASE_API ThreadPool
    * is killed. Threads are created with given stack size.
    * Threads are created with given affinity policy.
    */
-  ThreadPool( int32 min_capacity = 2,
-              int32 max_capacity = 16,
-              int32 idle_time = 60,
-              int32 stack_size = FUN_THREAD_STACK_SIZE,
-              ThreadAffinityPolicy affinity_policy = TAP_DEFAULT);
+  ThreadPool(int32 min_capacity = 2, int32 max_capacity = 16,
+             int32 idle_time = 60, int32 stack_size = FUN_THREAD_STACK_SIZE,
+             ThreadAffinityPolicy affinity_policy = TAP_DEFAULT);
 
   /**
    * Creates a thread pool with the given name and minCapacity threads.
@@ -62,12 +59,10 @@ class FUN_BASE_API ThreadPool
    * is killed. Threads are created with given stack size.
    * Threads are created with given affinity policy.
    */
-  ThreadPool( const String& name,
-              int32 min_capacity = 2,
-              int32 max_capacity = 16,
-              int32 idle_time = 60,
-              int32 stack_size = FUN_THREAD_STACK_SIZE,
-              ThreadAffinityPolicy affinity_policy = TAP_DEFAULT);
+  ThreadPool(const String& name, int32 min_capacity = 2,
+             int32 max_capacity = 16, int32 idle_time = 60,
+             int32 stack_size = FUN_THREAD_STACK_SIZE,
+             ThreadAffinityPolicy affinity_policy = TAP_DEFAULT);
 
   /**
    * Currently running threads will remain active
@@ -140,26 +135,24 @@ class FUN_BASE_API ThreadPool
   void Start(Runnable& target, const String& name, int32 cpu = -1);
 
   /**
-   * Obtains a thread, adjusts the thread's priority, and starts the target on specified cpu.
+   * Obtains a thread, adjusts the thread's priority, and starts the target on
+   * specified cpu.
    *
    * Throws a NoThreadAvailableException if no more
    * threads are available.
    */
-  void StartWithPriority( Thread::Priority priority,
-                          Runnable& target,
-                          int32 cpu = -1);
+  void StartWithPriority(Thread::Priority priority, Runnable& target,
+                         int32 cpu = -1);
 
   /**
-   * Obtains a thread, adjusts the thread's priority, and starts the target on specified cpu.
-   * Assigns the given name to the thread.
+   * Obtains a thread, adjusts the thread's priority, and starts the target on
+   * specified cpu. Assigns the given name to the thread.
    *
    * Throws a NoThreadAvailableException if no more
    * threads are available.
    */
-  void StartWithPriority( Thread::Priority priority,
-                          Runnable& target,
-                          const String& name,
-                          int32 cpu = -1);
+  void StartWithPriority(Thread::Priority priority, Runnable& target,
+                         const String& name, int32 cpu = -1);
 
   /**
    * Stops all running threads and waits for their completion.
@@ -204,7 +197,8 @@ class FUN_BASE_API ThreadPool
   const String& GetName() const;
 
   // definition in core.cc
-  static ThreadPool& DefaultPool(ThreadAffinityPolicy affinity_policy = TAP_DEFAULT);
+  static ThreadPool& DefaultPool(
+      ThreadAffinityPolicy affinity_policy = TAP_DEFAULT);
 
  protected:
   PooledThread* GetThread();
@@ -215,7 +209,7 @@ class FUN_BASE_API ThreadPool
 
  private:
   ThreadPool(const ThreadPool&) = delete;
-  ThreadPool& operator = (const ThreadPool&) = delete;
+  ThreadPool& operator=(const ThreadPool&) = delete;
 
   typedef Array<PooledThread*> ThreadList;
 
@@ -232,7 +226,6 @@ class FUN_BASE_API ThreadPool
   AtomicCounter32 last_cpu_;
 };
 
-
 //
 // inlines
 //
@@ -241,20 +234,18 @@ FUN_ALWAYS_INLINE void ThreadPool::SetStackSize(int32 stack_size) {
   stack_size_ = stack_size;
 }
 
-FUN_ALWAYS_INLINE int32 ThreadPool::GetStackSize() const {
-  return stack_size_;
-}
+FUN_ALWAYS_INLINE int32 ThreadPool::GetStackSize() const { return stack_size_; }
 
-FUN_ALWAYS_INLINE void ThreadPool::SetAffinityPolicy(ThreadPool::ThreadAffinityPolicy affinity_policy) {
+FUN_ALWAYS_INLINE void ThreadPool::SetAffinityPolicy(
+    ThreadPool::ThreadAffinityPolicy affinity_policy) {
   affinity_policy_ = affinity_policy;
 }
 
-FUN_ALWAYS_INLINE ThreadPool::ThreadAffinityPolicy ThreadPool::GetAffinityPolicy() {
+FUN_ALWAYS_INLINE ThreadPool::ThreadAffinityPolicy
+ThreadPool::GetAffinityPolicy() {
   return affinity_policy_;
 }
 
-FUN_ALWAYS_INLINE const String& ThreadPool::GetName() const {
-  return name_;
-}
+FUN_ALWAYS_INLINE const String& ThreadPool::GetName() const { return name_; }
 
-} // namespace fun
+}  // namespace fun

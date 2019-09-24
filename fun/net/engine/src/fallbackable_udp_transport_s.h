@@ -20,7 +20,8 @@ class FallbackableUdpTransport_S {
 
   /**
    * 클라의 서버 입장에서 인식된 주소, 클라 로컬에서 인식된 주소
-   * 주의: udp_addr_from_here_를 바꿀 경우 AddOrUpdateUdpAddrToRemoteClientIndex를
+   * 주의: udp_addr_from_here_를 바꿀 경우
+   * AddOrUpdateUdpAddrToRemoteClientIndex를
    *
    * 반드시 호출해야 한다! 인덱스된 값이니까.
    */
@@ -42,9 +43,8 @@ class FallbackableUdpTransport_S {
 
   void SetUdpAddrFromHere(const InetAddress& addr);
 
-  void SendWhenReady( HostId remote_id,
-                      const SendFragRefs& data,
-                      const UdpSendOption& send_opt);
+  void SendWhenReady(HostId remote_id, const SendFragRefs& data,
+                     const UdpSendOption& send_opt);
 
   void ResetPacketFragState();
 
@@ -52,5 +52,5 @@ class FallbackableUdpTransport_S {
   TcpTransport_S& GetFallbackUdpTransport();
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

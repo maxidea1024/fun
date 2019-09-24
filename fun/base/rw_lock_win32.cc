@@ -3,10 +3,7 @@
 
 namespace fun {
 
-RWLockImpl::RWLockImpl()
-  : readers_(0),
-    writes_waiting_(0),
-    writers_(0) {
+RWLockImpl::RWLockImpl() : readers_(0), writes_waiting_(0), writers_(0) {
   mutex_ = CreateMutexW(NULL, FALSE, NULL);
   if (mutex_ == NULL) {
     throw SystemException("cannot create reader/writer lock");
@@ -56,7 +53,7 @@ void RWLockImpl::RemoveWriter() {
 }
 
 void RWLockImpl::ReadLockImpl() {
-  HANDLE h[2] = { mutex_, read_event_ };
+  HANDLE h[2] = {mutex_, read_event_};
   switch (WaitForMultipleObjects(2, h, TRUE, INFINITE)) {
     case WAIT_OBJECT_0:
     case WAIT_OBJECT_0 + 1:
@@ -82,7 +79,7 @@ bool RWLockImpl::TryReadLockImpl() {
       case WAIT_OBJECT_0 + 1:
         return true;
       case WAIT_TIMEOUT:
-        continue; // try again
+        continue;  // try again
       default:
         throw SystemException("cannot lock reader/writer lock");
     }
@@ -92,7 +89,7 @@ bool RWLockImpl::TryReadLockImpl() {
 void RWLockImpl::WriteLockImpl() {
   AddWriter();
 
-  HANDLE h[2] = { mutex_, write_event_ };
+  HANDLE h[2] = {mutex_, write_event_};
   switch (WaitForMultipleObjects(2, h, TRUE, INFINITE)) {
     case WAIT_OBJECT_0:
     case WAIT_OBJECT_0 + 1:
@@ -113,7 +110,7 @@ void RWLockImpl::WriteLockImpl() {
 bool RWLockImpl::TryWriteLockImpl() {
   AddWriter();
 
-  HANDLE h[2] = { mutex_, write_event_ };
+  HANDLE h[2] = {mutex_, write_event_};
   switch (WaitForMultipleObjects(2, h, TRUE, 1)) {
     case WAIT_OBJECT_0:
     case WAIT_OBJECT_0 + 1:
@@ -152,7 +149,7 @@ void RWLockImpl::UnlockImpl() {
 }
 
 DWORD RWLockImpl::TryReadLockOnce() {
-  HANDLE h[2] = { mutex_, read_event_ };
+  HANDLE h[2] = {mutex_, read_event_};
   DWORD rc = WaitForMultipleObjects(2, h, TRUE, 1);
   switch (rc) {
     case WAIT_OBJECT_0:
@@ -169,4 +166,4 @@ DWORD RWLockImpl::TryReadLockOnce() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

@@ -15,11 +15,11 @@ class FUN_BASE_API Random {
  public:
   enum Type {
     /** linear congruential */
-    RND_STATE_0   =   8,
+    RND_STATE_0 = 8,
     /** x**7 + x**3 + 1 */
-    RND_STATE_32  =  32,
+    RND_STATE_32 = 32,
     /** x**15 + x + 1 */
-    RND_STATE_64  =  64,
+    RND_STATE_64 = 64,
     /** x**31 + x**3 + 1 */
     RND_STATE_128 = 128,
     /** x**63 + x + 1 */
@@ -80,7 +80,8 @@ class FUN_BASE_API Random {
   double NextDouble() const;
 
   /**
-   * Returns the next integer pseudo random number between min and max(inclusive).
+   * Returns the next integer pseudo random number between min and
+   * max(inclusive).
    */
   int32 NextRangeI(int32 min, int32 max) const;
 
@@ -90,7 +91,8 @@ class FUN_BASE_API Random {
   float NextRangeF(float min, float max) const;
 
   /**
-   * Returns the next double pseudo random number between min and max(inclusive).
+   * Returns the next double pseudo random number between min and
+   * max(inclusive).
    */
   double NextRangeD(double min, double max) const;
 
@@ -106,10 +108,7 @@ class FUN_BASE_API Random {
   static uint32 GoodRand(int32 x);
 
  private:
-  enum {
-    MAX_TYPES = 5,
-    NSHUFF = 50
-  };
+  enum { MAX_TYPES = 5, NSHUFF = 50 };
 
   mutable uint32* fptr_;
   mutable uint32* rptr_;
@@ -121,7 +120,6 @@ class FUN_BASE_API Random {
   int32 rand_deg_;
   int32 rand_sep_;
 };
-
 
 //
 // inlines
@@ -135,7 +133,7 @@ FUN_ALWAYS_INLINE uint32 Random::Next(uint32 n) const {
 }
 
 FUN_ALWAYS_INLINE uint8 Random::NextByte() const {
-  //return uint8((Next() >> 3) & 0xFF);
+  // return uint8((Next() >> 3) & 0xFF);
   return (uint8)NextRangeI(0, 255);
 }
 
@@ -156,7 +154,8 @@ FUN_ALWAYS_INLINE int32 Random::NextRangeI(int32 min, int32 max) const {
   // Instead, it creates a value between 0.0 and 1.0 and scales it.
   int32 range = (max - min) + 1;
   if (range > 0) {
-    range = (int32)(NextFloat() * ((float)range - 0.00001f)); // 0.00001f is float error
+    range = (int32)(NextFloat() *
+                    ((float)range - 0.00001f));  // 0.00001f is float error
   } else {
     range = 0;
   }
@@ -188,4 +187,4 @@ FUN_ALWAYS_INLINE uint32 Random::GoodRand(int32 x) {
   return x;
 }
 
-} // namespace fun
+}  // namespace fun

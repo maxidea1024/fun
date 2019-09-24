@@ -15,18 +15,15 @@ namespace fun {
 
 SharedMemory::SharedMemory() : impl_(nullptr) {}
 
-SharedMemory::SharedMemory( const String& name,
-                            size_t size,
-                            AccessMode mode,
-                            const void* addr_hint,
-                            bool server)
-  : impl_(new SharedMemoryImpl(name, size, mode, addr_hint, server)) {}
+SharedMemory::SharedMemory(const String& name, size_t size, AccessMode mode,
+                           const void* addr_hint, bool server)
+    : impl_(new SharedMemoryImpl(name, size, mode, addr_hint, server)) {}
 
-SharedMemory::SharedMemory(const File& file, AccessMode mode, const void* addr_hint)
-  : impl_(new SharedMemoryImpl(file, mode, addr_hint)) {}
+SharedMemory::SharedMemory(const File& file, AccessMode mode,
+                           const void* addr_hint)
+    : impl_(new SharedMemoryImpl(file, mode, addr_hint)) {}
 
-SharedMemory::SharedMemory(const SharedMemory& other)
-  : impl_(other.impl_) {
+SharedMemory::SharedMemory(const SharedMemory& other) : impl_(other.impl_) {
   if (impl_) {
     impl_->AddRef();
   }
@@ -38,18 +35,14 @@ SharedMemory::~SharedMemory() {
   }
 }
 
-SharedMemory& SharedMemory::operator = (const SharedMemory& other) {
+SharedMemory& SharedMemory::operator=(const SharedMemory& other) {
   SharedMemory tmp(other);
   Swap(tmp);
   return *this;
 }
 
-char* SharedMemory::begin() const {
-  return impl_ ? impl_->begin() : nullptr;
-}
+char* SharedMemory::begin() const { return impl_ ? impl_->begin() : nullptr; }
 
-char* SharedMemory::end() const {
-  return impl_ ? impl_->end() : nullptr;
-}
+char* SharedMemory::end() const { return impl_ ? impl_->end() : nullptr; }
 
-} // namespace fun
+}  // namespace fun

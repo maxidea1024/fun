@@ -17,7 +17,7 @@ void UserTaskQueue::AddTaskSubject(ITaskSubject* subject) {
 
 // 이미 실행중인것이 있을 경우에는 대기해야함. (serialized execution)
 bool UserTaskQueue::PopAnyTaskNotRunningAndMarkAsRunning(
-                  FinalUserWorkItem& output, void** out_host_tag) {
+    FinalUserWorkItem& output, void** out_host_tag) {
   CScopedLock2 lock_guard(owner_->GetMutex());
 
   while (!task_subjects_.IsEmpty()) {
@@ -26,9 +26,11 @@ bool UserTaskQueue::PopAnyTaskNotRunningAndMarkAsRunning(
     // Request a task in thread-pool.
     subject->task_subject_node_.UnlinkSelf();
 
-    // Skip if there are no principals, if the queue is already empty, or if the user worker thread is still running.
-    // If you are skipping because it's being processed by a worker thread, then what was in the queue will be lost
-    // After the worker thread finishes checking that the subject's dedicated receive queue is not empty.
+    // Skip if there are no principals, if the queue is already empty, or if the
+    // user worker thread is still running. If you are skipping because it's
+    // being processed by a worker thread, then what was in the queue will be
+    // lost After the worker thread finishes checking that the subject's
+    // dedicated receive queue is not empty.
     if (subject->IsFinalReceiveQueueEmpty() == false &&
         subject->IsTaskRunning() == false &&
         subject->PopFirstUserWorkItem(output) &&
@@ -46,8 +48,8 @@ bool UserTaskQueue::PopAnyTaskNotRunningAndMarkAsRunning(
   return false;
 }
 
-void UserTaskQueue::SetTaskRunningFlagByHostId(
-      HostId subject_host_id, bool running) {
+void UserTaskQueue::SetTaskRunningFlagByHostId(HostId subject_host_id,
+                                               bool running) {
   CScopedLock2 owner_guard(owner_->GetMutex());
 
   if (auto subject = owner_->GetTaskSubjectByHostId_NOLOCK(subject_host_id)) {
@@ -62,5 +64,5 @@ void UserTaskQueue::SetTaskRunningFlagByHostId(
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

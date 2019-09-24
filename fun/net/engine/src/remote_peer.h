@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-#include "P2PGroup_C.h"   // P2PGroups_C
+#include "P2PGroup_C.h"  // P2PGroups_C
 #include "PacketFrag.h"
 #include "RUdp.h"
 
 namespace fun {
 
 class NetClientImpl;
-//class ReceivedMessageList;
+// class ReceivedMessageList;
 class ReceivedMessage;
 class SendFragRefs;
 class RemotePeerRUdp;
@@ -28,10 +28,7 @@ class P2PHolepunchAttemptContext {
   double total_elapsed_time_;
 
  public:
-  enum class StateType {
-    ServerHolepunch,
-    PeerHolepunch
-  };
+  enum class StateType { ServerHolepunch, PeerHolepunch };
 
   class StateBase {
    public:
@@ -49,10 +46,10 @@ class P2PHolepunchAttemptContext {
     Uuid holepunch_tag_;
 
     inline ServerHolepunchState()
-      : StateBase(StateType::ServerHolepunch),
-        ack_recv_count_(0),
-        send_cooltime_(0),
-        holepunch_tag_(Uuid::NewRandomUuid()) {}
+        : StateBase(StateType::ServerHolepunch),
+          ack_recv_count_(0),
+          send_cooltime_(0),
+          holepunch_tag_(Uuid::NewRandomUuid()) {}
   };
 
   class PeerHolepunchState : public StateBase {
@@ -65,13 +62,13 @@ class P2PHolepunchAttemptContext {
     int16 shotgun_min_port_;
 
     inline PeerHolepunchState()
-      : StateBase(StateType::PeerHolepunch),
-        shotgun_min_port_(1023),
-        offset_shotgun_countdown_(NetConfig::shotgun_attempt_count),
-        ack_recv_count_(0),
-        send_cooltime_(0),
-        send_turn_(0),
-        holepunch_tag_(Uuid::NewRandomUuid()) {}
+        : StateBase(StateType::PeerHolepunch),
+          shotgun_min_port_(1023),
+          offset_shotgun_countdown_(NetConfig::shotgun_attempt_count),
+          ack_recv_count_(0),
+          send_cooltime_(0),
+          send_turn_(0),
+          holepunch_tag_(Uuid::NewRandomUuid()) {}
   };
 
  private:
@@ -83,11 +80,9 @@ class P2PHolepunchAttemptContext {
  private:
   InetAddress GetServerUdpAddr();
 
-  void SendPeerHolepunch( const InetAddress& a2b_send_addr,
-                          const Uuid& tag,
-                          const char* debug_hint);
-  void SendPeerHolepunchAck(const InetAddress& b2a_send_addr,
-                            const Uuid& tag,
+  void SendPeerHolepunch(const InetAddress& a2b_send_addr, const Uuid& tag,
+                         const char* debug_hint);
+  void SendPeerHolepunchAck(const InetAddress& b2a_send_addr, const Uuid& tag,
                             const InetAddress& a2b_send_addr,
                             const InetAddress& a2b_recv_addr,
                             const char* debug_hint);
@@ -103,22 +98,21 @@ class P2PHolepunchAttemptContext {
   InetAddress GetExternalAddr();
   InetAddress GetInternalAddr();
 
-  static void ProcessPeerHolepunch(NetClientImpl* main, ReceivedMessage& received_msg);
-  static void ProcessPeerHolepunchAck(NetClientImpl* main, ReceivedMessage& received_msg);
+  static void ProcessPeerHolepunch(NetClientImpl* main,
+                                   ReceivedMessage& received_msg);
+  static void ProcessPeerHolepunchAck(NetClientImpl* main,
+                                      ReceivedMessage& received_msg);
 
-  void ProcessMessage_PeerUdp_ServerHolepunchAck( ReceivedMessage& received_msg,
-                                                  const Uuid& tag,
-                                                  const InetAddress& here_addr_at_server,
-                                                  HostId peer_id);
+  void ProcessMessage_PeerUdp_ServerHolepunchAck(
+      ReceivedMessage& received_msg, const Uuid& tag,
+      const InetAddress& here_addr_at_server, HostId peer_id);
 };
 
 typedef SharedPtr<p2p_holepunch_attempt_context_> P2PHolepunchAttemptContextPtr;
 
-
-class RemotePeer_C
-  : public ISendDest_C,
-    public IP2PGroupMember,
-    public IUdpPacketFraggerDelegate {
+class RemotePeer_C : public ISendDest_C,
+                     public IP2PGroupMember,
+                     public IUdpPacketFraggerDelegate {
  public:
   RemotePeer_C(NetClientImpl* owner);
   ~RemotePeer_C();
@@ -155,7 +149,8 @@ class RemotePeer_C
 
   double GetAbsoluteTime() override;
 
-  void RequestReceiveSpeedAtReceiverSide_NoRelay(const InetAddress& dst) override;
+  void RequestReceiveSpeedAtReceiverSide_NoRelay(
+      const InetAddress& dst) override;
 
   int32 GetOverSendSuspectingThresholdInByte() override;
 
@@ -171,7 +166,8 @@ class RemotePeer_C
   // UDP 소켓은 RemotePeer_C.dtor까지 계속 사용된다.
   IHasOverlappedIoPtr udp_socket_;
 
-  // 테스트를 위해 강제로 드랍시킨 UDP 소켓을 다시 복원하고자 할 때 이 값이 true가 된다.
+  // 테스트를 위해 강제로 드랍시킨 UDP 소켓을 다시 복원하고자 할 때 이 값이
+  // true가 된다.
   bool restore_needed_;
 
   // JIT P2P 기능.
@@ -197,13 +193,14 @@ class RemotePeer_C
 
   P2PHolepunchAttemptContextPtr p2p_holepunch_attempt_context_;
 
-  //TODO
+  // TODO
   // 서버에서 전파 받아야한다.
   // 피어가 Join할대도 전달하고,
   // 서버에서는 해당 RP가 참여한 모든 그룹에 전파해주어야함.
   bool real_udp_enabled_;
 
-  // P2P hole punch 과정에서 잘못된 3rd peer로부터의 홀펀칭에 대한 에코를 걸러내기 위함
+  // P2P hole punch 과정에서 잘못된 3rd peer로부터의 홀펀칭에 대한 에코를
+  // 걸러내기 위함
   Uuid holepunch_tag_;
 
   // NetClient가 해당 peer에게 realudp로 보낸 패킷 갯수
@@ -278,7 +275,8 @@ class RemotePeer_C
    */
   InetAddress udp_addr_internal_;
 
-  // local에서 remote로 전송 가능한 홀펀칭된 주소 & remote에서 local로 전송 가능한 홀펀칭된 주소
+  // local에서 remote로 전송 가능한 홀펀칭된 주소 & remote에서 local로 전송
+  // 가능한 홀펀칭된 주소
   InetAddress p2p_holepunched_local_to_remote_addr_;
   InetAddress p2p_holepunched_remote_to_local_addr_;
 
@@ -289,7 +287,8 @@ class RemotePeer_C
   double relayed_p2p_disabled_time_;
 
   /**
-   * DirectP2P -> relay 로 바뀔때 last ping을 다시 계산하기 위한 조건 default true
+   * DirectP2P -> relay 로 바뀔때 last ping을 다시 계산하기 위한 조건 default
+   * true
    */
   bool set_to_relayed_but_last_ping_is_not_calculated_yet_;
 
@@ -330,5 +329,5 @@ class RemotePeer_C
   bool garbaged_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace fun
+}  // namespace fun

@@ -11,7 +11,7 @@ SharedLibrayImpl::SharedLibrayImpl() : handle_(nullptr) {}
 
 SharedLibrayImpl::~SharedLibrayImpl() {
   //???
-  //UnloadImpl();
+  // UnloadImpl();
 }
 
 void SharedLibrayImpl::LoadImpl(const String& path, int32 flags) {
@@ -47,9 +47,7 @@ void SharedLibrayImpl::UnloadImpl() {
   path_.Clear();
 }
 
-bool SharedLibrayImpl::IsLoadedImpl() const {
-  return !!handle_;
-}
+bool SharedLibrayImpl::IsLoadedImpl() const { return !!handle_; }
 
 void* SharedLibrayImpl::FindSymbolImpl(const String& symbol) {
   ScopedLock<FastMutex> guard(mutex_);
@@ -61,13 +59,9 @@ void* SharedLibrayImpl::FindSymbolImpl(const String& symbol) {
   return nullptr;
 }
 
-const String& SharedLibrayImpl::GetPathImpl() const {
-  return path_;
-}
+const String& SharedLibrayImpl::GetPathImpl() const { return path_; }
 
-String SharedLibrayImpl::PrefixImpl() {
-  return "";
-}
+String SharedLibrayImpl::PrefixImpl() { return ""; }
 
 String SharedLibrayImpl::SuffixImpl() {
 #if defined(_DEBUG) && !defined(FUN_NO_SHARED_LIBRARY_DEBUG_SUFFIX)
@@ -77,4 +71,4 @@ String SharedLibrayImpl::SuffixImpl() {
 #endif
 }
 
-} // namespace fun
+}  // namespace fun

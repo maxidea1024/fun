@@ -17,12 +17,11 @@ class FUN_BASE_API TextConverter {
   typedef int (*Transform)(int);
 
   /**
-   * Creates the TextConverter. The encoding objects must not be deleted while the
-   * TextConverter is in use.
+   * Creates the TextConverter. The encoding objects must not be deleted while
+   * the TextConverter is in use.
    */
   TextConverter(const TextEncoding& input_encoding,
-                const TextEncoding& output_encoding,
-                int bogus_char ='?');
+                const TextEncoding& output_encoding, int bogus_char = '?');
 
   /**
    * Destroys the TextConverter.
@@ -74,7 +73,7 @@ class FUN_BASE_API TextConverter {
   // Disable default constructor and copy.
   TextConverter() = delete;
   TextConverter(const TextConverter&) = delete;
-  TextConverter& operator = (const TextConverter&) = delete;
+  TextConverter& operator=(const TextConverter&) = delete;
 
  private:
   const TextEncoding& input_encoding_;
@@ -82,4 +81,4 @@ class FUN_BASE_API TextConverter {
   int bogus_char_;
 };
 
-} // namespace fun
+}  // namespace fun

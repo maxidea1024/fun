@@ -7,9 +7,9 @@ namespace fun {
 /**
  * The interface that all notification strategies must implement.
  *
- * Note: Event is based on policy-driven design, so every strategy implementation
- * must provide all the methods from this interface (otherwise: compile errors)
- * but does not need to inherit from NotificationStrategy.
+ * Note: Event is based on policy-driven design, so every strategy
+ * implementation must provide all the methods from this interface (otherwise:
+ * compile errors) but does not need to inherit from NotificationStrategy.
  */
 template <typename ArgsType, typename DelegateType>
 class NotificationStrategy {
@@ -53,13 +53,12 @@ class NotificationStrategy {
   virtual bool IsEmpty() const = 0;
 };
 
-
 /**
  * The interface that all notification strategies must implement.
  *
- * Note: Event is based on policy-driven design, so every strategy implementation
- * must provide all the methods from this interface (otherwise: compile errors)
- * but does not need to inherit from NotificationStrategy.
+ * Note: Event is based on policy-driven design, so every strategy
+ * implementation must provide all the methods from this interface (otherwise:
+ * compile errors) but does not need to inherit from NotificationStrategy.
  */
 template <typename DelegateType>
 class NotificationStrategy<void, DelegateType> {
@@ -103,4 +102,4 @@ class NotificationStrategy<void, DelegateType> {
   virtual bool IsEmpty() const = 0;
 };
 
-} // namespace fun
+}  // namespace fun

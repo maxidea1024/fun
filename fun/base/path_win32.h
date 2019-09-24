@@ -24,4 +24,4 @@ class FUN_BASE_API PathImpl {
   enum { MAX_PATH_LEN = 32767 };
 };
 
-} // namespace fun
+}  // namespace fun

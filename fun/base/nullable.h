@@ -39,20 +39,18 @@ class Nullable {
   /**
    * Creates an empty Nullable.
    */
-  Nullable(const decltype(nullptr)&)
-    : value_(), is_null_(true), null_() {}
+  Nullable(const decltype(nullptr)&) : value_(), is_null_(true), null_() {}
 
   /**
    * Creates a Nullable with the given value.
    */
-  Nullable(const T& value)
-    : value_(value), is_null_(false), null_() {}
+  Nullable(const T& value) : value_(value), is_null_(false), null_() {}
 
   /**
    * Creates a Nullable by copying another one.
    */
   Nullable(const Nullable& other)
-    : value_(other.value_), is_null_(other.is_null_), null_() {}
+      : value_(other.value_), is_null_(other.is_null_), null_() {}
 
   /**
    * Destroys the Nullable.
@@ -88,21 +86,17 @@ class Nullable {
   /**
    * Assigns a value to the Nullable.
    */
-  Nullable& operator = (const T& value) {
-    return Assign(value);
-  }
+  Nullable& operator=(const T& value) { return Assign(value); }
 
   /**
    * Assigns another Nullable.
    */
-  Nullable& operator = (const Nullable& other) {
-    return Assign(other);
-  }
+  Nullable& operator=(const Nullable& other) { return Assign(other); }
 
   /**
    * Assigns another Nullable.
    */
-  Nullable& operator = (decltype(nullptr)) {
+  Nullable& operator=(decltype(nullptr)) {
     is_null_ = true;
     return *this;
   }
@@ -120,52 +114,44 @@ class Nullable {
   /**
    * Compares two Nullables for equality
    */
-  bool operator == (const Nullable<T>& other) const {
-    return  (is_null_ && other.is_null_) ||
-            (is_null_ == other.is_null_ && value_ == other.value_);
+  bool operator==(const Nullable<T>& other) const {
+    return (is_null_ && other.is_null_) ||
+           (is_null_ == other.is_null_ && value_ == other.value_);
   }
 
   /**
    * Compares Nullable with value for equality
    */
-  bool operator == (const T& value) const {
+  bool operator==(const T& value) const {
     return (!is_null_ && value_ == value);
   }
 
   /**
    * Compares Nullable with NullData for equality
    */
-  bool operator == (const decltype(nullptr)&) const {
-    return is_null_;
-  }
+  bool operator==(const decltype(nullptr)&) const { return is_null_; }
 
   /**
    * Compares Nullable with value for non equality
    */
-  bool operator != (const T& value) const {
-    return !(*this == value);
-  }
+  bool operator!=(const T& value) const { return !(*this == value); }
 
   /**
    * Compares two Nullables for non equality
    */
-  bool operator != (const Nullable<T>& other) const {
-    return !(*this == other);
-  }
+  bool operator!=(const Nullable<T>& other) const { return !(*this == other); }
 
   /**
    * Compares with NullData for non equality
    */
-  bool operator != (const decltype(nullptr)&) const {
-    return !is_null_;
-  }
+  bool operator!=(const decltype(nullptr)&) const { return !is_null_; }
 
   /**
    * Compares two Nullable objects. Return true if this object's
    * value is smaller than the other object's value.
    * null value is smaller than a non-null value.
    */
-  bool operator < (const Nullable<T>& other) const {
+  bool operator<(const Nullable<T>& other) const {
     if (is_null_ && other.is_null_) {
       return false;
     }
@@ -186,7 +172,7 @@ class Nullable {
    * value is greater than the other object's value.
    * A non-null value is greater than a null value.
    */
-  bool operator > (const Nullable<T>& other) const {
+  bool operator>(const Nullable<T>& other) const {
     return !(*this == other) && !(*this < other);
   }
 
@@ -227,58 +213,44 @@ class Nullable {
   /**
    * Get reference to the value
    */
-  operator T& () {
-    return Value();
-  }
+  operator T&() { return Value(); }
 
   /**
    * Get const reference to the value
    */
-  operator const T& () const {
-    return Value();
-  }
+  operator const T&() const { return Value(); }
 
   /**
    * Get reference to the value
    */
-  operator decltype(nullptr)& () {
-    return null_;
-  }
+  operator decltype(nullptr)&() { return null_; }
 
   /**
    * Returns true if the Nullable is empty.
    */
-  bool IsNull() const {
-    return is_null_;
-  }
+  bool IsNull() const { return is_null_; }
 
-  bool HasValue() const {
-    return is_null_ == false;
-  }
+  bool HasValue() const { return is_null_ == false; }
 
   /**
    * Clears the Nullable.
    */
-  void Clear() {
-    is_null_ = true;
-  }
+  void Clear() { is_null_ = true; }
 
-  friend void Swap(Nullable<T>& x, Nullable<T>& y) {
-    x.Swap(y);
-  }
+  friend void Swap(Nullable<T>& x, Nullable<T>& y) { x.Swap(y); }
 
   friend uint32 HashOf(const Nullable<T>& n) {
     return n.IsNull() ? 0 : HashOf(n.Value());
   }
 
-  friend Archive& operator & (Archive& ar, Nullable<T>& n) {
-     ar & n.is_null_;
+  friend Archive& operator&(Archive& ar, Nullable<T>& n) {
+    ar& n.is_null_;
 
-     if (!is_null_) {
-       ar & n.value_;
-     }
+    if (!is_null_) {
+      ar& n.value_;
+    }
 
-     return ar;
+    return ar;
   }
 
   friend String ToString(const Nullable<T>& n) {
@@ -291,29 +263,30 @@ class Nullable {
   decltype(nullptr) null_;
 };
 
-
 //
 // inlines
 //
 
 template <typename T>
-FUN_ALWAYS_INLINE bool operator == (const decltype(nullptr)&, const Nullable<T>& n) {
+FUN_ALWAYS_INLINE bool operator==(const decltype(nullptr)&,
+                                  const Nullable<T>& n) {
   return n.IsNull();
 }
 
 template <typename T>
-FUN_ALWAYS_INLINE bool operator != (const T& v, const Nullable<T>& n) {
+FUN_ALWAYS_INLINE bool operator!=(const T& v, const Nullable<T>& n) {
   return !(n == v);
 }
 
 template <typename T>
-FUN_ALWAYS_INLINE bool operator == (const T& v, const Nullable<T>& n) {
+FUN_ALWAYS_INLINE bool operator==(const T& v, const Nullable<T>& n) {
   return (n == v);
 }
 
 template <typename T>
-FUN_ALWAYS_INLINE bool operator != (const decltype(nullptr)&, const Nullable<T>& n) {
+FUN_ALWAYS_INLINE bool operator!=(const decltype(nullptr)&,
+                                  const Nullable<T>& n) {
   return n.IsNull();
 }
 
-} // namespace fun
+}  // namespace fun

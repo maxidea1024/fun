@@ -1,16 +1,14 @@
-﻿#include "fun/net/net.h"
-#include "NetListener_S.h"
+﻿#include "NetListener_S.h"
 #include "NetServer.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
 
 NetListener_S::NetListener_S(NetServerImpl* owner)
-  : owner_(fun_check_ptr(owner_)), should_stop_(false) {}
+    : owner_(fun_check_ptr(owner_)), should_stop_(false) {}
 
-NetListener_S::~NetListener_S() {
-  StopListening();
-}
+NetListener_S::~NetListener_S() { StopListening(); }
 
 void NetListener_S::StartListening() {
   fun_check_ptr(owner_->server_socket_pool_);
@@ -24,7 +22,7 @@ void NetListener_S::StopListening() {
     return;
   }
 
-  //TODO 락을 구태여 걸어야할까??
+  // TODO 락을 구태여 걸어야할까??
   {
     CScopedLock2 owner_guard(owner_->GetMutex());
     owner_->CheckCriticalSectionDeadLock(__FUNCTION__);
@@ -38,19 +36,20 @@ void NetListener_S::StopListening() {
   should_stop_ = false;
 }
 
-bool NetListener_S::IsListening() const {
-  return thread_.IsValid();
-}
+bool NetListener_S::IsListening() const { return thread_.IsValid(); }
 
 InternalSocket* NetListener_S::NewAcceptPendedSocket() {
   while (true) {
     auto new_socket = owner_->server_socket_pool_->NewTcpSocket(owner_, owner_);
     if (new_socket == nullptr) {
-      owner_->EnqueueError(ResultInfo::From(ResultCode::Unexpected, HostId_Server, "FATAL: Cannot create TCP socket for AcceptEx."));
+      owner_->EnqueueError(
+          ResultInfo::From(ResultCode::Unexpected, HostId_Server,
+                           "FATAL: Cannot create TCP socket for AcceptEx."));
       return nullptr;
     }
 
-    const SocketErrorCode socket_error = owner_->tcp_listening_socket_->AcceptEx(new_socket);
+    const SocketErrorCode socket_error =
+        owner_->tcp_listening_socket_->AcceptEx(new_socket);
     switch (socket_error) {
       case SocketErrorCode::Ok:
         return new_socket;
@@ -66,8 +65,12 @@ InternalSocket* NetListener_S::NewAcceptPendedSocket() {
 
       default:
         if (socket_error != SocketErrorCode::NotSocket) {
-          const String comment = String::Format("FATAL: AcceptEx failed with error code %d.  No more accept will be possible.", (int32)socket_error);
-          owner_->EnqueueError(ResultInfo::From(ResultCode::Unexpected, HostId_Server, comment));
+          const String comment = String::Format(
+              "FATAL: AcceptEx failed with error code %d.  No more accept will "
+              "be possible.",
+              (int32)socket_error);
+          owner_->EnqueueError(
+              ResultInfo::From(ResultCode::Unexpected, HostId_Server, comment));
         }
         delete new_socket;
         return nullptr;
@@ -92,10 +95,12 @@ uint32 NetListener_S::Run() {
       }
 
       CompletionStatus completion;
-      if (owner_->tcp_accept_cp_->GetQueuedCompletionStatus(&completion, NetConfig::wait_completion_timeout_msec)) {
+      if (owner_->tcp_accept_cp_->GetQueuedCompletionStatus(
+              &completion, NetConfig::wait_completion_timeout_msec)) {
         if (new_socket) {
           InetAddress local_addr, remote_addr;
-          new_socket->FinalizeAcceptEx(owner_->tcp_listening_socket_.Get(), local_addr, remote_addr);
+          new_socket->FinalizeAcceptEx(owner_->tcp_listening_socket_.Get(),
+                                       local_addr, remote_addr);
 
           if (remote_addr.IsUnicast()) {
             if (AcceptNewSocket(new_socket.Get(), remote_addr)) {
@@ -105,12 +110,15 @@ uint32 NetListener_S::Run() {
             // 보통 이경우는 접속을 하자마자, 원격지에서 끊어진 경우임.
             // 그러므로, 접속을 받아주지 말고 소켓을 닫아주는것으로 처리합니다.
             // 실제로 로깅 조차도 불필요합니다. 괜시리 지저분해지기만 할뿐...
-            LOG(LogNetEngine, Warning, "Invalid accepted socket address: %s", *remote_addr.ToString());
+            LOG(LogNetEngine, Warning, "Invalid accepted socket address: %s",
+                *remote_addr.ToString());
           }
 
           new_socket.Reset();
         } else {
-          owner_->EnqueueError(ResultInfo::From(ResultCode::Unexpected, HostId_None, "AcceptEx GetQueuedCompletionStatus but socket null"));
+          owner_->EnqueueError(ResultInfo::From(
+              ResultCode::Unexpected, HostId_None,
+              "AcceptEx GetQueuedCompletionStatus but socket null"));
         }
       } else {
         if (!owner_->tcp_listening_socket_->IsClosed()) {
@@ -119,11 +127,15 @@ uint32 NetListener_S::Run() {
       }
     }
   } catch (Exception& e) {
-    CatchThreadUnexpectedExit(__FUNCTION__, *String::Format("Exception(%s)", *e.Message()));
+    CatchThreadUnexpectedExit(__FUNCTION__,
+                              *String::Format("Exception(%s)", *e.Message()));
   } catch (std::exception& e) {
-    CatchThreadUnexpectedExit(__FUNCTION__, *String::Format("std.exception(%s)", UTF8_TO_TCHAR(e.what())));
-  } //catch (_com_error& e) {
-  //  CatchThreadUnexpectedExit(__FUNCTION__, *String::Format("_com_error(%s)", (const char*)e.Description()));
+    CatchThreadUnexpectedExit(
+        __FUNCTION__,
+        *String::Format("std.exception(%s)", UTF8_TO_TCHAR(e.what())));
+  }  // catch (_com_error& e) {
+  //  CatchThreadUnexpectedExit(__FUNCTION__, *String::Format("_com_error(%s)",
+  //  (const char*)e.Description()));
   //} //catch (void*) {
   //  CatchThreadUnexpectedExit(__FUNCTION__, "void*");
   //}
@@ -131,7 +143,8 @@ uint32 NetListener_S::Run() {
   return 0;
 }
 
-bool NetListener_S::AcceptNewSocket(InternalSocket* new_socket, const InetAddress& remote_addr) {
+bool NetListener_S::AcceptNewSocket(InternalSocket* new_socket,
+                                    const InetAddress& remote_addr) {
   fun_check_ptr(new_socket);
   fun_check(remote_addr.IsUnicast());
 
@@ -157,25 +170,31 @@ bool NetListener_S::AcceptNewSocket(InternalSocket* new_socket, const InetAddres
   rc->to_client_tcp_->socket_->SetCompletionContext((ICompletionContext*)rc);
   // post전에 increase를 한다.  decrease는 Networker의 completion에서 한다.
   rc->IncreaseUseCount();
-  owner_->net_thread_pool_->PostCompletionStatus(rc->to_client_tcp_->socket_.Get(), (UINT_PTR)IocpCustomValue::NewClient);
+  owner_->net_thread_pool_->PostCompletionStatus(
+      rc->to_client_tcp_->socket_.Get(), (UINT_PTR)IocpCustomValue::NewClient);
 
   if (owner_->intra_logger_) {
-    const String text = String::Format("New TCP socket is accepted.  net_remote_client_s: %ph, tcp_socket: %s", rc, *remote_addr.ToString());
+    const String text = String::Format(
+        "New TCP socket is accepted.  net_remote_client_s: %ph, tcp_socket: %s",
+        rc, *remote_addr.ToString());
     owner_->intra_logger_->WriteLine(LogCategory::System, *text);
   }
 
   return true;
 }
 
-void NetListener_S::CatchThreadUnexpectedExit(const char* where, const char* reason) {
+void NetListener_S::CatchThreadUnexpectedExit(const char* where,
+                                              const char* reason) {
   if (owner_ && owner_->callbacks_) {
     owner_->AssertIsNotLockedByCurrentThread();
 
-    const String text = String::Format("(%s): Unexpected thread exit with (%s)", where, reason);
-    auto result_info = ResultInfo::From(ResultCode::Unexpected, HostId_Server, text);
+    const String text =
+        String::Format("(%s): Unexpected thread exit with (%s)", where, reason);
+    auto result_info =
+        ResultInfo::From(ResultCode::Unexpected, HostId_Server, text);
     owner_->ShowError_NOLOCK(result_info);
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

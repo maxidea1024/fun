@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/timestamp.h"
 #include "fun/base/string/string.h"
+#include "fun/base/timestamp.h"
 
 namespace fun {
 
@@ -56,13 +56,10 @@ class FUN_BASE_API FileImpl {
   friend class LogFileImpl;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE const String& FileImpl::GetPathImpl() const {
-  return path_;
-}
+FUN_ALWAYS_INLINE const String& FileImpl::GetPathImpl() const { return path_; }
 
-} // namespace fun
+}  // namespace fun

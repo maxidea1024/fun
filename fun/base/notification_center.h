@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/notification.h"
-#include "fun/base/observer_base.h"
-#include "fun/base/mutex.h"
 #include "fun/base/container/array.h"
 #include "fun/base/container/list.h"
 #include "fun/base/ftl/shared_ptr.h"
+#include "fun/base/mutex.h"
+#include "fun/base/notification.h"
+#include "fun/base/observer_base.h"
 
 namespace fun {
 
@@ -14,29 +14,32 @@ namespace fun {
  * A NotificationCenter is essentially a notification dispatcher.
  * It notifies all observers of notifications meeting specific criteria.
  * This information is encapsulated in Notification objects.
- * Client objects register themselves with the notification center as observers of
- * specific notifications posted by other objects. When an event occurs, an object
- * posts an appropriate notification to the notification center. The notification
- * center invokes the registered method on each matching observer, passing the notification
- * as argument.
+ * Client objects register themselves with the notification center as observers
+ * of specific notifications posted by other objects. When an event occurs, an
+ * object posts an appropriate notification to the notification center. The
+ * notification center invokes the registered method on each matching observer,
+ * passing the notification as argument.
  *
  * The order in which observers receive notifications is undefined.
- * It is possible for the posting object and the observing object to be the same.
- * The NotificationCenter delivers notifications to observers synchronously.
- * In other words the PostNotification() method does not return until all observers have
- * received and processed the notification.
- * If an observer throws an exception while handling a notification, the NotificationCenter
- * stops dispatching the notification and PostNotification() rethrows the exception.
+ * It is possible for the posting object and the observing object to be the
+ * same. The NotificationCenter delivers notifications to observers
+ * synchronously. In other words the PostNotification() method does not return
+ * until all observers have received and processed the notification. If an
+ * observer throws an exception while handling a notification, the
+ * NotificationCenter stops dispatching the notification and PostNotification()
+ * rethrows the exception.
  *
- * In a multithreaded scenario, notifications are always delivered in the thread in which the
- * notification was posted, which may not be the same thread in which an observer registered itself.
+ * In a multithreaded scenario, notifications are always delivered in the thread
+ * in which the notification was posted, which may not be the same thread in
+ * which an observer registered itself.
  *
- * The NotificationCenter class is basically a C++ implementation of the NSNotificationCenter class
- * found in Apple's Cocoa (or OpenStep).
+ * The NotificationCenter class is basically a C++ implementation of the
+ * NSNotificationCenter class found in Apple's Cocoa (or OpenStep).
  *
- * While handling a notification, an observer can unregister itself from the notification center,
- * or it can register or unregister other observers. Observers added during a dispatch cycle
- * will not receive the current notification.
+ * While handling a notification, an observer can unregister itself from the
+ * notification center, or it can register or unregister other observers.
+ * Observers added during a dispatch cycle will not receive the current
+ * notification.
  *
  * The method receiving the notification must be implemented as
  *     void HandleNotification(MyNotification* noti);
@@ -47,10 +50,10 @@ namespace fun {
  *     ...
  *   }
  *
- * Alternatively, the NObserver class template can be used to register a callback
- * method. In this case, the callback method receives the Notification in an
- * Ptr and thus does not have to deal with object ownership issues:
- *   void MyClass::HandleNotification(const SharedPtr<MyNotification>& noti) {
+ * Alternatively, the NObserver class template can be used to register a
+ * callback method. In this case, the callback method receives the Notification
+ * in an Ptr and thus does not have to deal with object ownership issues: void
+ * MyClass::HandleNotification(const SharedPtr<MyNotification>& noti) {
  *     ...
  *   }
  */
@@ -68,12 +71,13 @@ class FUN_BASE_API NotificationCenter {
 
   /**
    * Register an observer with the NotificationCenter.
-   * 
+   *
    * Usage:
-   *   Observer<MyClass,MyNotification> observer(*this, &MyClass::HandleNotification);
-   *   notification_center.AddObserver(observer);
-   * 
-   * Alternatively, the NObserver template class can be used instead of Observer.
+   *   Observer<MyClass,MyNotification> observer(*this,
+   * &MyClass::HandleNotification); notification_center.AddObserver(observer);
+   *
+   * Alternatively, the NObserver template class can be used instead of
+   * Observer.
    */
   void AddObserver(const ObserverBase& observer);
 
@@ -103,7 +107,7 @@ class FUN_BASE_API NotificationCenter {
 
   /**
    * Returns true if there is at least one registered observer.
-   * 
+   *
    * Can be used to improve performance if an expensive notification
    * shall only be created and posted if there are any observers.
    */
@@ -125,4 +129,4 @@ class FUN_BASE_API NotificationCenter {
   Mutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -34,7 +34,6 @@ enum class FinalUserWorkItemType {
   Last,
 };
 
-
 //
 // Client side
 //
@@ -42,27 +41,25 @@ enum class FinalUserWorkItemType {
 class FinalUserWorkItem {
  public:
   FinalUserWorkItemType type;
-  ReceivedMessage unsafe_message; // MessageType은 빠져있음(MessageType::RPC 같은거 제외)
+  ReceivedMessage
+      unsafe_message;  // MessageType은 빠져있음(MessageType::RPC 같은거 제외)
   LocalEvent local_event;
   Function<void()> user_func;
 
   FinalUserWorkItem() : type(FinalUserWorkItemType::Last) {}
 
   FinalUserWorkItem(Function<void()> user_func)
-    : user_func(user_func),
-      type(FinalUserWorkItemType::UserTask) {}
+      : user_func(user_func), type(FinalUserWorkItemType::UserTask) {}
 
   FinalUserWorkItem(ReceivedMessage& msg, FinalUserWorkItemType type)
-    : unsafe_message(msg), type(type) {}
+      : unsafe_message(msg), type(type) {}
 
   inline FinalUserWorkItem(LocalEvent& local_event)
-    : local_event(local_event),
-      type(FinalUserWorkItemType::LocalEvent) {}
+      : local_event(local_event), type(FinalUserWorkItemType::LocalEvent) {}
 
   // TODO 이걸 없애는 쪽으로 생각해보자....
   void From(FinalUserWorkItem_S& src, HostId host_id);
 };
-
 
 class FinalUserWorkItem_HasLockedDtor {
  public:
@@ -79,9 +76,7 @@ class FinalUserWorkItem_HasLockedDtor {
 
 typedef List<FinalUserWorkItem> FinalUserWorkItemQueue;
 
-
 //-----------------------------------------------------------------------------
-
 
 //
 // Server side
@@ -96,21 +91,19 @@ class FinalUserWorkItem_S {
    * 메시지로 생성합니다.
    */
   inline FinalUserWorkItem_S(MessageIn& msg, FinalUserWorkItemType type)
-    : unsafe_message(msg), type(type) {}
+      : unsafe_message(msg), type(type) {}
 
   /**
    * 로컬 이벤트로 생성합니다.
    */
   inline FinalUserWorkItem_S(LocalEvent& local_event)
-    : local_event(local_event),
-      type(FinalUserWorkItemType::LocalEvent) {}
+      : local_event(local_event), type(FinalUserWorkItemType::LocalEvent) {}
 
   /**
    * 사용자 함수(lambda)로 생성합니다.
    */
   inline FinalUserWorkItem_S(Function<void()> user_func)
-    : user_func(user_func),
-      type(FinalUserWorkItemType::UserTask) {}
+      : user_func(user_func), type(FinalUserWorkItemType::UserTask) {}
 
   /** 유저 태스크 아이템 타입 */
   FinalUserWorkItemType type;
@@ -127,5 +120,5 @@ class FinalUserWorkItem_S {
  */
 typedef List<FinalUserWorkItem_S> FinalUserWorkItemQueue_S;
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

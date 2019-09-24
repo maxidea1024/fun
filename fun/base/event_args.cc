@@ -10,4 +10,4 @@ EventArgs::~EventArgs() {
   // NOOP
 }
 
-} // namespace fun
+}  // namespace fun

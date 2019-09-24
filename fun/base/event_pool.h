@@ -10,7 +10,7 @@ template <EventResetType reset_type>
 class EventPool {
  public:
   FUN_NO_INLINE static EventPool& DefaultPool() {
-    //TODO Singleton<T>로 해야할까??
+    // TODO Singleton<T>로 해야할까??
     static EventPool default_instance;
     return default_instance;
   }
@@ -49,7 +49,7 @@ class EventPool {
    * Returns an Event object in the event pool.
    */
   void ReturnEventToPool(Event* event) {
-    //TODO tag를 하나 지정해서 이 풀에서 생성된 것인지 체크하는게 좋을듯도?
+    // TODO tag를 하나 지정해서 이 풀에서 생성된 것인지 체크하는게 좋을듯도?
     fun_check_ptr(event);
     fun_check(event->IsAutoReset() == (reset_type == EventResetType::Auto));
 
@@ -64,10 +64,9 @@ class EventPool {
  private:
   FastMutex mutex_;
 
-  //TODO Lockfree list로 대체해야함!!
+  // TODO Lockfree list로 대체해야함!!
   Array<Event*> pool_;
 };
-
 
 class ScopedEvent {
  public:
@@ -81,16 +80,12 @@ class ScopedEvent {
     event_ = nullptr;
   }
 
-  FUN_ALWAYS_INLINE void Set() {
-    event_->Set();
-  }
+  FUN_ALWAYS_INLINE void Set() { event_->Set(); }
 
-  FUN_ALWAYS_INLINE Event* Get() const {
-    return event_;
-  }
+  FUN_ALWAYS_INLINE Event* Get() const { return event_; }
 
  private:
   Event* event_;
 };
 
-} // namespace fun
+}  // namespace fun

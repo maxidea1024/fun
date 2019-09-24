@@ -1,13 +1,13 @@
-﻿#include "fun/net/net.h"
-#include "NetClient.h"
-#include "RUdp.h"
-#include "RUdpFrame.h"
-#include "RUdpConfig.h"
-#include "StreamQueue.h"
+﻿#include "RUdp.h"
 #include "MessageStream.h"
+#include "NetClient.h"
+#include "RUdpConfig.h"
+#include "RUdpFrame.h"
+#include "RUdpHelper.h"
 #include "RUdpHost.h"
 #include "RpcCallOptionImpl.h"
-#include "RUdpHelper.h"
+#include "StreamQueue.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -18,9 +18,8 @@ FrameNumber RemotePeerRUdp::NextFrameNumberForAnotherReliablySendingFrame() {
   return host_->YieldFrameNumberForSendingLongFrameReliably();
 }
 
-bool RemotePeerRUdp::EnqueueReceivedFrameAndGetFlushedMessages( MessageIn& msg,
-                                                                ReceivedMessageList& output,
-                                                                ResultCode& out_error) {
+bool RemotePeerRUdp::EnqueueReceivedFrameAndGetFlushedMessages(
+    MessageIn& msg, ReceivedMessageList& output, ResultCode& out_error) {
   RUdpFrame frame;
   FUN_DO_CHECKED(lf::Read(msg, frame.type));
 
@@ -29,9 +28,10 @@ bool RemotePeerRUdp::EnqueueReceivedFrameAndGetFlushedMessages( MessageIn& msg,
       frame.acked_frame_numbers_.Reset(new CompressedFrameNumbers());
 
       FUN_DO_CHECKED(frame.acked_frame_numbers_->Read(msg));
-      FUN_DO_CHECKED(lf::Reads(msg,  frame.expected_frame_number, frame.recent_receive_speed));
+      FUN_DO_CHECKED(lf::Reads(msg, frame.expected_frame_number,
+                               frame.recent_receive_speed));
 
-      //if (!msg.AtEnd()) { // 이것도 넣어야 할까나?
+      // if (!msg.AtEnd()) { // 이것도 넣어야 할까나?
       //  return false;
       //}
       break;
@@ -40,15 +40,15 @@ bool RemotePeerRUdp::EnqueueReceivedFrameAndGetFlushedMessages( MessageIn& msg,
       FUN_DO_CHECKED(lf::Read(msg, frame.frame_number));
       ByteArray frame_data;
       FUN_DO_CHECKED(lf::Read(msg, frame_data));
-      //frame.data = MessageIn(frame_data);
+      // frame.data = MessageIn(frame_data);
       frame.data = frame_data;
       break;
     }
 
-    //case ERUdpFrame::Disconnect:
-    //  FUN_DO_CHECKED(lf::Read(msg, frame.frame_id));
-    //  FUN_DO_CHECKED(lf::Read(msg, frame.data));
-    //  break;
+      // case ERUdpFrame::Disconnect:
+      //  FUN_DO_CHECKED(lf::Read(msg, frame.frame_id));
+      //  FUN_DO_CHECKED(lf::Read(msg, frame.data));
+      //  break;
 
     default:
       fun_check(false);
@@ -58,21 +58,17 @@ bool RemotePeerRUdp::EnqueueReceivedFrameAndGetFlushedMessages( MessageIn& msg,
   return EnqueueReceivedFrameAndGetFlushedMessages(frame, output, out_error);
 }
 
-bool RemotePeerRUdp::EnqueueReceivedFrameAndGetFlushedMessages( RUdpFrame& frame,
-                                                                ReceivedMessageList& output,
-                                                                ResultCode& out_error) {
-  output.Clear(); // just in case
+bool RemotePeerRUdp::EnqueueReceivedFrameAndGetFlushedMessages(
+    RUdpFrame& frame, ReceivedMessageList& output, ResultCode& out_error) {
+  output.Clear();  // just in case
 
   host_->TakeReceivedFrame(frame);
 
   auto recv_stream = host_->GetReceivedStream();
 
   const int32 added_count = MessageStream::ExtractMessagesAndFlushStream(
-                *recv_stream,
-                output,
-                owner_->host_id_,
-                owner_->owner_->settings_.message_max_length,
-                out_error);
+      *recv_stream, output, owner_->host_id_,
+      owner_->owner_->settings_.message_max_length, out_error);
   if (added_count < 0) {
     // 해당 peer와 더 이상 통신하기 어려운 마당이다.
     panic_ = true;
@@ -96,7 +92,8 @@ void RemotePeerRUdp::SendOneFrameToUdpTransport(RUdpFrame& frame) {
       break;
 
     case RUdpFrameType::Ack:
-      if (RUdpConfig::high_priority_ack_frame) { // ACK는 더 높은 우선으로 쏴야 한다.
+      if (RUdpConfig::high_priority_ack_frame) {  // ACK는 더 높은 우선으로 쏴야
+                                                  // 한다.
         priority = MessagePriority::Ring1;
       }
       break;
@@ -109,44 +106,44 @@ void RemotePeerRUdp::SendOneFrameToUdpTransport(RUdpFrame& frame) {
     MessageOut header;
     RUdpHelper::BuildSendDataFromFrame(frame, data_to_send, header);
 
-    owner_->to_peer_udp_.SendWhenReady(data_to_send, UdpSendOption(priority, EngineOnlyFeature));
+    owner_->to_peer_udp_.SendWhenReady(
+        data_to_send, UdpSendOption(priority, EngineOnlyFeature));
   } else {
-    //TODO 전송시 깨지는 부분이 생기는듯함...
-    //LOG(LogNetEngine,Warning,"Send ReliableUDP frame via relaying: frame=%d, len=%d", (int32)frame.frame_number_, frame.data_.Len());
+    // TODO 전송시 깨지는 부분이 생기는듯함...
+    // LOG(LogNetEngine,Warning,"Send ReliableUDP frame via relaying: frame=%d,
+    // len=%d", (int32)frame.frame_number_, frame.data_.Len());
 
     // [직빵으로 P2P로 보내지 못하는 경우]
     // TCP를 통해 서버로 릴레이한다.
     // ACK는 아예 보낼 필요도 없다. 괜히 쓸데없는 부하만 준다.
-    // (참고: 이 직후 Resend는 더 이상 하지 않는다. 자세한 것은 RUdpSender::DoFramesForSend 참고)
+    // (참고: 이 직후 Resend는 더 이상 하지 않는다. 자세한 것은
+    // RUdpSender::DoFramesForSend 참고)
 
     // CLIENT -> (LingerDataFrame1) -> SERVER -> (LingerDataFrame2) -> PEER
 
     switch (frame.type) {
       case RUdpFrameType::Data: {
-          MessageOut header;
-          lf::Write(header, MessageType::LingerDataFrame1);
-          lf::Write(header, owner_->host_id_);
-          lf::Write(header, frame.frame_number_);
-          lf::Write(header, OptimalCounter32(frame.data_.Len()));
+        MessageOut header;
+        lf::Write(header, MessageType::LingerDataFrame1);
+        lf::Write(header, owner_->host_id_);
+        lf::Write(header, frame.frame_number_);
+        lf::Write(header, OptimalCounter32(frame.data_.Len()));
 
-          SendFragRefs data_to_send;
-          data_to_send.Add(header);
-          data_to_send.Add(frame.data_);
+        SendFragRefs data_to_send;
+        data_to_send.Add(header);
+        data_to_send.Add(frame.data_);
 
-          owner_->owner_->Send_ToServer_Directly_Copy(
-              owner_->GetHostId(),
-              MessageReliability::Reliable,
-              data_to_send,
-              UdpSendOption(GUnreliableSend_INTERNAL));
-        }
-        break;
+        owner_->owner_->Send_ToServer_Directly_Copy(
+            owner_->GetHostId(), MessageReliability::Reliable, data_to_send,
+            UdpSendOption(GUnreliableSend_INTERNAL));
+      } break;
 
       case RUdpFrameType::Ack:
         // Nothing to do...
         break;
 
       default:
-        fun_check(false); // 의도 안한 프레임 타입
+        fun_check(false);  // 의도 안한 프레임 타입
         break;
     }
   }
@@ -156,9 +153,7 @@ FrameNumber RemotePeerRUdp::GetRecvExpectFrameNumber() {
   return host_->GetRecvExpectFrameNumber();
 }
 
-bool RemotePeerRUdp::IsReliableChannel() {
-  return owner_->IsRelayedP2P();
-}
+bool RemotePeerRUdp::IsReliableChannel() { return owner_->IsRelayedP2P(); }
 
 void RemotePeerRUdp::SendWhenReady(const SendFragRefs& data_to_send) {
   // Add message to send queue for each remote host
@@ -166,7 +161,7 @@ void RemotePeerRUdp::SendWhenReady(const SendFragRefs& data_to_send) {
   MessageOut header;
   MessageStream::AddStreamHeader(data_to_send, final_send_data, header);
 
-  const ByteArray bytes = final_send_data.ToBytes(); // copy
+  const ByteArray bytes = final_send_data.ToBytes();  // copy
   host_->Send((const uint8*)bytes.ConstData(), bytes.Len());
 }
 
@@ -175,8 +170,7 @@ double RemotePeerRUdp::GetAbsoluteTime() {
 }
 
 RemotePeerRUdp::RemotePeerRUdp(RemotePeer_C* owner)
-  : owner_(owner), panic_(false) {
-}
+    : owner_(owner), panic_(false) {}
 
 void RemotePeerRUdp::ResetEngine(FrameNumber frame_number) {
   host_.Reset(new RUdpHost(this, frame_number));
@@ -202,13 +196,11 @@ bool RemotePeerRUdp::IsUdpSendBufferPacketEmpty() {
   }
 }
 
-HostId RemotePeerRUdp::TEST_GetHostId() {
-  return owner_->host_id_;
-}
+HostId RemotePeerRUdp::TEST_GetHostId() { return owner_->host_id_; }
 
 double RemotePeerRUdp::GetRecentPing() {
   return MathBase::Max(owner_->recent_ping_, 0.0);
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

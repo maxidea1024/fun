@@ -24,7 +24,7 @@ class FUN_BASE_API ProcessHandle {
 
   ProcessHandle(const ProcessHandle& rhs);
   ~ProcessHandle();
-  ProcessHandle& operator = (const ProcessHandle& rhs);
+  ProcessHandle& operator=(const ProcessHandle& rhs);
 
   PID GetId() const;
 
@@ -41,12 +41,11 @@ class FUN_BASE_API ProcessHandle {
   friend class Process;
 };
 
-
 class FUN_BASE_API Process : public ProcessImpl {
  public:
-  typedef PIDImpl  PID;
+  typedef PIDImpl PID;
   typedef ArgsImpl Args;
-  typedef EnvImpl  Env;
+  typedef EnvImpl Env;
 
   static PID CurrentPid();
 
@@ -54,37 +53,23 @@ class FUN_BASE_API Process : public ProcessImpl {
 
   static ProcessHandle Launch(const String& command, const Args& args);
 
-  static ProcessHandle Launch(const String& command,
-                              const Args& args,
+  static ProcessHandle Launch(const String& command, const Args& args,
                               const String& initial_directory);
 
-  static ProcessHandle Launch(const String& command,
-                              const Args& args,
-                              Pipe* in_pipe,
-                              Pipe* out_pipe,
-                              Pipe* err_pipe);
+  static ProcessHandle Launch(const String& command, const Args& args,
+                              Pipe* in_pipe, Pipe* out_pipe, Pipe* err_pipe);
 
-  static ProcessHandle Launch(const String& command,
-                              const Args& args,
-                              const String& initial_directory,
-                              Pipe* in_pipe,
-                              Pipe* out_pipe,
-                              Pipe* err_pipe);
+  static ProcessHandle Launch(const String& command, const Args& args,
+                              const String& initial_directory, Pipe* in_pipe,
+                              Pipe* out_pipe, Pipe* err_pipe);
 
-  static ProcessHandle Launch(const String& command,
-                              const Args& args,
-                              Pipe* in_pipe,
-                              Pipe* out_pipe,
-                              Pipe* err_pipe,
+  static ProcessHandle Launch(const String& command, const Args& args,
+                              Pipe* in_pipe, Pipe* out_pipe, Pipe* err_pipe,
                               const Env& env);
 
-  static ProcessHandle Launch(const String& command,
-                              const Args& args,
-                              const String& initial_directory,
-                              Pipe* in_pipe,
-                              Pipe* out_pipe,
-                              Pipe* err_pipe,
-                              const Env& env);
+  static ProcessHandle Launch(const String& command, const Args& args,
+                              const String& initial_directory, Pipe* in_pipe,
+                              Pipe* out_pipe, Pipe* err_pipe, const Env& env);
 
   static int Wait(const ProcessHandle& handle);
 
@@ -99,7 +84,6 @@ class FUN_BASE_API Process : public ProcessImpl {
   static void RequestTermination(PID pid);
 };
 
-
 //
 // inlines
 //
@@ -112,4 +96,4 @@ FUN_ALWAYS_INLINE void Process::GetTimes(long& user_time, long& kernel_time) {
   ProcessImpl::GetTimesImpl(user_time, kernel_time);
 }
 
-} // namespace fun
+}  // namespace fun

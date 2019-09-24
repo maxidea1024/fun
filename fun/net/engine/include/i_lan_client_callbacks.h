@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
 #include "INetCoreCallbacks.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -24,9 +24,8 @@ class ILanClientCallbacks : public INetCoreCallbacks {
    * Default constructor.
    */
   ILanClientCallbacks()
-    : bHolsterMoreCallback_FORONETHREADEDMODEL(false)
-    , bPostponeThisCallback_FORONETHREADEDMODEL(false) {
-  }
+      : bHolsterMoreCallback_FORONETHREADEDMODEL(false),
+        bPostponeThisCallback_FORONETHREADEDMODEL(false) {}
 
   /**
    * Called when this client is connected to server.
@@ -42,10 +41,9 @@ class ILanClientCallbacks : public INetCoreCallbacks {
   /**
    * Called when a P2P member joined into P2P group.
    */
-  virtual void OnP2PMemberJoined( HostId member_id,
-                                  HostId group_id,
-                                  int32 member_count,
-                                  const ByteArray& custom_field) = 0;
+  virtual void OnP2PMemberJoined(HostId member_id, HostId group_id,
+                                 int32 member_count,
+                                 const ByteArray& custom_field) = 0;
 
   /**
    * Called when P2P connection is established.
@@ -65,22 +63,23 @@ class ILanClientCallbacks : public INetCoreCallbacks {
   /**
    * P2P 멤버가 해당 P2P 그룹에서 나갔음을 알릴때 호출됨.
    */
-  virtual void OnP2PMemberLeft( HostId member_id,
-                                HostId group_id,
-                                int32 member_count) = 0;
+  virtual void OnP2PMemberLeft(HostId member_id, HostId group_id,
+                               int32 member_count) = 0;
 
   virtual void OnSynchronizeServerTime() = 0;
 
-  virtual void OnUserWorkerThreadBegin() = 0; //딱히 쓸모가 없어보임...
-  virtual void OnUserWorkerThreadEnd() = 0; //딱히 쓸모가 없어보임...
+  virtual void OnUserWorkerThreadBegin() = 0;  //딱히 쓸모가 없어보임...
+  virtual void OnUserWorkerThreadEnd() = 0;  //딱히 쓸모가 없어보임...
 
-  virtual void OnUserWorkerThreadCallbackBegin(UserWorkerThreadCallbackContext* context) {} //딱히 쓸모가 없어보임...
-  virtual void OnUserWorkerThreadCallbackEnd(UserWorkerThreadCallbackContext* context) {} //딱히 쓸모가 없어보임...
+  virtual void OnUserWorkerThreadCallbackBegin(
+      UserWorkerThreadCallbackContext* context) {}  //딱히 쓸모가 없어보임...
+  virtual void OnUserWorkerThreadCallbackEnd(
+      UserWorkerThreadCallbackContext* context) {}  //딱히 쓸모가 없어보임...
 
   virtual void OnTick(void* context) {}
 
   void PostponeThisCallback();
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

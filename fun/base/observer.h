@@ -1,13 +1,13 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/observer_base.h"
 #include "fun/base/mutex.h"
+#include "fun/base/observer_base.h"
 
 namespace fun {
 
-//TODO dynamic_cast를 써야만할까??
-//TODO NObserver와 똑같은데, 이름만 다르네??
+// TODO dynamic_cast를 써야만할까??
+// TODO NObserver와 똑같은데, 이름만 다르네??
 
 /**
  * This template class implements an adapter that sits between
@@ -29,13 +29,12 @@ class Observer : public ObserverBase {
  public:
   typedef void (C::*Callback)(N*);
 
-  Observer(C& object, Callback method)
-    : object_(object), method_(method) {}
+  Observer(C& object, Callback method) : object_(object), method_(method) {}
 
   Observer(const Observer& rhs)
-    : ObserverBase(rhs), object_(rhs.object_), method_(rhs.method_) {}
+      : ObserverBase(rhs), object_(rhs.object_), method_(rhs.method_) {}
 
-  Observer& operator = (const Observer& rhs) {
+  Observer& operator=(const Observer& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       object_ = rhs.object_;
       method_ = rhs.method_;
@@ -58,18 +57,15 @@ class Observer : public ObserverBase {
   bool Equals(const ObserverBase& other) const {
     const Observer* casted_other = dynamic_cast<const Observer*>(&other);
 
-    return  casted_other &&
-            casted_other->object_ == object_ &&
-            casted_other->method_ == method_;
+    return casted_other && casted_other->object_ == object_ &&
+           casted_other->method_ == method_;
   }
 
   bool Accepts(Notification* noti) const {
     return dynamic_cast<N*>(noti) != nullptr;
   }
 
-  SharedPtr<ObserverBase> Clone() const {
-    return new Observer(*this);
-  }
+  SharedPtr<ObserverBase> Clone() const { return new Observer(*this); }
 
   void Disable() {
     ScopedLock guard(mutex_);
@@ -84,4 +80,4 @@ class Observer : public ObserverBase {
   Mutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

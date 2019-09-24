@@ -26,4 +26,4 @@ void Stopwatch::Restart() {
   running_ = true;
 }
 
-} // namespace fun
+}  // namespace fun

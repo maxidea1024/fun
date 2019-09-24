@@ -13,11 +13,11 @@ class RCPair {
 
   RCPair(HostId first, HostId second) : first(first), second(second) {}
 
-  bool operator == (const RCPair& other) const {
+  bool operator==(const RCPair& other) const {
     return first == other.first && second == other.second;
   }
 
-  bool operator != (const RCPair& other) const {
+  bool operator!=(const RCPair& other) const {
     return first != other.first || second != other.second;
   }
 
@@ -26,5 +26,5 @@ class RCPair {
   }
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

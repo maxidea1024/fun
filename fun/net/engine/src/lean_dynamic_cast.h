@@ -24,4 +24,4 @@ LanRemotePeer_C* LeanDynamicCastRemotePeer_C(ICompletionContext* X);
 
 AcceptedInfo* LeanDynamicCastAcceptedInfo(ICompletionContext* X);
 
-} // namespace fun
+}  // namespace fun

@@ -28,9 +28,10 @@ class FUN_BASE_API SharedLibrary : private SharedLibrayImpl {
     /**
      * On platforms that use dlopen(), use RTLD_LOCAL instead of RTLD_GLOBAL.
      *
-     * Note that if this flag is specified, RTTI (including dynamic_cast and throw) will
-     * not work for types defined in the shared library with GCC and possibly other
-     * compilers as well. See http://gcc.gnu.org/faq.html#dso for more information.
+     * Note that if this flag is specified, RTTI (including dynamic_cast and
+     * throw) will not work for types defined in the shared library with GCC and
+     * possibly other compilers as well. See http://gcc.gnu.org/faq.html#dso for
+     * more information.
      *
      * This flag is ignored on platforms that do not use dlopen().
      */
@@ -139,7 +140,7 @@ class FUN_BASE_API SharedLibrary : private SharedLibrayImpl {
   static String GetOsName(const String& name);
 
   SharedLibrary(const SharedLibrary&) = delete;
-  SharedLibrary& operator = (const SharedLibrary&) = delete;
+  SharedLibrary& operator=(const SharedLibrary&) = delete;
 };
 
-} // namespace fun
+}  // namespace fun

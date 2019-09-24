@@ -1,10 +1,10 @@
 ﻿#include "fun/base/process_win32.h"
-#include "fun/base/exception.h"
-#include "fun/base/named_event.h"
 #include "fun/base/container/array.h"
-#include "fun/base/pipe.h"
+#include "fun/base/exception.h"
 #include "fun/base/file.h"
+#include "fun/base/named_event.h"
 #include "fun/base/path.h"
+#include "fun/base/pipe.h"
 #include "fun/base/str.h"
 
 namespace fun {
@@ -14,11 +14,9 @@ namespace fun {
 //
 
 ProcessHandleImpl::ProcessHandleImpl(HANDLE process_handle, uint32 pid)
-  : process_handle_(process_handle), pid_(pid) {}
+    : process_handle_(process_handle), pid_(pid) {}
 
-ProcessHandleImpl::~ProcessHandleImpl() {
-  CloseHandle();
-}
+ProcessHandleImpl::~ProcessHandleImpl() { CloseHandle(); }
 
 void ProcessHandleImpl::CloseHandle() {
   if (process_handle_) {
@@ -27,13 +25,9 @@ void ProcessHandleImpl::CloseHandle() {
   }
 }
 
-uint32 ProcessHandleImpl::GetId() const {
-  return pid_;
-}
+uint32 ProcessHandleImpl::GetId() const { return pid_; }
 
-HANDLE ProcessHandleImpl::GetHandle() const {
-  return process_handle_;
-}
+HANDLE ProcessHandleImpl::GetHandle() const { return process_handle_; }
 
 int ProcessHandleImpl::Wait() const {
   DWORD rc = WaitForSingleObject(process_handle_, INFINITE);
@@ -43,12 +37,12 @@ int ProcessHandleImpl::Wait() const {
 
   DWORD exit_code;
   if (GetExitCodeProcess(process_handle_, &exit_code) == 0) {
-    throw SystemException("Cannot get exit code for process", String::FromNumber(pid_));
+    throw SystemException("Cannot get exit code for process",
+                          String::FromNumber(pid_));
   }
 
   return exit_code;
 }
-
 
 //
 // ProcessImpl
@@ -64,7 +58,8 @@ void ProcessImpl::GetTimesImpl(long& user_time, long& kernel_time) {
   FILETIME ft_kernel;
   FILETIME ft_user;
 
-  if (GetProcessTimes(GetCurrentProcess(), &ft_creation, &ft_exit, &ft_kernel, &ft_user) != 0) {
+  if (GetProcessTimes(GetCurrentProcess(), &ft_creation, &ft_exit, &ft_kernel,
+                      &ft_user) != 0) {
     ULARGE_INTEGER time;
     time.LowPart = ft_kernel.dwLowDateTime;
     time.HighPart = ft_kernel.dwHighDateTime;
@@ -81,18 +76,21 @@ namespace {
 
 bool ArgNeedsEscaping(const String& arg) {
   bool contains_quotable_char = (arg.IndexOfAny(" \t\n\v\"") != INVALID_INDEX);
-  // Assume args that start and end with quotes are already quoted and do not require further quoting.
-  // There is probably code out there written before Launch() escaped the arguments that does its own
-  // escaping of arguments. This ensures we do not interfere with those arguments.
-  bool already_quoted = arg.Len() > 1 && '\"' == arg[0] && '\"' == arg[arg.Len() - 1];
+  // Assume args that start and end with quotes are already quoted and do not
+  // require further quoting. There is probably code out there written before
+  // Launch() escaped the arguments that does its own escaping of arguments.
+  // This ensures we do not interfere with those arguments.
+  bool already_quoted =
+      arg.Len() > 1 && '\"' == arg[0] && '\"' == arg[arg.Len() - 1];
   return contains_quotable_char && !already_quoted;
 }
 
-// Based on code from https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
+// Based on code from
+// https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
 String EscapeArg(const String& arg) {
   if (ArgNeedsEscaping(arg)) {
     String quoted_arg("\"");
-    for (String::const_iterator it = arg.begin(); ; ++it) {
+    for (String::const_iterator it = arg.begin();; ++it) {
       unsigned blackslash_count = 0;
       while (it != arg.end() && '\\' == *it) {
         ++it;
@@ -117,15 +115,13 @@ String EscapeArg(const String& arg) {
   }
 }
 
-} // namespace
+}  // namespace
 
-ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
-                                            const ArgsImpl& args,
-                                            const String& initial_directory,
-                                            Pipe* in_pipe,
-                                            Pipe* out_pipe,
-                                            Pipe* err_pipe,
-                                            const EnvImpl& env) {
+ProcessHandleImpl* ProcessImpl::LaunchImpl(const String& command,
+                                           const ArgsImpl& args,
+                                           const String& initial_directory,
+                                           Pipe* in_pipe, Pipe* out_pipe,
+                                           Pipe* err_pipe, const EnvImpl& env) {
   String commandline = EscapeArg(command);
   for (const auto& arg : args) {
     commandline.Append(" ");
@@ -148,7 +144,7 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
   }
 
   STARTUPINFOW startup_info;
-  GetStartupInfoW(&startup_info); // take defaults from current process
+  GetStartupInfoW(&startup_info);  // take defaults from current process
   startup_info.cb = sizeof(STARTUPINFOW);
   startup_info.lpReserved = NULL;
   startup_info.lpDesktop = NULL;
@@ -160,45 +156,28 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
   HANDLE process_handle = GetCurrentProcess();
   bool must_inherit_handles = false;
   if (in_pipe) {
-    DuplicateHandle(process_handle,
-                    in_pipe->ReadHandle(),
-                    process_handle,
-                    &startup_info.hStdInput,
-                    0,
-                    TRUE,
-                    DUPLICATE_SAME_ACCESS);
+    DuplicateHandle(process_handle, in_pipe->ReadHandle(), process_handle,
+                    &startup_info.hStdInput, 0, TRUE, DUPLICATE_SAME_ACCESS);
     must_inherit_handles = true;
     in_pipe->Close(Pipe::CLOSE_READ);
   } else if (GetStdHandle(STD_INPUT_HANDLE)) {
-    DuplicateHandle(process_handle,
-                    GetStdHandle(STD_INPUT_HANDLE),
-                    process_handle,
-                    &startup_info.hStdInput,
-                    0,
-                    TRUE,
+    DuplicateHandle(process_handle, GetStdHandle(STD_INPUT_HANDLE),
+                    process_handle, &startup_info.hStdInput, 0, TRUE,
                     DUPLICATE_SAME_ACCESS);
     must_inherit_handles = true;
   } else {
     startup_info.hStdInput = 0;
   }
 
-  // out_pipe may be the same as err_pipe, so we duplicate first and close later.
+  // out_pipe may be the same as err_pipe, so we duplicate first and close
+  // later.
   if (out_pipe) {
-    DuplicateHandle(process_handle,
-                    out_pipe->WriteHandle(),
-                    process_handle,
-                    &startup_info.hStdOutput,
-                    0,
-                    TRUE,
-                    DUPLICATE_SAME_ACCESS);
+    DuplicateHandle(process_handle, out_pipe->WriteHandle(), process_handle,
+                    &startup_info.hStdOutput, 0, TRUE, DUPLICATE_SAME_ACCESS);
     must_inherit_handles = true;
   } else if (GetStdHandle(STD_OUTPUT_HANDLE)) {
-    DuplicateHandle(process_handle,
-                    GetStdHandle(STD_OUTPUT_HANDLE),
-                    process_handle,
-                    &startup_info.hStdOutput,
-                    0,
-                    TRUE,
+    DuplicateHandle(process_handle, GetStdHandle(STD_OUTPUT_HANDLE),
+                    process_handle, &startup_info.hStdOutput, 0, TRUE,
                     DUPLICATE_SAME_ACCESS);
     must_inherit_handles = true;
   } else {
@@ -206,21 +185,12 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
   }
 
   if (err_pipe) {
-    DuplicateHandle(process_handle,
-                    err_pipe->WriteHandle(),
-                    process_handle,
-                    &startup_info.hStdError,
-                    0,
-                    TRUE,
-                    DUPLICATE_SAME_ACCESS);
+    DuplicateHandle(process_handle, err_pipe->WriteHandle(), process_handle,
+                    &startup_info.hStdError, 0, TRUE, DUPLICATE_SAME_ACCESS);
     must_inherit_handles = true;
   } else if (GetStdHandle(STD_ERROR_HANDLE)) {
-    DuplicateHandle(process_handle,
-                    GetStdHandle(STD_ERROR_HANDLE),
-                    process_handle,
-                    &startup_info.hStdError,
-                    0,
-                    TRUE,
+    DuplicateHandle(process_handle, GetStdHandle(STD_ERROR_HANDLE),
+                    process_handle, &startup_info.hStdError, 0, TRUE,
                     DUPLICATE_SAME_ACCESS);
     must_inherit_handles = true;
   } else {
@@ -240,7 +210,8 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
   }
 
   UString uinitial_directory = UString::FromUtf8(initial_directory);
-  const wchar_t* working_directory = uinitial_directory.IsEmpty() ? 0 : uinitial_directory.c_str();
+  const wchar_t* working_directory =
+      uinitial_directory.IsEmpty() ? 0 : uinitial_directory.c_str();
 
   const char* env_ptr = nullptr;
   Array<char> env_chars;
@@ -252,16 +223,11 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
   PROCESS_INFORMATION process_info;
   DWORD creation_flags = GetConsoleWindow() ? 0 : CREATE_NO_WINDOW;
   BOOL rc = CreateProcessW(
-    application_name,
-    const_cast<wchar_t*>(ucommandline.c_str()),
-    NULL, // processAttributes
-    NULL, // threadAttributes
-    must_inherit_handles,
-    creation_flags,
-    (LPVOID)env_ptr,
-    working_directory,
-    &startup_info,
-    &process_info);
+      application_name, const_cast<wchar_t*>(ucommandline.c_str()),
+      NULL,  // processAttributes
+      NULL,  // threadAttributes
+      must_inherit_handles, creation_flags, (LPVOID)env_ptr, working_directory,
+      &startup_info, &process_info);
 
   if (startup_info.hStdInput) {
     CloseHandle(startup_info.hStdInput);
@@ -277,7 +243,8 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
 
   if (rc) {
     CloseHandle(process_info.hThread);
-    return new ProcessHandleImpl(process_info.hProcess, process_info.dwProcessId);
+    return new ProcessHandleImpl(process_info.hProcess,
+                                 process_info.dwProcessId);
   } else {
     throw SystemException("Cannot Launch process", command);
   }
@@ -285,7 +252,7 @@ ProcessHandleImpl* ProcessImpl::LaunchImpl( const String& command,
 
 void ProcessImpl::KillImpl(ProcessHandleImpl& handle) {
   if (handle.GetHandle()) {
-    //TODO handle.process()에서 process라는 이름을 변경해주어야할듯...
+    // TODO handle.process()에서 process라는 이름을 변경해주어야할듯...
     if (TerminateProcess(handle.GetHandle(), 0) == 0) {
       handle.CloseHandle();
       throw SystemException("cannot kill process");
@@ -345,11 +312,11 @@ void ProcessImpl::RequestTerminationImpl(PIDImpl pid) {
 }
 
 String ProcessImpl::TerminationEventName(PIDImpl pid) {
-  //TODO 이름에 대한 정밀분석...
+  // TODO 이름에 대한 정밀분석...
   String ev_name("TTSTRM");
-  //NumberFormatter::AppendHex(ev_name, pid, 8);
+  // NumberFormatter::AppendHex(ev_name, pid, 8);
   ev_name += String::Format("{0:08x}", pid);
   return ev_name;
 }
 
-} // namespace fun
+}  // namespace fun

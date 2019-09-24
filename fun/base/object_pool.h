@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/mutex.h"
 #include "fun/base/condition.h"
-#include "fun/base/ref_counted.h"
-#include "fun/base/ftl/shared_ptr.h"
 #include "fun/base/container/array.h"
+#include "fun/base/ftl/shared_ptr.h"
+#include "fun/base/mutex.h"
+#include "fun/base/ref_counted.h"
 
 namespace fun {
 
@@ -58,8 +58,10 @@ class PoolableObjectFactory<C, SharedPtr<C>> {
  *   - If an object is available from the pool, an object from the pool is
  *     removed from the pool, activated (using the factory) and returned.
  *   - Otherwise, if the peak capacity of the pool has not yet been reached,
- *     a new object is created and activated, using the object factory, and returned.
- *   - If the peak capacity has already been reached, null is returned after timeout.
+ *     a new object is created and activated, using the object factory, and
+ * returned.
+ *   - If the peak capacity has already been reached, null is returned after
+ * timeout.
  *
  * When an object is returned to the pool:
  *   - If the object is valid (checked by calling ValidateObject()
@@ -68,21 +70,19 @@ class PoolableObjectFactory<C, SharedPtr<C>> {
  *     the object is added to the pool. Otherwise it is destroyed.
  *   - If the object is not valid, it is destroyed immediately.
  */
-template <typename C, typename P = C*, typename F = PoolableObjectFactory<C, P> >
+template <typename C, typename P = C*, typename F = PoolableObjectFactory<C, P>>
 class ObjectPool {
  public:
   ObjectPool(size_t capacity, size_t peak_capacity)
-    : capacity_(capacity),
-      peak_capacity_(peak_capacity),
-      used_count_(0) {
+      : capacity_(capacity), peak_capacity_(peak_capacity), used_count_(0) {
     fun_check(capacity <= peak_capacity);
   }
 
   ObjectPool(const F& factory, size_t capacity, size_t peak_capacity)
-    : factory_(factory),
-      capacity_(capacity),
-      peak_capacity_(peak_capacity),
-      used_count_(0) {
+      : factory_(factory),
+        capacity_(capacity),
+        peak_capacity_(peak_capacity),
+        used_count_(0) {
     fun_check(capacity <= peak_capacity);
   }
 
@@ -99,7 +99,7 @@ class ObjectPool {
   // Disable default constructor and copy.
   ObjectPool() = delete;
   ObjectPool(const ObjectPool&) = delete;
-  ObjectPool& operator = (const ObjectPool&) = delete;
+  ObjectPool& operator=(const ObjectPool&) = delete;
 
   P BorrowObject(long timeout_msecs = 0) {
     ScopedLock<FastMutex> guard(mutex_);
@@ -151,13 +151,9 @@ class ObjectPool {
     available_cond_.Signal();
   }
 
-  size_t Capacity() const {
-    return capacity_;
-  }
+  size_t Capacity() const { return capacity_; }
 
-  size_t PeakCapacity() const {
-    return peak_capacity_;
-  }
+  size_t PeakCapacity() const { return peak_capacity_; }
 
   size_t UsedCount() const {
     ScopedLock<FastMutex> guard(mutex_);
@@ -192,4 +188,4 @@ class ObjectPool {
   Condition available_cond_;
 };
 
-} // namespace fun
+}  // namespace fun

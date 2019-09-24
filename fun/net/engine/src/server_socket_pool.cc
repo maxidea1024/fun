@@ -1,8 +1,8 @@
-﻿//TODO 이름을 CServerSocketPool에서 CTcpServerSocketPool로 바꾸자.
-//TODO 어드레스 패밀리를 외부에서 설정할 수 있게 해야할까??
+﻿// TODO 이름을 CServerSocketPool에서 CTcpServerSocketPool로 바꾸자.
+// TODO 어드레스 패밀리를 외부에서 설정할 수 있게 해야할까??
 
-#include "fun/net/net.h"
 #include "server_socket_pool.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -13,10 +13,12 @@ static const int32 SOCKET_ADDR_FAMILY = AF_INET;
 static const int32 SOCKET_ADDR_FAMILY = AF_INET6;
 #endif
 
-//TODO 요구하는 곳에서 address-family를 지정할 수 있도록 하자.
-InternalSocket* ServerSocketPool::NewTcpSocket( IInternalSocketDelegate* delegate,
-                                                ISocketIoCompletionDelegate* io_completion_delegate) {
-  // Note: This method should only be called when ServerSocketPool is not destroyed!
+// TODO 요구하는 곳에서 address-family를 지정할 수 있도록 하자.
+InternalSocket* ServerSocketPool::NewTcpSocket(
+    IInternalSocketDelegate* delegate,
+    ISocketIoCompletionDelegate* io_completion_delegate) {
+  // Note: This method should only be called when ServerSocketPool is not
+  // destroyed!
   if (should_stop_thread_) {
     throw Exception("ServerSocketPool is already destructed!");
   }
@@ -25,12 +27,13 @@ InternalSocket* ServerSocketPool::NewTcpSocket( IInternalSocketDelegate* delegat
   // it'll be done anyway soon.
 
   const double begun_time = Clock::Seconds();
-  while ((Clock::Seconds() - begun_time) < 10.0) { //10초???
+  while ((Clock::Seconds() - begun_time) < 10.0) {  // 10초???
     ScopedLock<FastMutex> guard(mutex_);
 
     if (!newbie_sockets_.IsEmpty()) {
       const int32 index = newbie_sockets_.Count() - 1;
-      InternalSocket* new_socket = new InternalSocket(newbie_sockets_[index], delegate, io_completion_delegate);
+      InternalSocket* new_socket = new InternalSocket(
+          newbie_sockets_[index], delegate, io_completion_delegate);
       newbie_sockets_.RemoveAt(index);
       return new_socket;
     } else {
@@ -41,8 +44,8 @@ InternalSocket* ServerSocketPool::NewTcpSocket( IInternalSocketDelegate* delegat
     }
   }
 
-  // it is rare, but I am not able to generate it by the deadline. At this time, let's just force it.
-  // This API takes a long time to run in unlocked state.
+  // it is rare, but I am not able to generate it by the deadline. At this time,
+  // let's just force it. This API takes a long time to run in unlocked state.
   const SOCKET fd = socket(SOCKET_ADDR_FAMILY, SOCK_STREAM, IPPROTO_TCP);
   if (fd != INVALID_SOCKET) {
     InternalSocket::SetIPv6Only(fd, false);
@@ -53,8 +56,7 @@ InternalSocket* ServerSocketPool::NewTcpSocket( IInternalSocketDelegate* delegat
   }
 }
 
-ServerSocketPool::ServerSocketPool()
-    : should_stop_thread_(false) {
+ServerSocketPool::ServerSocketPool() : should_stop_thread_(false) {
   thread_.Reset(RunnableThread::Create(this, "ServerSocketPool"));
 }
 
@@ -94,5 +96,5 @@ void ServerSocketPool::Run() {
   }
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

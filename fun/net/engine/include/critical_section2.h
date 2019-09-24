@@ -29,7 +29,7 @@ class FUN_NETX_API CCriticalSection2 {
 
   // disable copy
   CCriticalSection2(const CCriticalSection2&) = delete;
-  CCriticalSection2& operator = (const CCriticalSection2&) = delete;
+  CCriticalSection2& operator=(const CCriticalSection2&) = delete;
 
  private:
   void Lock_DetectLongPreviousLockingThread();
@@ -39,7 +39,6 @@ class FUN_NETX_API CCriticalSection2 {
 
   uint32 ValidKey;
 };
-
 
 /// A scoped synchronizer utilizing the RAII pattern.
 class CScopedLock2 {
@@ -62,9 +61,7 @@ class CScopedLock2 {
     }
   }
 
-  inline bool IsLocked() const {
-    return bLocked;
-  }
+  inline bool IsLocked() const { return bLocked; }
 
   inline ~CScopedLock2() {
     if (bLocked) {
@@ -97,33 +94,36 @@ class CScopedLock2 {
 
   // disable copy
   CScopedLock2(const CScopedLock2&) = delete;
-  CScopedLock2& operator = (const CScopedLock2&) = delete;
+  CScopedLock2& operator=(const CScopedLock2&) = delete;
 
  private:
   CCriticalSection2* cs;
   bool bLocked;
 };
 
+// TODO pthread에서 할수 있는 방법이 있으려나?
+/// Check that the specified critical section is locked in the current thread
+/// (lock).
+FUN_NETX_API bool IsCriticalSectionLockedByCurrentThread(
+    const CRITICAL_SECTION& cs);
 
-//TODO pthread에서 할수 있는 방법이 있으려나?
-/// Check that the specified critical section is locked in the current thread (lock).
-FUN_NETX_API bool IsCriticalSectionLockedByCurrentThread(const CRITICAL_SECTION& cs);
-
-//TODO pthread에서 할수 있는 방법이 있으려나?
+// TODO pthread에서 할수 있는 방법이 있으려나?
 /// Check that the specified critical section is locked.
 FUN_NETX_API bool IsCriticalSectionLocked(const CRITICAL_SECTION& cs);
 
-//TODO pthread에서 할수 있는 방법이 있으려나?
-/// Check that the specified critical section is locked in the current thread (lock).
-inline bool IsCriticalSectionLockedByCurrentThread(const CCriticalSection2& cs) {
+// TODO pthread에서 할수 있는 방법이 있으려나?
+/// Check that the specified critical section is locked in the current thread
+/// (lock).
+inline bool IsCriticalSectionLockedByCurrentThread(
+    const CCriticalSection2& cs) {
   return IsCriticalSectionLockedByCurrentThread(cs.cs);
 }
 
-//TODO pthread에서 할수 있는 방법이 있으려나?
+// TODO pthread에서 할수 있는 방법이 있으려나?
 /// Check that the specified critical section is locked.
 inline bool IsCriticalSectionLocked(const CCriticalSection2& cs) {
   return IsCriticalSectionLocked(cs.cs);
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

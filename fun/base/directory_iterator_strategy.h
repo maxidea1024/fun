@@ -2,12 +2,12 @@
 
 #include "fun/base/base.h"
 #include "fun/base/directory_iterator.h"
-#include "fun/base/multicast_event.h"
 #include "fun/base/event_args.h"
+#include "fun/base/multicast_event.h"
 
-#include <stack>
-#include <queue>
 #include <functional>
+#include <queue>
+#include <stack>
 
 namespace fun {
 
@@ -36,35 +36,35 @@ class FUN_BASE_API TraverseBase {
  private:
   TraverseBase() = delete;
   TraverseBase(const TraverseBase&) = delete;
-  TraverseBase& operator = (const TraverseBase&) = delete;
+  TraverseBase& operator=(const TraverseBase&) = delete;
 };
-
 
 class FUN_BASE_API ChildrenFirstTraverse : public TraverseBase {
  public:
-  ChildrenFirstTraverse(DepthFunPtr depth_determiner, uint16 max_depth = D_INFINITE);
+  ChildrenFirstTraverse(DepthFunPtr depth_determiner,
+                        uint16 max_depth = D_INFINITE);
 
   const String Next(Stack* it_stack, bool* is_finished);
 
  private:
   ChildrenFirstTraverse() = delete;
   ChildrenFirstTraverse(const ChildrenFirstTraverse&) = delete;
-  ChildrenFirstTraverse& operator = (const ChildrenFirstTraverse&) = delete;
+  ChildrenFirstTraverse& operator=(const ChildrenFirstTraverse&) = delete;
 };
-
 
 class FUN_BASE_API SiblingsFirstTraverse : public TraverseBase {
  public:
-  SiblingsFirstTraverse(DepthFunPtr depth_determiner, uint16 max_depth = D_INFINITE);
+  SiblingsFirstTraverse(DepthFunPtr depth_determiner,
+                        uint16 max_depth = D_INFINITE);
 
   const String Next(Stack* it_stack, bool* is_finished);
 
  private:
   SiblingsFirstTraverse() = delete;
   SiblingsFirstTraverse(const SiblingsFirstTraverse&) = delete;
-  SiblingsFirstTraverse& operator = (const SiblingsFirstTraverse&) = delete;
+  SiblingsFirstTraverse& operator=(const SiblingsFirstTraverse&) = delete;
 
   std::stack<std::queue<String> > dirs_stack_;
 };
 
-} // namespace fun
+}  // namespace fun

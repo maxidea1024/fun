@@ -1,4 +1,4 @@
-﻿//TODO simple-socket 적용. Http::CSession도 검토.
+﻿// TODO simple-socket 적용. Http::CSession도 검토.
 #pragma once
 
 #include "fun/net/net.h"
@@ -94,8 +94,11 @@ class UPnP {
   void Heartbeat_Task_Connecting(UPnPTask* task);
   void Heartbeat_Task_Requesting(UPnPTask* task);
 
-  ByteArray GetXmlNodeValue(const ByteArray& xml_doc, const ByteArray& node_name) const;
-  ByteArray GetXmlNodeValueAfter(const ByteArray& xml_doc, const ByteArray& node_name, const ByteArray& find_after) const;
+  ByteArray GetXmlNodeValue(const ByteArray& xml_doc,
+                            const ByteArray& node_name) const;
+  ByteArray GetXmlNodeValueAfter(const ByteArray& xml_doc,
+                                 const ByteArray& node_name,
+                                 const ByteArray& find_after) const;
   NetClientManager* manager_;
 
   CCriticalSection2 mutex_;
@@ -134,15 +137,16 @@ class UPnP {
   void WaitUntilNoIssueGuaranteed();
   String GetNatDeviceName() const;
 
-  void AddTcpPortMapping(const InetAddress& lan_addr, const InetAddress& wan_addr, bool is_tcp);
-  void DeleteTcpPortMapping(const InetAddress& lan_addr, const InetAddress& wan_addr, bool is_tcp);
+  void AddTcpPortMapping(const InetAddress& lan_addr,
+                         const InetAddress& wan_addr, bool is_tcp);
+  void DeleteTcpPortMapping(const InetAddress& lan_addr,
+                            const InetAddress& wan_addr, bool is_tcp);
 
   void Heartbeat_Task_ResponseWaiting(UPnPTask* task);
   void Heartbeat_Task_ParsingHttpResponse(UPnPTask* task);
 
   DiscoveredNatDevice* GetCommandAvailableNatDevice() const;
 };
-
 
 class HttpSession {
  public:
@@ -159,21 +163,19 @@ class HttpSession {
 
  public:
   HttpSession()
-    : owner_upnp_(nullptr),
-      send_issued_(false),
-      recv_issued_(false),
-      http_response_issue_offset_(0),
-      http_request_issue_offset_(0) {}
+      : owner_upnp_(nullptr),
+        send_issued_(false),
+        recv_issued_(false),
+        http_response_issue_offset_(0),
+        http_request_issue_offset_(0) {}
 
   bool IssueConnect(const String& host, int32 port);
   bool IssueRequestSend();
   bool IsSafeDisposeGuaranteed() const;
 };
 
-
-class DiscoveringNatDevice
-  : public IInternalSocketDelegate
-  , public HttpSession {
+class DiscoveringNatDevice : public IInternalSocketDelegate,
+                             public HttpSession {
  public:
   /** NAT device name. */
   ByteArray name_;
@@ -189,7 +191,7 @@ class DiscoveringNatDevice
   int32 state_turn_counter_;
 
  public:
-  HttpState GetState() const { return state_;  }
+  HttpState GetState() const { return state_; }
   void SetState(HttpState new_state);
   int32 GetCurrentStateTurnCounter() const { return state_turn_counter_; }
   void IncreaseCurrentStateTurnCounter() { state_turn_counter_++; }
@@ -203,16 +205,17 @@ class DiscoveringNatDevice
   ~DiscoveringNatDevice();
 };
 
-
 /**
-NAT device 찾기가 완전히 끝난 객체. CDiscoveringNatDevice는 찾기 진행 중인 것과 상반된다.
+NAT device 찾기가 완전히 끝난 객체. CDiscoveringNatDevice는 찾기 진행 중인 것과
+상반된다.
 */
 class DiscoveredNatDevice {
  public:
   /** 포트매핑 명령 수행 등을 하는 작업 큐 */
   List<UPnPTaskPtr> tasks_;
 
-  /** 발견된 device의 이름. LAN 내 같은 모델의 공유기가 있을 수 있으므로 key로 잡으면 곤란. */
+  /** 발견된 device의 이름. LAN 내 같은 모델의 공유기가 있을 수 있으므로 key로
+   * 잡으면 곤란. */
   String device_name_;
 
   /** 공유기에 명령을 던질 때 공유기 측에서 받아 처리할 웹 페이지 주소 */
@@ -226,21 +229,17 @@ class DiscoveredNatDevice {
   void IssueTermination();
 };
 
-
 enum class UPnPTaskType {
   AddPortMapping,
   DeletePortMapping,
 };
-
 
 /**
 upnp 사용 가능한 공유기를 찾았으면 거기에 명령을 던질 수 있다.
 이것은 공유기에 명령 수행중인 상태 객체이다.
 소켓 핸들과 io 진행 상태 값을 가짐.
 */
-class UPnPTask
-  : public IInternalSocketDelegate
-  , public HttpSession {
+class UPnPTask : public IInternalSocketDelegate, public HttpSession {
  private:
   // IInternalSocketDelegate interface
   void OnSocketWarning(InternalSocket* socket, const String& msg) override {}
@@ -266,12 +265,11 @@ class UPnPTask
   void BuildUPnPRequestText_DeletePortMapping();
 };
 
-
 class UPnpTcpPortMappingState {
  public:
   InetAddress lan_addr;
   InetAddress wan_addr;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

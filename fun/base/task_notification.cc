@@ -2,8 +2,7 @@
 
 namespace fun {
 
-TaskNotification::TaskNotification(Task* task)
-  : task_(task) {
+TaskNotification::TaskNotification(Task* task) : task_(task) {
   if (task_) {
     task_->AddRef();
   }
@@ -16,33 +15,28 @@ TaskNotification::~TaskNotification() {
 }
 
 TaskStartedNotification::TaskStartedNotification(Task* task)
-  : TaskNotification(task) {}
+    : TaskNotification(task) {}
 
 TaskStartedNotification::~TaskStartedNotification() {}
 
 TaskCancelledNotification::TaskCancelledNotification(Task* task)
-  : TaskNotification(task) {}
+    : TaskNotification(task) {}
 
-TaskCancelledNotification::~TaskCancelledNotification() {
-}
+TaskCancelledNotification::~TaskCancelledNotification() {}
 
 TaskFinishedNotification::TaskFinishedNotification(Task* task)
-  : TaskNotification(task) {}
+    : TaskNotification(task) {}
 
 TaskFinishedNotification::~TaskFinishedNotification() {}
 
 TaskFailedNotification::TaskFailedNotification(Task* task, const Exception& e)
-  : TaskNotification(task),
-    exception_(e.Clone()) {}
+    : TaskNotification(task), exception_(e.Clone()) {}
 
-TaskFailedNotification::~TaskFailedNotification() {
-  delete exception_;
-}
+TaskFailedNotification::~TaskFailedNotification() { delete exception_; }
 
 TaskProgressNotification::TaskProgressNotification(Task* task, float progress)
-  : TaskNotification(task),
-    progress_(progress) {}
+    : TaskNotification(task), progress_(progress) {}
 
 TaskProgressNotification::~TaskProgressNotification() {}
 
-} // namespace fun
+}  // namespace fun

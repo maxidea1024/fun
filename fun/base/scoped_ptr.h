@@ -39,7 +39,7 @@ class ScopedPtr {
   /**
    * Assignment operator.
    */
-  ScopedPtr& operator = (const ScopedPtr& rhs) {
+  ScopedPtr& operator=(const ScopedPtr& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       delete ptr_;
       ptr_ = rhs.ptr_ ? new T(*rhs.ptr_) : nullptr;
@@ -51,45 +51,35 @@ class ScopedPtr {
   /**
    * Assignment operator.
    */
-  ScopedPtr& operator = (T* ptr) {
+  ScopedPtr& operator=(T* ptr) {
     Reset(ptr);
     return *this;
   }
 
   // Dereferencing operators.
-  T& operator * () const {
+  T& operator*() const {
     fun_check_ptr(ptr_);
     return *ptr_;
   }
 
-  T* operator -> () const {
+  T* operator->() const {
     fun_check_ptr(ptr_);
     return ptr_;
   }
 
-  T* Get() const {
-    return ptr_;
-  }
+  T* Get() const { return ptr_; }
 
   /**
    * Returns true if the pointer is valid
    */
-  bool IsValid() const {
-    return !!ptr_;
-  }
+  bool IsValid() const { return !!ptr_; }
 
-  FUN_ALWAYS_INLINE explicit operator bool () const {
-    return !!ptr_;
-  }
+  FUN_ALWAYS_INLINE explicit operator bool() const { return !!ptr_; }
 
-  FUN_ALWAYS_INLINE bool operator ! () const {
-    return ptr_ == nullptr;
-  }
+  FUN_ALWAYS_INLINE bool operator!() const { return ptr_ == nullptr; }
 
   // implicit conversion to the reference type.
-  operator T* () const {
-    return ptr_;
-  }
+  operator T*() const { return ptr_; }
 
   void Swap(ScopedPtr& other) {
     T* tmp = other.ptr_;
@@ -116,7 +106,7 @@ class ScopedPtr {
   }
 
   // Serializer.
-  friend Archive& operator & (Archive& ar, ScopedPtr& v) {
+  friend Archive& operator&(Archive& ar, ScopedPtr& v) {
     if (ar.IsLoading()) {
       // When loading, allocate a new value.
       T* old_ptr = v.ptr_;
@@ -126,9 +116,10 @@ class ScopedPtr {
       delete old_ptr;
     }
 
-    // Serialize the value.  The caller of this serializer is responsible to only serialize for saving non-nullptr pointers.
+    // Serialize the value.  The caller of this serializer is responsible to
+    // only serialize for saving non-nullptr pointers.
     fun_check_ptr(v.ptr_);
-    ar & *v.ptr_;
+    ar&* v.ptr_;
 
     return ar;
   }
@@ -136,7 +127,6 @@ class ScopedPtr {
  private:
   T* ptr_;
 };
-
 
 /**
  * specialize container traits
@@ -147,7 +137,6 @@ struct TypeTraits<ScopedPtr<T>> : public TypeTraitsBase<ScopedPtr<T>> {
   typedef T* ConstPointerType;
 };
 
-
 /**
  * Implement movement of a scoped pointer to avoid copying the referenced value.
  */
@@ -155,7 +144,6 @@ template <typename T>
 void Move(ScopedPtr<T>& x, T* y) {
   x.Reset(y);
 }
-
 
 /**
  * Wrapper around a raw pointer that destroys it automatically.
@@ -183,51 +171,40 @@ class AutoPtr {
   /**
    * Assignment operator.
    */
-  AutoPtr& operator = (T* ptr) {
+  AutoPtr& operator=(T* ptr) {
     Reset(ptr);
     return *this;
   }
-
 
   //
   // Dereferencing operators.
   //
 
-  T& operator * () const {
+  T& operator*() const {
     fun_check_ptr(ptr_);
     return *ptr_;
   }
 
-  T* operator -> () const {
+  T* operator->() const {
     fun_check_ptr(ptr_);
     return ptr_;
   }
 
-  T* GetOwnedPointer() const {
-    return ptr_;
-  }
+  T* GetOwnedPointer() const { return ptr_; }
 
   /**
    * Returns true if the pointer is valid
    */
-  bool IsValid() const {
-    return !!ptr_;
-  }
+  bool IsValid() const { return !!ptr_; }
 
-  FUN_ALWAYS_INLINE explicit operator bool () const {
-    return IsValid();
-  }
+  FUN_ALWAYS_INLINE explicit operator bool() const { return IsValid(); }
 
-  FUN_ALWAYS_INLINE bool operator ! () const {
-    return !IsValid();
-  }
+  FUN_ALWAYS_INLINE bool operator!() const { return !IsValid(); }
 
   /**
    * implicit conversion to the reference type.
    */
-  operator T* () const {
-    return ptr_;
-  }
+  operator T*() const { return ptr_; }
 
   void Swap(AutoPtr& other) {
     if (FUN_LIKELY(&other != this)) {
@@ -250,7 +227,6 @@ class AutoPtr {
   T* ptr_;
 };
 
-
 /**
  * specialize container traits
  */
@@ -260,7 +236,6 @@ struct TypeTraits<AutoPtr<T>> : public TypeTraitsBase<AutoPtr<T>> {
   typedef T* ConstPointerType;
 };
 
-
 /**
  * Implement movement of a scoped pointer to avoid copying the referenced value.
  */
@@ -269,4 +244,4 @@ void Move(AutoPtr<T>& x, T* y) {
   x.Reset(y);
 }
 
-} // namespace fun
+}  // namespace fun

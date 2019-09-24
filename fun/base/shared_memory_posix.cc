@@ -2,26 +2,24 @@
 #include "fun/base/exception.h"
 #include "fun/base/file.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
 #include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 namespace fun {
 
-SharedMemoryImpl::SharedMemoryImpl( const String& name,
-                                    size_t size,
-                                    SharedMemory::AccessMode mode,
-                                    const void* addr_hint,
-                                    bool server)
-  : size_(size),
-    fd_(-1),
-    address_(0),
-    access_mode_(mode),
-    name_("/"),
-    file_mapped_(false),
-    server_(server) {
+SharedMemoryImpl::SharedMemoryImpl(const String& name, size_t size,
+                                   SharedMemory::AccessMode mode,
+                                   const void* addr_hint, bool server)
+    : size_(size),
+      fd_(-1),
+      address_(0),
+      access_mode_(mode),
+      name_("/"),
+      file_mapped_(false),
+      server_(server) {
 #if FUN_PLATFORM == FUN_PLATFORM_HPUX
   name_.Append("tmp/");
 #endif
@@ -51,16 +49,16 @@ SharedMemoryImpl::SharedMemoryImpl( const String& name,
   map(addr_hint);
 }
 
-SharedMemoryImpl::SharedMemoryImpl( const File& file,
-                                    SharedMemory::AccessMode mode,
-                                    const void* addr_hint)
-  : size_(0),
-    fd_(-1),
-    address_(0),
-    access_mode_(mode),
-    name_(file.GetPath()),
-    file_mapped_(true),
-    server_(false) {
+SharedMemoryImpl::SharedMemoryImpl(const File& file,
+                                   SharedMemory::AccessMode mode,
+                                   const void* addr_hint)
+    : size_(0),
+      fd_(-1),
+      address_(0),
+      access_mode_(mode),
+      name_(file.GetPath()),
+      file_mapped_(true),
+      server_(false) {
   if (!file.Exists() || !file.IsFile()) {
     throw FileNotFoundException(file.GetPath());
   }
@@ -90,7 +88,8 @@ void SharedMemoryImpl::Map(const void* addr_hint) {
     access |= PROT_WRITE;
   }
 
-  void* addr = ::mmap(const_cast<void*>(addr_hint), size_, access, MAP_SHARED, fd_, 0);
+  void* addr =
+      ::mmap(const_cast<void*>(addr_hint), size_, access, MAP_SHARED, fd_, 0);
   if (addr == MAP_FAILED) {
     throw SystemException("Cannot map file into shared memory", name_);
   }
@@ -115,4 +114,4 @@ void SharedMemoryImpl::Close() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

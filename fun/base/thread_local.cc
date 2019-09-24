@@ -1,6 +1,6 @@
 ﻿#include "fun/base/thread_local.h"
-#include "fun/base/thread.h"
 #include "fun/base/singleton.h"
+#include "fun/base/thread.h"
 
 namespace fun {
 
@@ -42,4 +42,4 @@ void ThreadLocalStorage::Clear() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

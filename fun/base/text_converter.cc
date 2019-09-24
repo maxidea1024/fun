@@ -1,27 +1,23 @@
 ﻿#include "fun/base/text_converter.h"
-#include "fun/base/text_iterator.h"
 #include "fun/base/encoding/text_encoding.h"
+#include "fun/base/text_iterator.h"
 
 namespace fun {
 
 namespace {
 
-int NullTransform(int ch) {
-  return ch;
-}
+int NullTransform(int ch) { return ch; }
 
-} // namespace
+}  // namespace
 
-TextConverter::TextConverter( const TextEncoding& input_encoding,
-                              const TextEncoding& output_encoding,
-                              int bogus_char)
-  : input_encoding_(input_encoding_),
-    output_encoding_(output_encoding_),
-    bogus_char_(bogus_char_) {
-}
+TextConverter::TextConverter(const TextEncoding& input_encoding,
+                             const TextEncoding& output_encoding,
+                             int bogus_char)
+    : input_encoding_(input_encoding_),
+      output_encoding_(output_encoding_),
+      bogus_char_(bogus_char_) {}
 
-TextConverter::~TextConverter() {
-}
+TextConverter::~TextConverter() {}
 
 int TextConverter::Convert(const String& src, String& dst, Transform xform) {
   int error_count = 0;
@@ -52,14 +48,12 @@ int TextConverter::Convert(const String& src, String& dst, Transform xform) {
   return error_count;
 }
 
-int TextConverter::Convert( const void* src,
-                            int length,
-                            String& dst,
-                            Transform xform) {
+int TextConverter::Convert(const void* src, int length, String& dst,
+                           Transform xform) {
   fun_check_ptr(src);
 
   int error_count = 0;
-  const uint8* iter  = (const uint8*)src;
+  const uint8* iter = (const uint8*)src;
   const uint8* end = (const uint8*)src + length;
   uint8 buffer[TextEncoding::MAX_SEQUENCE_LENGTH];
 
@@ -108,4 +102,4 @@ int TextConverter::Convert(const void* src, int length, String& dst) {
   return Convert(src, length, dst, NullTransform);
 }
 
-} // namespace fun
+}  // namespace fun

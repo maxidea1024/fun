@@ -8,20 +8,17 @@
 
 namespace fun {
 
-DirectoryIterator::DirectoryIterator()
-  : impl_(nullptr) {}
+DirectoryIterator::DirectoryIterator() : impl_(nullptr) {}
 
 DirectoryIterator::DirectoryIterator(const String& path)
-  : path_(path),
-    impl_(new DirectoryIteratorImpl(path)) {
+    : path_(path), impl_(new DirectoryIteratorImpl(path)) {
   path_.MakeDirectory();
   path_.SetFileName(impl_->Get());
   file_ = path_;
 }
 
 DirectoryIterator::DirectoryIterator(const DirectoryIterator& iterator)
-  : path_(iterator.path_),
-    impl_(iterator.impl_) {
+    : path_(iterator.path_), impl_(iterator.impl_) {
   if (impl_) {
     impl_->AddRef();
     file_ = path_;
@@ -29,16 +26,14 @@ DirectoryIterator::DirectoryIterator(const DirectoryIterator& iterator)
 }
 
 DirectoryIterator::DirectoryIterator(const File& file)
-  : path_(file.GetPath()),
-    impl_(new DirectoryIteratorImpl(file.GetPath())) {
+    : path_(file.GetPath()), impl_(new DirectoryIteratorImpl(file.GetPath())) {
   path_.MakeDirectory();
   path_.SetFileName(impl_->Get());
   file_ = path_;
 }
 
 DirectoryIterator::DirectoryIterator(const Path& path)
-  : path_(path),
-    impl_(new DirectoryIteratorImpl(path.ToString())) {
+    : path_(path), impl_(new DirectoryIteratorImpl(path.ToString())) {
   path_.MakeDirectory();
   path_.SetFileName(impl_->Get());
   file_ = path_;
@@ -50,7 +45,7 @@ DirectoryIterator::~DirectoryIterator() {
   }
 }
 
-DirectoryIterator& DirectoryIterator::operator = (const DirectoryIterator& it) {
+DirectoryIterator& DirectoryIterator::operator=(const DirectoryIterator& it) {
   if (impl_) {
     impl_->Release();
   }
@@ -64,7 +59,7 @@ DirectoryIterator& DirectoryIterator::operator = (const DirectoryIterator& it) {
   return *this;
 }
 
-DirectoryIterator& DirectoryIterator::operator = (const File& file) {
+DirectoryIterator& DirectoryIterator::operator=(const File& file) {
   if (impl_) {
     impl_->Release();
   }
@@ -76,7 +71,7 @@ DirectoryIterator& DirectoryIterator::operator = (const File& file) {
   return *this;
 }
 
-DirectoryIterator& DirectoryIterator::operator = (const Path& path) {
+DirectoryIterator& DirectoryIterator::operator=(const Path& path) {
   if (impl_) {
     impl_->Release();
   }
@@ -89,7 +84,7 @@ DirectoryIterator& DirectoryIterator::operator = (const Path& path) {
   return *this;
 }
 
-DirectoryIterator& DirectoryIterator::operator = (const String& path) {
+DirectoryIterator& DirectoryIterator::operator=(const String& path) {
   if (impl_) {
     impl_->Release();
   }
@@ -101,7 +96,7 @@ DirectoryIterator& DirectoryIterator::operator = (const String& path) {
   return *this;
 }
 
-DirectoryIterator& DirectoryIterator::operator ++ () {
+DirectoryIterator& DirectoryIterator::operator++() {
   if (impl_) {
     path_.SetFileName(impl_->Next());
     file_ = path_;
@@ -109,7 +104,7 @@ DirectoryIterator& DirectoryIterator::operator ++ () {
   return *this;
 }
 
-DirectoryIterator DirectoryIterator::operator ++ (int /*dummy*/) {
+DirectoryIterator DirectoryIterator::operator++(int /*dummy*/) {
   if (impl_) {
     path_.SetFileName(impl_->Next());
     file_ = path_;
@@ -117,4 +112,4 @@ DirectoryIterator DirectoryIterator::operator ++ (int /*dummy*/) {
   return *this;
 }
 
-} // namespace fun
+}  // namespace fun

@@ -107,5 +107,5 @@ class NetClientInfo {
   FUN_NETX_API String ToString(bool at_server) const;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

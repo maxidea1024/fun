@@ -10,4 +10,4 @@ Runnable::~Runnable() {
   // NOOP
 }
 
-} // namespace fun
+}  // namespace fun

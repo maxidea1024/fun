@@ -20,8 +20,8 @@ enum class MessagePriority {
   Holepunch = Ring99,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const MessagePriority value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const MessagePriority value);
 
 /**
  * 메시지 신뢰성 타입들입니다.
@@ -32,8 +32,8 @@ enum class MessageReliability {
   Last = 2,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const MessageReliability value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const MessageReliability value);
 
 /**
  * 결과 코드들입니다.
@@ -84,8 +84,7 @@ enum class ResultCode {
   InvalidPortPool = 42,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const ResultCode value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream, const ResultCode value);
 
 /**
  * 호스트 아이디입니다.
@@ -96,8 +95,7 @@ enum HostId {
   HostId_Last = 2,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const HostId value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream, const HostId value);
 
 /**
  * RPC 함수 ID입니다.
@@ -106,8 +104,7 @@ enum RpcId {
   RpcId_None = 0,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const RpcId value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream, const RpcId value);
 
 /**
  * 로그 카테고리들입니다.
@@ -128,8 +125,8 @@ enum class LogCategory {
   LP2P = 6,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const LogCategory value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const LogCategory value);
 
 /**
  * 검출된 해킹 유형들입니다.
@@ -144,22 +141,21 @@ enum class HackType {
   PacketRig = 2,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const HackType value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream, const HackType value);
 
 /**
  * @warning 순서를 변경하면 절대 안됨!
  */
 enum class ConnectionState {
   Connecting = 0,
-  //EarlyConnected = 1, (단순히 통신만 연결된 상태)
+  // EarlyConnected = 1, (단순히 통신만 연결된 상태)
   Connected = 2,
   Disconnecting = 3,
   Disconnected = 4,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const ConnectionState value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const ConnectionState value);
 
 /**
  * 후퇴모드
@@ -171,8 +167,8 @@ enum class FallbackMethod {
   CloseUdpSocket = 3,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const FallbackMethod value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const FallbackMethod value);
 
 /**
  * P2P 시작 모드
@@ -184,8 +180,8 @@ enum class DirectP2PStartCondition {
   Last = 2,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const DirectP2PStartCondition value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const DirectP2PStartCondition value);
 
 /**
  *강한 암호화 레벨입니다.
@@ -197,8 +193,8 @@ enum class StrongEncryptionLevel {
   High = 256,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const StrongEncryptionLevel value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const StrongEncryptionLevel value);
 
 /**
  * 약한 암호화 레벨입니다.
@@ -210,8 +206,8 @@ enum class WeakEncryptionLevel {
   High = 2048,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const WeakEncryptionLevel value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const WeakEncryptionLevel value);
 
 /**
  * 암호화 모드입니다.
@@ -227,13 +223,13 @@ enum class EncryptionMode {
   Weak = 2,
 
   /** Lame. 제일 약한 암호화 방식. (쉽게 노출가능하지만, 속도는 빠름.) */
-  //Lame = 3,
+  // Lame = 3,
 
   Last = 3,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const EncryptionMode value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const EncryptionMode value);
 
 /**
  * 압축모드입니다.
@@ -257,23 +253,24 @@ enum class CompressionMode {
   Last = 5,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const CompressionMode value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const CompressionMode value);
 
 /**
  * TODO private이면 안되려나??
  */
 enum FrameNumber {
-  //Invalid = 0
+  // Invalid = 0
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const FrameNumber value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const FrameNumber value);
 
 /*
 //@todo 멀티 플랫폼 지원을 위해서는 일부 수정이 필요해보임.
 //혹은 Translation을 해주는 함수를 통해서 처리하는게 바람직해 보임.
-//소켓함수들 및 심볼을 사용하기 위해서, 상단에 헤더가 노출되는게 바람직하지 않음.
+//소켓함수들 및 심볼을 사용하기 위해서, 상단에 헤더가 노출되는게 바람직하지
+않음.
 
 TODO : 조금더 자세히 처리해주는게 좋을듯...
 */
@@ -284,7 +281,7 @@ enum class SocketErrorCode {
   ConnectionRefused = WSAECONNREFUSED,
   ConnectResetByRemote = WSAECONNRESET,
   NotSocket = WSAENOTSOCK,
-  ShutdownByRemote = WSAEDISCON, // FD_CLOSE or FD_SEND에서의 이벤트
+  ShutdownByRemote = WSAEDISCON,  // FD_CLOSE or FD_SEND에서의 이벤트
   WouldBlock = WSAEWOULDBLOCK,
   IoPending = WSA_IO_PENDING,
   AccessError = WSAEACCES,
@@ -292,8 +289,8 @@ enum class SocketErrorCode {
   InvalidArgument = WSAEINVAL,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const SocketErrorCode value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const SocketErrorCode value);
 
 /**
  * @todo 멀티 플랫폼지원
@@ -304,8 +301,8 @@ enum class ShutdownFlag {
   Both = SD_BOTH,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const ShutdownFlag value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const ShutdownFlag value);
 
 enum class SocketType {
   /** TCP socket. */
@@ -318,8 +315,7 @@ enum class SocketType {
   Raw,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const SocketType value);
-
+FUN_NETX_API TextStream& operator<<(TextStream& stream, const SocketType value);
 
 enum class RuntimePlatform {
   Unknown = 999,
@@ -351,13 +347,14 @@ enum class RuntimePlatform {
   PSM = 26,
   XboxOne = 27,
   SamsungTV = 28,
-  //29?
+  // 29?
   WiiU = 30,
   tvOS = 31,
   Switch = 32,
 };
 
-FUN_NETX_API TextStream& operator << (TextStream& stream, const RuntimePlatform value);
+FUN_NETX_API TextStream& operator<<(TextStream& stream,
+                                    const RuntimePlatform value);
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

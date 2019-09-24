@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "fun/base/event_base.h"
-#include "fun/base/priority_strategy.h"
 #include "fun/base/priority_delegate_base.h"
+#include "fun/base/priority_strategy.h"
 
 namespace fun {
 
@@ -15,12 +15,10 @@ namespace fun {
  * an arbitrary manner.
  */
 template <typename ArgsType, typename MutexType = FastMutex>
-class PriorityEvent : public EventBase <
-    ArgsType,
-    PriorityStrategy<ArgsType, PriorityDelegateBase<ArgsType> >,
-    PriorityDelegateBase<ArgsType>,
-    MutexType
-  > {
+class PriorityEvent
+    : public EventBase<
+          ArgsType, PriorityStrategy<ArgsType, PriorityDelegateBase<ArgsType> >,
+          PriorityDelegateBase<ArgsType>, MutexType> {
  public:
   PriorityEvent() {
     // NOOP
@@ -32,7 +30,7 @@ class PriorityEvent : public EventBase <
 
  private:
   PriorityEvent(const PriorityEvent&) = delete;
-  PriorityEvent& operator = (const PriorityEvent&) = delete;
+  PriorityEvent& operator=(const PriorityEvent&) = delete;
 };
 
-} // namespace fun
+}  // namespace fun

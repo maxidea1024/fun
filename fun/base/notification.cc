@@ -12,8 +12,8 @@ Notification::~Notification() {
 }
 
 String Notification::GetName() const {
-  //TODO 이것은 제거하는게??
+  // TODO 이것은 제거하는게??
   return typeid(*this).name();
 }
 
-} // namespace fun
+}  // namespace fun

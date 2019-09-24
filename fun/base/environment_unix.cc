@@ -2,11 +2,11 @@
 #include "fun/base/exception.h"
 //#include "fun/base/buffer.h"
 
-#include <cstring>
-#include <unistd.h>
 #include <stdlib.h>
-#include <sys/utsname.h>
 #include <sys/param.h>
+#include <sys/utsname.h>
+#include <unistd.h>
+#include <cstring>
 
 #if FUN_PLATFORM = FUN_PLATFORM_BSD_FAMILY
 #include <sys/sysctl.h>
@@ -14,7 +14,7 @@
 #include <pthread.h>
 #endif
 
-#include <thread> // std::thread::hardware_concurrency
+#include <thread>  // std::thread::hardware_concurrency
 
 namespace fun {
 
@@ -57,9 +57,7 @@ String EnvironmentImpl::GetOsNameImpl() {
   return uts.sysname;
 }
 
-String EnvironmentImpl::GetOsDisplayNameImpl() {
-  return GetOsNameImpl();
-}
+String EnvironmentImpl::GetOsDisplayNameImpl() { return GetOsNameImpl(); }
 
 String EnvironmentImpl::GetOsVersionImpl() {
   struct utsname uts;
@@ -80,7 +78,7 @@ String EnvironmentImpl::GetNodeNameImpl() {
 }
 
 void EnvironmentImpl::GetNodeIdImpl(NodeId& out_id) {
-  //TODO
+  // TODO
   fun_check(0);
 }
 
@@ -88,4 +86,4 @@ uint32 EnvironmentImpl::GetProcessorCountImpl() {
   return (uint32)std::thread::hardware_concurrency();
 }
 
-} // namespace fun
+}  // namespace fun

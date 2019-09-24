@@ -1,10 +1,10 @@
 ﻿#include "fun/base/debugger.h"
-#include "fun/base/ndc.h" // Nested Debugging Context
+#include "fun/base/ndc.h"  // Nested Debugging Context
 #include "fun/base/windows_less.h"
 
-#include <sstream>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
+#include <sstream>
 
 //#include "fun/base/unicode_converter.h"
 
@@ -12,23 +12,23 @@ namespace fun {
 
 bool Debugger::IsPresent() {
 #if defined(_DEBUG)
-  #if FUN_PLATFORM_WINDOWS_FAMILY
-    #if defined(_WIN32_WCE)
-      #if (_WIN32_WCE >= 0x600)
-        BOOL is_debugger_present;
-        if (CheckRemoteDebuggerPresent(GetCurrentProcess(), &is_debugger_present)) {
-          return is_debugger_present ? true : false;
-        }
-        return false;
-      #else
-        return false;
-      #endif
-    #else
-      return IsDebuggerPresent() ? true : false;
-    #endif
-  #elif FUN_PLATFORM_UNIX_FAMILY
-    return std::getenv("FUN_ENABLE_DEBUGGER") ? true : false;
-  #endif
+#if FUN_PLATFORM_WINDOWS_FAMILY
+#if defined(_WIN32_WCE)
+#if (_WIN32_WCE >= 0x600)
+  BOOL is_debugger_present;
+  if (CheckRemoteDebuggerPresent(GetCurrentProcess(), &is_debugger_present)) {
+    return is_debugger_present ? true : false;
+  }
+  return false;
+#else
+  return false;
+#endif
+#else
+  return IsDebuggerPresent() ? true : false;
+#endif
+#elif FUN_PLATFORM_UNIX_FAMILY
+  return std::getenv("FUN_ENABLE_DEBUGGER") ? true : false;
+#endif
 #else
   return false;
 #endif
@@ -44,14 +44,14 @@ void Debugger::Message(const String& msg, bool backtrace) {
   std::fputs(msg2.ConstData(), stderr);
   std::fputs("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n", stderr);
 
-  #if FUN_PLATFORM_WINDOWS_FAMILY
+#if FUN_PLATFORM_WINDOWS_FAMILY
   if (IsPresent()) {
     UString umsg = UString::FromUtf8(msg);
     umsg += UTEXT("\n");
     OutputDebugStringW(umsg.c_str());
   }
-  #endif // defined(FUN_PLATFORM_WINDOWS_FAMILY)
-#endif // defined(_DEBUG)
+#endif  // defined(FUN_PLATFORM_WINDOWS_FAMILY)
+#endif  // defined(_DEBUG)
 }
 
 void Debugger::Message(const String& msg, const char* file, int32 line) {
@@ -64,15 +64,15 @@ void Debugger::Message(const String& msg, const char* file, int32 line) {
 
 void Debugger::Enter() {
 #if defined(_DEBUG)
-  #if FUN_PLATFORM_WINDOWS_FAMILY
-    if (IsPresent()) {
-      DebugBreak();
-    }
-  #elif FUN_PLATFORM_UNIX_FAMILY
-    if (IsPresent()) {
-      kill(getpid(), SIGINT);
-    }
-  #endif
+#if FUN_PLATFORM_WINDOWS_FAMILY
+  if (IsPresent()) {
+    DebugBreak();
+  }
+#elif FUN_PLATFORM_UNIX_FAMILY
+  if (IsPresent()) {
+    kill(getpid(), SIGINT);
+  }
+#endif
 #endif
 }
 
@@ -97,4 +97,4 @@ void Debugger::Enter(const String& msg, int32 line) {
 #endif
 }
 
-} // namespace fun
+}  // namespace fun

@@ -3,8 +3,8 @@
 #include "fun/base/base.h"
 #include "fun/base/exception.h"
 
-#include <pthread.h>
 #include <errno.h>
+#include <pthread.h>
 
 namespace fun {
 
@@ -22,7 +22,6 @@ class FUN_BASE_API RWLockImpl {
  private:
   pthread_rwlock_t rwl_;
 };
-
 
 //
 // inlines
@@ -68,4 +67,4 @@ inline void RWLockImpl::UnlockImpl() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

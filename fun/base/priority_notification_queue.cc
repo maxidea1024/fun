@@ -1,29 +1,27 @@
 ﻿#include "fun/base/priority_notification_queue.h"
-#include "fun/base/notification_center.h"
 #include "fun/base/notification.h"
+#include "fun/base/notification_center.h"
 #include "fun/base/singleton.h"
 
 namespace fun {
 
-PriorityNotificationQueue::PriorityNotificationQueue() {
-}
+PriorityNotificationQueue::PriorityNotificationQueue() {}
 
 PriorityNotificationQueue::~PriorityNotificationQueue() {
   try {
     Clear();
-  }
-  catch (...) {
+  } catch (...) {
     fun_unexpected();
   }
 }
 
-void PriorityNotificationQueue::Enqueue(Notification::Ptr noti, int32 priority) {
+void PriorityNotificationQueue::Enqueue(Notification::Ptr noti,
+                                        int32 priority) {
   fun_check_ptr(noti);
   FastMutex::ScopedLock guard(mutex_);
   if (wait_queue_.empty()) {
     noti_queue_.insert(NfQueue::value_type(priority, noti));
-  }
-  else {
+  } else {
     fun_check_dbg(noti_queue_.empty());
     WaitInfo* wait_info = wait_queue_.front();
     wait_queue_.pop_front();
@@ -32,8 +30,8 @@ void PriorityNotificationQueue::Enqueue(Notification::Ptr noti, int32 priority) 
   }
 }
 
-//TODO 이하 반환된 포인터의 카운팅에 문제가 있을 수 있음.
-//RAW로 접근해서 카운터를 하나 올려주는 형태로 해야하나?
+// TODO 이하 반환된 포인터의 카운팅에 문제가 있을 수 있음.
+// RAW로 접근해서 카운터를 하나 올려주는 형태로 해야하나?
 //받는쪽에서 RefCountedPtr로 받으면, 카운터가 하나 올라갈텐데..
 
 Notification* PriorityNotificationQueue::Dequeue() {
@@ -43,7 +41,8 @@ Notification* PriorityNotificationQueue::Dequeue() {
 
 Notification* PriorityNotificationQueue::WaitDequeue() {
   Notification::Ptr noti;
-  WaitInfo* wait_info = nullptr; {
+  WaitInfo* wait_info = nullptr;
+  {
     FastMutex::ScopedLock guard(mutex_);
     noti = DequeueOne();
     if (noti) {
@@ -60,7 +59,8 @@ Notification* PriorityNotificationQueue::WaitDequeue() {
 
 Notification* PriorityNotificationQueue::WaitDequeue(int32 milliseconds) {
   Notification::Ptr noti;
-  WaitInfo* wait_info = nullptr; {
+  WaitInfo* wait_info = nullptr;
+  {
     FastMutex::ScopedLock guard(mutex_);
     noti = DequeueOne();
     if (noti) {
@@ -75,7 +75,8 @@ Notification* PriorityNotificationQueue::WaitDequeue(int32 milliseconds) {
   } else {
     FastMutex::ScopedLock guard(mutex_);
     noti = wait_info->noti;
-    for (WaitQueue::iterator it = wait_queue_.begin(); it != wait_queue_.end(); ++it) {
+    for (WaitQueue::iterator it = wait_queue_.begin(); it != wait_queue_.end();
+         ++it) {
       if (*it == wait_info) {
         wait_queue_.erase(it);
         break;
@@ -86,7 +87,8 @@ Notification* PriorityNotificationQueue::WaitDequeue(int32 milliseconds) {
   return noti.AddRef();
 }
 
-void PriorityNotificationQueue::Dispatch(NotificationCenter& notification_center) {
+void PriorityNotificationQueue::Dispatch(
+    NotificationCenter& notification_center) {
   FastMutex::ScopedLock guard(mutex_);
   Notification::Ptr noti = DequeueOne();
   while (noti) {
@@ -97,7 +99,8 @@ void PriorityNotificationQueue::Dispatch(NotificationCenter& notification_center
 
 void PriorityNotificationQueue::WakeUpAll() {
   FastMutex::ScopedLock guard(mutex_);
-  for (WaitQueue::iterator it = wait_queue_.begin(); it != wait_queue_.end(); ++it) {
+  for (WaitQueue::iterator it = wait_queue_.begin(); it != wait_queue_.end();
+       ++it) {
     (*it)->available.Set();
   }
   wait_queue_.clear();
@@ -138,4 +141,4 @@ PriorityNotificationQueue& PriorityNotificationQueue::DefaultQueue() {
   return *sh.Get();
 }
 
-} // namespace fun
+}  // namespace fun

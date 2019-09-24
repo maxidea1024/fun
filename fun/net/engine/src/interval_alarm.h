@@ -4,7 +4,7 @@ namespace fun {
 namespace net {
 
 class IntervalAlaram {
-public:
+ public:
   IntervalAlaram(double interval_sec);
 
   bool TakeElapsedTime(double elapsed_time);
@@ -12,11 +12,11 @@ public:
   void SetInterval(double interval_sec);
   void Reset();
 
-private:
+ private:
   double cooltime_;
   double interval_;
   bool time_to_do_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

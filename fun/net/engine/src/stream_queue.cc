@@ -1,6 +1,6 @@
-﻿#include "fun/net/net.h"
+﻿#include "stream_queue.h"
+#include "fun/net/net.h"
 #include "send_data.h"
-#include "stream_queue.h"
 
 namespace fun {
 
@@ -22,7 +22,8 @@ void StreamQueue::EnqueueCopy(const uint8* data, int32 len) {
       Shrink();
     }
 
-    // 블럭 크기가 초과되고 앞으로 땡기더라도 공간이 모자란 경우 블럭 크기를 재할당한다.
+    // 블럭 크기가 초과되고 앞으로 땡기더라도 공간이 모자란 경우 블럭 크기를
+    // 재할당한다.
     if ((contents_len_ + len) > block_.Count()) {
       block_.ResizeUninitialized(contents_len_ + len + grow_by_);
     }
@@ -43,7 +44,7 @@ void StreamQueue::EnqueueCopy(const SendFragRefs& data_to_send) {
 
 int32 StreamQueue::DequeueNoCopy(int32 len) {
   if (len > 0) {
-    fun_check(len <= contents_len_); //fun_check
+    fun_check(len <= contents_len_);  // fun_check
 
     len = MathBase::Min(len, contents_len_);
     head_ += len;
@@ -65,4 +66,4 @@ void StreamQueue::Shrink() {
   head_ = 0;
 }
 
-} // namespace fun
+}  // namespace fun

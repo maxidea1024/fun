@@ -14,11 +14,12 @@ class FUN_BASE_API WindowsSystemTime : public SystemTimeGeneric {
     LARGE_INTEGER counter;
     QueryPerformanceCounter(&counter);
 
-    // add big number to make bugs apparent where return value is being passed to float
+    // add big number to make bugs apparent where return value is being passed
+    // to float
     return (double)counter.QuadPart * SecondsPerCycle() + 16777216.0;
   }
 
-  //CHECK 32비트 값만 사용해도 되는건지??
+  // CHECK 32비트 값만 사용해도 되는건지??
   FUN_ALWAYS_INLINE static uint32 Cycles() {
     LARGE_INTEGER counter;
     QueryPerformanceCounter(&counter);
@@ -31,10 +32,14 @@ class FUN_BASE_API WindowsSystemTime : public SystemTimeGeneric {
     return counter.QuadPart;
   }
 
-  static void GetSystemTime(int32& year, int32& month, int32& day_of_week, int32& day, int32& hour, int32& min, int32& sec, int32& msec);
-  static void GetUtcTime(int32& year, int32& month, int32& day_of_week, int32& day, int32& hour, int32& min, int32& sec, int32& msec);
+  static void GetSystemTime(int32& year, int32& month, int32& day_of_week,
+                            int32& day, int32& hour, int32& min, int32& sec,
+                            int32& msec);
+  static void GetUtcTime(int32& year, int32& month, int32& day_of_week,
+                         int32& day, int32& hour, int32& min, int32& sec,
+                         int32& msec);
 };
 
 typedef WindowsSystemTime SystemTime;
 
-} // namespace fun
+}  // namespace fun

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
 #include <cstdlib>
+#include "fun/base/base.h"
 
 namespace fun {
 
@@ -37,9 +37,9 @@ class FUN_BASE_API TextBufferIterator {
   TextBufferIterator();
 
   /**
-   * Creates a TextBufferIterator for the given buffer, which must be 0-terminated.
-   * The encoding object must not be deleted as long as the iterator
-   * is in use.
+   * Creates a TextBufferIterator for the given buffer, which must be
+   * 0-terminated. The encoding object must not be deleted as long as the
+   * iterator is in use.
    */
   TextBufferIterator(const char* begin, const TextEncoding& encoding);
 
@@ -48,14 +48,16 @@ class FUN_BASE_API TextBufferIterator {
    * The encoding object must not be deleted as long as the iterator
    * is in use.
    */
-  TextBufferIterator(const char* begin, size_t length, const TextEncoding& encoding);
+  TextBufferIterator(const char* begin, size_t length,
+                     const TextEncoding& encoding);
 
   /**
    * Creates a TextBufferIterator for the given range.
    * The encoding object must not be deleted as long as the iterator
    * is in use.
    */
-  TextBufferIterator(const char* begin, const char* end, const TextEncoding& encoding);
+  TextBufferIterator(const char* begin, const char* end,
+                     const TextEncoding& encoding);
 
   /**
    * Creates an end TextBufferIterator for the given buffer.
@@ -75,7 +77,7 @@ class FUN_BASE_API TextBufferIterator {
   /**
    * Assignment operator.
    */
-  TextBufferIterator& operator = (const TextBufferIterator& it);
+  TextBufferIterator& operator=(const TextBufferIterator& it);
 
   /**
    * Swaps the iterator with another one.
@@ -87,27 +89,27 @@ class FUN_BASE_API TextBufferIterator {
    * If there is no valid character at the current position,
    * -1 is returned.
    */
-  int operator * () const;
+  int operator*() const;
 
   /**
    * Prefix increment operator.
    */
-  TextBufferIterator& operator ++ ();
+  TextBufferIterator& operator++();
 
   /**
    * Postfix increment operator.
    */
-  TextBufferIterator operator ++ (int);
+  TextBufferIterator operator++(int);
 
   /**
    * Compares two iterators for equality.
    */
-  bool operator == (const TextBufferIterator& it) const;
+  bool operator==(const TextBufferIterator& it) const;
 
   /**
    * Compares two iterators for inequality.
    */
-  bool operator != (const TextBufferIterator& it) const;
+  bool operator!=(const TextBufferIterator& it) const;
 
   /**
    * Returns the end iterator for the range handled
@@ -122,16 +124,17 @@ class FUN_BASE_API TextBufferIterator {
   const char* end_;
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE bool TextBufferIterator::operator == (const TextBufferIterator& it) const {
+FUN_ALWAYS_INLINE bool TextBufferIterator::operator==(
+    const TextBufferIterator& it) const {
   return current_ == it.current_;
 }
 
-FUN_ALWAYS_INLINE bool TextBufferIterator::operator != (const TextBufferIterator& it) const {
+FUN_ALWAYS_INLINE bool TextBufferIterator::operator!=(
+    const TextBufferIterator& it) const {
   return current_ != it.current_;
 }
 
@@ -143,4 +146,4 @@ FUN_ALWAYS_INLINE TextBufferIterator TextBufferIterator::end() const {
   return TextBufferIterator(end_);
 }
 
-} // namespace fun
+}  // namespace fun

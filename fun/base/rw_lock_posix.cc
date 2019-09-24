@@ -8,8 +8,6 @@ RWLockImpl::RWLockImpl() {
   }
 }
 
-RWLockImpl::~RWLockImpl() {
-  pthread_rwlock_destroy(&rwl_);
-}
+RWLockImpl::~RWLockImpl() { pthread_rwlock_destroy(&rwl_); }
 
-} // namespace fun
+}  // namespace fun

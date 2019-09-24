@@ -6,7 +6,7 @@ namespace net {
 class InternalSocket;
 
 /**
-*/
+ */
 class NetUtil {
  public:
   static Array<IpAddress>& LocalAddresses();
@@ -14,7 +14,7 @@ class NetUtil {
   static void AssertCloseSocketWillReturnImmediately(SOCKET socket);
   static void SetTcpDefaultBehavior(InternalSocket* socket);
   static void SetUdpDefaultBehavior(InternalSocket* socket);
-  //IPv4 혹은 IIPv4 compatible/mapped IPv6에서만 동작함.
+  // IPv4 혹은 IIPv4 compatible/mapped IPv6에서만 동작함.
   static bool IsSameSubnet24(const IpAddress& A, const IpAddress& B);
 
  private:
@@ -22,5 +22,5 @@ class NetUtil {
   static Array<IpAddress> CachedLocalAddresses;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

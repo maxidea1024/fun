@@ -21,8 +21,8 @@ class UdpSendOption {
   int32 ttl;
   // 엔진 내부 전용임을 표시함.
   //
-  // 이 플래그가 설정되면, 내부 통계 카운팅등이 이루어지지 않는등 특수하게 다루어집니다.
-  // 엔진 개발자가 아니라면, 이 플래그는 변경해서는 안됩니다.
+  // 이 플래그가 설정되면, 내부 통계 카운팅등이 이루어지지 않는등 특수하게
+  // 다루어집니다. 엔진 개발자가 아니라면, 이 플래그는 변경해서는 안됩니다.
   bool engine_only_specific;
   // false이면 defragboard를 안타고 MTU 제한 무시하고 바로 소켓으로 들어간다.
   // 릴레이 류는 이것을 쓸 것.
@@ -30,40 +30,40 @@ class UdpSendOption {
 
   // 기본 생성자입니다.
   UdpSendOption(),
-    : priority(MessagePriority::Last),
-      unique_id(0),
-      bounce(true),
-      ttl(-1),
-      engine_only_specific(false),
-      conditional_fragging(NetConfig::conditional_fragging_by_default) {}
+      : priority(MessagePriority::Last),
+        unique_id(0),
+        bounce(true),
+        ttl(-1),
+        engine_only_specific(false),
+        conditional_fragging(NetConfig::conditional_fragging_by_default) {}
 
   // 엔진 내부 전용입니다.
   UdpSendOption(MessagePriority priority, EngineOnlyFeatureTAG)
-    : priority(priority),
-      unique_id(0),
-      bounce(true),
-      ttl(-1),
-      engine_only_specific(true),
-      conditional_fragging(NetConfig::conditional_fragging_by_default) {}
+      : priority(priority),
+        unique_id(0),
+        bounce(true),
+        ttl(-1),
+        engine_only_specific(true),
+        conditional_fragging(NetConfig::conditional_fragging_by_default) {}
 
   // SendOption에서 값을 가져와 초기화합니다.
   UdpSendOption(const SendOption& src)
-    : priority(src.priority),
-      unique_id(src.unique_id),
-      bounce(src.bounce),
-      ttl(src.ttl),
-      engine_only_specific(src.engine_only_specific),
-      conditional_fragging(src.conditional_fragging) {}
+      : priority(src.priority),
+        unique_id(src.unique_id),
+        bounce(src.bounce),
+        ttl(src.ttl),
+        engine_only_specific(src.engine_only_specific),
+        conditional_fragging(src.conditional_fragging) {}
 
   /// RpcCallOption에서 값을 가져와 초기화합니다.
   UdpSendOption(const RpcCallOption& src)
-    : priority(src.priority),
-      unique_id(src.unique_id),
-      bounce(src.bounce),
-      ttl(-1),
-      engine_only_specific(src.engine_only_specific),
-      conditional_fragging(src.conditional_fragging) {}
+      : priority(src.priority),
+        unique_id(src.unique_id),
+        bounce(src.bounce),
+        ttl(-1),
+        engine_only_specific(src.engine_only_specific),
+        conditional_fragging(src.conditional_fragging) {}
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

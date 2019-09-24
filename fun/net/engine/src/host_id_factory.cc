@@ -1,6 +1,6 @@
-﻿//TODO 할당정책을 구지 달리할 필요가 있으려나?
-#include "fun/net/net.h"
+﻿// TODO 할당정책을 구지 달리할 필요가 있으려나?
 #include "host_id_factory.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -31,41 +31,40 @@ int32 HostIdFactory::GetRecycleCount(HostId host_id) {
   return 0;
 }
 
-
 //
 // RecycleHostIdFactory
 //
 
 RecycleHostIdFactory::RecycleHostIdFactory(double issue_valid_time)
-  : issue_valid_time_(issue_valid_time)
-  , last_issued_value_(HostId_Last) {}
+    : issue_valid_time_(issue_valid_time), last_issued_value_(HostId_Last) {}
 
-HostId RecycleHostIdFactory::Create(double absolute_time, HostId assigned_host_id) {
+HostId RecycleHostIdFactory::Create(double absolute_time,
+                                    HostId assigned_host_id) {
   //// Drop가 된것이 없다면 새로 발급
-  //if (drop_list_.Count() == 0) {
+  // if (drop_list_.Count() == 0) {
   //  return NewHostId();
   //}
   //
-  //auto it = drop_map_.find(drop_list_.Front());
+  // auto it = drop_map_.find(drop_list_.Front());
   //
   ////droplist에 있는데 map에 없다니...
-  //if (it == drop_map_.end()) {
+  // if (it == drop_map_.end()) {
   //  //error! - 이런 상황이 오면 안된다.
   //  drop_list_.RemoveFront();
   //  return NewHostId();
   //}
   //
   //// 일정시간이 지난것만 재사용.
-  //if ((absolute_time - it->second.dropped_time) > issue_valid_time_) {
+  // if ((absolute_time - it->second.dropped_time) > issue_valid_time_) {
   //  // 재사용에서 나가는 것은 droptime를 0으로 만들어 준다.
-  //  // 사용자 실수로 drop를 2 3번 호출하는것을 미연에 방지 하기위해 플래그를 세운다.
-  //  it->second.dropped_time = 0;
+  //  // 사용자 실수로 drop를 2 3번 호출하는것을 미연에 방지 하기위해 플래그를
+  //  세운다. it->second.dropped_time = 0;
   //  ++(it->second.recycle_count);
   //  return drop_list_.RemoveFront();
   //}
   //
   ////시간이 안되었다면 새로 발급.
-  //return NewHostId();
+  // return NewHostId();
 
   if (drop_list_.IsEmpty()) {
     return NewHostId();
@@ -74,7 +73,7 @@ HostId RecycleHostIdFactory::Create(double absolute_time, HostId assigned_host_i
   const HostId front = drop_list_.Front();
   auto* found = drop_map_.Find(front);
   if (found == nullptr) {
-    fun_check(0); // unreable
+    fun_check(0);  // unreable
     drop_list_.RemoveFront();
     return NewHostId();
   }
@@ -125,16 +124,14 @@ int32 RecycleHostIdFactory::GetRecycleCount(HostId host_id) {
   return found ? found->recycle_count : 0;
 }
 
-
 //
 // AssignHostIdFactory
 //
 
-AssignHostIdFactory::AssignHostIdFactory() {
-  num_ = HostId_Last;
-}
+AssignHostIdFactory::AssignHostIdFactory() { num_ = HostId_Last; }
 
-HostId AssignHostIdFactory::Create(double absolute_time, HostId assigned_host_id) {
+HostId AssignHostIdFactory::Create(double absolute_time,
+                                   HostId assigned_host_id) {
   if ((uint32)assigned_host_id <= (uint32)HostId_Last) {
     return NewHostId();
   }
@@ -164,7 +161,7 @@ int32 AssignHostIdFactory::GetRecycleCount(HostId host_id) {
   return 0;
 }
 
-//TODO static hash로 처리하는게 좋을듯 싶은데...
+// TODO static hash로 처리하는게 좋을듯 싶은데...
 HostId AssignHostIdFactory::NewHostId() {
   do {
     num_ = (HostId)(((uint32)num_) + 1);
@@ -189,5 +186,5 @@ HostId AssignHostIdFactory::NewHostId() {
   return num_;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

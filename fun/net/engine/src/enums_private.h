@@ -23,7 +23,6 @@ enum class MessageType {
    */
   FreeformMessage = 2,
 
-
   //
   // 접속 / 인증
   //
@@ -48,8 +47,8 @@ enum class MessageType {
    *
    * payload:
    *   bool intra_logging_on - 내부 엔진 로깅 여부
-   *   NetSettings settings - 클라이언트에서 서버로 접속하기 위한 네트워크 설정 값들
-   *   ByteArray public_key_blob - 공개키 Blob
+   *   NetSettings settings - 클라이언트에서 서버로 접속하기 위한 네트워크 설정
+   * 값들 ByteArray public_key_blob - 공개키 Blob
    */
   NotifyServerConnectionHint = 4,
 
@@ -93,7 +92,7 @@ enum class MessageType {
    *   ByteArray user_data
    *   Uuid protocol_version
    *   uint32 internal_version
-  */
+   */
   NotifyServerConnectionRequestData = 7,
 
   /**
@@ -132,13 +131,13 @@ enum class MessageType {
    *
    * payload:
    *   HostId host_id - 서버에서 발급받은 Host ID
-   *   Uuid instance_tag_ - 서버의 Instance UUID (접속된 서버를 구분하기 위한 용도)
-   *   ByteArray response - 서버에서 필요시 보낸 응답메시지
+   *   Uuid instance_tag_ - 서버의 Instance UUID (접속된 서버를 구분하기 위한
+   * 용도) ByteArray response - 서버에서 필요시 보낸 응답메시지
    *         (INetServerCallbacks::OnConnectionRequest() 함수에서 채워집니다.)
-   *   NamedInetAddress remote_addr - 접속한 클라이언트의 서버에서 인식한 주소(public ip)
+   *   NamedInetAddress remote_addr - 접속한 클라이언트의 서버에서 인식한
+   * 주소(public ip)
    */
   NotifyServerConnectSuccess = 10,
-
 
   //
   // Server Holepunching
@@ -150,7 +149,8 @@ enum class MessageType {
    * 클라이언트에게 서버와의 UDP 홀펀치을 시작하라고 지시합니다.
    *
    * payload:
-   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해 사용되는 UUID
+   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해
+   * 사용되는 UUID
    */
   RequestStartServerHolepunch = 11,
 
@@ -161,8 +161,9 @@ enum class MessageType {
    * UDP transport를 통해서 보내집니다.
    *
    * payload:
-   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해 사용되는 UUID
-   *     (이 값은 서버에서 RequestStartServerHolepunch 메시지를 통해서 받아두었던 값입니다.)
+   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해
+   * 사용되는 UUID (이 값은 서버에서 RequestStartServerHolepunch 메시지를 통해서
+   * 받아두었던 값입니다.)
    */
   ServerHolepunch = 12,
 
@@ -173,11 +174,11 @@ enum class MessageType {
    * 받았을 경우, 클라이언트로 보내는 메시지입니다.
    *
    * payload:
-   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해 사용되는 UUID
-   *   InetAddress from - 서버의 주소 (클라이언트에서 확인을 위해.  그러나 실제로는 필요치 않아보인다.
-   *     왜냐면 위의 holepunch_tag 값이 같다면, 실질적으로 잘못 올 확률은 없을터...
-   *     뭐 여러 머신에서 한다고 쳐도 겹치지는 않을듯 싶은데...
-   *     UUID가 random에 기반한거라 좀 불안하기 할려나??)
+   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해
+   * 사용되는 UUID InetAddress from - 서버의 주소 (클라이언트에서 확인을 위해.
+   * 그러나 실제로는 필요치 않아보인다. 왜냐면 위의 holepunch_tag 값이 같다면,
+   * 실질적으로 잘못 올 확률은 없을터... 뭐 여러 머신에서 한다고 쳐도 겹치지는
+   * 않을듯 싶은데... UUID가 random에 기반한거라 좀 불안하기 할려나??)
    */
   ServerHolepunchAck = 13,
 
@@ -190,9 +191,10 @@ enum class MessageType {
    * 최종 성공은 아니고 일단은 클라이언트에서만 성공인 상태입니다.
    *
    * payload:
-   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해 사용되는 UUID
-   *   InetAddress udp_socket_local_addr - UDP 소켓의 로컬 주소입니다.
-   *   InetAddress here_addr_at_server - 서버에서 인식한 주소입니다. (external IP)
+   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해
+   * 사용되는 UUID InetAddress udp_socket_local_addr - UDP 소켓의 로컬
+   * 주소입니다. InetAddress here_addr_at_server - 서버에서 인식한 주소입니다.
+   * (external IP)
    */
   NotifyHolepunchSuccess = 14,
 
@@ -204,10 +206,10 @@ enum class MessageType {
    * 클라이언트로 보내게 됩니다.
    *
    * payload:
-   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해 사용되는 UUID
+   *   Uuid holepunch_tag - 해당 홀펀칭 동작의 매칭 여부를 확인하기 위해
+   * 사용되는 UUID
    */
   NotifyClientServerUdpMatched = 15,
-
 
   //
   // Peer Server Holepunching
@@ -236,7 +238,6 @@ enum class MessageType {
    */
   PeerUdp_NotifyHolepunchSuccess = 18,
 
-
   //
   // Reliable UDP
   //
@@ -247,7 +248,6 @@ enum class MessageType {
    * Reliable UDP frame
    */
   RUdp_Frame = 19,
-
 
   //
   // Relaying Messages
@@ -287,8 +287,8 @@ enum class MessageType {
    * payload:
    *   MessagePriority priority
    *   uint64 unique_id
-   *   Array<HostId> includee_host_id_list - 그룹에 들어가 있지 않은 호스트들의 릴레이 목록
-   *   OptimalCount32 group_list_count
+   *   Array<HostId> includee_host_id_list - 그룹에 들어가 있지 않은 호스트들의
+   * 릴레이 목록 OptimalCount32 group_list_count
    *     + HostId group_id
    *     + Array<HostId> excludee_host_id_list
    *   ByteArray payload
@@ -352,7 +352,6 @@ enum class MessageType {
    */
   LingerDataFrame2 = 26,
 
-
   //
   // Ping / Time
   //
@@ -394,11 +393,10 @@ enum class MessageType {
    * 서버는 이 메시지를 클라이언트로 보냅니다.
    *
    * payload:
-   *   double client_local_time - 클라이언트가 이전에 보냈던 클라이언트의 시간(시간차를 구하기 위해서 echo)
-   *   double server_time - 서버의 현재 시각
+   *   double client_local_time - 클라이언트가 이전에 보냈던 클라이언트의
+   * 시간(시간차를 구하기 위해서 echo) double server_time - 서버의 현재 시각
    */
   ReplyServerTime = 29,
-
 
   //
   // Peer Direct Holepunching
@@ -436,10 +434,12 @@ enum class MessageType {
    *
    * payload:
    *   HostId local_host_id - 메시지를 보내는 호스트의 ID입니다.
-   *   Uuid holepunch_tag - 여러개의 홀펀칭이 이루어지고 있을 경우 구분하기 위해서 사용되는 Tag입니다.
-   *   Uuid server_instance_tag_ - 서버 인스턴스가 여러개 띄워져 있을 경우에 해당하는 서버를 구분하기 위해서 사용됩니다.
-   *   InetAddress a2b_send_addr - 상대편에서 이쪽으로 메시지를 보낼때 사용할 주소입니다.
-   *               (즉, 상대방에게 메시지를 보내려거든 이 주소로 보내면 받겠다입니다.)
+   *   Uuid holepunch_tag - 여러개의 홀펀칭이 이루어지고 있을 경우 구분하기
+   * 위해서 사용되는 Tag입니다. Uuid server_instance_tag_ - 서버 인스턴스가
+   * 여러개 띄워져 있을 경우에 해당하는 서버를 구분하기 위해서 사용됩니다.
+   *   InetAddress a2b_send_addr - 상대편에서 이쪽으로 메시지를 보낼때 사용할
+   * 주소입니다. (즉, 상대방에게 메시지를 보내려거든 이 주소로 보내면
+   * 받겠다입니다.)
    */
   PeerUdp_PeerHolepunch = 31,
 
@@ -452,9 +452,10 @@ enum class MessageType {
    * payload:
    *   Uuid holepunch_tag - 홀펀칭 상태를 구분하기 위한 Tag입니다.
    *   HostId host_id - 호스트 ID입니다.
-   *   InetAddress a2b_send_addr - 상대편에서 이쪽으로 메시지를 보낼때 사용되는 주소입니다.
-   *   InetAddress a2b_recv_addr - 상대편의 메시지를 수신받을 주소입니다.
-   *   InetAddress b2a_send_addr - 상대편으로 메시지를 보낼 주소입니다.
+   *   InetAddress a2b_send_addr - 상대편에서 이쪽으로 메시지를 보낼때 사용되는
+   * 주소입니다. InetAddress a2b_recv_addr - 상대편의 메시지를 수신받을
+   * 주소입니다. InetAddress b2a_send_addr - 상대편으로 메시지를 보낼
+   * 주소입니다.
    */
   PeerUdp_PeerHolepunchAck = 32,
 
@@ -464,7 +465,8 @@ enum class MessageType {
    * Peer들끼리의 시간을 동기화를 위한 메시지입니다.
    *
    * payload:
-   *   double client_time - 보낸 시점에서의 클라이언트의 절대 시간입니다. (일반 stepped time보다 정밀해야함?)
+   *   double client_time - 보낸 시점에서의 클라이언트의 절대 시간입니다. (일반
+   * stepped time보다 정밀해야함?)
    */
   P2PIndirectServerTimeAndPing = 33,
 
@@ -474,7 +476,8 @@ enum class MessageType {
    * P2PIndirectServerTimeAndPing 메시지에 대한 응답 메시지입니다.
    *
    * payload:
-   *   double client_time - P2PIndirectServerTimeAndPing 보냈던 값을 echo (시간차를 구하기 위해서)
+   *   double client_time - P2PIndirectServerTimeAndPing 보냈던 값을 echo
+   * (시간차를 구하기 위해서)
    */
   P2PIndirectServerTimeAndPong = 34,
 
@@ -484,7 +487,7 @@ enum class MessageType {
    * 서버로 부터의 브로드캐스팅 메세지를 Peer간의 릴레이를
    * 통해서 해결하기 위해 추가 서버의 브로드 캐스팅 메세지를 릴레이를
    * 해줄 피어가 받는 메세지 타입
-   * 
+   *
    * payload:
    *   MessagePriority priority
    *   uint64 unique_id
@@ -498,7 +501,7 @@ enum class MessageType {
    * C2C
    *
    * 피어를 통해 릴레이된 메세지를 받는다는 의미를 가진 메세지 타입
-   * 
+   *
    * payload:
    *   ByteArray content - 전송할 메시지입니다.
    */
@@ -538,7 +541,6 @@ enum class MessageType {
    */
   Compressed = 39,
 
-
   //
   // 송/수신 속도 측정을 위한 메시지입니다.
   //
@@ -557,7 +559,6 @@ enum class MessageType {
    * 응답 메시지입니다.
    */
   ReplyReceiveSpeedAtReceiverSide_NoRelay = 41,
-
 
   //
   // 이하는 LanClient 전용 메시지입니다.
@@ -618,7 +619,6 @@ enum class MessageType {
    */
   NotifyCSConnectionPeerSuccess = 45,
 
-
   //
   // ETC.
   //
@@ -641,15 +641,15 @@ enum class MessageType {
    * 서버로 보내는 메시지입니다.
    *
    * 서버에게 어떻게 연결해야하는지 질의하는 과정입니다.
-   * 
+   *
    * payload:
-   *   RuntimePlatform runtime_platform - 실행중인 플랫폼 타입입니다. (Windows, Linux, ...)
+   *   RuntimePlatform runtime_platform - 실행중인 플랫폼 타입입니다. (Windows,
+   * Linux, ...)
    */
   RequestServerConnectionHint = 47,
 };
 
-TextStream& operator << (TextStream& stream, const MessageType v);
-
+TextStream& operator<<(TextStream& stream, const MessageType v);
 
 /**
  * 로컬(내부) 이벤트 타입들.
@@ -659,7 +659,6 @@ enum class LocalEventType {
    * 없음.
    */
   None = 0,
-
 
   //
   // CS
@@ -695,7 +694,6 @@ enum class LocalEventType {
    * 서버에 연결되어있던 클라이언트 1개가 나갔음.
    */
   ClientLeaveAfterDispose = 5,
-
 
   //
   // P2P
@@ -739,7 +737,7 @@ enum class LocalEventType {
    *
    * UDP 홀펀칭이 차단되거나, 릴레이 대비 효율이 좋지 못한 상황에서
    * 강제로 릴레이 모드로 전환되는데 이때 이 이벤트가 발생합니다.
-  */
+   */
   RelayP2PEnabled = 10,
 
   /**
@@ -748,7 +746,8 @@ enum class LocalEventType {
   GroupP2PEnabled = 11,
 
   /**
-   * 서버와의 UDP punchthrough가 성공했거나 실패했을 경우에 발생하는 이벤트입니다.
+   * 서버와의 UDP punchthrough가 성공했거나 실패했을 경우에 발생하는
+   * 이벤트입니다.
    */
   ServerUdpChanged = 12,
 
@@ -782,14 +781,13 @@ enum class LocalEventType {
    */
   P2PDisconnected = 17,
 
-
   //
   // ETC
   //
 
   ///**
   //*/
-  //UnitTestFail = 18,
+  // UnitTestFail = 18,
 
   /**
    * 오류가 발생했을 경우에, 발생하는 이벤트입니다.
@@ -804,13 +802,12 @@ enum class LocalEventType {
 
 String ToString(const LocalEventType value);
 
-
 /**
  * Reliable UDP 프레임 타입.
  */
 enum class RUdpFrameType {
   /**
-  * None
+   * None
    */
   None = 0,
 
@@ -824,11 +821,10 @@ enum class RUdpFrameType {
    */
   Ack = 2,
 
-  //Disconnect = 3,
+  // Disconnect = 3,
 };
 
-TextStream& operator << (TextStream& stream, const RUdpFrameType v);
-
+TextStream& operator<<(TextStream& stream, const RUdpFrameType v);
 
 /**
  * http://msdn.microsoft.com/en-us/library/aa366912(VS.85).aspx 에 의하면
@@ -837,12 +833,14 @@ TextStream& operator << (TextStream& stream, const RUdpFrameType v);
  */
 enum class IocpCustomValue {
   /**
-   * IOCP에 넣는 custom value는 overlapped 포인터값이다. NULL이어서는 안된다. GQCS쪽에서 T/F 체크대신 overlapped를 체크하니까.
+   * IOCP에 넣는 custom value는 overlapped 포인터값이다. NULL이어서는 안된다.
+   * GQCS쪽에서 T/F 체크대신 overlapped를 체크하니까.
    */
   NewClient = -1,
 
   /**
-   * 이걸 enque할때는 뒷북 신드롬을 피하기 위해 NetServer혹은 LanServer등을 넣어야.
+   * 이걸 enque할때는 뒷북 신드롬을 피하기 위해 NetServer혹은 LanServer등을
+   * 넣어야.
    */
   SendEnqueued = -2,
 
@@ -872,10 +870,7 @@ enum class IocpCustomValue {
   End = -7
 };
 
-inline bool IocpCustomValueInRange(INT_PTR value)
-{
-  return value < 0;
-}
+inline bool IocpCustomValueInRange(INT_PTR value) { return value < 0; }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

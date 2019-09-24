@@ -1,5 +1,5 @@
-﻿#include "fun/net/net.h"
-#include "P2PGroup_S.h"
+﻿#include "P2PGroup_S.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -24,23 +24,25 @@ P2PGroupInfoPtr P2PGroup_S::GetInfo() const {
 }
 
 P2PGroup_S::P2PGroup_S()
-  : group_id(HostId_None),
-    super_peer_selection_policy(SuperPeerSelectionPolicy::GetNull()),
-    super_peer_selection_policy_is_valid(false) {
-}
+    : group_id(HostId_None),
+      super_peer_selection_policy(SuperPeerSelectionPolicy::GetNull()),
+      super_peer_selection_policy_is_valid(false) {}
 
-bool P2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(HostId joining_member_host_id, uint32 event_id) {
+bool P2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(
+    HostId joining_member_host_id, uint32 event_id) {
   for (int32 i = 0; i < Count(); ++i) {
     const auto& ack_waiter = (*this)[i];
 
-    if (ack_waiter.joining_member_host_id == joining_member_host_id && ack_waiter.event_id == event_id) {
+    if (ack_waiter.joining_member_host_id == joining_member_host_id &&
+        ack_waiter.event_id == event_id) {
       return true;
     }
   }
   return false;
 }
 
-bool P2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(HostId joining_member_host_id) {
+bool P2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(
+    HostId joining_member_host_id) {
   for (int32 i = 0; i < Count(); ++i) {
     const auto& ack_waiter = (*this)[i];
 
@@ -51,7 +53,8 @@ bool P2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(HostId joining_mem
   return false;
 }
 
-bool P2PGroup_S::AddMemberAckWaiterList::RemoveEqualItem(HostId old_member_host_id, HostId new_member_host_id, uint32 event_id) {
+bool P2PGroup_S::AddMemberAckWaiterList::RemoveEqualItem(
+    HostId old_member_host_id, HostId new_member_host_id, uint32 event_id) {
   for (int32 i = 0; i < Count(); ++i) {
     auto& ack_waiter = (*this)[i];
 
@@ -64,7 +67,6 @@ bool P2PGroup_S::AddMemberAckWaiterList::RemoveEqualItem(HostId old_member_host_
   }
   return false;
 }
-
 
 //
 // LanP2PGroup_S
@@ -86,20 +88,23 @@ P2PGroupInfoPtr LanP2PGroup_S::GetInfo() const {
 }
 
 LanP2PGroup_S::LanP2PGroup_S()
-  : group_id(HostId_None), all_peers_connected(false) {}
+    : group_id(HostId_None), all_peers_connected(false) {}
 
-bool LanP2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(HostId joining_member_host_id, uint32 event_id) {
+bool LanP2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(
+    HostId joining_member_host_id, uint32 event_id) {
   for (int32 i = 0; i < Count(); ++i) {
     const auto& ack_waiter = (*this)[i];
 
-    if (ack_waiter.joining_member_host_id == joining_member_host_id && ack_waiter.event_id == event_id) {
+    if (ack_waiter.joining_member_host_id == joining_member_host_id &&
+        ack_waiter.event_id == event_id) {
       return true;
     }
   }
   return false;
 }
 
-bool LanP2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(HostId joining_member_host_id) {
+bool LanP2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(
+    HostId joining_member_host_id) {
   for (int32 i = 0; i < Count(); ++i) {
     const auto& ack_waiter = (*this)[i];
 
@@ -111,7 +116,7 @@ bool LanP2PGroup_S::AddMemberAckWaiterList::AckWaitingItemExists(HostId joining_
 }
 
 bool LanP2PGroup_S::AddMemberAckWaiterList::RemoveEqualItem(
-      HostId old_member_host_id, HostId new_member_host_id, uint32 event_id) {
+    HostId old_member_host_id, HostId new_member_host_id, uint32 event_id) {
   for (int32 i = 0; i < Count(); ++i) {
     auto& ack_waiter = (*this)[i];
 
@@ -125,5 +130,5 @@ bool LanP2PGroup_S::AddMemberAckWaiterList::RemoveEqualItem(
   return false;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

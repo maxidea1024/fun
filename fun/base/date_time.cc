@@ -16,40 +16,42 @@ r, R    RFC1123Pattern  ddd, dd MMM yyyy hh':'mm':'ss 'GMT' (*)
 s   SortableDateTi­mePattern    yyyy'-'mm'-'dd'T'hh':'mm':'ss (*)
 u   UniversalSorta­bleDateTimePat­tern  yyyy'-'mm'-'dd hh':'mm':'ss'Z' (*)
     (*) = culture independent
-Following examples show usage of standard format specifiers in string.Format method and the resulting output.
+Following examples show usage of standard format specifiers in string.Format
+method and the resulting output.
 
 [C#]
 string.Format("{0:t}", dt);  // "4:05 PM"                         ShortTime
 string.Format("{0:d}", dt);  // "3/9/2008"                        ShortDate
 string.Format("{0:T}", dt);  // "4:05:07 PM"                      LongTime
 string.Format("{0:d}", dt);  // "Sunday, March 09, 2008"          LongDate
-string.Format("{0:f}", dt);  // "Sunday, March 09, 2008 4:05 PM"  LongDate+ShortTime
-string.Format("{0:F}", dt);  // "Sunday, March 09, 2008 4:05:07 PM" FullDateTime
-string.Format("{0:g}", dt);  // "3/9/2008 4:05 PM"                ShortDate+ShortTime
-string.Format("{0:G}", dt);  // "3/9/2008 4:05:07 PM"             ShortDate+LongTime
-string.Format("{0:m}", dt);  // "March 09"                        MonthDay
+string.Format("{0:f}", dt);  // "Sunday, March 09, 2008 4:05 PM"
+LongDate+ShortTime string.Format("{0:F}", dt);  // "Sunday, March 09, 2008
+4:05:07 PM" FullDateTime string.Format("{0:g}", dt);  // "3/9/2008 4:05 PM"
+ShortDate+ShortTime string.Format("{0:G}", dt);  // "3/9/2008 4:05:07 PM"
+ShortDate+LongTime string.Format("{0:m}", dt);  // "March 09" MonthDay
 string.Format("{0:y}", dt);  // "March, 2008"                     YearMonth
 string.Format("{0:r}", dt);  // "Sun, 09 Mar 2008 16:05:07 GMT"   RFC1123
-string.Format("{0:s}", dt);  // "2008-03-09T16:05:07"             SortableDateTime
-string.Format("{0:u}", dt);  // "2008-03-09 16:05:07Z"            UniversalSortableDateTime
+string.Format("{0:s}", dt);  // "2008-03-09T16:05:07" SortableDateTime
+string.Format("{0:u}", dt);  // "2008-03-09 16:05:07Z" UniversalSortableDateTime
 */
 
-//TODO 유효한 값의 정리가 필요해 보임.
-//CTime의 유효 값은 정리가 되었고, CDate와 CDateTime의 유효값이 정리가 아직 안되었음.
+// TODO 유효한 값의 정리가 필요해 보임.
+// CTime의 유효 값은 정리가 되었고, CDate와 CDateTime의 유효값이 정리가 아직
+// 안되었음.
 //
 //전반적으로 정리는 된듯 싶고, 유닛 테스트를 통해서 검증만 하면 될듯 함.
 
 #include "fun/base/date_time.h"
-#include "fun/base/time_zone_impl.h"
 #include "fun/base/date_time_parser.h"
-//TODO
+#include "fun/base/time_zone_impl.h"
+// TODO
 //#include "fun/base/regex.h"
-#include "fun/base/system_time.h"
 #include "fun/base/locale/locale.h"
+#include "fun/base/system_time.h"
 
 #include <time.h>
 
-//TODO 임시로 truncation warning 꺼줌.. 추후에 코드 정리하자!
+// TODO 임시로 truncation warning 꺼줌.. 추후에 코드 정리하자!
 #ifdef _MSC_VER
 #pragma warning(disable : 4244)
 #endif
@@ -87,13 +89,13 @@ FUN_ALWAYS_INLINE TimeSpec GetSpec(uint8 status) {
   return TimeSpec((status & TimeSpecMask) >> TimeSpecShift);
 }
 
-FUN_ALWAYS_INLINE uint8 MergeDaylightStatus(uint8 status, DaylightStatus daylight) {
+FUN_ALWAYS_INLINE uint8 MergeDaylightStatus(uint8 status,
+                                            DaylightStatus daylight) {
   status &= ~DaylightMask;
 
   if (daylight == DaylightStatus::DaylightTime) {
     status |= SetToDaylightTime;
-  }
-  else if (daylight == DaylightStatus::StandardTime) {
+  } else if (daylight == DaylightStatus::StandardTime) {
     status |= SetToStandardTime;
   }
 
@@ -112,7 +114,8 @@ FUN_ALWAYS_INLINE DaylightStatus ExtractDaylightStatus(uint8 status) {
 
 static void CheckValidDateTime(DateTime::Data& d);
 
-static void SetDateAndTime(DateTime::Data& d, const Date& date, const Time& time) {
+static void SetDateAndTime(DateTime::Data& d, const Date& date,
+                           const Time& time) {
   d.status &= ~(ValidityMask | DaylightMask);
 
   // If the date is valid and the time is not we set time to 00:00:00
@@ -175,7 +178,7 @@ static String MbcsToUnicode(const char* mbcs) {
   String result = WCHAR_TO_UTF8(wide.ConstData());
   return result;
 }
-#endif //FUN_PLATFORM_WINDOWS_FAMILY
+#endif  // FUN_PLATFORM_WINDOWS_FAMILY
 
 static String fun_tzname(DaylightStatus daylight_status) {
   int is_dst = (daylight_status == DaylightStatus::DaylightTime) ? 1 : 0;
@@ -191,8 +194,10 @@ static String fun_tzname(DaylightStatus daylight_status) {
 #endif
 }
 
-static int64 fun_mktime(Date* date, Time* time, DaylightStatus* daylight_status, String* abbreviation, bool* ok = nullptr) {
-  const int64 fraction = time->ToTicksStartOfDay() % DateTimeConstants::TICKS_PER_SECOND;
+static int64 fun_mktime(Date* date, Time* time, DaylightStatus* daylight_status,
+                        String* abbreviation, bool* ok = nullptr) {
+  const int64 fraction =
+      time->ToTicksStartOfDay() % DateTimeConstants::TICKS_PER_SECOND;
   int32 year, month, day;
   date->GetDate(&year, &month, &day);
 
@@ -217,11 +222,12 @@ static int64 fun_mktime(Date* date, Time* time, DaylightStatus* daylight_status,
 
   __time64_t secs_since_epoch = _mktime64(&local_tm);
   if (secs_since_epoch != __time64_t(-1)) {
-    *date = Date(local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday);
+    *date =
+        Date(local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday);
     *time = Time(local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
-    time->AddTicksInPlace(fraction); // add fraction.
+    time->AddTicksInPlace(fraction);  // add fraction.
 
-  #if FUN_PLATFORM_WINDOWS_FAMILY
+#if FUN_PLATFORM_WINDOWS_FAMILY
     // Windows mktime for the missing hour subtracts 1 hour from the time
     // instead of adding 1 hour.  If time differs and is standard time then
     // this has happened, so add 2 hours to the time and 1 hour to the msecs
@@ -230,44 +236,64 @@ static int64 fun_mktime(Date* date, Time* time, DaylightStatus* daylight_status,
         *date = date->AddDays(1);
       }
       *time = time->AddHours(2);
-      secs_since_epoch += 3600; // add 1 hour(3600 sec)
+      secs_since_epoch += 3600;  // add 1 hour(3600 sec)
       local_tm.tm_isdst = 1;
     }
-  #endif
+#endif
 
-    if (local_tm.tm_isdst >= 1) { // daylight
-      if (daylight_status) { *daylight_status = DaylightStatus::DaylightTime; }
-      if (abbreviation) { *abbreviation = fun_tzname(DaylightStatus::DaylightTime); }
-    } else if (local_tm.tm_isdst == 0) { // standard
-      if (daylight_status) { *daylight_status = DaylightStatus::StandardTime; }
-      if (abbreviation) { *abbreviation = fun_tzname(DaylightStatus::StandardTime); }
-    } else { // unknown
-      if (daylight_status) { *daylight_status = DaylightStatus::UnknownDaylightTime; }
-      if (abbreviation) { *abbreviation = fun_tzname(DaylightStatus::StandardTime); }
+    if (local_tm.tm_isdst >= 1) {  // daylight
+      if (daylight_status) {
+        *daylight_status = DaylightStatus::DaylightTime;
+      }
+      if (abbreviation) {
+        *abbreviation = fun_tzname(DaylightStatus::DaylightTime);
+      }
+    } else if (local_tm.tm_isdst == 0) {  // standard
+      if (daylight_status) {
+        *daylight_status = DaylightStatus::StandardTime;
+      }
+      if (abbreviation) {
+        *abbreviation = fun_tzname(DaylightStatus::StandardTime);
+      }
+    } else {  // unknown
+      if (daylight_status) {
+        *daylight_status = DaylightStatus::UnknownDaylightTime;
+      }
+      if (abbreviation) {
+        *abbreviation = fun_tzname(DaylightStatus::StandardTime);
+      }
     }
 
     if (ok) {
       *ok = true;
     }
-  } else { // _mktime64 fail
+  } else {  // _mktime64 fail
     *date = Date::Null;
     *time = Time::Null;
-    if (daylight_status) { *daylight_status = DaylightStatus::UnknownDaylightTime; }
-    if (abbreviation) { *abbreviation = String(); }
+    if (daylight_status) {
+      *daylight_status = DaylightStatus::UnknownDaylightTime;
+    }
+    if (abbreviation) {
+      *abbreviation = String();
+    }
 
     if (ok) {
       *ok = false;
     }
   }
 
-  return ((int64)secs_since_epoch * DateTimeConstants::TICKS_PER_SECOND) + fraction;
+  return ((int64)secs_since_epoch * DateTimeConstants::TICKS_PER_SECOND) +
+         fraction;
 }
 
 // Calls the platform variant of localtime for the given msecs, and updates
 // the date, time, and DST status with the returned values.
-static bool fun_localtime(int64 ticks_since_epoch, Date* local_date, Time* local_time, DaylightStatus* daylight_status) {
-  const __time64_t secs_since_epoch = ticks_since_epoch / DateTimeConstants::TICKS_PER_SECOND;
-  const int32 fraction = ticks_since_epoch % DateTimeConstants::TICKS_PER_SECOND;
+static bool fun_localtime(int64 ticks_since_epoch, Date* local_date,
+                          Time* local_time, DaylightStatus* daylight_status) {
+  const __time64_t secs_since_epoch =
+      ticks_since_epoch / DateTimeConstants::TICKS_PER_SECOND;
+  const int32 fraction =
+      ticks_since_epoch % DateTimeConstants::TICKS_PER_SECOND;
 
   tm local_tm;
   bool is_valid = false;
@@ -289,9 +315,10 @@ static bool fun_localtime(int64 ticks_since_epoch, Date* local_date, Time* local
 #endif
 
   if (is_valid) {
-    *local_date = Date(local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday);
+    *local_date =
+        Date(local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday);
     *local_time = Time(local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
-    local_time->AddTicksInPlace(fraction); // add fraction
+    local_time->AddTicksInPlace(fraction);  // add fraction
 
     if (daylight_status) {
       if (local_tm.tm_isdst > 0) {
@@ -329,21 +356,28 @@ FUN_ALWAYS_INLINE void TicksToDateTime(int64 ticks, Date* date, Time* time) {
 
 // Converts a date/time value into msecs.
 FUN_ALWAYS_INLINE int64 DateTimeToTicks(const Date& date, const Time& time) {
-  return date.ToDays() * DateTimeConstants::TICKS_PER_DAY + time.ToTicksStartOfDay();
+  return date.ToDays() * DateTimeConstants::TICKS_PER_DAY +
+         time.ToTicksStartOfDay();
 }
 
 // Convert an msecs since utc into local time.
-static bool UtcTicksToLocalDateTime(int64 utc_ticks, Date* local_date, Time* local_time, DaylightStatus* daylight_status = nullptr) {
+static bool UtcTicksToLocalDateTime(int64 utc_ticks, Date* local_date,
+                                    Time* local_time,
+                                    DaylightStatus* daylight_status = nullptr) {
   const int64 ticks_since_epoch = utc_ticks - DateTimeConstants::EPOCH_TICKS;
 
   if (ticks_since_epoch < 0) {
-    //Epoch 이전임. DST 적용을 할 수 없으므로, 표준시를 적용해서 처리해줌.
+    // Epoch 이전임. DST 적용을 할 수 없으므로, 표준시를 적용해서 처리해줌.
 
-    // Docs state any local_time before 1970-01-01 will *not* have any daylight time applied
-    // Instead just use the standard offset from UTC to convert to UTC time
+    // Docs state any local_time before 1970-01-01 will *not* have any daylight
+    // time applied Instead just use the standard offset from UTC to convert to
+    // UTC time
     fun_tzset();
 
-    TicksToDateTime(ticks_since_epoch - fun_timezone() * DateTimeConstants::TICKS_PER_SECOND + DateTimeConstants::EPOCH_TICKS, local_date, local_time);
+    TicksToDateTime(ticks_since_epoch -
+                        fun_timezone() * DateTimeConstants::TICKS_PER_SECOND +
+                        DateTimeConstants::EPOCH_TICKS,
+                    local_date, local_time);
 
     if (daylight_status) {
       *daylight_status = DaylightStatus::StandardTime;
@@ -351,17 +385,20 @@ static bool UtcTicksToLocalDateTime(int64 utc_ticks, Date* local_date, Time* loc
 
     return true;
 
-  } else if (ticks_since_epoch > int64((int64)DateTimeConstants::TIME_T_MAX * DateTimeConstants::TICKS_PER_SECOND)) {
+  } else if (ticks_since_epoch > int64((int64)DateTimeConstants::TIME_T_MAX *
+                                       DateTimeConstants::TICKS_PER_SECOND)) {
     // 2037년을 넘을 경우에도 DST를 구할 수 없음.
 
     // Docs state any local_time after 2037-12-31 *will* have any DST applied
-    // but this may fall outside the supported __time64_t range, so need to fake it.
-    // Use existing method to fake the conversion, but this is deeply flawed as it may
-    // apply the conversion from the wrong day number, e.g. if rule is last Sunday of month
+    // but this may fall outside the supported __time64_t range, so need to fake
+    // it. Use existing method to fake the conversion, but this is deeply flawed
+    // as it may apply the conversion from the wrong day number, e.g. if rule is
+    // last Sunday of month
 
     Date utc_date;
     Time utc_time;
-    TicksToDateTime(ticks_since_epoch + DateTimeConstants::EPOCH_TICKS, &utc_date, &utc_time);
+    TicksToDateTime(ticks_since_epoch + DateTimeConstants::EPOCH_TICKS,
+                    &utc_date, &utc_time);
 
     int32 year, month, day;
     utc_date.GetDate(&year, &month, &day);
@@ -371,37 +408,43 @@ static bool UtcTicksToLocalDateTime(int64 utc_ticks, Date* local_date, Time* loc
     }
 
     Date fake_date(2037, month, day);
-    const int64 face_ticks_since_epoch = DateTime(fake_date, utc_time, TimeSpec::UTC).ToUtcTicksSinceEpoch();
-    const bool ok = fun_localtime(face_ticks_since_epoch, local_date, local_time, daylight_status);
+    const int64 face_ticks_since_epoch =
+        DateTime(fake_date, utc_time, TimeSpec::UTC).ToUtcTicksSinceEpoch();
+    const bool ok = fun_localtime(face_ticks_since_epoch, local_date,
+                                  local_time, daylight_status);
     *local_date = local_date->AddDays(fake_date.DaysTo(utc_date));
     return ok;
   } else {
     // Falls inside __time64_t suported range so can use localtime
-    return fun_localtime(utc_ticks - DateTimeConstants::EPOCH_TICKS, local_date, local_time, daylight_status);
+    return fun_localtime(utc_ticks - DateTimeConstants::EPOCH_TICKS, local_date,
+                         local_time, daylight_status);
   }
 }
 
-//TODO 기존 코드에서는 2037년도까지 있었지만, 이젠 제한을 안해도 될듯... 기존 32비트 api에서 64비트로 변경했으니...
+// TODO 기존 코드에서는 2037년도까지 있었지만, 이젠 제한을 안해도 될듯... 기존
+// 32비트 api에서 64비트로 변경했으니...
 // 윈도우즈는 3000년까지, linux는 9999년까지 지원한다고 한다.
 // Convert a local_time expressed in local msecs encoding and the corresponding
 // DST status into a UTC msecs. Optionally populate the returned
 // values from mktime for the adjusted local date and time.
-static int64 LocalToUtcTicks( int64 local_ticks,
-                              DaylightStatus* daylight_status,
-                              Date* local_date = nullptr,
-                              Time* local_time = nullptr,
-                              String* abbreviation = nullptr) {
+static int64 LocalToUtcTicks(int64 local_ticks, DaylightStatus* daylight_status,
+                             Date* local_date = nullptr,
+                             Time* local_time = nullptr,
+                             String* abbreviation = nullptr) {
   Date date;
   Time time;
   TicksToDateTime(local_ticks, &date, &time);
 
-  const int64 local_ticks_since_epoch = local_ticks - DateTimeConstants::EPOCH_TICKS;
-  const int64 max_ticks_since_epoch = int64(DateTimeConstants::TIME_T_MAX) * DateTimeConstants::TICKS_PER_SECOND;
+  const int64 local_ticks_since_epoch =
+      local_ticks - DateTimeConstants::EPOCH_TICKS;
+  const int64 max_ticks_since_epoch = int64(DateTimeConstants::TIME_T_MAX) *
+                                      DateTimeConstants::TICKS_PER_SECOND;
 
   if (local_ticks_since_epoch <= DateTimeConstants::TICKS_PER_DAY) {
     if (local_ticks_since_epoch >= -DateTimeConstants::TICKS_PER_DAY) {
       bool is_valid;
-      const int64 utc_ticks_since_epoch = fun_mktime(&date, &time, daylight_status, abbreviation, &is_valid);
+      const int64 utc_ticks_since_epoch =
+          fun_mktime(&date, &time, daylight_status, abbreviation, &is_valid);
       if (is_valid && utc_ticks_since_epoch >= 0) {
         if (local_date) {
           *local_date = date;
@@ -419,7 +462,9 @@ static int64 LocalToUtcTicks( int64 local_ticks,
     }
 
     // Time is clearly before 1970-01-01 so just use standard offset to convert
-    const int64 utc_ticks_since_epoch = local_ticks_since_epoch + fun_timezone() * DateTimeConstants::TICKS_PER_SECOND;
+    const int64 utc_ticks_since_epoch =
+        local_ticks_since_epoch +
+        fun_timezone() * DateTimeConstants::TICKS_PER_SECOND;
     if (local_date || local_time) {
       TicksToDateTime(local_ticks, local_date, local_time);
     }
@@ -433,18 +478,22 @@ static int64 LocalToUtcTicks( int64 local_ticks,
     }
     return utc_ticks_since_epoch + DateTimeConstants::EPOCH_TICKS;
 
-  } else if (local_ticks_since_epoch >= max_ticks_since_epoch - DateTimeConstants::TICKS_PER_DAY) {
+  } else if (local_ticks_since_epoch >=
+             max_ticks_since_epoch - DateTimeConstants::TICKS_PER_DAY) {
     // Docs state any local_time after 2037-12-31 *will* have any DST applied
-    // but this may fall outside the supported __time64_t range, so need to fake it.
+    // but this may fall outside the supported __time64_t range, so need to fake
+    // it.
 
-    // First, if localMsecs is within +/- 1 day of maximum __time64_t try mktime in case it does
-    // fall before maximum and can use proper DST conversion
+    // First, if localMsecs is within +/- 1 day of maximum __time64_t try mktime
+    // in case it does fall before maximum and can use proper DST conversion
 
     // 마지막 하루안일 경우에 처리.
 
-    if (local_ticks_since_epoch <= max_ticks_since_epoch + DateTimeConstants::TICKS_PER_DAY) {
+    if (local_ticks_since_epoch <=
+        max_ticks_since_epoch + DateTimeConstants::TICKS_PER_DAY) {
       bool is_valid;
-      const int64 utc_ticks_since_epoch = fun_mktime(&date, &time, daylight_status, abbreviation, &is_valid);
+      const int64 utc_ticks_since_epoch =
+          fun_mktime(&date, &time, daylight_status, abbreviation, &is_valid);
       if (is_valid && utc_ticks_since_epoch <= max_ticks_since_epoch) {
         if (local_date) {
           *local_date = date;
@@ -458,8 +507,9 @@ static int64 LocalToUtcTicks( int64 local_ticks,
       }
     }
 
-    // Use existing method to fake the conversion, but this is deeply flawed as it may
-    // apply the conversion from the wrong day number, e.g. if rule is last Sunday of month
+    // Use existing method to fake the conversion, but this is deeply flawed as
+    // it may apply the conversion from the wrong day number, e.g. if rule is
+    // last Sunday of month
     // TODO Use TimeZone when available to apply the future rule correctly
 
     int32 year, month, day;
@@ -471,7 +521,9 @@ static int64 LocalToUtcTicks( int64 local_ticks,
 
     Date fake_date(2037, month, day);
     int64 fake_diff = fake_date.DaysTo(date);
-    int64 utc_ticks = fun_mktime(&fake_date, &time, daylight_status, abbreviation) + DateTimeConstants::EPOCH_TICKS;
+    int64 utc_ticks =
+        fun_mktime(&fake_date, &time, daylight_status, abbreviation) +
+        DateTimeConstants::EPOCH_TICKS;
     if (local_date) {
       *local_date = fake_date.AddDays(fake_diff);
     }
@@ -488,7 +540,8 @@ static int64 LocalToUtcTicks( int64 local_ticks,
     return utc_ticks;
   } else {
     // Clearly falls inside 1970-2037 suported range so can use mktime
-    const int64 ticks_since_epoch = fun_mktime(&date, &time, daylight_status, abbreviation);
+    const int64 ticks_since_epoch =
+        fun_mktime(&date, &time, daylight_status, abbreviation);
     if (local_date) {
       *local_date = date;
     }
@@ -503,22 +556,30 @@ static int64 LocalToUtcTicks( int64 local_ticks,
 
 // Convert a timezone time expressed in zone msecs encoding into a UTC msecs
 // DST transitions are disambiguated by hint.
-static int64 ZoneToUtcTicks(int64 zone_ticks,
-                            const TimeZone& zone,
-                            DaylightStatus hint,
-                            Date* local_date = nullptr,
+static int64 ZoneToUtcTicks(int64 zone_ticks, const TimeZone& zone,
+                            DaylightStatus hint, Date* local_date = nullptr,
                             Time* local_time = nullptr) {
   // Get the effective data from TimeZone
-  const auto data = zone.impl_->DataForLocalTime((zone_ticks - DateTimeConstants::EPOCH_TICKS) / DateTimeConstants::TICKS_PER_MILLISECOND, int32(hint));
+  const auto data = zone.impl_->DataForLocalTime(
+      (zone_ticks - DateTimeConstants::EPOCH_TICKS) /
+          DateTimeConstants::TICKS_PER_MILLISECOND,
+      int32(hint));
 
   // Docs state any local_time before 1970-01-01 will *not* have any DST applied
   // but all affected times afterwards will have DST applied.
   if (data.at_msecs_since_epoch >= 0) {
-    TicksToDateTime(data.at_msecs_since_epoch * DateTimeConstants::TICKS_PER_MILLISECOND + (data.offset_from_utc * DateTimeConstants::TICKS_PER_SECOND) + DateTimeConstants::EPOCH_TICKS, local_date, local_time);
-    return data.at_msecs_since_epoch * DateTimeConstants::TICKS_PER_MILLISECOND + DateTimeConstants::EPOCH_TICKS;
+    TicksToDateTime(
+        data.at_msecs_since_epoch * DateTimeConstants::TICKS_PER_MILLISECOND +
+            (data.offset_from_utc * DateTimeConstants::TICKS_PER_SECOND) +
+            DateTimeConstants::EPOCH_TICKS,
+        local_date, local_time);
+    return data.at_msecs_since_epoch *
+               DateTimeConstants::TICKS_PER_MILLISECOND +
+           DateTimeConstants::EPOCH_TICKS;
   } else {
     TicksToDateTime(zone_ticks, local_date, local_time);
-    return zone_ticks - (data.standard_time_offset * DateTimeConstants::TICKS_PER_SECOND);
+    return zone_ticks -
+           (data.standard_time_offset * DateTimeConstants::TICKS_PER_SECOND);
   }
 }
 
@@ -538,9 +599,13 @@ static void RefreshDateTime(DateTime::Data& d) {
 
   if (spec == TimeSpec::TimeZone) {
     if (d.timezone->IsValid()) {
-      utc_ticks = ZoneToUtcTicks(ticks, *d.timezone, ExtractDaylightStatus(d.status), &test_date, &test_time);
+      utc_ticks =
+          ZoneToUtcTicks(ticks, *d.timezone, ExtractDaylightStatus(d.status),
+                         &test_date, &test_time);
       //실제로 참조되지 않고, 아래에서 다시 설정하므로 생략?
-      //d.offset_from_utc = d.timezone->impl_->OffsetFromUTC((utc_ticks - DateTimeConstants::EPOCH_TICKS) / DateTimeConstants::TICKS_PER_MILLISECOND);
+      // d.offset_from_utc = d.timezone->impl_->OffsetFromUTC((utc_ticks -
+      // DateTimeConstants::EPOCH_TICKS) /
+      // DateTimeConstants::TICKS_PER_MILLISECOND);
     } else {
       status &= ~ValidDateTime;
     }
@@ -556,15 +621,17 @@ static void RefreshDateTime(DateTime::Data& d) {
 
   if (spec == TimeSpec::Local) {
     DaylightStatus daylight_status = ExtractDaylightStatus(d.status);
-    utc_ticks = LocalToUtcTicks(ticks, &daylight_status, &test_date, &test_time);
+    utc_ticks =
+        LocalToUtcTicks(ticks, &daylight_status, &test_date, &test_time);
   }
 
   // 내부에서 교정되었는지 여부 확인. (오류일 경우, 원래의 값과 다를것이므로...)
   // DST 범위내에 있지 않을 경우, 표현이 안될 수 있기 때문임.
   const int64 test_ticks = DateTimeToTicks(test_date, test_time);
-  if (test_ticks == ticks) { // 계산된 시간과 예상한 시간이 같으므로, OK
+  if (test_ticks == ticks) {  // 계산된 시간과 예상한 시간이 같으므로, OK
     status |= ValidDateTime;
-    d.offset_from_utc = (ticks - utc_ticks) / DateTimeConstants::TICKS_PER_SECOND;
+    d.offset_from_utc =
+        (ticks - utc_ticks) / DateTimeConstants::TICKS_PER_SECOND;
   } else {
     status &= ~ValidDateTime;
     d.offset_from_utc = 0;
@@ -576,49 +643,51 @@ static void RefreshDateTime(DateTime::Data& d) {
 static void CheckValidDateTime(DateTime::Data& d) {
   const TimeSpec spec = GetSpec(d.status);
   switch (spec) {
-  case TimeSpec::OffsetFromUTC:
-  case TimeSpec::UTC:
-    // for these, a valid date and a valid time imply a valid DateTime
-    if ((d.status & ValidDate) && (d.status & ValidTime)) {
-      d.status |= ValidDateTime;
-    } else {
-      d.status &= ~ValidDateTime;
-    }
-    break;
+    case TimeSpec::OffsetFromUTC:
+    case TimeSpec::UTC:
+      // for these, a valid date and a valid time imply a valid DateTime
+      if ((d.status & ValidDate) && (d.status & ValidTime)) {
+        d.status |= ValidDateTime;
+      } else {
+        d.status &= ~ValidDateTime;
+      }
+      break;
 
-  case TimeSpec::TimeZone:
-  case TimeSpec::Local:
-    // for these, we need to check whether the timezone is valid and whether
-    // the time is valid in that timezone. Expensive, but no other option.
-    RefreshDateTime(d);
-    break;
+    case TimeSpec::TimeZone:
+    case TimeSpec::Local:
+      // for these, we need to check whether the timezone is valid and whether
+      // the time is valid in that timezone. Expensive, but no other option.
+      RefreshDateTime(d);
+      break;
   }
 }
 
-static void SetTimeSpec_helper(DateTime::Data& d, TimeSpec spec, int32 offset_seconds) {
+static void SetTimeSpec_helper(DateTime::Data& d, TimeSpec spec,
+                               int32 offset_seconds) {
   uint8 status = d.status;
   status &= ~(ValidDateTime | DaylightMask | TimeSpecMask);
 
   switch (spec) {
-  case TimeSpec::OffsetFromUTC:
-    if (offset_seconds == 0) {
-      spec = TimeSpec::UTC;
-    }
-    break;
+    case TimeSpec::OffsetFromUTC:
+      if (offset_seconds == 0) {
+        spec = TimeSpec::UTC;
+      }
+      break;
 
-  // TimeZone일 경우에는 SetTimeSpec 함수로 하지 말고, SetTimeZone으로 해야함.
-  // 에러 처리를 하는게 좋을까?
-  // 원래 코드로 하면, 강제로 로컬로 변경되는데 이로인해서 발생하는 문제는 없을런지?
-  case TimeSpec::TimeZone:
-    // Use system time zone instead
-    spec = TimeSpec::Local;
-    //fall through
-    fun_check(0); // 나중에 상황을 파악하기 위해서 브레이크 걸어둠.
+    // TimeZone일 경우에는 SetTimeSpec 함수로 하지 말고, SetTimeZone으로 해야함.
+    // 에러 처리를 하는게 좋을까?
+    // 원래 코드로 하면, 강제로 로컬로 변경되는데 이로인해서 발생하는 문제는
+    // 없을런지?
+    case TimeSpec::TimeZone:
+      // Use system time zone instead
+      spec = TimeSpec::Local;
+      // fall through
+      fun_check(0);  // 나중에 상황을 파악하기 위해서 브레이크 걸어둠.
 
-  case TimeSpec::UTC:
-  case TimeSpec::Local:
-    offset_seconds = 0;
-    break;
+    case TimeSpec::UTC:
+    case TimeSpec::Local:
+      offset_seconds = 0;
+      break;
   }
 
   d.status = MergeSpec(status, spec);
@@ -627,18 +696,17 @@ static void SetTimeSpec_helper(DateTime::Data& d, TimeSpec spec, int32 offset_se
 }
 
 static String ToOffsetString(DateFormatType format, int32 offset) {
-  //return String::Format("{}{:02d}{}{:02d}",
+  // return String::Format("{}{:02d}{}{:02d}",
   //  offset >= 0 ? '+' : '-',
   //  MathBase::Abs(offset) / 3600,
   //  format == DateFormatType::TextDate ? UTEXT("") : UTEXT(":"),
   //  (MathBase::Abs(offset) / 60) % 60);
 
-  //TODO format_str 재조정해야함.
-  return String::Format("%c%02d%s%02d",
-              offset >= 0 ? '+' : '-',
-              MathBase::Abs(offset) / 3600,
-              format == DateFormatType::TextDate ? "" : ":",
-              (MathBase::Abs(offset) / 60) % 60);
+  // TODO format_str 재조정해야함.
+  return String::Format("%c%02d%s%02d", offset >= 0 ? '+' : '-',
+                        MathBase::Abs(offset) / 3600,
+                        format == DateFormatType::TextDate ? "" : ":",
+                        (MathBase::Abs(offset) / 60) % 60);
 }
 
 // Parse offset in [+-]hh[[:]mm] format
@@ -668,7 +736,7 @@ static int32 FromOffsetString(const String& string, bool* is_valid) {
   int32 hh_len = time.IndexOf(':');
   int32 mm_index;
   if (hh_len == -1) {
-    mm_index = hh_len = 2; // [+-]HHmm or [+-]hh format
+    mm_index = hh_len = 2;  // [+-]HHmm or [+-]hh format
   } else {
     mm_index = hh_len + 1;
   }
@@ -690,30 +758,30 @@ static int32 FromOffsetString(const String& string, bool* is_valid) {
   return sign * ((hour * 60) + minute) * 60;
 }
 
+static const int32 DAYS_PER_MONTH[] = {0,  31, 28, 31, 30, 31, 30,
+                                       31, 31, 30, 31, 30, 31};
 
-static const int32 DAYS_PER_MONTH[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
-static const int32 DAYS_TO_MONTH365[13] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
-static const int32 DAYS_TO_MONTH366[13] = { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
+static const int32 DAYS_TO_MONTH365[13] = {0,   31,  59,  90,  120, 151, 181,
+                                           212, 243, 273, 304, 334, 365};
+static const int32 DAYS_TO_MONTH366[13] = {0,   31,  60,  91,  121, 152, 182,
+                                           213, 244, 274, 305, 335, 366};
 
 //
 // Date
 //
 
-uint32 HashOf(const Date& date) {
-  return HashOf(date.days_);
-}
+uint32 HashOf(const Date& date) { return HashOf(date.days_); }
 
-Archive& operator & (Archive& ar, Date& date) {
-  return ar & date.days_;
-}
+Archive& operator&(Archive& ar, Date& date) { return ar & date.days_; }
 
 static int32 DateToDays(int32 year, int32 month, int32 day) {
   if (Date::IsValid(year, month, day)) {
-    const int32* days = Date::IsLeapYear(year) ? DAYS_TO_MONTH366 : DAYS_TO_MONTH365;
+    const int32* days =
+        Date::IsLeapYear(year) ? DAYS_TO_MONTH366 : DAYS_TO_MONTH365;
     if (day >= 1 && day <= days[month] - days[month - 1]) {
       const int32 y = year - 1;
-      const int32 n = (y * 365) + (y / 4) - (y / 100) + (y / 400) + days[month - 1] + day - 1;
+      const int32 n = (y * 365) + (y / 4) - (y / 100) + (y / 400) +
+                      days[month - 1] + day - 1;
       return n;
     }
   }
@@ -721,24 +789,20 @@ static int32 DateToDays(int32 year, int32 month, int32 day) {
   return Date::NullDaysValue;
 }
 
-
 const Date Date::Null;
 const int32 Date::NullDaysValue = int32_MAX;
 const Date Date::MinValue = Date(0);
 const Date Date::MaxValue = Date(int32_MAX - 1);
 
-void Date::Swap(Date& rhs) {
-  fun::Swap(days_, rhs.days_);
-}
-
+void Date::Swap(Date& rhs) { fun::Swap(days_, rhs.days_); }
 
 //
 // Date / Time formatting helper functions.
 //
 
-static const char SHORT_MONTH_NAMES[][4] = {
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+static const char SHORT_MONTH_NAMES[][4] = {"Jan", "Feb", "Mar", "Apr",
+                                            "May", "Jun", "Jul", "Aug",
+                                            "Sep", "Oct", "Nov", "Dec"};
 
 static int32 MonthNumberFromShortName(const String& short_name) {
   for (int32 i = 0; i < 12; ++i) {
@@ -764,7 +828,6 @@ static int32 FromShortMonthName(const String& short_name) {
   return -1;
 }
 
-
 #if !FUN_NO_DATESTRING
 struct ParsedRfcDateTime {
   Date date;
@@ -778,11 +841,11 @@ static ParsedRfcDateTime RfcDateImpl(const String& string) {
 
   ParsedRfcDateTime result;
 
-  //TODO
-  //TODO
-  //TODO
-  //TODO
-  //TODO
+  // TODO
+  // TODO
+  // TODO
+  // TODO
+  // TODO
 
   fun_check(0);
 
@@ -790,37 +853,42 @@ static ParsedRfcDateTime RfcDateImpl(const String& string) {
   CRegularExpressionMatch Match;
 
   // Matches "Wdy, DD Mon YYYY hh:mm:ss ±hhmm" (Wdy, being optional)
-  CRegularExpression Regex(StringLiteral("^(?:[A-Z][a-z]+,)?[ \\t]*(\\d{1,2})[ \\t]+([A-Z][a-z]+)[ \\t]+(\\d\\d\\d\\d)(?:[ \\t]+(\\d\\d):(\\d\\d)(?::(\\d\\d))?)?[ \\t]*(?:([+-])(\\d\\d)(\\d\\d))?"));
+  CRegularExpression Regex(StringLiteral("^(?:[A-Z][a-z]+,)?[ \\t]*(\\d{1,2})[
+  \\t]+([A-Z][a-z]+)[ \\t]+(\\d\\d\\d\\d)(?:[
+  \\t]+(\\d\\d):(\\d\\d)(?::(\\d\\d))?)?[ \\t]*(?:([+-])(\\d\\d)(\\d\\d))?"));
   if (string.IndexOf(Regex, 0, &Match) == 0) {
     const Array<String> Captures = Match.CapturedTexts();
-    result.date = Date(Captures[3].ToInt32(), MonthNumberFromShortName(Captures[2]), Captures[1].ToInt32());
-    if (!Captures[4].IsEmpty()) {
-      result.time = Time(Captures[4].ToInt32(), Captures[5].ToInt32(), Captures[6].ToInt32());
+    result.date = Date(Captures[3].ToInt32(),
+  MonthNumberFromShortName(Captures[2]), Captures[1].ToInt32()); if
+  (!Captures[4].IsEmpty()) { result.time = Time(Captures[4].ToInt32(),
+  Captures[5].ToInt32(), Captures[6].ToInt32());
     }
     const bool bPositiveOffset = Captures[7] == AsciiString("+");
     const int32 HourOffset = Captures[8].ToInt32();
     const int32 MinuteOffset = Captures[9].ToInt32();
-    result.utc_offset = ((HourOffset * 60 + MinuteOffset) * (bPositiveOffset ? 60 : -60));
-  } else {
+    result.utc_offset = ((HourOffset * 60 + MinuteOffset) * (bPositiveOffset ?
+  60 : -60)); } else {
     // Matches "Wdy Mon DD hh:mm:ss YYYY"
-    CRegularExpression Regex(CStringLiteral("^[A-Z][a-z]+[ \\t]+([A-Z][a-z]+)[ \\t]+(\\d\\d)(?:[ \\t]+(\\d\\d):(\\d\\d):(\\d\\d))?[ \\t]+(\\d\\d\\d\\d)[ \\t]*(?:([+-])(\\d\\d)(\\d\\d))?"));
-    if (string.IndexOf(Regex, 0, &Match) == 0) {
-      const Array<String> Captures = Match.CapturedTexts();
-      result.date = Date(Captures[6].ToInt32(), MonthNumberFromShortName(Captures[1]), Captures[2].ToInt32());
-      if (!Captures[3].IsEmpty()) {
-        result.time = Time(Captures[3].ToInt32(), Captures[4].ToInt32(), Captures[5].ToInt32());
+    CRegularExpression Regex(CStringLiteral("^[A-Z][a-z]+[ \\t]+([A-Z][a-z]+)[
+  \\t]+(\\d\\d)(?:[ \\t]+(\\d\\d):(\\d\\d):(\\d\\d))?[ \\t]+(\\d\\d\\d\\d)[
+  \\t]*(?:([+-])(\\d\\d)(\\d\\d))?")); if (string.IndexOf(Regex, 0, &Match) ==
+  0) { const Array<String> Captures = Match.CapturedTexts(); result.date =
+  Date(Captures[6].ToInt32(), MonthNumberFromShortName(Captures[1]),
+  Captures[2].ToInt32()); if (!Captures[3].IsEmpty()) { result.time =
+  Time(Captures[3].ToInt32(), Captures[4].ToInt32(), Captures[5].ToInt32());
       }
       const bool bPositiveOffset = Captures[7] == AsciiString("+");
       const int32 HourOffset = Captures[8].ToInt32();
       const int32 MinuteOffset = Captures[9].ToInt32();
-      result.utc_offset = ((HourOffset * 60 + MinuteOffset) * (bPositiveOffset ? 60 : -60));
+      result.utc_offset = ((HourOffset * 60 + MinuteOffset) * (bPositiveOffset ?
+  60 : -60));
     }
   }
   */
 
   return result;
 }
-#endif // FUN_NO_DATESTRING
+#endif  // FUN_NO_DATESTRING
 
 DayOfWeekType Date::DayOfWeek() const {
   if (!IsValid()) {
@@ -838,17 +906,11 @@ int32 Date::DaysInYear() const {
   return IsLeapYear(Year()) ? 366 : 355;
 }
 
-int32 Date::Year() const {
-  return GetDatePart(DatePart::Year);
-}
+int32 Date::Year() const { return GetDatePart(DatePart::Year); }
 
-int32 Date::Month() const {
-  return GetDatePart(DatePart::Month);
-}
+int32 Date::Month() const { return GetDatePart(DatePart::Month); }
 
-int32 Date::Day() const {
-  return GetDatePart(DatePart::Day);
-}
+int32 Date::Day() const { return GetDatePart(DatePart::Day); }
 
 int32 Date::DaysInMonth() const {
   if (!IsValid()) {
@@ -858,9 +920,7 @@ int32 Date::DaysInMonth() const {
   return DaysInMonth(Year(), Month());
 }
 
-int32 Date::DayOfYear() const {
-  return GetDatePart(DatePart::DayOfYear);
-}
+int32 Date::DayOfYear() const { return GetDatePart(DatePart::DayOfYear); }
 
 int32 Date::GetDatePart(DatePart part) const {
   if (!IsValid()) {
@@ -870,9 +930,9 @@ int32 Date::GetDatePart(DatePart part) const {
   // Number of days in a non-leap year
   const int32 DaysPerYear = 365;
   // Number of days in 4 years
-  const int32 DaysPer4Years = DaysPerYear * 4 + 1;        // 1461
+  const int32 DaysPer4Years = DaysPerYear * 4 + 1;  // 1461
   // Number of days in 100 years
-  const int32 DaysPer100Years = DaysPer4Years * 25 - 1;   // 36524
+  const int32 DaysPer100Years = DaysPer4Years * 25 - 1;  // 36524
   // Number of days in 400 years
   const int32 DaysPer400Years = DaysPer100Years * 4 + 1;  // 146097
 
@@ -931,8 +991,7 @@ bool Date::SetDate(int32 year, int32 month, int32 day) {
   if (IsValid(year, month, day)) {
     days_ = DateToDays(year, month, day);
     return true;
-  }
-  else {
+  } else {
     days_ = NullDaysValue;
     return false;
   }
@@ -993,7 +1052,7 @@ Date& Date::AddMonthsInPlace(int32 months) {
   }
 
   if (months < -120000 || months > 120000) {
-    //todo error handling
+    // todo error handling
     return *this;
   }
 
@@ -1010,7 +1069,7 @@ Date& Date::AddMonthsInPlace(int32 months) {
   }
 
   if (y < 1 || y > 9999) {
-    //todo error handling
+    // todo error handling
     return *this;
   }
 
@@ -1027,17 +1086,13 @@ Date& Date::AddYearsInPlace(int32 months) {
   return AddMonthsInPlace(months * 12);
 }
 
-int32 Date::DaysTo(const Date& to) const {
-  return to.ToDays() - ToDays();
-}
+int32 Date::DaysTo(const Date& to) const { return to.ToDays() - ToDays(); }
 
 double Date::ToJulianDay() const {
   return double(1721425.5) + (double)ToDays();
 }
 
-double Date::ToModifiedJulianDay() const {
-  return ToJulianDay() - 2400000.5;
-}
+double Date::ToModifiedJulianDay() const { return ToJulianDay() - 2400000.5; }
 
 Date Date::FromJulianDay(double julian_day) {
   return Date(int64(julian_day - 1721425.5));
@@ -1049,8 +1104,8 @@ bool Date::IsValid(int32 year, int32 month, int32 day) {
     return false;
   }
 
-  return  (day > 0 && month > 0 && month <= 12) &&
-          (day >= 1 && day <= DaysInMonth(year, month));
+  return (day > 0 && month > 0 && month <= 12) &&
+         (day >= 1 && day <= DaysInMonth(year, month));
 }
 
 bool Date::IsLeapYear(int32 year) {
@@ -1072,24 +1127,24 @@ int32 Date::DaysInMonth(int32 year, int32 month) {
 }
 
 int32 Date::DaysInYear(int32 year) {
-  return IsLeapYear(year) ? 366 : 365; //윤년에서는 1년이 366일.
+  return IsLeapYear(year) ? 366 : 365;  //윤년에서는 1년이 366일.
 }
 
-Date Date::Today() {
-  return DateTime::Now().GetDate();
-}
+Date Date::Today() { return DateTime::Now().GetDate(); }
 
-Date Date::UtcToday() {
-  return DateTime::UtcNow().GetDate();
-}
+Date Date::UtcToday() { return DateTime::UtcNow().GetDate(); }
 
 String Date::GetShortMonthName(int32 month, MonthNameType type) {
   if (month >= 1 && month <= 12) {
     switch (type) {
-    case MonthNameType::DateFormat:
-      return UNICHAR_TO_UTF8(Locale::System().GetMonthName(month, Locale::ShortFormat).c_str());
-    case MonthNameType::StandaloneFormat:
-      return UNICHAR_TO_UTF8(Locale::System().GetStandaloneMonthName(month, Locale::ShortFormat).c_str());
+      case MonthNameType::DateFormat:
+        return UNICHAR_TO_UTF8(
+            Locale::System().GetMonthName(month, Locale::ShortFormat).c_str());
+      case MonthNameType::StandaloneFormat:
+        return UNICHAR_TO_UTF8(
+            Locale::System()
+                .GetStandaloneMonthName(month, Locale::ShortFormat)
+                .c_str());
     }
   }
 
@@ -1099,10 +1154,14 @@ String Date::GetShortMonthName(int32 month, MonthNameType type) {
 String Date::GetLongMonthName(int32 month, MonthNameType type) {
   if (month >= 1 && month <= 12) {
     switch (type) {
-    case MonthNameType::DateFormat:
-      return UNICHAR_TO_UTF8(Locale::System().GetMonthName(month, Locale::LongFormat).c_str());
-    case MonthNameType::StandaloneFormat:
-      return UNICHAR_TO_UTF8(Locale::System().GetStandaloneMonthName(month, Locale::LongFormat).c_str());
+      case MonthNameType::DateFormat:
+        return UNICHAR_TO_UTF8(
+            Locale::System().GetMonthName(month, Locale::LongFormat).c_str());
+      case MonthNameType::StandaloneFormat:
+        return UNICHAR_TO_UTF8(
+            Locale::System()
+                .GetStandaloneMonthName(month, Locale::LongFormat)
+                .c_str());
     }
   }
 
@@ -1112,10 +1171,14 @@ String Date::GetLongMonthName(int32 month, MonthNameType type) {
 String Date::GetShortDayName(DayOfWeekType weekday, MonthNameType type) {
   if (weekday >= DayOfWeekType::Sunday && weekday <= DayOfWeekType::Saturday) {
     switch (type) {
-    case MonthNameType::DateFormat:
-      return UNICHAR_TO_UTF8(Locale::System().GetDayName(weekday, Locale::ShortFormat).c_str());
-    case MonthNameType::StandaloneFormat:
-      return UNICHAR_TO_UTF8(Locale::System().GetStandaloneDayName(weekday, Locale::ShortFormat).c_str());
+      case MonthNameType::DateFormat:
+        return UNICHAR_TO_UTF8(
+            Locale::System().GetDayName(weekday, Locale::ShortFormat).c_str());
+      case MonthNameType::StandaloneFormat:
+        return UNICHAR_TO_UTF8(
+            Locale::System()
+                .GetStandaloneDayName(weekday, Locale::ShortFormat)
+                .c_str());
     }
   }
 
@@ -1125,32 +1188,34 @@ String Date::GetShortDayName(DayOfWeekType weekday, MonthNameType type) {
 String Date::GetLongDayName(DayOfWeekType weekday, MonthNameType type) {
   if (weekday >= DayOfWeekType::Sunday && weekday <= DayOfWeekType::Saturday) {
     switch (type) {
-    case MonthNameType::DateFormat:
-      return UNICHAR_TO_UTF8(Locale::System().GetDayName(weekday, Locale::LongFormat).c_str());
-    case MonthNameType::StandaloneFormat:
-      return UNICHAR_TO_UTF8(Locale::System().GetStandaloneDayName(weekday, Locale::LongFormat).c_str());
+      case MonthNameType::DateFormat:
+        return UNICHAR_TO_UTF8(
+            Locale::System().GetDayName(weekday, Locale::LongFormat).c_str());
+      case MonthNameType::StandaloneFormat:
+        return UNICHAR_TO_UTF8(
+            Locale::System()
+                .GetStandaloneDayName(weekday, Locale::LongFormat)
+                .c_str());
     }
   }
 
   return String();
 }
 
-
-//TODO 이거 왜이리 안이쁘게 나오지? 더군다나 이게 기본이네?
+// TODO 이거 왜이리 안이쁘게 나오지? 더군다나 이게 기본이네?
 static String ToStringTextDate(const Date& date) {
-  return String::Format("{0} {1} {2} {3}",
-                        *date.GetShortDayName(date.DayOfWeek()),
-                        *date.GetShortMonthName(date.Month()),
-                        date.Day(),
-                        date.Year());
+  return String::Format(
+      "{0} {1} {2} {3}", *date.GetShortDayName(date.DayOfWeek()),
+      *date.GetShortMonthName(date.Month()), date.Day(), date.Year());
 }
 
 static String ToStringIsoDate(int64 days) {
   const Date date = Date::FromDays(days);
 
-  //year 0가 유효한건가?
+  // year 0가 유효한건가?
   if (date.Year() >= 0 && date.Year() <= 9999) {
-    return String::Format("%04d-%02d-%02d", date.Year(), date.Month(), date.Day());
+    return String::Format("%04d-%02d-%02d", date.Year(), date.Month(),
+                          date.Day());
   } else {
     return String();
   }
@@ -1163,19 +1228,25 @@ String Date::ToString(DateFormatType format) const {
 
   switch (format) {
     case DateFormatType::SystemLocaleShortDate:
-      return UNICHAR_TO_UTF8(Locale::System().ToString(*this, Locale::ShortFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale::System().ToString(*this, Locale::ShortFormat).c_str());
 
     case DateFormatType::SystemLcaleLongDate:
-      return UNICHAR_TO_UTF8(Locale::System().ToString(*this, Locale::LongFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale::System().ToString(*this, Locale::LongFormat).c_str());
 
     case DateFormatType::DefaultLocaleShortDate:
-      return UNICHAR_TO_UTF8(Locale().ToString(*this, Locale::ShortFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale().ToString(*this, Locale::ShortFormat).c_str());
 
     case DateFormatType::DefaultLocaleLongDate:
-      return UNICHAR_TO_UTF8(Locale().ToString(*this, Locale::LongFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale().ToString(*this, Locale::LongFormat).c_str());
 
     case DateFormatType::RFC2822Date:
-      return UNICHAR_TO_UTF8(Locale::CLocale().ToString(*this, AsciiString("dd MMM yyyy")).c_str());
+      return UNICHAR_TO_UTF8(Locale::CLocale()
+                                 .ToString(*this, AsciiString("dd MMM yyyy"))
+                                 .c_str());
 
     default:
     case DateFormatType::TextDate:
@@ -1188,7 +1259,8 @@ String Date::ToString(DateFormatType format) const {
 }
 
 String Date::ToString(const String& format) const {
-  return UNICHAR_TO_UTF8(Locale::System().ToString(*this, UString::FromUtf8(format)).c_str());
+  return UNICHAR_TO_UTF8(
+      Locale::System().ToString(*this, UString::FromUtf8(format)).c_str());
 }
 
 Date Date::FromString(const String& string, DateFormatType format) {
@@ -1198,10 +1270,12 @@ Date Date::FromString(const String& string, DateFormatType format) {
 
   switch (format) {
     case DateFormatType::SystemLocaleShortDate:
-      return Locale::System().ToDate(UString::FromUtf8(string), Locale::ShortFormat);
+      return Locale::System().ToDate(UString::FromUtf8(string),
+                                     Locale::ShortFormat);
 
     case DateFormatType::SystemLcaleLongDate:
-      return Locale::System().ToDate(UString::FromUtf8(string), Locale::LongFormat);
+      return Locale::System().ToDate(UString::FromUtf8(string),
+                                     Locale::LongFormat);
 
     case DateFormatType::DefaultLocaleShortDate:
       return Locale().ToDate(UString::FromUtf8(string), Locale::ShortFormat);
@@ -1237,9 +1311,9 @@ Date Date::FromString(const String& string, DateFormatType format) {
     }
 
     case DateFormatType::ISODate: {
-      // Semi-strict parsing, must be long enough and have non-numeric separators
-      if (string.Len() < 10 ||
-          CharTraitsU::IsDigit(string[4]) ||
+      // Semi-strict parsing, must be long enough and have non-numeric
+      // separators
+      if (string.Len() < 10 || CharTraitsU::IsDigit(string[4]) ||
           CharTraitsU::IsDigit(string[7]) ||
           (string.Len() > 10 && CharTraitsU::IsDigit(string[10]))) {
         return Date::Null;
@@ -1251,7 +1325,7 @@ Date Date::FromString(const String& string, DateFormatType format) {
       }
       return Date(year, string.Mid(5, 2).ToInt32(), string.Mid(8, 2).ToInt32());
     }
-  } // end of switch
+  }  // end of switch
 
   return Date::Null;
 }
@@ -1266,28 +1340,23 @@ Date Date::FromString(const String& string, const String& format) {
   return date;
 }
 
-
 //
 // Time
 //
 
 const Time Time::Null;
 const Time Time::MinValue = Time::FromTicksStartOfDay(0);
-const Time Time::MaxValue = Time::FromTicksStartOfDay(DateTimeConstants::TICKS_PER_DAY - 1);
+const Time Time::MaxValue =
+    Time::FromTicksStartOfDay(DateTimeConstants::TICKS_PER_DAY - 1);
 
-uint32 HashOf(const Time& time) {
-  return HashOf(time.ticks_in_day_);
-}
+uint32 HashOf(const Time& time) { return HashOf(time.ticks_in_day_); }
 
-Archive& operator & (Archive& ar, Time& time) {
-  return ar & time.ticks_in_day_;
-}
+Archive& operator&(Archive& ar, Time& time) { return ar & time.ticks_in_day_; }
 
-void Time::Swap(Time& rhs) {
-  fun::Swap(ticks_in_day_, rhs.ticks_in_day_);
-}
+void Time::Swap(Time& rhs) { fun::Swap(ticks_in_day_, rhs.ticks_in_day_); }
 
-Time::Time(int32 hour, int32 minute, int32 second, int32 millisecond, int32 microsecond) {
+Time::Time(int32 hour, int32 minute, int32 second, int32 millisecond,
+           int32 microsecond) {
   SetTime(hour, minute, second, millisecond, microsecond);
 }
 
@@ -1296,24 +1365,38 @@ bool Time::IsValid() const {
 }
 
 int32 Time::Hour() const {
-  return IsValid() ? int32(ToTicksStartOfDay() / DateTimeConstants::TICKS_PER_HOUR) : -1;
+  return IsValid()
+             ? int32(ToTicksStartOfDay() / DateTimeConstants::TICKS_PER_HOUR)
+             : -1;
 }
 
 int32 Time::Minute() const {
-  return IsValid() ? int32((ToTicksStartOfDay() / DateTimeConstants::TICKS_PER_MINUTE) % 60) : -1;
+  return IsValid() ? int32((ToTicksStartOfDay() /
+                            DateTimeConstants::TICKS_PER_MINUTE) %
+                           60)
+                   : -1;
 }
 
 int32 Time::Second() const {
-  return IsValid() ? int32((ToTicksStartOfDay() / DateTimeConstants::TICKS_PER_SECOND) % 60) : -1;
+  return IsValid() ? int32((ToTicksStartOfDay() /
+                            DateTimeConstants::TICKS_PER_SECOND) %
+                           60)
+                   : -1;
 }
 
 int32 Time::Millisecond() const {
-  return IsValid() ? int32((ToTicksStartOfDay() / DateTimeConstants::TICKS_PER_MILLISECOND) % 1000) : -1;
+  return IsValid() ? int32((ToTicksStartOfDay() /
+                            DateTimeConstants::TICKS_PER_MILLISECOND) %
+                           1000)
+                   : -1;
 }
 
 //@todo Microsecond까지 다루어야할까??
 int32 Time::Microsecond() const {
-  return IsValid() ? int32((ToTicksStartOfDay() / DateTimeConstants::TICKS_PER_MICROSECOND) % 1000) : -1;
+  return IsValid() ? int32((ToTicksStartOfDay() /
+                            DateTimeConstants::TICKS_PER_MICROSECOND) %
+                           1000)
+                   : -1;
 }
 
 int32 Time::HourAMPM() const {
@@ -1338,17 +1421,17 @@ bool Time::IsPM() const {
   return hour >= 12;
 }
 
-bool Time::SetTime(int32 hour, int32 minute, int32 second, int32 millisecond, int32 microsecond) {
+bool Time::SetTime(int32 hour, int32 minute, int32 second, int32 millisecond,
+                   int32 microsecond) {
   if (!IsValid(hour, minute, second, millisecond, microsecond)) {
     ticks_in_day_ = InvalidTime;
     return false;
   } else {
-    ticks_in_day_ =
-      hour * DateTimeConstants::TICKS_PER_HOUR +
-      minute * DateTimeConstants::TICKS_PER_MINUTE +
-      second * DateTimeConstants::TICKS_PER_SECOND +
-      millisecond * DateTimeConstants::TICKS_PER_MILLISECOND +
-      microsecond * DateTimeConstants::TICKS_PER_MICROSECOND;
+    ticks_in_day_ = hour * DateTimeConstants::TICKS_PER_HOUR +
+                    minute * DateTimeConstants::TICKS_PER_MINUTE +
+                    second * DateTimeConstants::TICKS_PER_SECOND +
+                    millisecond * DateTimeConstants::TICKS_PER_MILLISECOND +
+                    microsecond * DateTimeConstants::TICKS_PER_MICROSECOND;
     return true;
   }
 }
@@ -1390,20 +1473,26 @@ Time& Time::AddSecondsInPlace(double seconds) {
 }
 
 Time& Time::AddMillisecondsInPlace(double milliseconds) {
-  return AddTicksInPlace(int64(milliseconds * DateTimeConstants::TICKS_PER_MILLISECOND));
+  return AddTicksInPlace(
+      int64(milliseconds * DateTimeConstants::TICKS_PER_MILLISECOND));
 }
 
 Time& Time::AddMicrosecondsInPlace(double microseconds) {
-  return AddTicksInPlace(int64(microseconds * DateTimeConstants::TICKS_PER_MICROSECOND));
+  return AddTicksInPlace(
+      int64(microseconds * DateTimeConstants::TICKS_PER_MICROSECOND));
 }
 
 Time& Time::AddTicksInPlace(int64 ticks_to_add) {
   if (IsValid()) {
     if (ticks_to_add < 0) {
-      const int32 neg_days = (DateTimeConstants::TICKS_PER_DAY - ticks_to_add) / DateTimeConstants::TICKS_PER_DAY;
-      ticks_in_day_ = (ticks_in_day_ + ticks_to_add + neg_days * DateTimeConstants::TICKS_PER_DAY) % DateTimeConstants::TICKS_PER_DAY;
+      const int32 neg_days = (DateTimeConstants::TICKS_PER_DAY - ticks_to_add) /
+                             DateTimeConstants::TICKS_PER_DAY;
+      ticks_in_day_ = (ticks_in_day_ + ticks_to_add +
+                       neg_days * DateTimeConstants::TICKS_PER_DAY) %
+                      DateTimeConstants::TICKS_PER_DAY;
     } else {
-      ticks_in_day_ = (ticks_in_day_ + ticks_to_add) % DateTimeConstants::TICKS_PER_DAY;
+      ticks_in_day_ =
+          (ticks_in_day_ + ticks_to_add) % DateTimeConstants::TICKS_PER_DAY;
     }
   }
   return *this;
@@ -1433,7 +1522,7 @@ int64 Time::TicksTo(const Time& to) const {
   return to.ToTicksStartOfDay() - ToTicksStartOfDay();
 }
 
-//todo MICROSECOND?
+// todo MICROSECOND?
 String Time::ToString(DateFormatType format) const {
   if (!IsValid()) {
     return String(AsciiString("(null)"));
@@ -1441,19 +1530,24 @@ String Time::ToString(DateFormatType format) const {
 
   switch (format) {
     case DateFormatType::SystemLocaleShortDate:
-      return UNICHAR_TO_UTF8(Locale::System().ToString(*this, Locale::ShortFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale::System().ToString(*this, Locale::ShortFormat).c_str());
 
     case DateFormatType::SystemLcaleLongDate:
-      return UNICHAR_TO_UTF8(Locale::System().ToString(*this, Locale::LongFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale::System().ToString(*this, Locale::LongFormat).c_str());
 
     case DateFormatType::DefaultLocaleShortDate:
-      return UNICHAR_TO_UTF8(Locale().ToString(*this, Locale::ShortFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale().ToString(*this, Locale::ShortFormat).c_str());
 
     case DateFormatType::DefaultLocaleLongDate:
-      return UNICHAR_TO_UTF8(Locale().ToString(*this, Locale::LongFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale().ToString(*this, Locale::LongFormat).c_str());
 
     case DateFormatType::ISODateWithMs:
-      return String::Format("%02d:%02d:%02d.%03d", Hour(), Minute(), Second(), Millisecond());
+      return String::Format("%02d:%02d:%02d.%03d", Hour(), Minute(), Second(),
+                            Millisecond());
 
     case DateFormatType::RFC2822Date:
     case DateFormatType::ISODate:
@@ -1463,13 +1557,15 @@ String Time::ToString(DateFormatType format) const {
   }
 }
 
-//todo MICROSECOND?
+// todo MICROSECOND?
 String Time::ToString(const String& format) const {
-  return UNICHAR_TO_UTF8(Locale::System().ToString(*this, UString::FromUtf8(format)).c_str());
+  return UNICHAR_TO_UTF8(
+      Locale::System().ToString(*this, UString::FromUtf8(format)).c_str());
 }
 
-//todo MICROSECOND?
-static Time FromIsoTimeString(const String& string, DateFormatType format, bool* is_midnight24) {
+// todo MICROSECOND?
+static Time FromIsoTimeString(const String& string, DateFormatType format,
+                              bool* is_midnight24) {
   if (is_midnight24) {
     *is_midnight24 = false;
   }
@@ -1503,12 +1599,13 @@ static Time FromIsoTimeString(const String& string, DateFormatType format, bool*
     }
 
     // ISODate hh:mm.ssssss format
-    // We only want 5 digits worth of fraction of Minute. This follows the existing
-    // behavior that determines how milliseconds are read; 4 millisecond digits are
-    // read and then rounded to 3. If we read at most 5 digits for fraction of Minute,
-    // the maximum amount of millisecond digits it will expand to once converted to
-    // seconds is 4. E.g. 12:34,99999 will expand to 12:34:59.9994. The milliseconds
-    // will then be rounded up AND clamped to 999.
+    // We only want 5 digits worth of fraction of Minute. This follows the
+    // existing behavior that determines how milliseconds are read; 4
+    // millisecond digits are read and then rounded to 3. If we read at most 5
+    // digits for fraction of Minute, the maximum amount of millisecond digits
+    // it will expand to once converted to seconds is 4. E.g. 12:34,99999 will
+    // expand to 12:34:59.9994. The milliseconds will then be rounded up AND
+    // clamped to 999.
 
     const String minute_fraction_str = string.Mid(6, 5);
     const int32 minute_fraction_int = minute_fraction_str.ToInt32(&ok);
@@ -1516,7 +1613,9 @@ static Time FromIsoTimeString(const String& string, DateFormatType format, bool*
       return Time::Null;
     }
 
-    const float minute_fraction = double(minute_fraction_int) / (std::pow(double(10), minute_fraction_str.Len()));
+    const float minute_fraction =
+        double(minute_fraction_int) /
+        (std::pow(double(10), minute_fraction_str.Len()));
 
     const float second_with_ms = minute_fraction * 60;
     const float second_no_ms = std::floor(second_with_ms);
@@ -1535,12 +1634,14 @@ static Time FromIsoTimeString(const String& string, DateFormatType format, bool*
       if (!ok) {
         return Time::Null;
       }
-      const double second_fraction(msec_int / (std::pow(double(10), msec_str.Len())));
+      const double second_fraction(msec_int /
+                                   (std::pow(double(10), msec_str.Len())));
       tick = MathBase::Min(int32(second_fraction * 1000.0 + 0.5), 999);
     }
   }
 
-  const bool is_iso_date = format == DateFormatType::ISODate || format == DateFormatType::ISODateWithMs;
+  const bool is_iso_date = format == DateFormatType::ISODate ||
+                           format == DateFormatType::ISODateWithMs;
   if (is_iso_date && hour == 24 && minute == 0 && second == 0 && tick == 0) {
     if (is_midnight24) {
       *is_midnight24 = true;
@@ -1558,10 +1659,12 @@ Time Time::FromString(const String& string, DateFormatType format) {
 
   switch (format) {
     case DateFormatType::SystemLocaleShortDate:
-      return Locale::System().ToTime(UString::FromUtf8(string), Locale::ShortFormat);
+      return Locale::System().ToTime(UString::FromUtf8(string),
+                                     Locale::ShortFormat);
 
     case DateFormatType::SystemLcaleLongDate:
-      return Locale::System().ToTime(UString::FromUtf8(string), Locale::LongFormat);
+      return Locale::System().ToTime(UString::FromUtf8(string),
+                                     Locale::LongFormat);
 
     case DateFormatType::DefaultLocaleShortDate:
       return Locale().ToTime(UString::FromUtf8(string), Locale::ShortFormat);
@@ -1591,13 +1694,13 @@ Time Time::FromString(const String& string, const String& format) {
   return time;
 }
 
-bool Time::IsValid(int32 hour, int32 minute, int32 second, int32 millisecond, int32 microsecond) {
-  return uint32(hour) < 24 && uint32(minute) < 60 && uint32(second) < 60 && uint32(millisecond) < 1000 && uint32(microsecond) < 1000;
+bool Time::IsValid(int32 hour, int32 minute, int32 second, int32 millisecond,
+                   int32 microsecond) {
+  return uint32(hour) < 24 && uint32(minute) < 60 && uint32(second) < 60 &&
+         uint32(millisecond) < 1000 && uint32(microsecond) < 1000;
 }
 
-void Time::Start() {
-  *this = CurrentTime();
-}
+void Time::Start() { *this = CurrentTime(); }
 
 int64 Time::Restart() {
   const Time now = CurrentTime();
@@ -1618,37 +1721,29 @@ int64 Time::Elapsed() const {
   return elapsed_ticks;
 }
 
-Time Time::CurrentTime() {
-  return DateTime::Now().GetTime();
-}
+Time Time::CurrentTime() { return DateTime::Now().GetTime(); }
 
-Time Time::UtcCurrentTime() {
-  return DateTime::UtcNow().GetTime();
-}
-
+Time Time::UtcCurrentTime() { return DateTime::UtcNow().GetTime(); }
 
 //
 // DateTime
 //
 
 DateTime::Data::Data(TimeSpec spec)
-  : ticks(0),
-    status((uint8)spec << TimeSpecShift),
-    offset_from_utc(0),
-    timezone(new TimeZone()) {}
+    : ticks(0),
+      status((uint8)spec << TimeSpecShift),
+      offset_from_utc(0),
+      timezone(new TimeZone()) {}
 
-DateTime::Data::~Data() {
-  delete timezone;
-}
+DateTime::Data::~Data() { delete timezone; }
 
 DateTime::Data::Data(const Data& rhs)
-  : ticks(rhs.ticks),
-    status(rhs.status),
-    offset_from_utc(rhs.offset_from_utc),
-    timezone(new TimeZone(*rhs.timezone)) {
-}
+    : ticks(rhs.ticks),
+      status(rhs.status),
+      offset_from_utc(rhs.offset_from_utc),
+      timezone(new TimeZone(*rhs.timezone)) {}
 
-DateTime::Data& DateTime::Data::operator = (const DateTime::Data& rhs) {
+DateTime::Data& DateTime::Data::operator=(const DateTime::Data& rhs) {
   ticks = rhs.ticks;
   status = rhs.status;
   offset_from_utc = rhs.offset_from_utc;
@@ -1656,15 +1751,14 @@ DateTime::Data& DateTime::Data::operator = (const DateTime::Data& rhs) {
   return *this;
 }
 
-
 const DateTime DateTime::None;
 const DateTime DateTime::Null;
-const DateTime DateTime::MinValue = DateTime::FromUtcTicks(0);                       // 1-1-1 00:00:00.000
-const DateTime DateTime::MaxValue = DateTime::FromUtcTicks(185542587100799999LL);    // 5879611-7-11 23:59:59.999
+const DateTime DateTime::MinValue =
+    DateTime::FromUtcTicks(0);  // 1-1-1 00:00:00.000
+const DateTime DateTime::MaxValue =
+    DateTime::FromUtcTicks(185542587100799999LL);  // 5879611-7-11 23:59:59.999
 
-DateTime::DateTime() {
-  fun_check(GetTimeSpec() == TimeSpec::Local);
-}
+DateTime::DateTime() { fun_check(GetTimeSpec() == TimeSpec::Local); }
 
 DateTime::DateTime(const Date& date) {
   SetDateAndTime(data_, date, Time::Null);
@@ -1676,35 +1770,35 @@ DateTime::DateTime(const Date& date, const Time& time, TimeSpec spec) {
   SetDateAndTime(data_, date, time);
 }
 
-DateTime::DateTime(const Date& date, const Time& time, TimeSpec spec, int32 offset_seconds) {
+DateTime::DateTime(const Date& date, const Time& time, TimeSpec spec,
+                   int32 offset_seconds) {
   SetTimeSpec_helper(data_, spec, offset_seconds);
   SetDateAndTime(data_, date, time);
 }
 
-DateTime::DateTime(const Date& date, const Time& time, const TimeZone& timezone) {
-  //SetTimeSpec_helper(data, TimeSpec::TimeZone, 0);
+DateTime::DateTime(const Date& date, const Time& time,
+                   const TimeZone& timezone) {
+  // SetTimeSpec_helper(data, TimeSpec::TimeZone, 0);
   data_.status = MergeSpec(data_.status, TimeSpec::TimeZone);
   *data_.timezone = timezone;
   SetDateAndTime(data_, date, time);
 }
 
 DateTime::DateTime(const Timestamp& ts) {
-  //TODO
+  // TODO
   fun_check(0);
 }
 
-DateTime::DateTime(const DateTime& rhs)
-  : data_(rhs.data_) {}
+DateTime::DateTime(const DateTime& rhs) : data_(rhs.data_) {}
 
-DateTime::DateTime(DateTime&& rhs)
-  : data_(MoveTemp(rhs.data_)) {}
+DateTime::DateTime(DateTime&& rhs) : data_(MoveTemp(rhs.data_)) {}
 
-DateTime& DateTime::operator = (const DateTime& rhs) {
+DateTime& DateTime::operator=(const DateTime& rhs) {
   data_ = rhs.data_;
   return *this;
 }
 
-DateTime& DateTime::operator = (DateTime&& rhs) {
+DateTime& DateTime::operator=(DateTime&& rhs) {
   data_ = MoveTemp(rhs.data_);
   return *this;
 }
@@ -1720,37 +1814,21 @@ bool DateTime::IsNull() const {
   return (data_.status & (ValidDate | ValidTime)) == 0;
 }
 
-bool DateTime::IsValid() const {
-  return !!(data_.status & ValidDateTime);
-}
+bool DateTime::IsValid() const { return !!(data_.status & ValidDateTime); }
 
-int32 DateTime::Year() const {
-  return GetDate().Year();
-}
+int32 DateTime::Year() const { return GetDate().Year(); }
 
-int32 DateTime::Month() const {
-  return GetDate().Month();
-}
+int32 DateTime::Month() const { return GetDate().Month(); }
 
-int32 DateTime::Day() const {
-  return GetDate().Day();
-}
+int32 DateTime::Day() const { return GetDate().Day(); }
 
-DayOfWeekType DateTime::DayOfWeek() const {
-  return GetDate().DayOfWeek();
-}
+DayOfWeekType DateTime::DayOfWeek() const { return GetDate().DayOfWeek(); }
 
-int32 DateTime::DayOfYear() const {
-  return GetDate().DayOfYear();
-}
+int32 DateTime::DayOfYear() const { return GetDate().DayOfYear(); }
 
-int32 DateTime::DaysInMonth() const {
-  return GetDate().DaysInMonth();
-}
+int32 DateTime::DaysInMonth() const { return GetDate().DaysInMonth(); }
 
-int32 DateTime::DaysInYear() const {
-  return GetDate().DaysInYear();
-}
+int32 DateTime::DaysInYear() const { return GetDate().DaysInYear(); }
 
 int32 DateTime::Hour() const {
   return int32((data_.ticks / DateTimeConstants::TICKS_PER_HOUR) % 24);
@@ -1769,7 +1847,8 @@ int32 DateTime::Millisecond() const {
 }
 
 int32 DateTime::Microsecond() const {
-  return int32(((data_.ticks % DateTimeConstants::TICKS_PER_MILLISECOND) / 1000) % 1000);
+  return int32(
+      ((data_.ticks % DateTimeConstants::TICKS_PER_MILLISECOND) / 1000) % 1000);
 }
 
 int32 DateTime::HourAMPM() const {
@@ -1814,20 +1893,19 @@ Time DateTime::GetTime() const {
   return time_part;
 }
 
-TimeSpec DateTime::GetTimeSpec() const {
-  return GetSpec(data_.status);
-}
+TimeSpec DateTime::GetTimeSpec() const { return GetSpec(data_.status); }
 
 int32 DateTime::GetOffsetFromUtc() const {
   return data_.offset_from_utc;
 
-  //if (!IsValid()) {
+  // if (!IsValid()) {
   //  return 0;
   //}
   //
-  //const auto spec = GetSpec(data_.status);
+  // const auto spec = GetSpec(data_.status);
   //
-  //if (spec == TimeSpec::OffsetFromUTC || spec == TimeSpec::TimeZone) { //TODO TimeZone일 경우에 OffsetFromUTC가 설정되는지??
+  // if (spec == TimeSpec::OffsetFromUTC || spec == TimeSpec::TimeZone) { //TODO
+  // TimeZone일 경우에 OffsetFromUTC가 설정되는지??
   //  return data_.offset_from_utc;
   //} else if (spec == TimeSpec::Local) {
   //  // We didn't cache the value, so we need to calculate it now.
@@ -1866,10 +1944,12 @@ String DateTime::GetTimeZoneAbbreviation() const {
       return AsciiString("UTC");
 
     case TimeSpec::OffsetFromUTC:
-      return AsciiString("UTC") + ToOffsetString(DateFormatType::ISODate, data_.offset_from_utc);
+      return AsciiString("UTC") +
+             ToOffsetString(DateFormatType::ISODate, data_.offset_from_utc);
 
     case TimeSpec::TimeZone:
-      return data_.timezone->impl_->GetAbbreviation(ToUtcTicksSinceEpoch() / DateTimeConstants::TICKS_PER_MILLISECOND);
+      return data_.timezone->impl_->GetAbbreviation(
+          ToUtcTicksSinceEpoch() / DateTimeConstants::TICKS_PER_MILLISECOND);
 
     case TimeSpec::Local: {
       String abbreviation;
@@ -1891,7 +1971,8 @@ bool DateTime::IsDaylightTime() const {
       return false;
 
     case TimeSpec::TimeZone:
-      return data_.timezone->impl_->IsDaylightTime(ToUtcTicksSinceEpoch() / DateTimeConstants::TICKS_PER_MILLISECOND);
+      return data_.timezone->impl_->IsDaylightTime(
+          ToUtcTicksSinceEpoch() / DateTimeConstants::TICKS_PER_MILLISECOND);
 
     case TimeSpec::Local: {
       auto status = ExtractDaylightStatus(data_.status);
@@ -1907,7 +1988,7 @@ bool DateTime::IsDaylightTime() const {
 
 int64 DateTime::ToUtcTicks() const {
   if (!IsValid()) {
-    //fun_check(data_.ticks == 0);
+    // fun_check(data_.ticks == 0);
     return 0;
   }
 
@@ -1917,7 +1998,8 @@ int64 DateTime::ToUtcTicks() const {
       return data_.ticks;
 
     case TimeSpec::OffsetFromUTC:
-      return data_.ticks - (data_.offset_from_utc * DateTimeConstants::TICKS_PER_SECOND);
+      return data_.ticks -
+             (data_.offset_from_utc * DateTimeConstants::TICKS_PER_SECOND);
 
     case TimeSpec::Local: {
       auto status = ExtractDaylightStatus(data_.status);
@@ -1925,7 +2007,8 @@ int64 DateTime::ToUtcTicks() const {
     }
 
     case TimeSpec::TimeZone:
-      return ZoneToUtcTicks(data_.ticks, *data_.timezone, ExtractDaylightStatus(data_.status));
+      return ZoneToUtcTicks(data_.ticks, *data_.timezone,
+                            ExtractDaylightStatus(data_.status));
   }
 
   // unrechable to here.
@@ -1975,22 +2058,35 @@ void DateTime::SetUtcTicks(int64 utc_ticks) {
 
     case TimeSpec::OffsetFromUTC:
       status |= (ValidDate | ValidTime | ValidDateTime);
-      utc_ticks += (data_.offset_from_utc * DateTimeConstants::TICKS_PER_SECOND);
+      utc_ticks +=
+          (data_.offset_from_utc * DateTimeConstants::TICKS_PER_SECOND);
       break;
 
     case TimeSpec::TimeZone: {
-      // Docs state any local_time before 1970-01-01 will *not* have any DST applied
-      // but all affected times afterwards will have DST applied.
-      const int64 utc_ticks_since_epoch = utc_ticks - DateTimeConstants::EPOCH_TICKS;
+      // Docs state any local_time before 1970-01-01 will *not* have any DST
+      // applied but all affected times afterwards will have DST applied.
+      const int64 utc_ticks_since_epoch =
+          utc_ticks - DateTimeConstants::EPOCH_TICKS;
       if (utc_ticks_since_epoch >= 0) {
-        status = MergeDaylightStatus(status, data_.timezone->impl_->IsDaylightTime(utc_ticks_since_epoch / DateTimeConstants::TICKS_PER_MILLISECOND) ? DaylightStatus::DaylightTime : DaylightStatus::StandardTime);
-        data_.offset_from_utc = data_.timezone->impl_->GetOffsetFromUtc(utc_ticks_since_epoch / DateTimeConstants::TICKS_PER_MILLISECOND);
+        status = MergeDaylightStatus(
+            status, data_.timezone->impl_->IsDaylightTime(
+                        utc_ticks_since_epoch /
+                        DateTimeConstants::TICKS_PER_MILLISECOND)
+                        ? DaylightStatus::DaylightTime
+                        : DaylightStatus::StandardTime);
+        data_.offset_from_utc = data_.timezone->impl_->GetOffsetFromUtc(
+            utc_ticks_since_epoch / DateTimeConstants::TICKS_PER_MILLISECOND);
       } else {
         status = MergeDaylightStatus(status, DaylightStatus::StandardTime);
-        data_.offset_from_utc = data_.timezone->impl_->GetStandardTimeOffset(utc_ticks_since_epoch / DateTimeConstants::TICKS_PER_MILLISECOND);
+        data_.offset_from_utc = data_.timezone->impl_->GetStandardTimeOffset(
+            utc_ticks_since_epoch / DateTimeConstants::TICKS_PER_MILLISECOND);
       }
-      utc_ticks += (data_.offset_from_utc * DateTimeConstants::TICKS_PER_SECOND);
-      status |= ValidDate | ValidTime | ValidDateTime; // 일단은 유효하다고 설정해두고, RefreshDateTime() 함수내에서 실제 유효한지 여부를 갱신.
+      utc_ticks +=
+          (data_.offset_from_utc * DateTimeConstants::TICKS_PER_SECOND);
+      status |=
+          ValidDate | ValidTime |
+          ValidDateTime;  // 일단은 유효하다고 설정해두고, RefreshDateTime()
+                          // 함수내에서 실제 유효한지 여부를 갱신.
       break;
     }
 
@@ -2002,7 +2098,7 @@ void DateTime::SetUtcTicks(int64 utc_ticks) {
 
       SetDateAndTime(data_, date, time);
 
-      utc_ticks = data_.ticks; // assign converted msecs.
+      utc_ticks = data_.ticks;  // assign converted msecs.
       status = MergeDaylightStatus(data_.status, daylight);
       break;
     }
@@ -2020,7 +2116,7 @@ void DateTime::SetUtcTicksSinceEpoch(int64 utc_ticks_since_epoch) {
   SetUtcTicks(utc_ticks_since_epoch + DateTimeConstants::EPOCH_TICKS);
 }
 
-//TODO fraction.
+// TODO fraction.
 String DateTime::ToString(DateFormatType format) const {
   if (!IsValid()) {
     return AsciiString("(null)");
@@ -2030,19 +2126,26 @@ String DateTime::ToString(DateFormatType format) const {
 
   switch (format) {
     case DateFormatType::SystemLocaleShortDate:
-      return UNICHAR_TO_UTF8(Locale::System().ToString(*this, Locale::ShortFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale::System().ToString(*this, Locale::ShortFormat).c_str());
 
     case DateFormatType::SystemLcaleLongDate:
-      return UNICHAR_TO_UTF8(Locale::System().ToString(*this, Locale::LongFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale::System().ToString(*this, Locale::LongFormat).c_str());
 
     case DateFormatType::DefaultLocaleShortDate:
-      return UNICHAR_TO_UTF8(Locale().ToString(*this, Locale::ShortFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale().ToString(*this, Locale::ShortFormat).c_str());
 
     case DateFormatType::DefaultLocaleLongDate:
-      return UNICHAR_TO_UTF8(Locale().ToString(*this, Locale::LongFormat).c_str());
+      return UNICHAR_TO_UTF8(
+          Locale().ToString(*this, Locale::LongFormat).c_str());
 
     case DateFormatType::RFC2822Date: {
-      buf = UNICHAR_TO_UTF8(Locale::CLocale().ToString(*this, AsciiString("dd MMM yyyy hh:mm:ss ")).c_str());
+      buf = UNICHAR_TO_UTF8(
+          Locale::CLocale()
+              .ToString(*this, AsciiString("dd MMM yyyy hh:mm:ss "))
+              .c_str());
       buf += ToOffsetString(DateFormatType::TextDate, GetOffsetFromUtc());
       return buf;
     }
@@ -2054,7 +2157,8 @@ String DateTime::ToString(DateFormatType format) const {
 
       buf = date_part.ToString(DateFormatType::TextDate);
       // Insert time between date's day and year:
-      buf.Insert(buf.LastIndexOf(' '), ' ' + time_part.ToString(DateFormatType::TextDate));
+      buf.Insert(buf.LastIndexOf(' '),
+                 ' ' + time_part.ToString(DateFormatType::TextDate));
 
       // Append zone/offset indicator, as appropriate:
       const TimeSpec spec = GetSpec(data_.status);
@@ -2082,7 +2186,7 @@ String DateTime::ToString(DateFormatType format) const {
 
       buf = date_part.ToString(DateFormatType::ISODate);
       if (buf.IsEmpty()) {
-        return String(); // failed to convert
+        return String();  // failed to convert
       }
 
       buf += 'T';
@@ -2090,17 +2194,17 @@ String DateTime::ToString(DateFormatType format) const {
 
       const TimeSpec spec = GetSpec(data_.status);
       switch (spec) {
-      case TimeSpec::UTC:
-        buf += 'Z';
-        break;
+        case TimeSpec::UTC:
+          buf += 'Z';
+          break;
 
-      case TimeSpec::OffsetFromUTC:
-      case TimeSpec::TimeZone:
-        buf += ToOffsetString(DateFormatType::ISODate, GetOffsetFromUtc());
-        break;
+        case TimeSpec::OffsetFromUTC:
+        case TimeSpec::TimeZone:
+          buf += ToOffsetString(DateFormatType::ISODate, GetOffsetFromUtc());
+          break;
 
-      default:
-        break;
+        default:
+          break;
       }
       return buf;
     }
@@ -2108,8 +2212,10 @@ String DateTime::ToString(DateFormatType format) const {
 }
 
 String DateTime::ToString(const String& format) const {
-  return UNICHAR_TO_UTF8(Locale::System().ToString(*this, UString::FromUtf8(format)).c_str());
-  //return UNICHAR_TO_UTF8(Locale::CLocale().ToString(*this, UString::FromUtf8(format)).c_str());
+  return UNICHAR_TO_UTF8(
+      Locale::System().ToString(*this, UString::FromUtf8(format)).c_str());
+  // return UNICHAR_TO_UTF8(Locale::CLocale().ToString(*this,
+  // UString::FromUtf8(format)).c_str());
 }
 
 DateTime DateTime::AddDays(int64 days) const {
@@ -2183,7 +2289,8 @@ DateTime& DateTime::AddMonthsInPlace(int32 months) {
     d = days;
   }
 
-  data_.ticks = DateToDays(y, m, d) * DateTimeConstants::TICKS_PER_DAY + (data_.ticks % DateTimeConstants::TICKS_PER_DAY);
+  data_.ticks = DateToDays(y, m, d) * DateTimeConstants::TICKS_PER_DAY +
+                (data_.ticks % DateTimeConstants::TICKS_PER_DAY);
   return *this;
 }
 
@@ -2204,11 +2311,13 @@ DateTime& DateTime::AddSecondsInPlace(int64 seconds) {
 }
 
 DateTime& DateTime::AddMillisecondsInPlace(int64 milliseconds) {
-  return AddTicksInPlace(milliseconds * DateTimeConstants::TICKS_PER_MILLISECOND);
+  return AddTicksInPlace(milliseconds *
+                         DateTimeConstants::TICKS_PER_MILLISECOND);
 }
 
 DateTime& DateTime::AddMicrosecondsInPlace(int64 microseconds) {
-  return AddTicksInPlace(microseconds * DateTimeConstants::TICKS_PER_MICROSECOND);
+  return AddTicksInPlace(microseconds *
+                         DateTimeConstants::TICKS_PER_MICROSECOND);
 }
 
 DateTime& DateTime::AddTicksInPlace(int64 ticks_to_add) {
@@ -2218,7 +2327,7 @@ DateTime& DateTime::AddTicksInPlace(int64 ticks_to_add) {
       // Convert to real UTC first in case crosses DST transition
       SetUtcTicks(ToUtcTicks() + ticks_to_add);
     } else {
-      //data_.ticks += ticks_to_add;
+      // data_.ticks += ticks_to_add;
       SetUtcTicks(data_.ticks + ticks_to_add);
     }
   }
@@ -2226,7 +2335,8 @@ DateTime& DateTime::AddTicksInPlace(int64 ticks_to_add) {
 }
 
 DateTime DateTime::ToTimeSpec(TimeSpec spec) const {
-  if (GetSpec(data_.status) == spec && (spec == TimeSpec::UTC || spec == TimeSpec::Local)) {
+  if (GetSpec(data_.status) == spec &&
+      (spec == TimeSpec::UTC || spec == TimeSpec::Local)) {
     return *this;
   }
 
@@ -2242,16 +2352,13 @@ DateTime DateTime::ToTimeSpec(TimeSpec spec) const {
   return FromUtcTicks(ToUtcTicks(), spec, 0);
 }
 
-DateTime DateTime::ToLocalTime() const {
-  return ToTimeSpec(TimeSpec::Local);
-}
+DateTime DateTime::ToLocalTime() const { return ToTimeSpec(TimeSpec::Local); }
 
-DateTime DateTime::ToUniversalTime() const {
-  return ToTimeSpec(TimeSpec::UTC);
-}
+DateTime DateTime::ToUniversalTime() const { return ToTimeSpec(TimeSpec::UTC); }
 
 DateTime DateTime::ToOffsetFromUTC(int32 offset_seconds) const {
-  if (GetSpec(data_.status) == TimeSpec::OffsetFromUTC && data_.offset_from_utc == offset_seconds) {
+  if (GetSpec(data_.status) == TimeSpec::OffsetFromUTC &&
+      data_.offset_from_utc == offset_seconds) {
     // Since no conversion is needed, we can not accept that.
     return *this;
   }
@@ -2269,7 +2376,8 @@ DateTime DateTime::ToOffsetFromUTC(int32 offset_seconds) const {
 }
 
 DateTime DateTime::ToTimeZone(const TimeZone& to_time_zone) const {
-  if (GetSpec(data_.status) == TimeSpec::TimeZone && *data_.timezone == to_time_zone) {
+  if (GetSpec(data_.status) == TimeSpec::TimeZone &&
+      *data_.timezone == to_time_zone) {
     // Since no conversion is needed, we can not accept that.
     return *this;
   }
@@ -2319,52 +2427,60 @@ int64 DateTime::TicksTo(const DateTime& to) const {
 int32 DateTime::Compare(const DateTime& other) const {
   if (GetSpec(data_.status) == TimeSpec::Local &&
       GetSpec(data_.status) == GetSpec(other.data_.status)) {
-    return data_.ticks == other.data_.ticks ? 0 : (data_.ticks < other.data_.ticks ? -1 : +1);
+    return data_.ticks == other.data_.ticks
+               ? 0
+               : (data_.ticks < other.data_.ticks ? -1 : +1);
   }
 
   const int64 this_utc_ticks = ToUtcTicks();
   const int64 other_utc_ticks = other.ToUtcTicks();
-  return this_utc_ticks == other_utc_ticks ? 0 : (this_utc_ticks < other_utc_ticks ? -1 : +1);
+  return this_utc_ticks == other_utc_ticks
+             ? 0
+             : (this_utc_ticks < other_utc_ticks ? -1 : +1);
 }
 
-bool operator == (const DateTime& lhs, const DateTime& rhs) {
+bool operator==(const DateTime& lhs, const DateTime& rhs) {
   return lhs.Compare(rhs) == 0;
 }
 
-bool operator != (const DateTime& lhs, const DateTime& rhs) {
+bool operator!=(const DateTime& lhs, const DateTime& rhs) {
   return lhs.Compare(rhs) != 0;
 }
 
-bool operator < (const DateTime& lhs, const DateTime& rhs) {
+bool operator<(const DateTime& lhs, const DateTime& rhs) {
   return lhs.Compare(rhs) < 0;
 }
 
-bool operator <= (const DateTime& lhs, const DateTime& rhs) {
+bool operator<=(const DateTime& lhs, const DateTime& rhs) {
   return lhs.Compare(rhs) <= 0;
 }
 
-bool operator > (const DateTime& lhs, const DateTime& rhs) {
+bool operator>(const DateTime& lhs, const DateTime& rhs) {
   return lhs.Compare(rhs) > 0;
 }
 
-bool operator >= (const DateTime& lhs, const DateTime& rhs) {
+bool operator>=(const DateTime& lhs, const DateTime& rhs) {
   return lhs.Compare(rhs) >= 0;
 }
 
 DateTime DateTime::Now() {
-  //TODO UTC를 가지고 로컬로 변환해서 반환하는 형태로 처리..
+  // TODO UTC를 가지고 로컬로 변환해서 반환하는 형태로 처리..
   int32 year, month, dayofweek, day;
   int32 hour, minute, second, millisecond;
-  SystemTime::GetSystemTime(year, month, dayofweek, day, hour, minute, second, millisecond);
-  return DateTime(Date(year, month, day), Time(hour, minute, second, millisecond), TimeSpec::Local);
+  SystemTime::GetSystemTime(year, month, dayofweek, day, hour, minute, second,
+                            millisecond);
+  return DateTime(Date(year, month, day),
+                  Time(hour, minute, second, millisecond), TimeSpec::Local);
 }
 
 DateTime DateTime::UtcNow() {
-  //TODO FILETIME에서 가져와서 처리하는 걸로...
+  // TODO FILETIME에서 가져와서 처리하는 걸로...
   int32 year, month, dayofweek, day;
   int32 hour, minute, second, millisecond;
-  SystemTime::GetUtcTime(year, month, dayofweek, day, hour, minute, second, millisecond);
-  return DateTime(Date(year, month, day), Time(hour, minute, second, millisecond), TimeSpec::UTC);
+  SystemTime::GetUtcTime(year, month, dayofweek, day, hour, minute, second,
+                         millisecond);
+  return DateTime(Date(year, month, day),
+                  Time(hour, minute, second, millisecond), TimeSpec::UTC);
 }
 
 DateTime DateTime::FromString(const String& string, DateFormatType format) {
@@ -2374,13 +2490,16 @@ DateTime DateTime::FromString(const String& string, DateFormatType format) {
 
   switch (format) {
     case DateFormatType::SystemLocaleShortDate:
-      return Locale::System().ToDateTime(UString::FromUtf8(string), Locale::ShortFormat);
+      return Locale::System().ToDateTime(UString::FromUtf8(string),
+                                         Locale::ShortFormat);
 
     case DateFormatType::SystemLcaleLongDate:
-      return Locale::System().ToDateTime(UString::FromUtf8(string), Locale::LongFormat);
+      return Locale::System().ToDateTime(UString::FromUtf8(string),
+                                         Locale::LongFormat);
 
     case DateFormatType::DefaultLocaleShortDate:
-      return Locale().ToDateTime(UString::FromUtf8(string), Locale::ShortFormat);
+      return Locale().ToDateTime(UString::FromUtf8(string),
+                                 Locale::ShortFormat);
 
     case DateFormatType::DefaultLocaleLongDate:
       return Locale().ToDateTime(UString::FromUtf8(string), Locale::LongFormat);
@@ -2414,19 +2533,20 @@ DateTime DateTime::FromString(const String& string, DateFormatType format) {
       }
 
       if (len == 10) {
-        return DateTime(date); // date only
+        return DateTime(date);  // date only
       }
 
       iso_string = iso_string.Right(iso_string.Len() - 11);
       int32 offset_seconds = 0;
-      // Check end of string for time zone definition, either Z for UTC or [+-]hh:mm for offset
+      // Check end of string for time zone definition, either Z for UTC or
+      // [+-]hh:mm for offset
       if (iso_string.EndsWith('Z')) {
         spec = TimeSpec::UTC;
         iso_string = iso_string.Left(iso_string.Len() - 1);
-      }
-      else {
+      } else {
         int32 sign_index = iso_string.Len() - 1;
-        bool found = false; {
+        bool found = false;
+        {
           const char plus = '+';
           const char minus = '-';
           do {
@@ -2447,8 +2567,9 @@ DateTime DateTime::FromString(const String& string, DateFormatType format) {
         }
       }
 
-      // Might be end of Day (24:00, including variants), which Time considers invalid.
-      // ISO 8601 (section 4.2.3) says that 24:00 is equivalent to 00:00 the next day.
+      // Might be end of Day (24:00, including variants), which Time considers
+      // invalid. ISO 8601 (section 4.2.3) says that 24:00 is equivalent to
+      // 00:00 the next day.
       bool is_midnight24 = false;
       const Time time = FromIsoTimeString(iso_string, format, &is_midnight24);
       if (!time.IsValid()) {
@@ -2461,7 +2582,8 @@ DateTime DateTime::FromString(const String& string, DateFormatType format) {
     }
 
     case DateFormatType::TextDate: {
-      const Array<String> parts = string.Split(' ', 0, StringSplitOption::CullEmpty);
+      const Array<String> parts =
+          string.Split(' ', 0, StringSplitOption::CullEmpty);
 
       if ((parts.Count() < 5) || (parts.Count() > 6)) {
         return DateTime::Null;
@@ -2495,8 +2617,8 @@ DateTime DateTime::FromString(const String& string, DateFormatType format) {
         return DateTime::Null;
       }
 
-      // Year can be before or after time, "Sun Dec 1 1974 13:02:00" or "Sun Dec 1 13:02:00 1974"
-      // Guess which by looking for ':' in the time
+      // Year can be before or after time, "Sun Dec 1 1974 13:02:00" or "Sun Dec
+      // 1 13:02:00 1974" Guess which by looking for ':' in the time
       int32 year = 0;
       int32 year_part = 0;
       int32 time_part = 0;
@@ -2588,7 +2710,8 @@ DateTime DateTime::FromString(const String& string, DateFormatType format) {
 DateTime DateTime::FromString(const String& string, const String& format) {
   Date date;
   Time time;
-  DateTimeParser parse(VariantTypes::DateTime, DateTimeParser::CONTEXT_FromString);
+  DateTimeParser parse(VariantTypes::DateTime,
+                       DateTimeParser::CONTEXT_FromString);
   // dt.SetDefaultLocale(Locale::CLocale()); ### Qt 6
   if (parse.ParseFormat(format) && parse.FromString(string, &date, &time)) {
     return DateTime(date, time);
@@ -2600,7 +2723,8 @@ DateTime DateTime::FromUtcTicks(int64 utc_ticks) {
   return FromUtcTicks(utc_ticks, TimeSpec::UTC);
 }
 
-DateTime DateTime::FromUtcTicks(int64 utc_ticks, TimeSpec spec, int32 offset_seconds) {
+DateTime DateTime::FromUtcTicks(int64 utc_ticks, TimeSpec spec,
+                                int32 offset_seconds) {
   DateTime result;
   SetTimeSpec_helper(result.data_, spec, offset_seconds);
   result.SetUtcTicks(utc_ticks);
@@ -2618,27 +2742,31 @@ DateTime DateTime::FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch) {
   return FromUtcTicks(utc_ticks_since_epoch + DateTimeConstants::EPOCH_TICKS);
 }
 
-DateTime DateTime::FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch, TimeSpec spec, int32 offset_from_utc) {
-  return FromUtcTicks(utc_ticks_since_epoch + DateTimeConstants::EPOCH_TICKS, spec, offset_from_utc);
+DateTime DateTime::FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch,
+                                          TimeSpec spec,
+                                          int32 offset_from_utc) {
+  return FromUtcTicks(utc_ticks_since_epoch + DateTimeConstants::EPOCH_TICKS,
+                      spec, offset_from_utc);
 }
 
-DateTime DateTime::FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch, const TimeZone& timezone) {
-  return FromUtcTicks(utc_ticks_since_epoch + DateTimeConstants::EPOCH_TICKS, timezone);
+DateTime DateTime::FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch,
+                                          const TimeZone& timezone) {
+  return FromUtcTicks(utc_ticks_since_epoch + DateTimeConstants::EPOCH_TICKS,
+                      timezone);
 }
 
-Archive& operator & (Archive& ar, DateTime& dt) {
+Archive& operator&(Archive& ar, DateTime& dt) {
   //다시 정리해볼 필요가 있음.
-  return ar & dt.data_.ticks & dt.data_.status & dt.data_.offset_from_utc & *(dt.data_.timezone);
+  return ar & dt.data_.ticks & dt.data_.status & dt.data_.offset_from_utc &
+         *(dt.data_.timezone);
 }
 
-uint32 HashOf(const DateTime& dt) {
-  return HashOf(dt.ToUtcTicks());
-}
+uint32 HashOf(const DateTime& dt) { return HashOf(dt.ToUtcTicks()); }
 
 namespace Lex {
-  String ToString(const Date& value) { return value.ToString(); }
-  String ToString(const Time& value) { return value.ToString(); }
-  String ToString(const DateTime& value) { return value.ToString(); }
-}
+String ToString(const Date& value) { return value.ToString(); }
+String ToString(const Time& value) { return value.ToString(); }
+String ToString(const DateTime& value) { return value.ToString(); }
+}  // namespace Lex
 
-} // namespace fun
+}  // namespace fun

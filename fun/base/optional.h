@@ -15,66 +15,64 @@ class Optional {
   Optional() : is_specified_(false) {}
 
   Optional(const T& initial_value) {
-    new(&value_) T(initial_value);
+    new (&value_) T(initial_value);
     is_specified_ = true;
   }
 
   Optional(T&& initial_value) {
-    new(&value_) T(MoveTemp(initial_value));
+    new (&value_) T(MoveTemp(initial_value));
     is_specified_ = true;
   }
 
   Optional(const Optional& other) {
-    new(&value_) T(*(const T*)&other.value_);
+    new (&value_) T(*(const T*)&other.value_);
     is_specified_ = true;
   }
 
   Optional(Optional&& other) {
-    new(&value_) T(MoveTemp(*(T*)&other.value_));
+    new (&value_) T(MoveTemp(*(T*)&other.value_));
     is_specified_ = true;
   }
 
-  ~Optional() {
-    Reset();
-  }
+  ~Optional() { Reset(); }
 
-  Optional& operator = (const Optional& other) {
+  Optional& operator=(const Optional& other) {
     if (FUN_LIKELY(&other != this)) {
       Reset();
 
       if (other.is_specified_) {
-        new(&value_) T(*(const T*)&other.value_);
+        new (&value_) T(*(const T*)&other.value_);
         is_specified_ = true;
       }
     }
     return *this;
   }
 
-  Optional& operator = (Optional&& other) {
+  Optional& operator=(Optional&& other) {
     if (FUN_LIKELY(&other != this)) {
       Reset();
 
       if (other.is_specified_) {
-        new(&value_) T(MoveTemp(*(T*)&other.value_));
+        new (&value_) T(MoveTemp(*(T*)&other.value_));
         is_specified_ = true;
       }
     }
     return *this;
   }
 
-  Optional& operator = (const T& value) {
+  Optional& operator=(const T& value) {
     if (FUN_LIKELY(&value != (T*)&value_)) {
       Reset();
-      new(&value_) T(value);
+      new (&value_) T(value);
       is_specified_ = true;
     }
     return *this;
   }
 
-  Optional& operator = (T&& value) {
+  Optional& operator=(T&& value) {
     if (FUN_LIKELY(&value != (T*)&value_)) {
       Reset();
-      new(&value_) T(MoveTemp(value));
+      new (&value_) T(MoveTemp(value));
       is_specified_ = true;
     }
     return *this;
@@ -90,41 +88,40 @@ class Optional {
   template <typename... Args>
   void Emplace(Args&&... args) {
     Reset();
-    new(&value_) T(Forward<Args>(args)...);
+    new (&value_) T(Forward<Args>(args)...);
     is_specified_ = true;
   }
 
   /**
-   * Returns true when the value is meaningful; false if calling Value() is undefined.
+   * Returns true when the value is meaningful; false if calling Value() is
+   * undefined.
    */
-  bool IsSpecified() const {
-    return is_specified_;
-  }
+  bool IsSpecified() const { return is_specified_; }
 
-  explicit operator bool() const {
-    return is_specified_;
-  }
+  explicit operator bool() const { return is_specified_; }
 
   /**
    * Returns The optional value; undefined when IsSpecified() returns false.
    */
   const T& Value() const {
-    fun_check_msg(IsSpecified(), "It is an error to call Value() on an unset Optional. Please either check IsSpecified() or use ValueOr(default_value) instead.");
+    fun_check_msg(
+        IsSpecified(),
+        "It is an error to call Value() on an unset Optional. Please either "
+        "check IsSpecified() or use ValueOr(default_value) instead.");
     return *(T*)&value_;
   }
 
   T& Value() {
-    fun_check_msg(IsSpecified(), "It is an error to call Value() on an unset Optional. Please either check IsSpecified() or use ValueOr(default_value) instead.");
+    fun_check_msg(
+        IsSpecified(),
+        "It is an error to call Value() on an unset Optional. Please either "
+        "check IsSpecified() or use ValueOr(default_value) instead.");
     return *(T*)&value_;
   }
 
-  const T* operator -> () const {
-    return &Value();
-  }
+  const T* operator->() const { return &Value(); }
 
-  T* operator -> () {
-     return &Value();
-  }
+  T* operator->() { return &Value(); }
 
   /**
    * Returns The optional value when set; default_value otherwise.
@@ -133,19 +130,19 @@ class Optional {
     return IsSpecified() ? *(T*)&value_ : default_value;
   }
 
-  friend bool operator == (const Optional& lhs, const Optional& rhs) {
+  friend bool operator==(const Optional& lhs, const Optional& rhs) {
     if (lhs.is_specified_ != rhs.is_specified_) {
       return false;
     }
 
-    if (!lhs.is_specified_) { // both unset
+    if (!lhs.is_specified_) {  // both unset
       return true;
     }
 
     return (*(T*)&lhs.value_) == (*(T*)&rhs.value_);
   }
 
-  friend bool operator != (const Optional& lhs, const Optional& rhs) {
+  friend bool operator!=(const Optional& lhs, const Optional& rhs) {
     return !(lhs == rhs);
   }
 
@@ -154,4 +151,4 @@ class Optional {
   TypeCompatibleStorage<T> value_;
 };
 
-} // namespace fun
+}  // namespace fun

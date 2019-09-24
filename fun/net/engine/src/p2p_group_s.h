@@ -68,33 +68,34 @@ class LanP2PGroupMember_S {
   LanP2PGroupMemberBase_S* ptr_;
 };
 
-// 클라에서 unreliable relay가 왔을때 G,~a,~b,~c로부터 차집합을 얻는 과정이 있다.
-// 거기서 두 집합이 정렬되어 있으면 merge sort와 비슷한 방법으로 빨리 차집합을 얻을 수 있다.
-// 그래서 이 map은 ordered이어야 하고, 그것이 std.map을 쓰는 이유다.
+// 클라에서 unreliable relay가 왔을때 G,~a,~b,~c로부터 차집합을 얻는 과정이
+// 있다. 거기서 두 집합이 정렬되어 있으면 merge sort와 비슷한 방법으로 빨리
+// 차집합을 얻을 수 있다. 그래서 이 map은 ordered이어야 하고, 그것이 std.map을
+// 쓰는 이유다.
 
-//TODO
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//TOrderedMap으로 교체해야함!!
-//typedef std::map<HostId, P2PGroupMember_S> P2PGroupMembers_S;
+// TODO
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// TOrderedMap으로 교체해야함!!
+// typedef std::map<HostId, P2PGroupMember_S> P2PGroupMembers_S;
 typedef Map<HostId, P2PGroupMember_S> P2PGroupMembers_S;
 typedef Map<HostId, LanP2PGroupMember_S> LanP2PGroupMembers_S;
 
@@ -102,9 +103,10 @@ class P2PGroup_S {
  public:
   struct AddMemberAckWaiter {
     HostId joining_member_host_id;
-    HostId old_member_host_id; // 이 피어에서 새 멤버에 대한 OnP2PMemberJoined 콜백이 있어야 한다.
+    HostId old_member_host_id;  // 이 피어에서 새 멤버에 대한 OnP2PMemberJoined
+                                // 콜백이 있어야 한다.
     uint32 event_id;
-    double event_time; // 너무 오랫동안 보유되면 제거하기 위함
+    double event_time;  // 너무 오랫동안 보유되면 제거하기 위함
   };
 
   /* 그룹 ID */
@@ -113,7 +115,8 @@ class P2PGroup_S {
   /* 그룹에 소속된 Client peer들의 host_id */
   P2PGroupMembers_S members_;
 
-  /* P2P 그룹이 super peer를 놓고 통신할 경우 가장 적합하다고 추정되는 순으로 정렬된 host_id 리스트 */
+  /* P2P 그룹이 super peer를 놓고 통신할 경우 가장 적합하다고 추정되는 순으로
+   * 정렬된 host_id 리스트 */
   Array<super_peer_rating_> ordered_super_peer_suitables_;
 
   bool super_peer_selection_policy_is_valid_;
@@ -121,7 +124,8 @@ class P2PGroup_S {
 
   // P2PGroup add ack가 도착할 때까지 기다리고 있는 것들의 목록
   struct AddMemberAckWaiterList : public Array<AddMemberAckWaiter> {
-    bool RemoveEqualItem(HostId old_member_host_id, HostId new_member_host_id, uint32 event_id);
+    bool RemoveEqualItem(HostId old_member_host_id, HostId new_member_host_id,
+                         uint32 event_id);
     bool AckWaitingItemExists(HostId joining_member_host_id, uint32 event_id);
     bool AckWaitingItemExists(HostId joining_member_host_id);
   };
@@ -143,7 +147,8 @@ class LanP2PGroup_S {
  public:
   struct AddMemberAckWaiter {
     HostId joining_member_host_id;
-    HostId old_member_host_id; /** 이 피어에서 새 멤버에 대한 OnP2PMemberJoined 콜백이 있어야 한다. */
+    HostId old_member_host_id; /** 이 피어에서 새 멤버에 대한 OnP2PMemberJoined
+                                  콜백이 있어야 한다. */
     uint32 event_id;
     double event_time; /** 너무 오랫동안 보유되면 제거하기 위함 */
   };
@@ -159,7 +164,8 @@ class LanP2PGroup_S {
 
   /** P2PGroup add ack가 도착할 때까지 기다리고 있는 것들의 목록 */
   struct AddMemberAckWaiterList : public Array<AddMemberAckWaiter> {
-    bool RemoveEqualItem(HostId old_member_host_id, HostId new_member_host_id, uint32 event_id);
+    bool RemoveEqualItem(HostId old_member_host_id, HostId new_member_host_id,
+                         uint32 event_id);
     bool AckWaitingItemExists(HostId joining_member_host_id, uint32 event_id);
     bool AckWaitingItemExists(HostId joining_member_host_id);
   };
@@ -171,5 +177,5 @@ class LanP2PGroup_S {
   LanP2PGroup_S();
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

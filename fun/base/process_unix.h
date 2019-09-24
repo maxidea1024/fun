@@ -41,13 +41,11 @@ class FUN_BASE_API ProcessImpl {
 
   static PIDImpl CurrentPidImpl();
   static void GetTimesImpl(long& user_time, long& kernel_time);
-  static ProcessHandleImpl* LaunchImpl( const String& command,
-                                        const ArgsImpl& args,
-                                        const String& initial_directory,
-                                        Pipe* in_pipe,
-                                        Pipe* out_pipe,
-                                        Pipe* err_pipe,
-                                        const EnvImpl& env);
+  static ProcessHandleImpl* LaunchImpl(const String& command,
+                                       const ArgsImpl& args,
+                                       const String& initial_directory,
+                                       Pipe* in_pipe, Pipe* out_pipe,
+                                       Pipe* err_pipe, const EnvImpl& env);
   static void KillImpl(ProcessHandleImpl& handle);
   static void KillImpl(PIDImpl pid);
   static bool IsRunningImpl(const ProcessHandleImpl& handle);
@@ -55,13 +53,10 @@ class FUN_BASE_API ProcessImpl {
   static void RequestTerminationImpl(PIDImpl pid);
 
  private:
-  static ProcessHandleImpl* LaunchByForkExecImpl( const String& command,
-                                                  const ArgsImpl& args,
-                                                  const String& initial_directory,
-                                                  Pipe* in_pipe,
-                                                  Pipe* out_pipe,
-                                                  Pipe* err_pipe,
-                                                  const EnvImpl& env);
+  static ProcessHandleImpl* LaunchByForkExecImpl(
+      const String& command, const ArgsImpl& args,
+      const String& initial_directory, Pipe* in_pipe, Pipe* out_pipe,
+      Pipe* err_pipe, const EnvImpl& env);
 };
 
-} // namespace fun
+}  // namespace fun

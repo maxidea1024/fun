@@ -8,9 +8,9 @@
 #endif
 
 #include "fun/base/event.h"
-#include "fun/base/ref_counted.h"
 #include "fun/base/ftl/shared_ptr.h"
 #include "fun/base/ftl/unique_ptr.h"
+#include "fun/base/ref_counted.h"
 
 #include <thread>
 
@@ -80,16 +80,15 @@ class FUN_BASE_API ThreadImpl {
 
   struct ThreadData : public RefCountedObject {
     ThreadData()
-      : thread(),
-        prio(PRIO_NORMAL_IMPL),
-        policy(0),
-        task(0),
-        done(EventResetType::Manual),
-        stack_size(FUN_THREAD_STACK_SIZE),
-        cpu(-1),
-        started(false),
-        joined(false) {
-    }
+        : thread(),
+          prio(PRIO_NORMAL_IMPL),
+          policy(0),
+          task(0),
+          done(EventResetType::Manual),
+          stack_size(FUN_THREAD_STACK_SIZE),
+          cpu(-1),
+          started(false),
+          joined(false) {}
 
     SharedPtr<Runnable> runnable_target;
     UniquePtr<std::thread> thread;
@@ -115,7 +114,6 @@ class FUN_BASE_API ThreadImpl {
 #endif
 };
 
-
 //
 // inlines
 //
@@ -132,9 +130,7 @@ FUN_ALWAYS_INLINE bool ThreadImpl::IsRunningImpl() const {
   return data_->runnable_target.IsValid();
 }
 
-FUN_ALWAYS_INLINE void ThreadImpl::YieldImpl() {
-  std::this_thread::yield();
-}
+FUN_ALWAYS_INLINE void ThreadImpl::YieldImpl() { std::this_thread::yield(); }
 
 FUN_ALWAYS_INLINE int ThreadImpl::GetStackSizeImpl() const {
   return static_cast<int>(data_->stack_size);
@@ -144,4 +140,4 @@ FUN_ALWAYS_INLINE ThreadImpl::TIDImpl ThreadImpl::GetTidImpl() const {
   return data_->tid;
 }
 
-} // namespace fun
+}  // namespace fun

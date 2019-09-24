@@ -5,7 +5,7 @@
 #include "fun/base/timespan.h"
 #include "fun/base/timestamp.h"
 
-//TODO TimeZone의존성이 좀 많아서... 여기서는 전방 선언만 해주어야하는데...
+// TODO TimeZone의존성이 좀 많아서... 여기서는 전방 선언만 해주어야하는데...
 //#include "timezone.h"
 
 namespace fun {
@@ -32,19 +32,19 @@ class Date {
   Date() : days_(NullDaysValue) {}
   Date(int32 year, int32 month, int32 day) { SetDate(year, month, day); }
   Date(const Date& rhs) : days_(rhs.days_) {}
-  Date& operator = (const Date& rhs) {
+  Date& operator=(const Date& rhs) {
     days_ = rhs.days_;
     return *this;
   }
 
   void Swap(Date& rhs);
 
-  friend void Swap(Date& a, Date& b) {
-    a.Swap(b);
-  }
+  friend void Swap(Date& a, Date& b) { a.Swap(b); }
 
   bool IsNull() const { return !IsValid(); }
-  bool IsValid() const { return days_ >= MinValue.days_ && days_ <= MaxValue.days_; }
+  bool IsValid() const {
+    return days_ >= MinValue.days_ && days_ <= MaxValue.days_;
+  }
 
   int32 ToDays() const { return days_ == NullDaysValue ? 0 : days_; }
 
@@ -86,24 +86,25 @@ class Date {
   int32 GetDatePart(DatePart part) const;
 
   FUN_ALWAYS_INLINE int32 Compare(const Date& other) const {
-    return ToDays() == other.ToDays() ? 0 : (ToDays() < other.ToDays() ? -1 : +1);
+    return ToDays() == other.ToDays() ? 0
+                                      : (ToDays() < other.ToDays() ? -1 : +1);
   }
-  FUN_ALWAYS_INLINE friend bool operator == (const Date& lhs, const Date& rhs) {
+  FUN_ALWAYS_INLINE friend bool operator==(const Date& lhs, const Date& rhs) {
     return lhs.Compare(rhs) == 0;
   }
-  FUN_ALWAYS_INLINE friend bool operator != (const Date& lhs, const Date& rhs) {
+  FUN_ALWAYS_INLINE friend bool operator!=(const Date& lhs, const Date& rhs) {
     return lhs.Compare(rhs) != 0;
   }
-  FUN_ALWAYS_INLINE friend bool operator <  (const Date& lhs, const Date& rhs) {
-    return lhs.Compare(rhs) <  0;
+  FUN_ALWAYS_INLINE friend bool operator<(const Date& lhs, const Date& rhs) {
+    return lhs.Compare(rhs) < 0;
   }
-  FUN_ALWAYS_INLINE friend bool operator <= (const Date& lhs, const Date& rhs) {
+  FUN_ALWAYS_INLINE friend bool operator<=(const Date& lhs, const Date& rhs) {
     return lhs.Compare(rhs) <= 0;
   }
-  FUN_ALWAYS_INLINE friend bool operator >  (const Date& lhs, const Date& rhs) {
-    return lhs.Compare(rhs) >  0;
+  FUN_ALWAYS_INLINE friend bool operator>(const Date& lhs, const Date& rhs) {
+    return lhs.Compare(rhs) > 0;
   }
-  FUN_ALWAYS_INLINE friend bool operator >= (const Date& lhs, const Date& rhs) {
+  FUN_ALWAYS_INLINE friend bool operator>=(const Date& lhs, const Date& rhs) {
     return lhs.Compare(rhs) >= 0;
   }
 
@@ -117,23 +118,25 @@ class Date {
 
  public:
   static String GetShortMonthName(int32 month, MonthNameType type = DateFormat);
-  static String GetShortDayName(DayOfWeekType weekday, MonthNameType type = DateFormat);
+  static String GetShortDayName(DayOfWeekType weekday,
+                                MonthNameType type = DateFormat);
   static String GetLongMonthName(int32 month, MonthNameType type = DateFormat);
-  static String GetLongDayName(DayOfWeekType weekday, MonthNameType type = DateFormat);
+  static String GetLongDayName(DayOfWeekType weekday,
+                               MonthNameType type = DateFormat);
 
   String ToString(DateFormatType format = DateFormatType::TextDate) const;
   String ToString(const String& format) const;
 
-  static Date FromString(const String& string, DateFormatType format = DateFormatType::TextDate);
+  static Date FromString(const String& string,
+                         DateFormatType format = DateFormatType::TextDate);
   static Date FromString(const String& string, const String& format);
 
  private:
   int32 days_;
 
   FUN_BASE_API friend uint32 HashOf(const Date& date);
-  FUN_BASE_API friend Archive& operator & (Archive& ar, Date& date);
+  FUN_BASE_API friend Archive& operator&(Archive& ar, Date& date);
 };
-
 
 class Time {
  public:
@@ -146,22 +149,19 @@ class Time {
 
  public:
   Time() : ticks_in_day_(InvalidTime) {}
-  Time(int32 hour, int32 minute, int32 second, int32 millisecond = 0, int32 microsecond = 0);
+  Time(int32 hour, int32 minute, int32 second, int32 millisecond = 0,
+       int32 microsecond = 0);
   Time(const Time& rhs) : ticks_in_day_(rhs.ticks_in_day_) {}
-  Time& operator = (const Time& rhs) {
+  Time& operator=(const Time& rhs) {
     ticks_in_day_ = rhs.ticks_in_day_;
     return *this;
   }
 
   void Swap(Time& rhs);
 
-  friend void Swap(Time& a, Time& b) {
-    a.Swap(b);
-  }
+  friend void Swap(Time& a, Time& b) { a.Swap(b); }
 
-  FUN_ALWAYS_INLINE bool IsNull() const {
-    return ticks_in_day_ == InvalidTime;
-  }
+  FUN_ALWAYS_INLINE bool IsNull() const { return ticks_in_day_ == InvalidTime; }
   bool IsValid() const;
 
   int32 Hour() const;
@@ -174,7 +174,8 @@ class Time {
   bool IsAM() const;
   bool IsPM() const;
 
-  bool SetTime(int32 hour, int32 minute, int32 second, int32 millisecond = 0, int32 microsecond = 0);
+  bool SetTime(int32 hour, int32 minute, int32 second, int32 millisecond = 0,
+               int32 microsecond = 0);
 
   Time AddHours(double hours) const;
   Time AddMinutes(double minutes) const;
@@ -197,28 +198,52 @@ class Time {
   double MicrosecondsTo(const Time& to) const;
   int64 TicksTo(const Time& to) const;
 
-  FUN_ALWAYS_INLINE int32 Compare(const Time& other) const { return ticks_in_day_ == other.ticks_in_day_ ? 0 : (ticks_in_day_ < other.ticks_in_day_ ? -1 : +1); }
-  FUN_ALWAYS_INLINE friend bool operator == (const Time& lhs, const Time& rhs) { return lhs.Compare(rhs) == 0; }
-  FUN_ALWAYS_INLINE friend bool operator != (const Time& lhs, const Time& rhs) { return lhs.Compare(rhs) != 0; }
-  FUN_ALWAYS_INLINE friend bool operator <  (const Time& lhs, const Time& rhs) { return lhs.Compare(rhs) <  0; }
-  FUN_ALWAYS_INLINE friend bool operator <= (const Time& lhs, const Time& rhs) { return lhs.Compare(rhs) <= 0; }
-  FUN_ALWAYS_INLINE friend bool operator >  (const Time& lhs, const Time& rhs) { return lhs.Compare(rhs) >  0; }
-  FUN_ALWAYS_INLINE friend bool operator >= (const Time& lhs, const Time& rhs) { return lhs.Compare(rhs) >= 0; }
+  FUN_ALWAYS_INLINE int32 Compare(const Time& other) const {
+    return ticks_in_day_ == other.ticks_in_day_
+               ? 0
+               : (ticks_in_day_ < other.ticks_in_day_ ? -1 : +1);
+  }
+  FUN_ALWAYS_INLINE friend bool operator==(const Time& lhs, const Time& rhs) {
+    return lhs.Compare(rhs) == 0;
+  }
+  FUN_ALWAYS_INLINE friend bool operator!=(const Time& lhs, const Time& rhs) {
+    return lhs.Compare(rhs) != 0;
+  }
+  FUN_ALWAYS_INLINE friend bool operator<(const Time& lhs, const Time& rhs) {
+    return lhs.Compare(rhs) < 0;
+  }
+  FUN_ALWAYS_INLINE friend bool operator<=(const Time& lhs, const Time& rhs) {
+    return lhs.Compare(rhs) <= 0;
+  }
+  FUN_ALWAYS_INLINE friend bool operator>(const Time& lhs, const Time& rhs) {
+    return lhs.Compare(rhs) > 0;
+  }
+  FUN_ALWAYS_INLINE friend bool operator>=(const Time& lhs, const Time& rhs) {
+    return lhs.Compare(rhs) >= 0;
+  }
 
-  static bool IsValid(int32 hour, int32 minute, int32 second, int32 millisecond = 0, int32 microsecond = 0);
+  static bool IsValid(int32 hour, int32 minute, int32 second,
+                      int32 millisecond = 0, int32 microsecond = 0);
 
   static Time CurrentTime();
   static Time UtcCurrentTime();
 
-  FUN_ALWAYS_INLINE static Time FromTicksStartOfDay(int64 ticks_in_day) { return Time(ticks_in_day); }
-  FUN_ALWAYS_INLINE int64 ToTicksStartOfDay() const { return ticks_in_day_ == InvalidTime ? 0 : ticks_in_day_; }
-  FUN_ALWAYS_INLINE int64 ToMSecsStartOfDay() const { return ToTicksStartOfDay() / DateTimeConstants::TICKS_PER_MILLISECOND; }
+  FUN_ALWAYS_INLINE static Time FromTicksStartOfDay(int64 ticks_in_day) {
+    return Time(ticks_in_day);
+  }
+  FUN_ALWAYS_INLINE int64 ToTicksStartOfDay() const {
+    return ticks_in_day_ == InvalidTime ? 0 : ticks_in_day_;
+  }
+  FUN_ALWAYS_INLINE int64 ToMSecsStartOfDay() const {
+    return ToTicksStartOfDay() / DateTimeConstants::TICKS_PER_MILLISECOND;
+  }
 
  public:
   String ToString(DateFormatType format = DateFormatType::TextDate) const;
   String ToString(const String& format) const;
 
-  static Time FromString(const String& string, DateFormatType format = DateFormatType::TextDate);
+  static Time FromString(const String& string,
+                         DateFormatType format = DateFormatType::TextDate);
   static Time FromString(const String& string, const String& format);
 
  public:
@@ -233,12 +258,11 @@ class Time {
   int64 ticks_in_day_;
 
   FUN_BASE_API friend uint32 HashOf(const Time& time);
-  FUN_BASE_API friend Archive& operator & (Archive& ar, Time& time);
+  FUN_BASE_API friend Archive& operator&(Archive& ar, Time& time);
 };
 
-
 /**
-*/
+ */
 class FUN_BASE_API DateTime {
  public:
   static const DateTime None;
@@ -249,25 +273,27 @@ class FUN_BASE_API DateTime {
   DateTime();
   explicit DateTime(const Date& date);
   DateTime(const Date& date, const Time& time, TimeSpec spec = TimeSpec::Local);
-  DateTime(const Date& date, const Time& time, TimeSpec spec, int32 offset_seconds);
+  DateTime(const Date& date, const Time& time, TimeSpec spec,
+           int32 offset_seconds);
   DateTime(const Date& date, const Time& time, const TimeZone& timezone);
   DateTime(const Timestamp& ts);
 
   DateTime(const DateTime& rhs);
   DateTime(DateTime&& rhs);
-  DateTime& operator = (const DateTime& rhs);
-  DateTime& operator = (DateTime&& rhs);
+  DateTime& operator=(const DateTime& rhs);
+  DateTime& operator=(DateTime&& rhs);
 
   void Swap(DateTime& rhs);
 
-  friend void Swap(DateTime& a, DateTime& b) {
-    a.Swap(b);
-  }
+  friend void Swap(DateTime& a, DateTime& b) { a.Swap(b); }
 
   bool IsNull() const;
   bool IsValid() const;
-  FUN_ALWAYS_INLINE static bool IsValid(int32 year, int32 month, int32 day, int32 hour, int32 minute, int32 second, int32 millisecond, int32 microsecond) {
-    return Date::IsValid(year, month, day) && Time::IsValid(hour, minute, second, millisecond, microsecond);
+  FUN_ALWAYS_INLINE static bool IsValid(int32 year, int32 month, int32 day,
+                                        int32 hour, int32 minute, int32 second,
+                                        int32 millisecond, int32 microsecond) {
+    return Date::IsValid(year, month, day) &&
+           Time::IsValid(hour, minute, second, millisecond, microsecond);
   }
 
   int32 Year() const;
@@ -330,23 +356,26 @@ class FUN_BASE_API DateTime {
   DateTime& AddMicrosecondsInPlace(int64 microseconds);
   DateTime& AddTicksInPlace(int64 tickstoadd);
 
-  FUN_ALWAYS_INLINE DateTime& operator += (const Timespan& span) {
+  FUN_ALWAYS_INLINE DateTime& operator+=(const Timespan& span) {
     return AddTicksInPlace(span.ToTicks());
   }
 
-  FUN_ALWAYS_INLINE DateTime& operator -= (const Timespan& span) {
+  FUN_ALWAYS_INLINE DateTime& operator-=(const Timespan& span) {
     return AddTicksInPlace(-span.ToTicks());
   }
 
-  FUN_ALWAYS_INLINE friend DateTime operator + (const DateTime& datetime, const Timespan& span) {
+  FUN_ALWAYS_INLINE friend DateTime operator+(const DateTime& datetime,
+                                              const Timespan& span) {
     return datetime.AddTicks(span.ToTicks());
   }
 
-  FUN_ALWAYS_INLINE friend DateTime operator - (const DateTime& datetime, const Timespan& span) {
+  FUN_ALWAYS_INLINE friend DateTime operator-(const DateTime& datetime,
+                                              const Timespan& span) {
     return datetime.AddTicks(-span.ToTicks());
   }
 
-  FUN_ALWAYS_INLINE friend Timespan operator - (const DateTime& lhs, const DateTime& rhs) {
+  FUN_ALWAYS_INLINE friend Timespan operator-(const DateTime& lhs,
+                                              const DateTime& rhs) {
     return Timespan(lhs.ToUtcTicks() - rhs.ToUtcTicks());
   }
 
@@ -358,12 +387,12 @@ class FUN_BASE_API DateTime {
   int64 TicksTo(const DateTime& to) const;
 
   int32 Compare(const DateTime& other) const;
-  friend bool operator == (const DateTime& lhs, const DateTime& rhs);
-  friend bool operator != (const DateTime& lhs, const DateTime& rhs);
-  friend bool operator <  (const DateTime& lhs, const DateTime& rhs);
-  friend bool operator <= (const DateTime& lhs, const DateTime& rhs);
-  friend bool operator >  (const DateTime& lhs, const DateTime& rhs);
-  friend bool operator >= (const DateTime& lhs, const DateTime& rhs);
+  friend bool operator==(const DateTime& lhs, const DateTime& rhs);
+  friend bool operator!=(const DateTime& lhs, const DateTime& rhs);
+  friend bool operator<(const DateTime& lhs, const DateTime& rhs);
+  friend bool operator<=(const DateTime& lhs, const DateTime& rhs);
+  friend bool operator>(const DateTime& lhs, const DateTime& rhs);
+  friend bool operator>=(const DateTime& lhs, const DateTime& rhs);
 
   DateTime ToTimeSpec(TimeSpec spec) const;
   DateTime ToLocalTime() const;
@@ -372,12 +401,16 @@ class FUN_BASE_API DateTime {
   DateTime ToTimeZone(const TimeZone& timezone) const;
 
   static DateTime FromUtcTicks(int64 utc_ticks);
-  static DateTime FromUtcTicks(int64 utc_ticks, TimeSpec spec, int32 offset_from_utc = 0);
+  static DateTime FromUtcTicks(int64 utc_ticks, TimeSpec spec,
+                               int32 offset_from_utc = 0);
   static DateTime FromUtcTicks(int64 utc_ticks, const TimeZone& timezone);
 
   static DateTime FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch);
-  static DateTime FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch, TimeSpec spec, int32 offset_from_utc = 0);
-  static DateTime FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch, const TimeZone& timezone);
+  static DateTime FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch,
+                                         TimeSpec spec,
+                                         int32 offset_from_utc = 0);
+  static DateTime FromUtcTicksSinceEpoch(int64 utc_ticks_since_epoch,
+                                         const TimeZone& timezone);
 
   static DateTime Now();
   static DateTime UtcNow();
@@ -385,7 +418,8 @@ class FUN_BASE_API DateTime {
   String ToString(DateFormatType format = DateFormatType::TextDate) const;
   String ToString(const String& format) const;
 
-  static DateTime FromString(const String& string, DateFormatType format = DateFormatType::TextDate);
+  static DateTime FromString(const String& string,
+                             DateFormatType format = DateFormatType::TextDate);
   static DateTime FromString(const String& string, const String& format);
 
   // 어떤식으로 처리하는게 바람직하려나?
@@ -402,19 +436,19 @@ class FUN_BASE_API DateTime {
     Data(TimeSpec spec = TimeSpec::Local);
     ~Data();
     Data(const Data& rhs);
-    Data& operator = (const Data& rhs);
+    Data& operator=(const Data& rhs);
   };
   Data data_;
 
   FUN_BASE_API friend uint32 HashOf(const DateTime& d);
-  FUN_BASE_API friend Archive& operator & (Archive& ar, DateTime& d);
+  FUN_BASE_API friend Archive& operator&(Archive& ar, DateTime& d);
 };
 
-//TODO 제거하도록 하자.
+// TODO 제거하도록 하자.
 namespace Lex {
 FUN_BASE_API String ToString(const Date& value);
 FUN_BASE_API String ToString(const Time& value);
 FUN_BASE_API String ToString(const DateTime& value);
-}
+}  // namespace Lex
 
-} // namespace fun
+}  // namespace fun

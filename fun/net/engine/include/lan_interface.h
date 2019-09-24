@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/net/net.h"
 #include "ILanClientCallbacks.h"
 #include "ILanServerCallbacks.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -20,9 +20,7 @@ class LanServerStats {
   int32 client_count;
   int32 total_queued_message_count;
 
-  inline LanServerStats() {
-    Reset();
-  }
+  inline LanServerStats() { Reset(); }
 
   inline void Reset() {
     p2p_connection_pair_count = 0;
@@ -36,7 +34,6 @@ class LanServerStats {
   }
 };
 
-
 class LanServer : public RpcHost {
  public:
   static FUN_NETX_API LanServer* New();
@@ -45,16 +42,16 @@ class LanServer : public RpcHost {
 
   virtual void CloseAllConnections() = 0;
 
-  virtual HostId CreateP2PGroup(const HostId* member_list,
-                                int32 member_count,
-                                const ByteArray& custom_field = ByteArray()) = 0;
+  virtual HostId CreateP2PGroup(
+      const HostId* member_list, int32 member_count,
+      const ByteArray& custom_field = ByteArray()) = 0;
 
   inline HostId CreateP2PGroup(const ByteArray& custom_field = ByteArray()) {
     return CreateP2PGroup(nullptr, 0, custom_field);
   }
 
-  inline HostId CreateP2PGroup( HostId member_id,
-                                const ByteArray& custom_field = ByteArray()) {
+  inline HostId CreateP2PGroup(HostId member_id,
+                               const ByteArray& custom_field = ByteArray()) {
     return CreateP2PGroup(&member_id, 1, custom_field);
   }
 
@@ -102,15 +99,15 @@ class LanServer : public RpcHost {
 
   virtual double GetTime() = 0;
 
-  virtual bool JoinP2PGroup(HostId member_id,
-                            HostId group_id,
+  virtual bool JoinP2PGroup(HostId member_id, HostId group_id,
                             const ByteArray& custom_field = ByteArray()) = 0;
 
   virtual bool LeaveP2PGroup(HostId member_id, HostId group_id) = 0;
 
   virtual void SetCallbacks(ILanServerCallbacks* callbacks) = 0;
 
-  virtual bool Start(const LanStartServerArgs& args, SharedPtr<ResultInfo>& out_error) = 0;
+  virtual bool Start(const LanStartServerArgs& args,
+                     SharedPtr<ResultInfo>& out_error) = 0;
 
   virtual void Stop() = 0;
 
@@ -133,7 +130,8 @@ class LanServer : public RpcHost {
 
   virtual uint32 GetInternalVersion() = 0;
 
-  virtual bool GetP2PConnectionStats(HostId remote_id, P2PConnectionStats& out_stats) = 0;
+  virtual bool GetP2PConnectionStats(HostId remote_id,
+                                     P2PConnectionStats& out_stats) = 0;
 
   virtual void GetUserWorkerThreadInfo(Array<ThreadInfo>& out_info) = 0;
   virtual void GetNetWorkerThreadInfo(Array<ThreadInfo>& out_info) = 0;
@@ -141,17 +139,13 @@ class LanServer : public RpcHost {
   virtual bool SendFreeform(const HostId* rpc_sendto_list,
                             int32 rpc_sendto_count,
                             const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) = 0;
+                            const uint8* payload, int32 payload_length) = 0;
 
-  inline bool SendFreeform( HostId rpc_sendto,
-                            const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) {
+  inline bool SendFreeform(HostId rpc_sendto, const RpcCallOption& rpc_call_opt,
+                           const uint8* payload, int32 payload_length) {
     return SendFreeform(&rpc_sendto, 1, rpc_call_opt, payload, payload_length);
   }
 };
-
 
 class LanClientStats {
  public:
@@ -164,20 +158,22 @@ class LanClientStats {
   FUN_NETX_API String ToString() const;
 };
 
-
 class LanClient : public RpcHost {
  public:
   static FUN_NETX_API LanClient* New();
 
-  //TODO args를 immutable로 처리하는게 좋겠다. 물론 내부에서 교정되는 부분들이
+  // TODO args를 immutable로 처리하는게 좋겠다. 물론 내부에서 교정되는 부분들이
   //있을 수 있으므로, 별도의 목록을 따로 받아서 결과를 처리하는게 좋으려나?
-  virtual bool Connect(LanConnectionArgs& args, SharedPtr<ResultInfo>& out_error) = 0;
+  virtual bool Connect(LanConnectionArgs& args,
+                       SharedPtr<ResultInfo>& out_error) = 0;
 
-  virtual void Disconnect(double graceful_disconnect_timeout_sec, const ByteArray& comment) = 0;
+  virtual void Disconnect(double graceful_disconnect_timeout_sec,
+                          const ByteArray& comment) = 0;
 
   virtual void Disconnect() = 0;
 
-  //virtual void DisconnectNoWait(double graceful_disconnect_timeout_sec, const ByteArray& comment) = 0;
+  // virtual void DisconnectNoWait(double graceful_disconnect_timeout_sec, const
+  // ByteArray& comment) = 0;
 
   virtual String DumpGroupStatus() = 0;
 
@@ -238,30 +234,23 @@ class LanClient : public RpcHost {
   virtual bool SendFreeform(const HostId* rpc_sendto_list,
                             int32 rpc_sendto_count,
                             const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) = 0;
+                            const uint8* payload, int32 payload_length) = 0;
 
-  inline bool SendFreeform( HostId rpc_sendto,
-                            const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) {
+  inline bool SendFreeform(HostId rpc_sendto, const RpcCallOption& rpc_call_opt,
+                           const uint8* payload, int32 payload_length) {
     return SendFreeform(&rpc_sendto, 1, rpc_call_opt, payload, payload_length);
   }
 
   template <typename Allocator>
-  inline bool SendFreeform( const Array<HostId, Allocator>& rpc_sendto_list,
-                            const RpcCallOption& rpc_call_opt,
-                            const uint8* payload,
-                            int32 payload_length) {
-    return SendFreeform(rpc_sendto_list.ConstData(),
-                        rpc_sendto_list.Count(),
-                        rpc_call_opt,
-                        payload,
-                        payload_length);
+  inline bool SendFreeform(const Array<HostId, Allocator>& rpc_sendto_list,
+                           const RpcCallOption& rpc_call_opt,
+                           const uint8* payload, int32 payload_length) {
+    return SendFreeform(rpc_sendto_list.ConstData(), rpc_sendto_list.Count(),
+                        rpc_call_opt, payload, payload_length);
   }
 
   virtual void EnableIntraLogging(const char* log_filename) = 0;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

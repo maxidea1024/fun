@@ -1,20 +1,20 @@
 ﻿#include "fun/base/regex.h"
-#include "fun/base/exception.h"
 #include <sstream>
+#include "fun/base/exception.h"
 
 #if defined(FUN_UNBUNDLED)
 #include <pcre.h>
 #else
-#include "fun/base/bundle/pcre/pcre_config.h"
 #include "fun/base/bundle/pcre/pcre.h"
+#include "fun/base/bundle/pcre/pcre_config.h"
 #endif
 
 namespace fun {
 
-const int Regex::OVEC_SIZE = 126; // must be multiple of 3
+const int Regex::OVEC_SIZE = 126;  // must be multiple of 3
 
 Regex::Regex(const String& pattern, int options, bool study)
-  : pcre_(0), extra_(0) {
+    : pcre_(0), extra_(0) {
   const char* error;
   int offs;
   unsigned nmcount;
@@ -34,21 +34,19 @@ Regex::Regex(const String& pattern, int options, bool study)
 
   pcre_fullinfo(reinterpret_cast<const pcre*>(pcre_),
                 reinterpret_cast<const pcre_extra*>(extra_),
-                PCRE_INFO_NAMECOUNT,
-                &nmcount);
+                PCRE_INFO_NAMECOUNT, &nmcount);
   pcre_fullinfo(reinterpret_cast<const pcre*>(pcre_),
                 reinterpret_cast<const pcre_extra*>(extra_),
-                PCRE_INFO_NAMEENTRYSIZE,
-                &nmentrysz);
+                PCRE_INFO_NAMEENTRYSIZE, &nmentrysz);
   pcre_fullinfo(reinterpret_cast<const pcre*>(pcre_),
                 reinterpret_cast<const pcre_extra*>(extra_),
-                PCRE_INFO_NAMETABLE,
-                &nmtbl);
+                PCRE_INFO_NAMETABLE, &nmtbl);
 
   for (int i = 0; i < nmcount; i++) {
     unsigned char* group = nmtbl + 2 + (nmentrysz * i);
-    int n = pcre_get_stringnumber(reinterpret_cast<const pcre*>(pcre_), (char*) group);
-    groups_[n] = String((char*) group);
+    int n = pcre_get_stringnumber(reinterpret_cast<const pcre*>(pcre_),
+                                  (char*)group);
+    groups_[n] = String((char*)group);
   }
 }
 
@@ -62,18 +60,15 @@ Regex::~Regex() {
   }
 }
 
-int Regex::Match(const String& subject, int32 offset, MatchInfo& match, int options) const {
+int Regex::Match(const String& subject, int32 offset, MatchInfo& match,
+                 int options) const {
   fun_check(offset <= subject.Len());
 
   int ovec[OVEC_SIZE];
-  int rc = pcre_exec( reinterpret_cast<pcre*>(pcre_),
-                      reinterpret_cast<struct pcre_extra*>(extra_),
-                      subject.c_str(),
-                      int(subject.Len()),
-                      int(offset),
-                      options & 0xFFFF,
-                      ovec,
-                      OVEC_SIZE);
+  int rc = pcre_exec(reinterpret_cast<pcre*>(pcre_),
+                     reinterpret_cast<struct pcre_extra*>(extra_),
+                     subject.c_str(), int(subject.Len()), int(offset),
+                     options & 0xFFFF, ovec, OVEC_SIZE);
   if (rc == PCRE_ERROR_NOMATCH) {
     match.offset = INVALID_INDEX;
     match.length = 0;
@@ -92,20 +87,17 @@ int Regex::Match(const String& subject, int32 offset, MatchInfo& match, int opti
   return rc;
 }
 
-int Regex::Match(const String& subject, int32 offset, MatchList& matches, int options) const {
+int Regex::Match(const String& subject, int32 offset, MatchList& matches,
+                 int options) const {
   fun_check(offset <= subject.Len());
 
   matches.Clear();
 
   int ovec[OVEC_SIZE];
-  int rc = pcre_exec( reinterpret_cast<pcre*>(pcre_),
-                      reinterpret_cast<struct pcre_extra*>(extra_),
-                      subject.c_str(),
-                      int(subject.Len()),
-                      int(offset),
-                      options & 0xFFFF,
-                      ovec,
-                      OVEC_SIZE);
+  int rc = pcre_exec(reinterpret_cast<pcre*>(pcre_),
+                     reinterpret_cast<struct pcre_extra*>(extra_),
+                     subject.c_str(), int(subject.Len()), int(offset),
+                     options & 0xFFFF, ovec, OVEC_SIZE);
   if (rc == PCRE_ERROR_NOMATCH) {
     return 0;
   } else if (rc == PCRE_ERROR_BADOPTION) {
@@ -122,8 +114,8 @@ int Regex::Match(const String& subject, int32 offset, MatchList& matches, int op
     MatchInfo m;
     GroupMap::const_iterator it;
 
-    m.offset = ovec[i*2] < 0 ? INVALID_INDEX : ovec[i*2] ;
-    m.length = ovec[i*2 + 1] - m.offset;
+    m.offset = ovec[i * 2] < 0 ? INVALID_INDEX : ovec[i * 2];
+    m.length = ovec[i * 2 + 1] - m.offset;
 
     it = groups_.find(i);
     if (it != groups_.end()) {
@@ -158,7 +150,8 @@ int Regex::Extract(const String& subject, String& str, int options) const {
   return rc;
 }
 
-int Regex::Extract(const String& subject, int32 offset, String& str, int options) const {
+int Regex::Extract(const String& subject, int32 offset, String& str,
+                   int options) const {
   MatchInfo match;
   int rc = Match(subject, offset, match, options);
   if (match.offset != INVALID_INDEX) {
@@ -169,12 +162,14 @@ int Regex::Extract(const String& subject, int32 offset, String& str, int options
   return rc;
 }
 
-int Regex::Split(const String& subject, int32 offset, Array<String>& strings, int options) const {
+int Regex::Split(const String& subject, int32 offset, Array<String>& strings,
+                 int options) const {
   MatchList matches;
   strings.Clear();
   int rc = Match(subject, offset, matches, options);
   strings.Reserve(matches.Count());
-  for (MatchList::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+  for (MatchList::const_iterator it = matches.begin(); it != matches.end();
+       ++it) {
     if (it->offset != INVALID_INDEX) {
       strings.push_back(subject.substr(it->offset, it->length));
     } else {
@@ -184,7 +179,8 @@ int Regex::Split(const String& subject, int32 offset, Array<String>& strings, in
   return rc;
 }
 
-int Regex::Substitute(String& subject, int32 offset, const String& replacement, int options) const {
+int Regex::Substitute(String& subject, int32 offset, const String& replacement,
+                      int options) const {
   if (options & RE_GLOBAL) {
     int rc = 0;
     int32 pos = SubstituteOne(subject, offset, replacement, options);
@@ -194,24 +190,23 @@ int Regex::Substitute(String& subject, int32 offset, const String& replacement, 
     }
     return rc;
   } else {
-    return SubstituteOne(subject, offset, replacement, options) != INVALID_INDEX ? 1 : 0;
+    return SubstituteOne(subject, offset, replacement, options) != INVALID_INDEX
+               ? 1
+               : 0;
   }
 }
 
-int32 Regex::SubstituteOne(String& subject, int32 offset, const String& replacement, int options) const {
+int32 Regex::SubstituteOne(String& subject, int32 offset,
+                           const String& replacement, int options) const {
   if (offset >= subject.Len()) {
     return INVALID_INDEX;
   }
 
   int ovec[OVEC_SIZE];
-  int rc = pcre_exec( reinterpret_cast<pcre*>(pcre_),
-                      reinterpret_cast<struct pcre_extra*>(extra_),
-                      subject.c_str(),
-                      int(subject.Len()),
-                      int(offset),
-                      options & 0xFFFF,
-                      ovec,
-                      OVEC_SIZE);
+  int rc = pcre_exec(reinterpret_cast<pcre*>(pcre_),
+                     reinterpret_cast<struct pcre_extra*>(extra_),
+                     subject.c_str(), int(subject.Len()), int(offset),
+                     options & 0xFFFF, ovec, OVEC_SIZE);
   if (rc == PCRE_ERROR_NOMATCH) {
     return INVALID_INDEX;
   } else if (rc == PCRE_ERROR_BADOPTION) {
@@ -230,7 +225,7 @@ int32 Regex::SubstituteOne(String& subject, int32 offset, const String& replacem
   int32 rp = INVALID_INDEX;
   while (pos < len) {
     if (ovec[0] == pos) {
-      String::const_iterator it  = replacement.begin();
+      String::const_iterator it = replacement.begin();
       String::const_iterator end = replacement.end();
       while (it != end) {
         if (*it == '$' && !(options & RE_NO_VARS)) {
@@ -240,29 +235,25 @@ int32 Regex::SubstituteOne(String& subject, int32 offset, const String& replacem
             if (d >= '0' && d <= '9') {
               int c = d - '0';
               if (c < rc) {
-                int o = ovec[c*2];
-                int l = ovec[c*2 + 1] - o;
+                int o = ovec[c * 2];
+                int l = ovec[c * 2 + 1] - o;
                 result.Append(subject, o, l);
               }
-            }
-            else {
+            } else {
               result += '$';
               result += d;
             }
             ++it;
-          }
-          else {
+          } else {
             result += '$';
           }
-        }
-        else {
+        } else {
           result += *it++;
         }
       }
       pos = ovec[1];
       rp = result.Len();
-    }
-    else {
+    } else {
       result += subject[pos++];
     }
   }
@@ -271,22 +262,25 @@ int32 Regex::SubstituteOne(String& subject, int32 offset, const String& replacem
 }
 
 bool Regex::Match(const String& subject, const String& pattern, int options) {
-  int ctor_options = options & (RE_CASELESS | RE_MULTILINE | RE_DOTALL | RE_EXTENDED | RE_ANCHORED | RE_DOLLAR_ENDONLY | RE_EXTRA | RE_UNGREEDY | RE_UTF8 | RE_NO_AUTO_CAPTURE);
-  int match_options = options & (RE_ANCHORED | RE_NOTBOL | RE_NOTEOL | RE_NOTEMPTY | RE_NO_AUTO_CAPTURE | RE_NO_UTF8_CHECK);
+  int ctor_options =
+      options & (RE_CASELESS | RE_MULTILINE | RE_DOTALL | RE_EXTENDED |
+                 RE_ANCHORED | RE_DOLLAR_ENDONLY | RE_EXTRA | RE_UNGREEDY |
+                 RE_UTF8 | RE_NO_AUTO_CAPTURE);
+  int match_options =
+      options & (RE_ANCHORED | RE_NOTBOL | RE_NOTEOL | RE_NOTEMPTY |
+                 RE_NO_AUTO_CAPTURE | RE_NO_UTF8_CHECK);
   Regex re(pattern, ctor_options, false);
   return re.Match(subject, 0, match_options);
 }
-
 
 //
 // Unicode version
 //
 
-const int URegex::OVEC_SIZE = 126; // must be multiple of 3
+const int URegex::OVEC_SIZE = 126;  // must be multiple of 3
 
 URegex::URegex(const StringU& pattern, int options, bool study)
-  : pcre_(0)
-  , extra_(0) {
+    : pcre_(0), extra_(0) {
   const char* error;
   int offs;
   unsigned nmcount;
@@ -306,21 +300,19 @@ URegex::URegex(const StringU& pattern, int options, bool study)
 
   pcre_fullinfo(reinterpret_cast<const pcre*>(pcre_),
                 reinterpret_cast<const pcre_extra*>(extra_),
-                PCRE_INFO_NAMECOUNT,
-                &nmcount);
+                PCRE_INFO_NAMECOUNT, &nmcount);
   pcre_fullinfo(reinterpret_cast<const pcre*>(pcre_),
                 reinterpret_cast<const pcre_extra*>(extra_),
-                PCRE_INFO_NAMEENTRYSIZE,
-                &nmentrysz);
+                PCRE_INFO_NAMEENTRYSIZE, &nmentrysz);
   pcre_fullinfo(reinterpret_cast<const pcre*>(pcre_),
                 reinterpret_cast<const pcre_extra*>(extra_),
-                PCRE_INFO_NAMETABLE,
-                &nmtbl);
+                PCRE_INFO_NAMETABLE, &nmtbl);
 
   for (int i = 0; i < nmcount; i++) {
     unsigned char* group = nmtbl + 2 + (nmentrysz * i);
-    int n = pcre_get_stringnumber(reinterpret_cast<const pcre*>(pcre_), (char*) group);
-    groups_[n] = StringU((char*) group);
+    int n = pcre_get_stringnumber(reinterpret_cast<const pcre*>(pcre_),
+                                  (char*)group);
+    groups_[n] = StringU((char*)group);
   }
 }
 
@@ -334,30 +326,24 @@ URegex::~URegex() {
   }
 }
 
-int URegex::Match(const StringU& subject, int32 offset, MatchInfo& match, int options) const {
+int URegex::Match(const StringU& subject, int32 offset, MatchInfo& match,
+                  int options) const {
   fun_check(offset <= subject.Len());
 
   int ovec[OVEC_SIZE];
-  int rc = pcre_exec( reinterpret_cast<pcre*>(pcre_),
-                      reinterpret_cast<struct pcre_extra*>(extra_),
-                      subject.c_str(),
-                      int(subject.Len()),
-                      int(offset),
-                      options & 0xFFFF,
-                      ovec,
-                      OVEC_SIZE);
+  int rc = pcre_exec(reinterpret_cast<pcre*>(pcre_),
+                     reinterpret_cast<struct pcre_extra*>(extra_),
+                     subject.c_str(), int(subject.Len()), int(offset),
+                     options & 0xFFFF, ovec, OVEC_SIZE);
   if (rc == PCRE_ERROR_NOMATCH) {
     match.offset = INVALID_INDEX;
     match.length = 0;
     return 0;
-  }
-  else if (rc == PCRE_ERROR_BADOPTION) {
+  } else if (rc == PCRE_ERROR_BADOPTION) {
     throw RegularExpressionException("bad option");
-  }
-  else if (rc == 0) {
+  } else if (rc == 0) {
     throw RegularExpressionException("too many captured substrings");
-  }
-  else if (rc < 0) {
+  } else if (rc < 0) {
     std::ostringstream msg;
     msg << "PCRE error " << rc;
     throw RegularExpressionException(msg.str());
@@ -367,30 +353,24 @@ int URegex::Match(const StringU& subject, int32 offset, MatchInfo& match, int op
   return rc;
 }
 
-int URegex::Match(const StringU& subject, int32 offset, MatchList& matches, int options) const {
+int URegex::Match(const StringU& subject, int32 offset, MatchList& matches,
+                  int options) const {
   fun_check(offset <= subject.Len());
 
   matches.Clear();
 
   int ovec[OVEC_SIZE];
-  int rc = pcre_exec( reinterpret_cast<pcre*>(pcre_),
-                      reinterpret_cast<struct pcre_extra*>(extra_),
-                      subject.c_str(),
-                      int(subject.Len()),
-                      int(offset),
-                      options & 0xFFFF,
-                      ovec,
-                      OVEC_SIZE);
+  int rc = pcre_exec(reinterpret_cast<pcre*>(pcre_),
+                     reinterpret_cast<struct pcre_extra*>(extra_),
+                     subject.c_str(), int(subject.Len()), int(offset),
+                     options & 0xFFFF, ovec, OVEC_SIZE);
   if (rc == PCRE_ERROR_NOMATCH) {
     return 0;
-  }
-  else if (rc == PCRE_ERROR_BADOPTION) {
+  } else if (rc == PCRE_ERROR_BADOPTION) {
     throw RegularExpressionException("bad option");
-  }
-  else if (rc == 0) {
+  } else if (rc == 0) {
     throw RegularExpressionException("too many captured substrings");
-  }
-  else if (rc < 0) {
+  } else if (rc < 0) {
     std::ostringstream msg;
     msg << "PCRE error " << rc;
     throw RegularExpressionException(msg.str());
@@ -400,8 +380,8 @@ int URegex::Match(const StringU& subject, int32 offset, MatchList& matches, int 
     MatchInfo m;
     GroupMap::const_iterator it;
 
-    m.offset = ovec[i*2] < 0 ? INVALID_INDEX : ovec[i*2] ;
-    m.length = ovec[i*2 + 1] - m.offset;
+    m.offset = ovec[i * 2] < 0 ? INVALID_INDEX : ovec[i * 2];
+    m.length = ovec[i * 2 + 1] - m.offset;
 
     it = groups_.find(i);
     if (it != groups_.end()) {
@@ -430,42 +410,43 @@ int URegex::Extract(const StringU& subject, StringU& str, int options) const {
   int rc = Match(subject, 0, match, options);
   if (match.offset != INVALID_INDEX) {
     str.Assign(subject, match.offset, match.length);
-  }
-  else {
+  } else {
     str.Clear();
   }
   return rc;
 }
 
-int URegex::Extract(const StringU& subject, int32 offset, StringU& str, int options) const {
+int URegex::Extract(const StringU& subject, int32 offset, StringU& str,
+                    int options) const {
   MatchInfo match;
   int rc = Match(subject, offset, match, options);
   if (match.offset != INVALID_INDEX) {
     str.Assign(subject, match.offset, match.length);
-  }
-  else {
+  } else {
     str.Clear();
   }
   return rc;
 }
 
-int URegex::Split(const StringU& subject, int32 offset, Array<StringU>& strings, int options) const {
+int URegex::Split(const StringU& subject, int32 offset, Array<StringU>& strings,
+                  int options) const {
   MatchList matches;
   strings.Clear();
   int rc = Match(subject, offset, matches, options);
   strings.Reserve(matches.Count());
-  for (MatchList::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+  for (MatchList::const_iterator it = matches.begin(); it != matches.end();
+       ++it) {
     if (it->offset != INVALID_INDEX) {
       strings.push_back(subject.substr(it->offset, it->length));
-    }
-    else {
+    } else {
       strings.push_back(StringU());
     }
   }
   return rc;
 }
 
-int URegex::Substitute(StringU& subject, int32 offset, const StringU& replacement, int options) const {
+int URegex::Substitute(StringU& subject, int32 offset,
+                       const StringU& replacement, int options) const {
   if (options & RE_GLOBAL) {
     int rc = 0;
     int32 pos = SubstituteOne(subject, offset, replacement, options);
@@ -474,36 +455,31 @@ int URegex::Substitute(StringU& subject, int32 offset, const StringU& replacemen
       pos = SubstituteOne(subject, pos, replacement, options);
     }
     return rc;
-  }
-  else {
-    return SubstituteOne(subject, offset, replacement, options) != INVALID_INDEX ? 1 : 0;
+  } else {
+    return SubstituteOne(subject, offset, replacement, options) != INVALID_INDEX
+               ? 1
+               : 0;
   }
 }
 
-int32 URegex::SubstituteOne(StringU& subject, int32 offset, const StringU& replacement, int options) const {
+int32 URegex::SubstituteOne(StringU& subject, int32 offset,
+                            const StringU& replacement, int options) const {
   if (offset >= subject.Len()) {
     return INVALID_INDEX;
   }
 
   int ovec[OVEC_SIZE];
-  int rc = pcre_exec( reinterpret_cast<pcre*>(pcre_),
-                      reinterpret_cast<struct pcre_extra*>(extra_),
-                      subject.c_str(),
-                      int(subject.Len()),
-                      int(offset),
-                      options & 0xFFFF,
-                      ovec,
-                      OVEC_SIZE);
+  int rc = pcre_exec(reinterpret_cast<pcre*>(pcre_),
+                     reinterpret_cast<struct pcre_extra*>(extra_),
+                     subject.c_str(), int(subject.Len()), int(offset),
+                     options & 0xFFFF, ovec, OVEC_SIZE);
   if (rc == PCRE_ERROR_NOMATCH) {
     return INVALID_INDEX;
-  }
-  else if (rc == PCRE_ERROR_BADOPTION) {
+  } else if (rc == PCRE_ERROR_BADOPTION) {
     throw RegularExpressionException("bad option");
-  }
-  else if (rc == 0) {
+  } else if (rc == 0) {
     throw RegularExpressionException("too many captured substrings");
-  }
-  else if (rc < 0) {
+  } else if (rc < 0) {
     std::ostringstream msg;
     msg << "PCRE error " << rc;
     throw RegularExpressionException(msg.str());
@@ -515,7 +491,7 @@ int32 URegex::SubstituteOne(StringU& subject, int32 offset, const StringU& repla
   int32 rp = INVALID_INDEX;
   while (pos < len) {
     if (ovec[0] == pos) {
-      StringU::const_iterator it  = replacement.begin();
+      StringU::const_iterator it = replacement.begin();
       StringU::const_iterator end = replacement.end();
       while (it != end) {
         if (*it == '$' && !(options & RE_NO_VARS)) {
@@ -525,29 +501,25 @@ int32 URegex::SubstituteOne(StringU& subject, int32 offset, const StringU& repla
             if (d >= '0' && d <= '9') {
               int c = d - '0';
               if (c < rc) {
-                int o = ovec[c*2];
-                int l = ovec[c*2 + 1] - o;
+                int o = ovec[c * 2];
+                int l = ovec[c * 2 + 1] - o;
                 result.append(subject, o, l);
               }
-            }
-            else {
+            } else {
               result += '$';
               result += d;
             }
             ++it;
-          }
-          else {
+          } else {
             result += '$';
           }
-        }
-        else {
+        } else {
           result += *it++;
         }
       }
       pos = ovec[1];
       rp = result.Len();
-    }
-    else {
+    } else {
       result += subject[pos++];
     }
   }
@@ -555,12 +527,18 @@ int32 URegex::SubstituteOne(StringU& subject, int32 offset, const StringU& repla
   return rp;
 }
 
-bool URegex::Match(const StringU& subject, const StringU& pattern, int options) {
-  //TODO Utf8 옵션은 의미 없지 않으려나...??
-  int ctor_options = options & (RE_CASELESS | RE_MULTILINE | RE_DOTALL | RE_EXTENDED | RE_ANCHORED | RE_DOLLAR_ENDONLY | RE_EXTRA | RE_UNGREEDY | RE_UTF8 | RE_NO_AUTO_CAPTURE);
-  int match_options = options & (RE_ANCHORED | RE_NOTBOL | RE_NOTEOL | RE_NOTEMPTY | RE_NO_AUTO_CAPTURE | RE_NO_UTF8_CHECK);
+bool URegex::Match(const StringU& subject, const StringU& pattern,
+                   int options) {
+  // TODO Utf8 옵션은 의미 없지 않으려나...??
+  int ctor_options =
+      options & (RE_CASELESS | RE_MULTILINE | RE_DOTALL | RE_EXTENDED |
+                 RE_ANCHORED | RE_DOLLAR_ENDONLY | RE_EXTRA | RE_UNGREEDY |
+                 RE_UTF8 | RE_NO_AUTO_CAPTURE);
+  int match_options =
+      options & (RE_ANCHORED | RE_NOTBOL | RE_NOTEOL | RE_NOTEMPTY |
+                 RE_NO_AUTO_CAPTURE | RE_NO_UTF8_CHECK);
   URegex re(pattern, ctor_options, false);
   return re.match(subject, 0, match_options);
 }
 
-} // namespace fun
+}  // namespace fun

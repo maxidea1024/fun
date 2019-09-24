@@ -16,7 +16,8 @@ class FUN_BASE_API Exec {
   /**
    * TODO
    */
-  virtual bool Execute(class RuntimeEnv* env, const char* cmd, LogSink& sink) = 0;
+  virtual bool Execute(class RuntimeEnv* env, const char* cmd,
+                       LogSink& sink) = 0;
 };
 
-} // namespace fun
+}  // namespace fun

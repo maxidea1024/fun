@@ -83,9 +83,8 @@ class FUN_BASE_API RWLock : private RWLockImpl {
 
  private:
   RWLock(const RWLock&) = delete;
-  RWLock& operator = (const RWLock&) = delete;
+  RWLock& operator=(const RWLock&) = delete;
 };
-
 
 /**
  * A variant of ScopedLock for reader/writer locks.
@@ -97,12 +96,11 @@ class FUN_BASE_API ScopedRWLock {
 
   ScopedRWLock() = delete;
   ScopedRWLock(const ScopedRWLock&) = delete;
-  ScopedRWLock& operator = (const ScopedRWLock&) = delete;
+  ScopedRWLock& operator=(const ScopedRWLock&) = delete;
 
  private:
   RWLock& rwl_;
 };
-
 
 /**
  * A variant of ScopedLock for reader locks.
@@ -113,7 +111,6 @@ class FUN_BASE_API ScopedReadRWLock : public ScopedRWLock {
   ~ScopedReadRWLock();
 };
 
-
 /**
  * A variant of ScopedLock for writer locks.
  */
@@ -123,33 +120,22 @@ class FUN_BASE_API ScopedWriteRWLock : public ScopedRWLock {
   ~ScopedWriteRWLock();
 };
 
-
 //
 // inlines
 //
 
-FUN_ALWAYS_INLINE void RWLock::ReadLock() {
-  ReadLockImpl();
-}
+FUN_ALWAYS_INLINE void RWLock::ReadLock() { ReadLockImpl(); }
 
-FUN_ALWAYS_INLINE bool RWLock::TryReadLock() {
-  return TryReadLockImpl();
-}
+FUN_ALWAYS_INLINE bool RWLock::TryReadLock() { return TryReadLockImpl(); }
 
-FUN_ALWAYS_INLINE void RWLock::WriteLock() {
-  WriteLockImpl();
-}
+FUN_ALWAYS_INLINE void RWLock::WriteLock() { WriteLockImpl(); }
 
-FUN_ALWAYS_INLINE bool RWLock::TryWriteLock() {
-  return TryWriteLockImpl();
-}
+FUN_ALWAYS_INLINE bool RWLock::TryWriteLock() { return TryWriteLockImpl(); }
 
-FUN_ALWAYS_INLINE void RWLock::Unlock() {
-  UnlockImpl();
-}
+FUN_ALWAYS_INLINE void RWLock::Unlock() { UnlockImpl(); }
 
 FUN_ALWAYS_INLINE ScopedRWLock::ScopedRWLock(RWLock& rwl, bool write)
-  : rwl_(rwl) {
+    : rwl_(rwl) {
   if (write) {
     rwl_.WriteLock();
   } else {
@@ -165,15 +151,14 @@ FUN_ALWAYS_INLINE ScopedRWLock::~ScopedRWLock() {
   }
 }
 
-
 FUN_ALWAYS_INLINE ScopedReadRWLock::ScopedReadRWLock(RWLock& rwl)
-  : ScopedRWLock(rwl, false) {}
+    : ScopedRWLock(rwl, false) {}
 
 FUN_ALWAYS_INLINE ScopedReadRWLock::~ScopedReadRWLock() {}
 
 FUN_ALWAYS_INLINE ScopedWriteRWLock::ScopedWriteRWLock(RWLock& rwl)
-  : ScopedRWLock(rwl, true) {}
+    : ScopedRWLock(rwl, true) {}
 
 FUN_ALWAYS_INLINE ScopedWriteRWLock::~ScopedWriteRWLock() {}
 
-} // namespace fun
+}  // namespace fun

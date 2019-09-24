@@ -8,7 +8,7 @@ class FUN_BASE_API EnvironmentImpl {
  public:
   /** Ehternet address. */
   typedef uint8 NodeId[6];
-  
+
   static String GetImpl(const String& name);
   static bool HasImpl(const String& name);
   static void SetImpl(const String& name, const String& value);
@@ -21,4 +21,4 @@ class FUN_BASE_API EnvironmentImpl {
   static uint32 GetProcessorCountImpl();
 };
 
-} // namespace fun
+}  // namespace fun

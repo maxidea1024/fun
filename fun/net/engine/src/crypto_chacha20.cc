@@ -1,16 +1,16 @@
-﻿#include "fun/net/net.h"
-#include "CryptoChaCha20.h"
+﻿#include "CryptoChaCha20.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
 
 bool CryptoChaCha20::ExpandFrom(CryptoChaCha20Key& out_key,
-                                const uint8* input_key,
-                                int32 key_length) {
+                                const uint8* input_key, int32 key_length) {
   if (key_length == 0) {
     TRACE_SOURCE_LOCATION();
 
-    // ChaCha20 키의 길이가 0이면, 사용하지 않을 경우이므로 키교환이 제대로 이루어졌음을 세팅합니다.
+    // ChaCha20 키의 길이가 0이면, 사용하지 않을 경우이므로 키교환이 제대로
+    // 이루어졌음을 세팅합니다.
     out_key.key_exists = true;
     return true;
   }
@@ -50,11 +50,9 @@ int32 CryptoChaCha20::GetEncryptSize(const int32 data_length) {
   return data_length + sizeof(uint32);
 }
 
-bool CryptoChaCha20::Encrypt( const CryptoChaCha20Key& key,
-                              const uint8* input,
-                              const int32 input_length,
-                              uint8* output,
-                              int32& output_length) {
+bool CryptoChaCha20::Encrypt(const CryptoChaCha20Key& key, const uint8* input,
+                             const int32 input_length, uint8* output,
+                             int32& output_length) {
   if (!key.KeyExists()) {
     TRACE_SOURCE_LOCATION();
 
@@ -65,7 +63,8 @@ bool CryptoChaCha20::Encrypt( const CryptoChaCha20Key& key,
   if (key.key.IsEmpty()) {
     TRACE_SOURCE_LOCATION();
 
-    // ServerStartParameter::FastEncryptedMessageKeyLength 를 세팅하지 않고 사용하는 경우
+    // ServerStartParameter::FastEncryptedMessageKeyLength 를 세팅하지 않고
+    // 사용하는 경우
     return false;
   }
 
@@ -100,11 +99,9 @@ bool CryptoChaCha20::Encrypt( const CryptoChaCha20Key& key,
   return true;
 }
 
-bool CryptoChaCha20::Decrypt( const CryptoChaCha20Key& key,
-                              const uint8* input,
-                              const int32 input_length,
-                              uint8* output,
-                              int32& output_length) {
+bool CryptoChaCha20::Decrypt(const CryptoChaCha20Key& key, const uint8* input,
+                             const int32 input_length, uint8* output,
+                             int32& output_length) {
   if (!key.KeyExists()) {
     TRACE_SOURCE_LOCATION();
 
@@ -116,7 +113,8 @@ bool CryptoChaCha20::Decrypt( const CryptoChaCha20Key& key,
   if (key.key.IsEmpty()) {
     TRACE_SOURCE_LOCATION();
 
-    // ServerStartParameter::weak_encrypted_message_key_length 를 세팅하지 않고 사용하는 경우
+    // ServerStartParameter::weak_encrypted_message_key_length 를 세팅하지 않고
+    // 사용하는 경우
     return false;
   }
 
@@ -131,7 +129,8 @@ bool CryptoChaCha20::Decrypt( const CryptoChaCha20Key& key,
   if (output_length < input_length) {
     TRACE_SOURCE_LOCATION();
 
-    // 실제 복호화후 사이즈는 작아지지만 복호화시 InputLength사이즈가 필요합니다.
+    // 실제 복호화후 사이즈는 작아지지만 복호화시 InputLength사이즈가
+    // 필요합니다.
     return false;
   }
 
@@ -144,10 +143,12 @@ bool CryptoChaCha20::Decrypt( const CryptoChaCha20Key& key,
   }
 
   // Crc값을 체크합니다.
-  const uint32 calculated_crc = Crc::Crc32(output, input_length - sizeof(uint32));
+  const uint32 calculated_crc =
+      Crc::Crc32(output, input_length - sizeof(uint32));
   //@todo endian issue를 처리해야할듯함!!
   uint32 tossed_crc;
-  UnsafeMemory::Memcpy(&tossed_crc, output + input_length - sizeof(uint32), sizeof(tossed_crc));
+  UnsafeMemory::Memcpy(&tossed_crc, output + input_length - sizeof(uint32),
+                       sizeof(tossed_crc));
   if (calculated_crc != tossed_crc) {
     TRACE_SOURCE_LOCATION();
     return false;
@@ -157,21 +158,22 @@ bool CryptoChaCha20::Decrypt( const CryptoChaCha20Key& key,
   return true;
 }
 
-bool CryptoChaCha20::Encrypt( const CryptoChaCha20Key& key,
-                              ByteStringView input,
-                              ByteArray& output) {
+bool CryptoChaCha20::Encrypt(const CryptoChaCha20Key& key, ByteStringView input,
+                             ByteArray& output) {
   int32 output_length = GetEncryptSize(input.Len());
   output.ResizeUninitialized(output_length);
-  return Encrypt(key, (const uint8*)input.ConstData(), input.Len(), (uint8*)output.MutableData(), output_length);
+  return Encrypt(key, (const uint8*)input.ConstData(), input.Len(),
+                 (uint8*)output.MutableData(), output_length);
 }
 
-bool CryptoChaCha20::Decrypt( const CryptoChaCha20Key& key,
-                              ByteStringView input,
-                              ByteArray& output) {
+bool CryptoChaCha20::Decrypt(const CryptoChaCha20Key& key, ByteStringView input,
+                             ByteArray& output) {
   int32 output_length = input.Len();
   output.ResizeUninitialized(output_length);
 
-  const bool bDecryptedSuccess = Decrypt(key, (const uint8*)input.ConstData(), output_length, (uint8*)output.MutableData(), output_length);
+  const bool bDecryptedSuccess =
+      Decrypt(key, (const uint8*)input.ConstData(), output_length,
+              (uint8*)output.MutableData(), output_length);
   if (!bDecryptedSuccess) {
     TRACE_SOURCE_LOCATION();
     return false;
@@ -181,9 +183,9 @@ bool CryptoChaCha20::Decrypt( const CryptoChaCha20Key& key,
   return true;
 }
 
-
 template <size_t KnownLength>
-void OptimizeEncrypt(const CryptoChaCha20Key& key, uint8* output, int32 length) {
+void OptimizeEncrypt(const CryptoChaCha20Key& key, uint8* output,
+                     int32 length) {
   uint8 key_copy[KnownLength];
   UnsafeMemory::Memcpy(key_copy, key.key.ConstData(), KnownLength);
 
@@ -201,8 +203,10 @@ void OptimizeEncrypt(const CryptoChaCha20Key& key, uint8* output, int32 length) 
   }
 }
 
-bool CryptoChaCha20::InternalEncrypt(const CryptoChaCha20Key& key, uint8* output, int32 length) {
-  // 키 길이가 2의 승수일 경우 컴파일러에 의해 상수일 경우 컴파일 타임에 최적화가 이루어집니다.
+bool CryptoChaCha20::InternalEncrypt(const CryptoChaCha20Key& key,
+                                     uint8* output, int32 length) {
+  // 키 길이가 2의 승수일 경우 컴파일러에 의해 상수일 경우 컴파일 타임에
+  // 최적화가 이루어집니다.
   switch (key.key.Len() * 8) {
     case (int32)WeakEncryptionLevel::Low:
       OptimizeEncrypt<64>(key, output, length);
@@ -224,5 +228,5 @@ bool CryptoChaCha20::InternalEncrypt(const CryptoChaCha20Key& key, uint8* output
   return true;
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun
