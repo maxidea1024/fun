@@ -1,8 +1,8 @@
 ﻿#include "fun/base/logging/purge_strategy.h"
-#include "fun/base/path.h"
 #include "fun/base/directory_iterator.h"
-#include "fun/base/timestamp.h"
+#include "fun/base/path.h"
 #include "fun/base/string/string.h"
+#include "fun/base/timestamp.h"
 
 namespace fun {
 
@@ -31,7 +31,6 @@ void PurgeStrategy::List(const String& path, Array<File>& files) {
   }
 }
 
-
 //
 // PurgeByAgeStrategy
 //
@@ -50,7 +49,6 @@ void PurgeByAgeStrategy::Purge(const String& path) {
     }
   }
 }
-
 
 //
 // PurgeByCountStrategy
@@ -85,4 +83,4 @@ void PurgeByCountStrategy::Purge(const String& path) {
   }
 }
 
-} // namespace fun
+}  // namespace fun

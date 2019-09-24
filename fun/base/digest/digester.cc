@@ -10,4 +10,4 @@ Digester::~Digester() {
   // NOOP
 }
 
-} // namespace fun
+}  // namespace fun

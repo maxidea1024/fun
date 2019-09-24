@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
+#include "fun/base/container/array.h"
 #include "fun/base/logging/log_sink.h"
 #include "fun/base/mutex.h"
-#include "fun/base/container/array.h"
 #include "fun/base/string/string.h"
 //#include "fun/base/runtime_class.h"
 
@@ -39,4 +39,4 @@ class FUN_BASE_API SplitterSink : public LogSink {
   Array<LogSink::Ptr> sinks_;
 };
 
-} // namespace fun
+}  // namespace fun

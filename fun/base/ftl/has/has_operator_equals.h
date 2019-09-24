@@ -19,25 +19,29 @@ struct ReturnValueCheck<NotSpecified> {
 };
 
 template <typename T>
-NotSpecified operator == (const T&, const T&);
+NotSpecified operator==(const T&, const T&);
 
 template <typename T>
-NotSpecified operator != (const T&, const T&);
+NotSpecified operator!=(const T&, const T&);
 
 template <typename T>
 const T& Make();
 
 template <typename T>
 struct Equals {
-  static constexpr bool Value = sizeof(ReturnValueCheck<decltype(Make<T>() == Make<T>())>::Func()) == sizeof(char[2]);
+  static constexpr bool Value =
+      sizeof(ReturnValueCheck<decltype(Make<T>() == Make<T>())>::Func()) ==
+      sizeof(char[2]);
 };
 
 template <typename T>
 struct NotEquals {
-  static constexpr bool Value = sizeof(ReturnValueCheck<decltype(Make<T>() != Make<T>())>::Func()) == sizeof(char[2]);
+  static constexpr bool Value =
+      sizeof(ReturnValueCheck<decltype(Make<T>() != Make<T>())>::Func()) ==
+      sizeof(char[2]);
 };
 
-} // namespace HasOperatorEquals_internal
+}  // namespace HasOperatorEquals_internal
 
 /**
  * Traits class which tests if a type has an `operator==` overload.
@@ -55,4 +59,4 @@ struct HasOperator_NotEquals {
   static constexpr bool Value = HasOperatorEquals_internal::NotEquals<T>::Value;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -1,34 +1,41 @@
-﻿#include "CorePrivatePCH.h"
-#include <sys/utime.h>
+﻿#include <sys/utime.h>
+#include "CorePrivatePCH.h"
 
 namespace fun {
 
 #include "Platform/Windows/AllowWindowsTypes.h"
 namespace FileConstants {
-  uint32 WIN_INVALID_SET_FILE_POINTER = INVALID_SET_FILE_POINTER;
+uint32 WIN_INVALID_SET_FILE_POINTER = INVALID_SET_FILE_POINTER;
 }
 #include "Platform/Windows/HideWindowsTypes.h"
-
 
 namespace {
 
 inline int32 ToWindowsDayOfWeek(const DayOfWeekType dow) {
   switch (dow) {
-  case DayOfWeekType::Monday: return 1;
-  case DayOfWeekType::Tuesday: return 2;
-  case DayOfWeekType::Wednesday: return 3;
-  case DayOfWeekType::Thursday: return 4;
-  case DayOfWeekType::Friday: return 5;
-  case DayOfWeekType::Saturday: return 6;
-  case DayOfWeekType::Sunday: return 0;
-  default: break;
+    case DayOfWeekType::Monday:
+      return 1;
+    case DayOfWeekType::Tuesday:
+      return 2;
+    case DayOfWeekType::Wednesday:
+      return 3;
+    case DayOfWeekType::Thursday:
+      return 4;
+    case DayOfWeekType::Friday:
+      return 5;
+    case DayOfWeekType::Saturday:
+      return 6;
+    case DayOfWeekType::Sunday:
+      return 0;
+    default:
+      break;
   }
 
   return 0;
 }
 
 inline DateTime FromWindowsFileTime(const FILETIME& ft) {
-  //TODO 초단위 미만까지 조회가 가능한데... 해당 요소를 살려주어야할듯!
+  // TODO 초단위 미만까지 조회가 가능한데... 해당 요소를 살려주어야할듯!
 
   // This roundabout conversion clamps the precision of
   // the returned time value to match that of time_t (1 second precision)
@@ -36,7 +43,8 @@ inline DateTime FromWindowsFileTime(const FILETIME& ft) {
   // over the network via cook-on-the-fly
   SYSTEMTIME st;
   if (FileTimeToSystemTime(&ft, &st)) {
-    return DateTime(Date(st.wYear, st.wMonth, st.wDay), Time(st.wHour, st.wMinute, st.wSecond));
+    return DateTime(Date(st.wYear, st.wMonth, st.wDay),
+                    Time(st.wHour, st.wMinute, st.wSecond));
   }
 
   // Failed to convert
@@ -64,8 +72,7 @@ inline FILETIME ToWindowsFileTime(const DateTime& dt) {
   return ft;
 }
 
-} // namespace
-
+}  // namespace
 
 /**
  * This file reader uses overlapped i/o and double buffering to
@@ -93,11 +100,13 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
   int32 StreamBuffer;
   /** Where we are in the serialize buffer */
   int32 SerializePos;
-  /** Tracks which buffer has the async read outstanding (0 = first read after create/seek, 1 = streaming buffer) */
+  /** Tracks which buffer has the async read outstanding (0 = first read after
+   * create/seek, 1 = streaming buffer) */
   int32 CurrentAsyncReadBuffer;
   /** The overlapped IO struct to use for determining async state */
   OVERLAPPED OverlappedIO;
-  /** Used to track whether the last read reached the end of the file or not. Reset when a Seek happens */
+  /** Used to track whether the last read reached the end of the file or not.
+   * Reset when a Seek happens */
   bool bIsAtEOF;
   /** Whether there's a read outstanding or not */
   bool bHasReadOutstanding;
@@ -112,7 +121,8 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
     return true;
   }
 
-  /** This toggles the buffers we read into & serialize out of between buffer indices 0 & 1 */
+  /** This toggles the buffers we read into & serialize out of between buffer
+   * indices 0 & 1 */
   inline void SwapBuffers() {
     StreamBuffer ^= 1;
     SerializeBuffer ^= 1;
@@ -143,7 +153,8 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
       return true;
     }
     uint32 NumRead = 0;
-    if (GetOverlappedResult(Handle, &OverlappedIO, (::DWORD*)&NumRead, true) != false) {
+    if (GetOverlappedResult(Handle, &OverlappedIO, (::DWORD*)&NumRead, true) !=
+        false) {
       UpdateFileOffsetAfterRead(NumRead);
       return true;
     } else if (GetLastError() == ERROR_HANDLE_EOF) {
@@ -159,7 +170,8 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
       CurrentAsyncReadBuffer = BufferToReadInto;
       uint32 NumRead = 0;
       // Now kick off an async read
-      if (!ReadFile(Handle, Buffers[BufferToReadInto], BufferSize, (::DWORD*)&NumRead, &OverlappedIO)) {
+      if (!ReadFile(Handle, Buffers[BufferToReadInto], BufferSize,
+                    (::DWORD*)&NumRead, &OverlappedIO)) {
         uint32 ErrorCode = GetLastError();
         if (ErrorCode != ERROR_IO_PENDING) {
           bIsAtEOF = true;
@@ -172,30 +184,27 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
     }
   }
 
-  inline void StartStreamBufferRead() {
-    StartAsyncRead(StreamBuffer);
-  }
+  inline void StartStreamBufferRead() { StartAsyncRead(StreamBuffer); }
 
-  inline void StartSerializeBufferRead() {
-    StartAsyncRead(SerializeBuffer);
-  }
+  inline void StartSerializeBufferRead() { StartAsyncRead(SerializeBuffer); }
 
   inline bool IsValid() {
     return Handle != nullptr && Handle != INVALID_HANDLE_VALUE;
   }
 
  public:
-  AsyncBufferedFileReaderWindows(HANDLE InHandle, int32 InBufferSize = DEFAULT_BUFFER_SIZE)
-    : Handle(InHandle),
-      FilePos(0),
-      OverlappedFilePos(0),
-      BufferSize(InBufferSize),
-      SerializeBuffer(0),
-      StreamBuffer(1),
-      SerializePos(0),
-      CurrentAsyncReadBuffer(0),
-      bIsAtEOF(false),
-      bHasReadOutstanding(false) {
+  AsyncBufferedFileReaderWindows(HANDLE InHandle,
+                                 int32 InBufferSize = DEFAULT_BUFFER_SIZE)
+      : Handle(InHandle),
+        FilePos(0),
+        OverlappedFilePos(0),
+        BufferSize(InBufferSize),
+        SerializeBuffer(0),
+        StreamBuffer(1),
+        SerializePos(0),
+        CurrentAsyncReadBuffer(0),
+        bIsAtEOF(false),
+        bHasReadOutstanding(false) {
     LARGE_INTEGER li;
     GetFileSizeEx(Handle, &li);
     file_size = li.QuadPart;
@@ -230,16 +239,19 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
       return true;
     }
 
-    // No matter what, we need to wait for the current async read to finish since we most likely need to issue a new one
+    // No matter what, we need to wait for the current async read to finish
+    // since we most likely need to issue a new one
     if (!WaitForAsyncRead()) {
       return false;
     }
 
     FilePos = new_pos;
 
-    // If the requested location is not within our current serialize buffer, we need to start the whole read process over
-    const bool bWithinSerializeBuffer = (PosDelta < 0 && (SerializePos - MathBase::Abs(PosDelta) >= 0)) ||
-      (PosDelta > 0 && ((PosDelta + SerializePos) < BufferSize));
+    // If the requested location is not within our current serialize buffer, we
+    // need to start the whole read process over
+    const bool bWithinSerializeBuffer =
+        (PosDelta < 0 && (SerializePos - MathBase::Abs(PosDelta) >= 0)) ||
+        (PosDelta > 0 && ((PosDelta + SerializePos) < BufferSize));
     if (bWithinSerializeBuffer) {
       // Still within the serialize buffer so just update the position
       SerializePos += PosDelta;
@@ -290,17 +302,19 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
     }
 
     fun_check(dst != nullptr)
-    // While there is data to copy
-    while (bytes_to_read > 0) {
+        // While there is data to copy
+        while (bytes_to_read > 0) {
       // Figure out how many bytes we can read from the serialize buffer
-      int64 len_to_copy = MathBase::Min<int64>(bytes_to_read, BufferSize - SerializePos);
+      int64 len_to_copy =
+          MathBase::Min<int64>(bytes_to_read, BufferSize - SerializePos);
       if (FilePos + len_to_copy > file_size) {
         // Tried to read past the end of the file, so fail
         return false;
       }
       // See if we are at the end of the serialize buffer or not
       if (len_to_copy > 0) {
-        UnsafeMemory::Memcpy(dst, &Buffers[SerializeBuffer][SerializePos], len_to_copy);
+        UnsafeMemory::Memcpy(dst, &Buffers[SerializeBuffer][SerializePos],
+                             len_to_copy);
 
         // Update the internal positions
         SerializePos += len_to_copy;
@@ -314,7 +328,8 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
         // Now offset the dst pointer with the chunk we copied
         dst = (uint8*)dst + len_to_copy;
       } else {
-        // We've crossed the buffer boundary and now need to make sure the stream buffer read is done
+        // We've crossed the buffer boundary and now need to make sure the
+        // stream buffer read is done
         if (!WaitForAsyncRead()) {
           return false;
         }
@@ -331,7 +346,6 @@ class FUN_BASE_API AsyncBufferedFileReaderWindows : public IFile {
   }
 };
 
-
 /**
  * Windows file handle implementation
  */
@@ -342,8 +356,10 @@ class FUN_BASE_API WindowsFile : public IFile {
   inline int64 FileSeek(int64 distance, uint32 move_method) {
     LARGE_INTEGER li;
     li.QuadPart = distance;
-    li.LowPart = SetFilePointer(file_handle_, li.LowPart, &li.HighPart, move_method);
-    if (li.LowPart == FileConstants::WIN_INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR) {
+    li.LowPart =
+        SetFilePointer(file_handle_, li.LowPart, &li.HighPart, move_method);
+    if (li.LowPart == FileConstants::WIN_INVALID_SET_FILE_POINTER &&
+        GetLastError() != NO_ERROR) {
       li.QuadPart = -1;
     }
     return li.QuadPart;
@@ -382,10 +398,13 @@ class FUN_BASE_API WindowsFile : public IFile {
     fun_check(IsValid());
     while (bytes_to_read) {
       fun_check(bytes_to_read >= 0);
-      int64 adjusted_readable_len = MathBase::Min<int64>(READWRITE_SIZE, bytes_to_read);
+      int64 adjusted_readable_len =
+          MathBase::Min<int64>(READWRITE_SIZE, bytes_to_read);
       fun_check_ptr(dst);
       uint32 result = 0;
-      if (!ReadFile(file_handle_, dst, uint32(adjusted_readable_len), (::DWORD *)&result, nullptr) || result != uint32(adjusted_readable_len)) {
+      if (!ReadFile(file_handle_, dst, uint32(adjusted_readable_len),
+                    (::DWORD*)&result, nullptr) ||
+          result != uint32(adjusted_readable_len)) {
         return false;
       }
       dst += adjusted_readable_len;
@@ -398,10 +417,13 @@ class FUN_BASE_API WindowsFile : public IFile {
     fun_check(IsValid());
     while (bytes_to_write) {
       fun_check(bytes_to_write >= 0);
-      int64 adjusted_writable_len = MathBase::Min<int64>(READWRITE_SIZE, bytes_to_write);
+      int64 adjusted_writable_len =
+          MathBase::Min<int64>(READWRITE_SIZE, bytes_to_write);
       fun_check(src);
       uint32 result = 0;
-      if (!WriteFile(file_handle_, src, uint32(adjusted_writable_len), (::DWORD *)&result, nullptr) || result != uint32(adjusted_writable_len)) {
+      if (!WriteFile(file_handle_, src, uint32(adjusted_writable_len),
+                     (::DWORD*)&result, nullptr) ||
+          result != uint32(adjusted_writable_len)) {
         return false;
       }
       src += adjusted_writable_len;
@@ -410,7 +432,6 @@ class FUN_BASE_API WindowsFile : public IFile {
     return true;
   }
 };
-
 
 /**
  * Windows File I/O implementation
@@ -446,7 +467,8 @@ class FUN_BASE_API WindowsFileSystem : public IPhysicalFileSystem {
 
   int64 FileSize(const char* filename) override {
     WIN32_FILE_ATTRIBUTE_DATA info;
-    if (!!GetFileAttributesExW(*NormalizeFilename(filename), GetFileExInfoStandard, &info)) {
+    if (!!GetFileAttributesExW(*NormalizeFilename(filename),
+                               GetFileExInfoStandard, &info)) {
       if ((info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
         LARGE_INTEGER li;
         li.HighPart = info.nFileSizeHigh;
@@ -475,12 +497,15 @@ class FUN_BASE_API WindowsFileSystem : public IPhysicalFileSystem {
   }
 
   bool SetReadOnly(const char* filename, bool readonly) override {
-    return !!SetFileAttributesW(*NormalizeFilename(filename), readonly ? FILE_ATTRIBUTE_READONLY : FILE_ATTRIBUTE_NORMAL);
+    return !!SetFileAttributesW(
+        *NormalizeFilename(filename),
+        readonly ? FILE_ATTRIBUTE_READONLY : FILE_ATTRIBUTE_NORMAL);
   }
 
   DateTime GetTimestamp(const char* filename) override {
     WIN32_FILE_ATTRIBUTE_DATA info;
-    if (GetFileAttributesExW(*NormalizeFilename(filename), GetFileExInfoStandard, &info)) {
+    if (GetFileAttributesExW(*NormalizeFilename(filename),
+                             GetFileExInfoStandard, &info)) {
       return FromWindowsFileTime(info.ftLastWriteTime);
     }
 
@@ -488,22 +513,27 @@ class FUN_BASE_API WindowsFileSystem : public IPhysicalFileSystem {
   }
 
   void SetTimestamp(const char* filename, const DateTime& timestamp) override {
-    HANDLE Handle = CreateFileW(*NormalizeFilename(filename), FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr);
+    HANDLE Handle =
+        CreateFileW(*NormalizeFilename(filename), FILE_WRITE_ATTRIBUTES,
+                    FILE_SHARE_READ, nullptr, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr);
     if (Handle != INVALID_HANDLE_VALUE) {
       const FILETIME modification_ft = ToWindowsFileTime(timestamp);
       if (!SetFileTime(Handle, nullptr, nullptr, &modification_ft)) {
-        fun_log(LogTemp, Warning, "SetTimestamp: Failed to SetFileTime on {}", filename);
+        fun_log(LogTemp, Warning, "SetTimestamp: Failed to SetFileTime on {}",
+                filename);
       }
       CloseHandle(Handle);
-    }
-    else {
-      fun_log(LogTemp, Warning, "SetTimestamp: Failed to open file {}", filename);
+    } else {
+      fun_log(LogTemp, Warning, "SetTimestamp: Failed to open file {}",
+              filename);
     }
   }
 
   DateTime GetAccessTimestamp(const char* filename) override {
     WIN32_FILE_ATTRIBUTE_DATA info;
-    if (GetFileAttributesExW(*NormalizeFilename(filename), GetFileExInfoStandard, &info)) {
+    if (GetFileAttributesExW(*NormalizeFilename(filename),
+                             GetFileExInfoStandard, &info)) {
       return FromWindowsFileTime(info.ftLastAccessTime);
     }
 
@@ -526,10 +556,12 @@ class FUN_BASE_API WindowsFileSystem : public IPhysicalFileSystem {
       }
 
       int32 separator_index = INVALID_INDEX;
-      if ((separator_index = normalized_filename.LastIndexOf('/')) != INVALID_INDEX) {
+      if ((separator_index = normalized_filename.LastIndexOf('/')) !=
+          INVALID_INDEX) {
         normalized_filename = normalized_filename.Mid(0, separator_index);
       }
-      if (normalized_filename.Len() && (separator_index == INVALID_INDEX || normalized_filename.EndsWith(":"))) {
+      if (normalized_filename.Len() && (separator_index == INVALID_INDEX ||
+                                        normalized_filename.EndsWith(":"))) {
         result = normalized_filename / result;
         normalized_filename.Empty();
       }
@@ -542,28 +574,32 @@ class FUN_BASE_API WindowsFileSystem : public IPhysicalFileSystem {
     const uint32 flags = FILE_SHARE_READ | (allow_write ? FILE_SHARE_WRITE : 0);
     const uint32 create = OPEN_EXISTING;
     const String normalized_filename = NormalizeFilename(filename);
-    const HANDLE handle = CreateFileW(*normalized_filename, access, flags, nullptr, create, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr);
+    const HANDLE handle =
+        CreateFileW(*normalized_filename, access, flags, nullptr, create,
+                    FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr);
     if (handle != INVALID_HANDLE_VALUE) {
       return new AsyncBufferedFileReaderWindows(handle);
     }
     return nullptr;
   }
 
-  IFile* OpenWrite(const char* filename, bool append = false, bool allow_read = false) override {
-    //FIXME: 파일을 액세스하는 중에 로깅을 시도하면 클래시가 되는데, 왜 그런건지??
-    //로깅을 위해 로그파일을 쓰기 모드로 열게 되는데, 이때 재귀가 발생함.
-    //OpenWrite에서는 로깅을 할 수 없다는 얘기가 되는건가?
-    //개선을 해봐야할것으로 보임.
-    //fun_log(LogCore, info, "OpenWrite: %s", filename);
+  IFile* OpenWrite(const char* filename, bool append = false,
+                   bool allow_read = false) override {
+    // FIXME: 파일을 액세스하는 중에 로깅을 시도하면 클래시가 되는데, 왜
+    // 그런건지?? 로깅을 위해 로그파일을 쓰기 모드로 열게 되는데, 이때 재귀가
+    //발생함. OpenWrite에서는 로깅을 할 수 없다는 얘기가 되는건가? 개선을
+    //해봐야할것으로 보임. fun_log(LogCore, info, "OpenWrite: %s", filename);
 
-    //OutputDebugString("WRITE: \"");
-    //OutputDebugString(filename);
-    //OutputDebugString("\"\r\n");
+    // OutputDebugString("WRITE: \"");
+    // OutputDebugString(filename);
+    // OutputDebugString("\"\r\n");
 
     const uint32 access = GENERIC_WRITE;
     const uint32 flags = allow_read ? FILE_SHARE_READ : 0;
     const uint32 create = append ? OPEN_ALWAYS : CREATE_ALWAYS;
-    const HANDLE handle = CreateFileW(*NormalizeFilename(filename), access, flags, nullptr, create, FILE_ATTRIBUTE_NORMAL, nullptr);
+    const HANDLE handle =
+        CreateFileW(*NormalizeFilename(filename), access, flags, nullptr,
+                    create, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (handle != INVALID_HANDLE_VALUE) {
       WindowsFile* file = new WindowsFile(handle);
       if (append) {
@@ -585,7 +621,8 @@ class FUN_BASE_API WindowsFileSystem : public IPhysicalFileSystem {
   }
 
   bool CreateDirectory(const char* directory) override {
-    return CreateDirectoryW(*NormalizeDirectory(directory), nullptr) || GetLastError() == ERROR_ALREADY_EXISTS;
+    return CreateDirectoryW(*NormalizeDirectory(directory), nullptr) ||
+           GetLastError() == ERROR_ALREADY_EXISTS;
   }
 
   bool DeleteDirectory(const char* directory) override {
@@ -595,8 +632,10 @@ class FUN_BASE_API WindowsFileSystem : public IPhysicalFileSystem {
 
   FileStatData GetStatData(const char* filename_or_directory) override {
     WIN32_FILE_ATTRIBUTE_DATA info;
-    if (GetFileAttributesExW(*NormalizeFilename(filename_or_directory), GetFileExInfoStandard, &info)) {
-      const bool is_directory = !!(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+    if (GetFileAttributesExW(*NormalizeFilename(filename_or_directory),
+                             GetFileExInfoStandard, &info)) {
+      const bool is_directory =
+          !!(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
       int64 file_size = -1;
       if (!is_directory) {
@@ -606,60 +645,66 @@ class FUN_BASE_API WindowsFileSystem : public IPhysicalFileSystem {
         file_size = static_cast<int64>(li.QuadPart);
       }
 
-      return FileStatData(
-            FromWindowsFileTime(info.ftCreationTime),
-            FromWindowsFileTime(info.ftLastAccessTime),
-            FromWindowsFileTime(info.ftLastWriteTime),
-            file_size,
-            is_directory,
-            !!(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY));
+      return FileStatData(FromWindowsFileTime(info.ftCreationTime),
+                          FromWindowsFileTime(info.ftLastAccessTime),
+                          FromWindowsFileTime(info.ftLastWriteTime), file_size,
+                          is_directory,
+                          !!(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY));
     }
 
     return FileStatData();
   }
 
-  bool IterateDirectory(const char* directory, DirectoryVisitor& visitor) override {
+  bool IterateDirectory(const char* directory,
+                        DirectoryVisitor& visitor) override {
     const String directory_str = directory;
-    return IterateDirectoryCommon(directory, [&](const WIN32_FIND_DATAW& data) -> bool {
-      const bool is_directory = !!(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-      return visitor.Visit(*(directory_str / data.cFileName), is_directory);
-    });
+    return IterateDirectoryCommon(
+        directory, [&](const WIN32_FIND_DATAW& data) -> bool {
+          const bool is_directory =
+              !!(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+          return visitor.Visit(*(directory_str / data.cFileName), is_directory);
+        });
   }
 
-  bool IterateDirectoryStat(const char* directory, DirectoryStatVisitor& visitor) override {
+  bool IterateDirectoryStat(const char* directory,
+                            DirectoryStatVisitor& visitor) override {
     const String directory_str = directory;
-    return IterateDirectoryCommon(directory, [&](const WIN32_FIND_DATAW& data) -> bool {
-      const bool is_directory = !!(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+    return IterateDirectoryCommon(
+        directory, [&](const WIN32_FIND_DATAW& data) -> bool {
+          const bool is_directory =
+              !!(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
-      int64 file_size = -1;
-      if (!is_directory) {
-        LARGE_INTEGER li;
-        li.HighPart = data.nFileSizeHigh;
-        li.LowPart = data.nFileSizeLow;
-        file_size = static_cast<int64>(li.QuadPart);
-      }
+          int64 file_size = -1;
+          if (!is_directory) {
+            LARGE_INTEGER li;
+            li.HighPart = data.nFileSizeHigh;
+            li.LowPart = data.nFileSizeLow;
+            file_size = static_cast<int64>(li.QuadPart);
+          }
 
-      return visitor.Visit(
-        *(directory_str / data.cFileName),
-        FileStatData(
-          FromWindowsFileTime(data.ftCreationTime),
-          FromWindowsFileTime(data.ftLastAccessTime),
-          FromWindowsFileTime(data.ftLastWriteTime),
-          file_size,
-          is_directory,
-          !!(data.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
-        );
-    });
+          return visitor.Visit(
+              *(directory_str / data.cFileName),
+              FileStatData(
+                  FromWindowsFileTime(data.ftCreationTime),
+                  FromWindowsFileTime(data.ftLastAccessTime),
+                  FromWindowsFileTime(data.ftLastWriteTime), file_size,
+                  is_directory,
+                  !!(data.dwFileAttributes & FILE_ATTRIBUTE_READONLY)));
+        });
   }
 
-  bool IterateDirectoryCommon(const char* directory, const FunctionRef<bool (const WIN32_FIND_DATAW&)>& visitor) {
+  bool IterateDirectoryCommon(
+      const char* directory,
+      const FunctionRef<bool(const WIN32_FIND_DATAW&)>& visitor) {
     bool result = false;
     WIN32_FIND_DATAW data;
-    HANDLE handle = FindFirstFileW(*(NormalizeDirectory(directory) / "*.*"), &data);
+    HANDLE handle =
+        FindFirstFileW(*(NormalizeDirectory(directory) / "*.*"), &data);
     if (handle != INVALID_HANDLE_VALUE) {
       result = true;
       do {
-        if (CharTraits::Strcmp(data.cFileName, ".") && CharTraits::Strcmp(data.cFileName, "..")) {
+        if (CharTraits::Strcmp(data.cFileName, ".") &&
+            CharTraits::Strcmp(data.cFileName, "..")) {
           result = visitor(data);
         }
       } while (result && FindNextFileW(handle, &data));
@@ -674,4 +719,4 @@ IFileSystem& IFileSystem::GetPhysicalFileSystem() {
   return singleton;
 }
 
-} // namespace fun
+}  // namespace fun

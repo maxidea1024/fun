@@ -9,7 +9,7 @@ template <typename DisgesterTy>
 class HMACDigester : public Digester {
  public:
   enum {
-    BLOCK_SIZE  = DisgesterTy::BLOCK_SIZE,
+    BLOCK_SIZE = DisgesterTy::BLOCK_SIZE,
     DIGEST_SIZE = DisgesterTy::DIGEST_SIZE
   };
 
@@ -28,14 +28,11 @@ class HMACDigester : public Digester {
     delete[] opad_;
   }
 
-
   //
   // Digester interface
   //
 
-  int32 GetDigestLength() override {
-    return DIGEST_SIZE;
-  }
+  int32 GetDigestLength() override { return DIGEST_SIZE; }
 
   void Reset() override {
     inner_digester_.Reset();
@@ -59,7 +56,7 @@ class HMACDigester : public Digester {
 
   // Disable copy
   HMACDigester(const HMACDigester&) = delete;
-  HMACDigester& operator = (const HMACDigester&) = delete;
+  HMACDigester& operator=(const HMACDigester&) = delete;
 
  protected:
   void Init(const char* pass_phrase, int32 length) {
@@ -102,4 +99,4 @@ class HMACDigester : public Digester {
   char* opad_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -8,32 +8,31 @@ namespace fun {
 
 #ifndef FUN_NO_DEBUG
 
-#define CHECK_STREAM_PRECOND(rv) \
-  if (!device_) { \
+#define CHECK_STREAM_PRECOND(rv)               \
+  if (!device_) {                              \
     fun_log(Warning, "DataStream: No device"); \
-    return rv; \
+    return rv;                                 \
   }
 
 #else
 
 #define CHECK_STREAM_PRECOND(rv) \
-  if (!device_) { \
-    return rv; \
+  if (!device_) {                \
+    return rv;                   \
   }
 
 #endif
 
-
 #define CHECK_STREAM_WRITE_PRECOND(rv) \
-  CHECK_STREAM_PRECOND(rv) \
-  if (status_ != Status::Ok) { \
-    return rv; \
+  CHECK_STREAM_PRECOND(rv)             \
+  if (status_ != Status::Ok) {         \
+    return rv;                         \
   }
 
-#define CHECK_STREAM_TRANSACTION_PRECOND(rv) \
-  if (!d || d->transaction_depth_ == 0) { \
+#define CHECK_STREAM_TRANSACTION_PRECOND(rv)                    \
+  if (!d || d->transaction_depth_ == 0) {                       \
     fun_log(Warning, "DataStream: No transaction in progress"); \
-    return rv; \
+    return rv;                                                  \
   }
 
 DataStream::DataStream() {
@@ -46,7 +45,7 @@ DataStream::DataStream() {
 }
 
 DataStream::DataStream(IoDevice* device) {
-  device_ = device; // set device
+  device_ = device;  // set device
   own_device_ = false;
   byte_order_ = BigEndian;  // default byte order
   version_ = Qt_DefaultCompiledVersion;
@@ -59,9 +58,9 @@ DataStream::DataStream(ByteArray* ba, IoDevice::OpenMode open_mode) {
 
   IoBuffer* buf = new IoBuffer(ba);
 
-//#ifndef QT_NO_QOBJECT
-//  buf->BlockSignals(true);
-//#endif
+  //#ifndef QT_NO_QOBJECT
+  //  buf->BlockSignals(true);
+  //#endif
 
   buf->Open(open_mode);
   device_ = buf;
@@ -76,9 +75,9 @@ DataStream::DataStream(ByteArray* ba, IoDevice::OpenMode open_mode) {
 DataStream::DataStream(const ByteArray& ba) {
   IoBuffer* buf = new IoBuffer;
 
-//#ifndef QT_NO_QOBJECT
-//  buf->BlockSignals(true);
-//#endif
+  //#ifndef QT_NO_QOBJECT
+  //  buf->BlockSignals(true);
+  //#endif
 
   buf->SetData(ba);
   buf->Open(IoDevice::ReadOnly);
@@ -108,21 +107,19 @@ void DataStream::SetDevice(IoDevice* device) {
   fun_check(own_device_ == false);
 }
 
-void DataStream::UnsetDevice() {
-  SetDevice(nullptr);
-}
+void DataStream::UnsetDevice() { SetDevice(nullptr); }
 
-bool DataStream::AtEnd() const {
-  return device_ ? device_->AtEnd() : true;
-}
+bool DataStream::AtEnd() const { return device_ ? device_->AtEnd() : true; }
 
-//TODO 제거 대상.
-DataStream::FloatingPointPrecision DataStream::GetFloatingPointPrecision() const {
+// TODO 제거 대상.
+DataStream::FloatingPointPrecision DataStream::GetFloatingPointPrecision()
+    const {
   return d == 0 ? DataStream::DoublePrecision : d->floating_point_precision_;
 }
 
-//TODO 제거 대상.
-void DataStream::SetFloatingPointPrecision(DataStream::FloatingPointPrecision precision) {
+// TODO 제거 대상.
+void DataStream::SetFloatingPointPrecision(
+    DataStream::FloatingPointPrecision precision) {
   if (d == 0) {
     d.Reset(new DataStreamImpl());
   }
@@ -130,16 +127,13 @@ void DataStream::SetFloatingPointPrecision(DataStream::FloatingPointPrecision pr
   d->floating_point_precision_ = precision;
 }
 
-DataStream::Status DataStream::GetStatus() const {
-  return status_;
-}
+DataStream::Status DataStream::GetStatus() const { return status_; }
 
-void DataStream::ResetStatus() {
-  status_ = Status::Ok;
-}
+void DataStream::ResetStatus() { status_ = Status::Ok; }
 
 void DataStream::SetStatus(Status status) {
-  // 이미 에러가 난 상황에서는 ResetStatus()를 호출하기 전까지는 재설정하지 않음.
+  // 이미 에러가 난 상황에서는 ResetStatus()를 호출하기 전까지는 재설정하지
+  // 않음.
   if (status_ == Status::Ok) {
     status_ = status;
   }
@@ -227,7 +221,7 @@ int32 DataStream::ReadBlock(char* buf, int32 len) {
   return readed_len;
 }
 
-DataStream& DataStream::operator >> (int8& i) {
+DataStream& DataStream::operator>>(int8& i) {
   i = 0;
   CHECK_STREAM_PRECOND(*this);
   char c;
@@ -238,7 +232,7 @@ DataStream& DataStream::operator >> (int8& i) {
   return *this;
 }
 
-DataStream& DataStream::operator >> (int16& i) {
+DataStream& DataStream::operator>>(int16& i) {
   i = 0;
   CHECK_STREAM_PRECOND(*this);
   if (ReadBlock(reinterpret_cast<char*>(&i), 2) != 2) {
@@ -252,7 +246,7 @@ DataStream& DataStream::operator >> (int16& i) {
   return *this;
 }
 
-DataStream& DataStream::operator >> (int32& i) {
+DataStream& DataStream::operator>>(int32& i) {
   i = 0;
   CHECK_STREAM_PRECOND(*this);
   if (ReadBlock(reinterpret_cast<char*>(&i), 4) != 4) {
@@ -266,7 +260,7 @@ DataStream& DataStream::operator >> (int32& i) {
   return *this;
 }
 
-DataStream& DataStream::operator >> (int64& i) {
+DataStream& DataStream::operator>>(int64& i) {
   i = int64(0);
   CHECK_STREAM_PRECOND(*this);
   if (GetVersion() < 6) {
@@ -286,7 +280,7 @@ DataStream& DataStream::operator >> (int64& i) {
   return *this;
 }
 
-DataStream& DataStream::operator >> (bool& i) {
+DataStream& DataStream::operator>>(bool& i) {
   int8 v;
   *this >> v;
   i = !!v;
@@ -294,9 +288,9 @@ DataStream& DataStream::operator >> (bool& i) {
   return *this;
 }
 
-DataStream& DataStream::operator >> (float& f) {
-  if (GetVersion() >= DataStream::Qt_4_6
-      && GetFloatingPointPrecision() == DataStream::DoublePrecision) {
+DataStream& DataStream::operator>>(float& f) {
+  if (GetVersion() >= DataStream::Qt_4_6 &&
+      GetFloatingPointPrecision() == DataStream::DoublePrecision) {
     double d;
     *this >> d;
     f = d;
@@ -322,9 +316,9 @@ DataStream& DataStream::operator >> (float& f) {
   return *this;
 }
 
-DataStream& DataStream::operator >> (double& f) {
-  if (GetVersion() >= DataStream::Qt_4_6
-      && GetFloatingPointPrecision() == DataStream::SinglePrecision) {
+DataStream& DataStream::operator>>(double& f) {
+  if (GetVersion() >= DataStream::Qt_4_6 &&
+      GetFloatingPointPrecision() == DataStream::SinglePrecision) {
     float d;
     *this >> d;
     f = d;
@@ -350,11 +344,11 @@ DataStream& DataStream::operator >> (double& f) {
   return *this;
 }
 
-DataStream& DataStream::operator >> (float16& f) {
+DataStream& DataStream::operator>>(float16& f) {
   return *this >> reinterpret_cast<int16&>(f);
 }
 
-DataStream& DataStream::operator >> (char*& s) {
+DataStream& DataStream::operator>>(char*& s) {
   uint32 len = 0;
   return ReadBytes(s, len);
 }
@@ -403,7 +397,7 @@ int32 DataStream::ReadRawData(char* buf, int32 len) {
   return ReadBlock(buf, len);
 }
 
-DataStream& DataStream::operator << (int8 i) {
+DataStream& DataStream::operator<<(int8 i) {
   CHECK_STREAM_WRITE_PRECOND(*this);
 
   if (!device_->PutChar(i)) {
@@ -413,7 +407,7 @@ DataStream& DataStream::operator << (int8 i) {
   return *this;
 }
 
-DataStream& DataStream::operator << (int16 i) {
+DataStream& DataStream::operator<<(int16 i) {
   CHECK_STREAM_WRITE_PRECOND(*this);
 
   if (!no_swap_) {
@@ -427,7 +421,7 @@ DataStream& DataStream::operator << (int16 i) {
   return *this;
 }
 
-DataStream& DataStream::operator << (int32 i) {
+DataStream& DataStream::operator<<(int32 i) {
   CHECK_STREAM_WRITE_PRECOND(*this);
 
   if (!no_swap_) {
@@ -441,7 +435,7 @@ DataStream& DataStream::operator << (int32 i) {
   return *this;
 }
 
-DataStream& DataStream::operator << (int64 i) {
+DataStream& DataStream::operator<<(int64 i) {
   CHECK_STREAM_WRITE_PRECOND(*this);
 
   if (GetVersion() < 6) {
@@ -461,7 +455,7 @@ DataStream& DataStream::operator << (int64 i) {
   return *this;
 }
 
-DataStream& DataStream::operator << (bool i) {
+DataStream& DataStream::operator<<(bool i) {
   CHECK_STREAM_WRITE_PRECOND(*this);
 
   if (!device_->PutChar(int8(i))) {
@@ -471,16 +465,16 @@ DataStream& DataStream::operator << (bool i) {
   return *this;
 }
 
-DataStream& DataStream::operator << (float f) {
-  if (GetVersion() >= DataStream::Qt_4_6
-      && GetFloatingPointPrecision() == DataStream::DoublePrecision) {
+DataStream& DataStream::operator<<(float f) {
+  if (GetVersion() >= DataStream::Qt_4_6 &&
+      GetFloatingPointPrecision() == DataStream::DoublePrecision) {
     *this << double(f);
     return *this;
   }
 
   CHECK_STREAM_WRITE_PRECOND(*this);
 
-  float g = f; // fixes float-on-stack problem
+  float g = f;  // fixes float-on-stack problem
   if (!no_swap_) {
     union {
       float val1;
@@ -502,9 +496,9 @@ DataStream& DataStream::operator << (float f) {
   return *this;
 }
 
-DataStream& DataStream::operator << (double f) {
-  if (GetVersion() >= DataStream::Qt_4_6
-      && GetFloatingPointPrecision() == DataStream::SinglePrecision) {
+DataStream& DataStream::operator<<(double f) {
+  if (GetVersion() >= DataStream::Qt_4_6 &&
+      GetFloatingPointPrecision() == DataStream::SinglePrecision) {
     *this << float(f);
     return *this;
   }
@@ -530,19 +524,19 @@ DataStream& DataStream::operator << (double f) {
   return *this;
 }
 
-DataStream& DataStream::operator << (float16 f) {
+DataStream& DataStream::operator<<(float16 f) {
   return *this << reinterpret_cast<int16&>(f);
 }
 
-DataStream& DataStream::operator << (const char* s) {
+DataStream& DataStream::operator<<(const char* s) {
   if (!s) {
     *this << (uint32)0;
     return *this;
   }
 
-  //TODO nul-term
-  uint32 len = qstrlen(s) + 1; // also Write null terminator
-  *this << (uint32)len; // Write length specifier
+  // TODO nul-term
+  uint32 len = qstrlen(s) + 1;  // also Write null terminator
+  *this << (uint32)len;         // Write length specifier
   WriteRawData(s, len);
 
   return *this;
@@ -551,8 +545,8 @@ DataStream& DataStream::operator << (const char* s) {
 DataStream& DataStream::WriteBytes(const char* data, uint32 len) {
   CHECK_STREAM_WRITE_PRECOND(*this);
 
-  //WriteCounter(len);
-  *this << (uint32)len; // Write length specifier
+  // WriteCounter(len);
+  *this << (uint32)len;  // Write length specifier
   if (len) {
     WriteRawData(data, len);
   }
@@ -565,7 +559,7 @@ int32 DataStream::WriteRawData(const char* data, int32 len) {
 
   const int32 written_len = device_->Write(data, len);
   if (written_len != len) {
-    //Truncated?
+    // Truncated?
     status_ = Status::WriteFailed;
   }
 
@@ -587,4 +581,4 @@ int32 DataStream::SkipRawData(int32 len) {
   return skipped_len;
 }
 
-} // namespace fun
+}  // namespace fun

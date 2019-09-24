@@ -6,33 +6,25 @@
 
 namespace fun {
 
-//FUN_IMPLEMENT_RTCLASS(FormattingSink,Sink)
+// FUN_IMPLEMENT_RTCLASS(FormattingSink,Sink)
 
-FormattingSink::FormattingSink()
-  : formatter_(), sink_() {}
+FormattingSink::FormattingSink() : formatter_(), sink_() {}
 
 FormattingSink::FormattingSink(LogFormatter::Ptr formatter)
-  : formatter_(formatter), sink_() {}
+    : formatter_(formatter), sink_() {}
 
-FormattingSink::FormattingSink( LogFormatter::Ptr formatter,
-                                LogSink::Ptr sink)
-  : formatter_(formatter), sink_(sink) {}
+FormattingSink::FormattingSink(LogFormatter::Ptr formatter, LogSink::Ptr sink)
+    : formatter_(formatter), sink_(sink) {}
 
 void FormattingSink::SetFormatter(LogFormatter::Ptr formatter) {
   formatter_ = formatter;
 }
 
-LogFormatter::Ptr FormattingSink::GetFormatter() const {
-  return formatter_;
-}
+LogFormatter::Ptr FormattingSink::GetFormatter() const { return formatter_; }
 
-void FormattingSink::SetSink(LogSink::Ptr sink) {
-  sink_ = sink;
-}
+void FormattingSink::SetSink(LogSink::Ptr sink) { sink_ = sink; }
 
-LogSink::Ptr FormattingSink::GetSink() const {
-  return sink_;
-}
+LogSink::Ptr FormattingSink::GetSink() const { return sink_; }
 
 void FormattingSink::Log(const LogMessage& msg) {
   if (sink_) {
@@ -68,4 +60,4 @@ void FormattingSink::Close() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

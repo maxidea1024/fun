@@ -28,5 +28,5 @@ FUN_ALWAYS_INLINE bool AllOf(const Range& range, Projection proj) {
   return true;
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

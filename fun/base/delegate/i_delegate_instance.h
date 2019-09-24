@@ -1,8 +1,8 @@
 #pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/ftl/functional.h"
 #include "fun/base/delegate/delegate_config.h"
+#include "fun/base/ftl/functional.h"
 
 namespace fun {
 
@@ -11,44 +11,28 @@ class FObject;
 /**
  * Class representing an handle to a delegate.
  */
-class DelegateHandle
-{
+class DelegateHandle {
  public:
-  enum EGenerateNewHandleType {
-    GenerateNewHandle
-  };
+  enum EGenerateNewHandleType { GenerateNewHandle };
 
-  DelegateHandle()
-    : id_(0)
-  {}
+  DelegateHandle() : id_(0) {}
 
-  explicit DelegateHandle(EGenerateNewHandleType)
-    : id_(GenerateNewId())
-  {}
+  explicit DelegateHandle(EGenerateNewHandleType) : id_(GenerateNewId()) {}
 
-  bool IsValid() const
-  {
-    return id_ != 0;
-  }
+  bool IsValid() const { return id_ != 0; }
 
-  void Reset()
-  {
-    id_ = 0;
-  }
+  void Reset() { id_ = 0; }
 
  private:
-  friend bool operator == (const DelegateHandle& lhs, const DelegateHandle& rhs)
-  {
+  friend bool operator==(const DelegateHandle& lhs, const DelegateHandle& rhs) {
     return lhs.id_ == rhs.id_;
   }
 
-  friend bool operator != (const DelegateHandle& lhs, const DelegateHandle& rhs)
-  {
+  friend bool operator!=(const DelegateHandle& lhs, const DelegateHandle& rhs) {
     return lhs.id_ != rhs.id_;
   }
 
-  friend FUN_ALWAYS_INLINE uint32 HashOf(const DelegateHandle& handle)
-  {
+  friend FUN_ALWAYS_INLINE uint32 HashOf(const DelegateHandle& handle) {
     return HashOf(handle.id_);
   }
 
@@ -62,17 +46,15 @@ class DelegateHandle
   uint64 id_;
 };
 
-
 /**
  * Interface for delegate instances.
  */
-class IDelegateInstance
-{
+class IDelegateInstance {
  public:
 #if FUN_USE_DELEGATE_TRYGETBOUNDFUNCTIONNAME
   /**
-   * Tries to return the name of a bound function.  Returns "" if the delegate is unbound or
-   * a binding name is unavailable.
+   * Tries to return the name of a bound function.  Returns "" if the delegate
+   * is unbound or a binding name is unavailable.
    *
    * Note: Only intended to be used to aid debugging of delegates.
    *
@@ -100,20 +82,19 @@ class IDelegateInstance
   virtual bool HasSameObject(const void* object) const = 0;
 
   /**
-   * Checks to see if the user object bound to this delegate can ever be valid again.
-   * used to compact multicast delegate arrays so they don't expand without limit.
+   * Checks to see if the user object bound to this delegate can ever be valid
+   * again. used to compact multicast delegate arrays so they don't expand
+   * without limit.
    *
    * @return True if the user object can never be used again
    */
-  virtual bool IsCompactable() const
-  {
-    return !IsSafeToExecute();
-  }
+  virtual bool IsCompactable() const { return !IsSafeToExecute(); }
 
   /**
    * Checks to see if the user object bound to this delegate is still valid
    *
-   * @return True if the user object is still valid and it's safe to execute the function call
+   * @return True if the user object is still valid and it's safe to execute the
+   * function call
    */
   virtual bool IsSafeToExecute() const = 0;
 
@@ -129,4 +110,4 @@ class IDelegateInstance
   virtual ~IDelegateInstance() {}
 };
 
-} // namespace fun
+}  // namespace fun

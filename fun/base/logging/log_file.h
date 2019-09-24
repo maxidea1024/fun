@@ -25,7 +25,6 @@ class FUN_BASE_API LogFile : public LogFileImpl {
   const String GetPath() const;
 };
 
-
 //
 // inlines
 //
@@ -34,9 +33,7 @@ FUN_ALWAYS_INLINE void LogFile::Write(const String& text, bool flush) {
   WriteImpl(text, flush);
 }
 
-FUN_ALWAYS_INLINE uint64 LogFile::GetSize() const {
-  return GetSizeImpl();
-}
+FUN_ALWAYS_INLINE uint64 LogFile::GetSize() const { return GetSizeImpl(); }
 
 FUN_ALWAYS_INLINE Timestamp LogFile::GetCreationDate() const {
   return GetCreationDateImpl();
@@ -46,4 +43,4 @@ FUN_ALWAYS_INLINE const String LogFile::GetPath() const {
   return GetPathImpl();
 }
 
-} // namespace fun
+}  // namespace fun

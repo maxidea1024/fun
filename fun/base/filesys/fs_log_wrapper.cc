@@ -9,8 +9,7 @@ DEFINE_LOG_CATEGORY(LogPlatformFS);
 
 class FileLogExec : private SelfRegisteringExec {
  public:
-  FileLogExec(LoggedPlatformFS& platform_fs)
-    : platform_fs_(platform_fs) {}
+  FileLogExec(LoggedPlatformFS& platform_fs) : platform_fs_(platform_fs) {}
 
   // Exec interface
   bool Exec(CRuntimeEnv* env, const char* cmd, Printer& out) override {
@@ -26,10 +25,10 @@ class FileLogExec : private SelfRegisteringExec {
 };
 static AutoPtr<FileLogExec> g_file_log_exec;
 
-#endif //!FUN_BUILD_SHIPPING
+#endif  //! FUN_BUILD_SHIPPING
 
-
-bool LoggedPlatformFS::ShouldBeUsed(IPlatformFS* inner, const char* cmdline) const {
+bool LoggedPlatformFS::ShouldBeUsed(IPlatformFS* inner,
+                                    const char* cmdline) const {
   return Parse::Param(cmdline, "FileLog");
 }
 
@@ -56,17 +55,18 @@ void LoggedPlatformFS::HandleDumpCommand(const char* cmd, Printer& out) {
 }
 #endif
 
-
-LoggedFile::LoggedFile(IFile* file, const char* filename, LoggedPlatformFS& owner)
-  : file_(file)
-  , filename_(filename)
+LoggedFile::LoggedFile(IFile* file, const char* filename,
+                       LoggedPlatformFS& owner)
+    : file_(file),
+      filename_(filename)
 #if !FUN_BUILD_SHIPPING
-  , platform_fs_(owner)
+      ,
+      platform_fs_(owner)
 #endif {
 #if !FUN_BUILD_SHIPPING
-  platform_fs_.OnHandleOpen(filename_);
+          platform_fs_.OnHandleOpen(filename_);
 #endif
-}
+}  // namespace fun
 
 LoggedFile::~LoggedFile() {
 #if !FUN_BUILD_SHIPPING
@@ -75,4 +75,4 @@ LoggedFile::~LoggedFile() {
   FILE_LOG(LogPlatformFS, Info, "Close %s", *filename_);
 }
 
-} // namespace fun
+}  // namespace fun

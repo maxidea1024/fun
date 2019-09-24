@@ -30,6 +30,6 @@ class FUN_BASE_API AndroidLogSink : public LogSink {
   String tag_;
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif //#if FUN_PLATFORM == FUN_PLATFORM_ANDROID
+#endif  //#if FUN_PLATFORM == FUN_PLATFORM_ANDROID

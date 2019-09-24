@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
 #include <initializer_list>
 #include <type_traits>
+#include "fun/base/base.h"
 
 namespace fun {
 
@@ -21,18 +21,28 @@ struct BoolConstant {
   enum { Value = BoolValue };
 };
 
-typedef BoolConstant<true>  TrueType;
+typedef BoolConstant<true> TrueType;
 typedef BoolConstant<false> FalseType;
 
 //-----------------------------------------------------------------------------
 
-template <bool Pred, typename ResultType = void> struct EnableIf;
-template <typename ResultType> struct EnableIf<true,  ResultType> { using Type = ResultType; };
-template <typename ResultType> struct EnableIf<false, ResultType> {};
+template <bool Pred, typename ResultType = void>
+struct EnableIf;
+template <typename ResultType>
+struct EnableIf<true, ResultType> {
+  using Type = ResultType;
+};
+template <typename ResultType>
+struct EnableIf<false, ResultType> {};
 
-template <bool Pred, typename Func> struct LazyEnableIf;
-template <typename Func> struct LazyEnableIf<true,  Func> { using Type = typename Func::Type; };
-template <typename Func> struct LazyEnableIf<false, Func> {};
+template <bool Pred, typename Func>
+struct LazyEnableIf;
+template <typename Func>
+struct LazyEnableIf<true, Func> {
+  using Type = typename Func::Type;
+};
+template <typename Func>
+struct LazyEnableIf<false, Func> {};
 
 //-----------------------------------------------------------------------------
 
@@ -53,7 +63,8 @@ struct Conditional<false, TrueType, FalseType> {
 };
 
 template <bool Pred, typename TrueType, typename FalseType>
-using Conditional_T = typename Conditional<Pred, TrueType, FalseType>::Result; // C++14
+using Conditional_T =
+    typename Conditional<Pred, TrueType, FalseType>::Result;  // C++14
 
 //-----------------------------------------------------------------------------
 
@@ -71,7 +82,8 @@ struct AndValue<false, Rhs...> : FalseType {};
 template <typename Lhs, typename... Rhs>
 struct And<Lhs, Rhs...> : AndValue<Lhs::Value, Rhs...> {};
 
-template <> struct And<> : TrueType {};
+template <>
+struct And<> : TrueType {};
 
 /**
  * Does a boolean OR of the ::Value static members of each type,
@@ -91,7 +103,8 @@ struct OrValue<true, Rhs...> : TrueType {};
 template <typename Lhs, typename... Rhs>
 struct Or<Lhs, Rhs...> : OrValue<Lhs::Value, Rhs...> {};
 
-template <> struct Or<> : FalseType {};
+template <>
+struct Or<> : FalseType {};
 
 /**
  * Does a boolean NOT of the ::Value static members of the type.
@@ -103,8 +116,8 @@ struct Not {
 
 //-----------------------------------------------------------------------------
 
-//UnaryIdentityFunctor
-//Projection를 지정할때 기본으로 아무런 동작도 안하고자 하는 경우에
+// UnaryIdentityFunctor
+// Projection를 지정할때 기본으로 아무런 동작도 안하고자 하는 경우에
 //기본 인자로 사용하기 위함.
 /**
  * A functor which returns whatever is passed to it.
@@ -113,7 +126,7 @@ struct Not {
 struct IdentityFunctor {
   template <typename T>
   FUN_ALWAYS_INLINE T&& operator()(T&& value) const {
-    return (T&&)value;
+    return (T &&) value;
   }
 };
 
@@ -124,7 +137,7 @@ struct IdentityFunctor {
  */
 template <typename T, typename... Args>
 struct IsConstructible {
-  //enum { Value = __is_constructible(T, Args...) };
+  // enum { Value = __is_constructible(T, Args...) };
   enum { Value = std::is_constructible<T, Args...>::value };
 };
 
@@ -170,7 +183,10 @@ struct IsTriviallyCopyConstructible {
  */
 template <typename T>
 struct IsTrivial {
-  enum { Value = And<IsTriviallyDestructible<T>, IsTriviallyCopyConstructible<T>, IsTriviallyCopyAssignable<T>>::Value };
+  enum {
+    Value = And<IsTriviallyDestructible<T>, IsTriviallyCopyConstructible<T>,
+                IsTriviallyCopyAssignable<T>>::Value
+  };
 };
 
 //-----------------------------------------------------------------------------
@@ -194,116 +210,228 @@ struct IsAbstract {
 /**
  * Traits class which tests if a type is arithmetic.
  */
-template <typename T> struct IsArithmetic : FalseType {};
-template <> struct IsArithmetic<float      > : TrueType {};
-template <> struct IsArithmetic<double     > : TrueType {};
-template <> struct IsArithmetic<long double> : TrueType {};
-template <> struct IsArithmetic<uint8      > : TrueType {};
-template <> struct IsArithmetic<uint16     > : TrueType {};
-template <> struct IsArithmetic<uint32     > : TrueType {};
-template <> struct IsArithmetic<uint64     > : TrueType {};
-template <> struct IsArithmetic<int8       > : TrueType {};
-template <> struct IsArithmetic<int16      > : TrueType {};
-template <> struct IsArithmetic<int32      > : TrueType {};
-template <> struct IsArithmetic<int64      > : TrueType {};
-template <> struct IsArithmetic<bool       > : TrueType {};
-template <> struct IsArithmetic<char       > : TrueType {};
-template <> struct IsArithmetic<wchar_t    > : TrueType {};
+template <typename T>
+struct IsArithmetic : FalseType {};
+template <>
+struct IsArithmetic<float> : TrueType {};
+template <>
+struct IsArithmetic<double> : TrueType {};
+template <>
+struct IsArithmetic<long double> : TrueType {};
+template <>
+struct IsArithmetic<uint8> : TrueType {};
+template <>
+struct IsArithmetic<uint16> : TrueType {};
+template <>
+struct IsArithmetic<uint32> : TrueType {};
+template <>
+struct IsArithmetic<uint64> : TrueType {};
+template <>
+struct IsArithmetic<int8> : TrueType {};
+template <>
+struct IsArithmetic<int16> : TrueType {};
+template <>
+struct IsArithmetic<int32> : TrueType {};
+template <>
+struct IsArithmetic<int64> : TrueType {};
+template <>
+struct IsArithmetic<bool> : TrueType {};
+template <>
+struct IsArithmetic<char> : TrueType {};
+template <>
+struct IsArithmetic<wchar_t> : TrueType {};
 
-//TODO 기타 유니코드 타입은?
-template <typename T> struct IsArithmetic<const T         > { enum { Value = IsArithmetic<T>::Value }; };
-template <typename T> struct IsArithmetic<volatile T      > { enum { Value = IsArithmetic<T>::Value }; };
-template <typename T> struct IsArithmetic<const volatile T> { enum { Value = IsArithmetic<T>::Value }; };
+// TODO 기타 유니코드 타입은?
+template <typename T>
+struct IsArithmetic<const T> {
+  enum { Value = IsArithmetic<T>::Value };
+};
+template <typename T>
+struct IsArithmetic<volatile T> {
+  enum { Value = IsArithmetic<T>::Value };
+};
+template <typename T>
+struct IsArithmetic<const volatile T> {
+  enum { Value = IsArithmetic<T>::Value };
+};
 
 /**
  * Traits class which tests if a type is a C++ array.
  */
-template <typename T>           struct IsCppArray       : FalseType {};
-template <typename T>           struct IsCppArray<T[]>  : TrueType {};
-template <typename T, size_t N> struct IsCppArray<T[N]> : TrueType {};
+template <typename T>
+struct IsCppArray : FalseType {};
+template <typename T>
+struct IsCppArray<T[]> : TrueType {};
+template <typename T, size_t N>
+struct IsCppArray<T[N]> : TrueType {};
 
 /**
  * Traits class which tests if a type is a bounded C++ array.
  */
-template <typename T>           struct IsBoundedCppArray       : FalseType {};
-template <typename T, size_t N> struct IsBoundedCppArray<T[N]> : TrueType {};
+template <typename T>
+struct IsBoundedCppArray : FalseType {};
+template <typename T, size_t N>
+struct IsBoundedCppArray<T[N]> : TrueType {};
 
 /**
  * Traits class which tests if a type is an unbounded C++ array.
  */
-template <typename T> struct IsUnboundedCppArray      : FalseType {};
-template <typename T> struct IsUnboundedCppArray<T[]> : TrueType {};
+template <typename T>
+struct IsUnboundedCppArray : FalseType {};
+template <typename T>
+struct IsUnboundedCppArray<T[]> : TrueType {};
 
 /**
  * Removes one dimension of extents from an array type.
  */
-template <typename T> struct RemoveExtent { using Type = T; };
-template <typename T> struct RemoveExtent<T[]> { using Type = T; };
-template <typename T, size_t N> struct RemoveExtent<T[N]> { using Type = T; };
-
-template <typename T> struct RemoveAllExtents { using Type = T; };
-template <typename T> struct RemoveAllExtents<T[]> { using Type = typename RemoveAllExtents<T>::Type; };
-template <typename T, size_t N> struct RemoveAllExtents<T[N]>{ using Type = typename RemoveAllExtents<T>::Type; };
+template <typename T>
+struct RemoveExtent {
+  using Type = T;
+};
+template <typename T>
+struct RemoveExtent<T[]> {
+  using Type = T;
+};
+template <typename T, size_t N>
+struct RemoveExtent<T[N]> {
+  using Type = T;
+};
 
 template <typename T>
-using RemoveExtent_T = typename RemoveExtent<T>::Type; // C++14
+struct RemoveAllExtents {
+  using Type = T;
+};
 template <typename T>
-using RemoveAllExtents_T = typename RemoveAllExtents<T>::Type; // C++14
+struct RemoveAllExtents<T[]> {
+  using Type = typename RemoveAllExtents<T>::Type;
+};
+template <typename T, size_t N>
+struct RemoveAllExtents<T[N]> {
+  using Type = typename RemoveAllExtents<T>::Type;
+};
+
+template <typename T>
+using RemoveExtent_T = typename RemoveExtent<T>::Type;  // C++14
+template <typename T>
+using RemoveAllExtents_T = typename RemoveAllExtents<T>::Type;  // C++14
 
 /**
- * Type trait which returns true if the type T is an array or a reference to an array of ArrType.
+ * Type trait which returns true if the type T is an array or a reference to an
+ * array of ArrType.
  */
 template <typename T, typename ArrayType>
-struct IsCppArrayOrRefOfType { enum { Value = false }; };
+struct IsCppArrayOrRefOfType {
+  enum { Value = false };
+};
 
-template <typename ArrayType> struct IsCppArrayOrRefOfType<               ArrayType[], ArrayType> { enum { Value = true }; };
-template <typename ArrayType> struct IsCppArrayOrRefOfType<const          ArrayType[], ArrayType> { enum { Value = true }; };
-template <typename ArrayType> struct IsCppArrayOrRefOfType<      volatile ArrayType[], ArrayType> { enum { Value = true }; };
-template <typename ArrayType> struct IsCppArrayOrRefOfType<const volatile ArrayType[], ArrayType> { enum { Value = true }; };
+template <typename ArrayType>
+struct IsCppArrayOrRefOfType<ArrayType[], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType>
+struct IsCppArrayOrRefOfType<const ArrayType[], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType>
+struct IsCppArrayOrRefOfType<volatile ArrayType[], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType>
+struct IsCppArrayOrRefOfType<const volatile ArrayType[], ArrayType> {
+  enum { Value = true };
+};
 
-template <typename ArrayType, size_t N> struct IsCppArrayOrRefOfType<               ArrayType[N], ArrayType> { enum { Value = true }; };
-template <typename ArrayType, size_t N> struct IsCppArrayOrRefOfType<const          ArrayType[N], ArrayType> { enum { Value = true }; };
-template <typename ArrayType, size_t N> struct IsCppArrayOrRefOfType<      volatile ArrayType[N], ArrayType> { enum { Value = true }; };
-template <typename ArrayType, size_t N> struct IsCppArrayOrRefOfType<const volatile ArrayType[N], ArrayType> { enum { Value = true }; };
+template <typename ArrayType, size_t N>
+struct IsCppArrayOrRefOfType<ArrayType[N], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType, size_t N>
+struct IsCppArrayOrRefOfType<const ArrayType[N], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType, size_t N>
+struct IsCppArrayOrRefOfType<volatile ArrayType[N], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType, size_t N>
+struct IsCppArrayOrRefOfType<const volatile ArrayType[N], ArrayType> {
+  enum { Value = true };
+};
 
-template <typename ArrayType, size_t N> struct IsCppArrayOrRefOfType<               ArrayType(&)[N], ArrayType> { enum { Value = true }; };
-template <typename ArrayType, size_t N> struct IsCppArrayOrRefOfType<const          ArrayType(&)[N], ArrayType> { enum { Value = true }; };
-template <typename ArrayType, size_t N> struct IsCppArrayOrRefOfType<      volatile ArrayType(&)[N], ArrayType> { enum { Value = true }; };
-template <typename ArrayType, size_t N> struct IsCppArrayOrRefOfType<const volatile ArrayType(&)[N], ArrayType> { enum { Value = true }; };
+template <typename ArrayType, size_t N>
+struct IsCppArrayOrRefOfType<ArrayType (&)[N], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType, size_t N>
+struct IsCppArrayOrRefOfType<const ArrayType (&)[N], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType, size_t N>
+struct IsCppArrayOrRefOfType<volatile ArrayType (&)[N], ArrayType> {
+  enum { Value = true };
+};
+template <typename ArrayType, size_t N>
+struct IsCppArrayOrRefOfType<const volatile ArrayType (&)[N], ArrayType> {
+  enum { Value = true };
+};
 
 //-----------------------------------------------------------------------------
 
-//TODO Rank...
+// TODO Rank...
 
 /**
  * Traits class which tests if a type is a pointer.
  */
-template <typename T> struct IsPointer : FalseType {};
+template <typename T>
+struct IsPointer : FalseType {};
 
-template <typename T> struct IsPointer< T*              > : TrueType {};
-template <typename T> struct IsPointer<const T*         > : TrueType {};
-template <typename T> struct IsPointer<volatile T*      > : TrueType {};
-template <typename T> struct IsPointer<const volatile T*> : TrueType {};
+template <typename T>
+struct IsPointer<T*> : TrueType {};
+template <typename T>
+struct IsPointer<const T*> : TrueType {};
+template <typename T>
+struct IsPointer<volatile T*> : TrueType {};
+template <typename T>
+struct IsPointer<const volatile T*> : TrueType {};
 
-template <typename T> struct IsPointer<const T         > { enum { Value = IsPointer<T>::Value }; };
-template <typename T> struct IsPointer<volatile T      > { enum { Value = IsPointer<T>::Value }; };
-template <typename T> struct IsPointer<const volatile T> { enum { Value = IsPointer<T>::Value }; };
+template <typename T>
+struct IsPointer<const T> {
+  enum { Value = IsPointer<T>::Value };
+};
+template <typename T>
+struct IsPointer<volatile T> {
+  enum { Value = IsPointer<T>::Value };
+};
+template <typename T>
+struct IsPointer<const volatile T> {
+  enum { Value = IsPointer<T>::Value };
+};
 
 //-----------------------------------------------------------------------------
 
-template <typename T> struct IsConstValue : FalseType {};
-template <typename T> struct IsConstValue<const T*> : TrueType {};
-template <typename T> struct IsConstValue<const volatile T*> : TrueType {};
+template <typename T>
+struct IsConstValue : FalseType {};
+template <typename T>
+struct IsConstValue<const T*> : TrueType {};
+template <typename T>
+struct IsConstValue<const volatile T*> : TrueType {};
 
-template <typename T> struct IsConst : IsConstValue<T*> {};
-template <typename T> struct IsConst<T&> : FalseType {};
+template <typename T>
+struct IsConst : IsConstValue<T*> {};
+template <typename T>
+struct IsConst<T&> : FalseType {};
 
-template <typename T> struct IsVolatileValue : FalseType {};
-template <typename T> struct IsVolatileValue<volatile T*> : TrueType {};
-template <typename T> struct IsVolatileValue<const volatile T*> : TrueType {};
+template <typename T>
+struct IsVolatileValue : FalseType {};
+template <typename T>
+struct IsVolatileValue<volatile T*> : TrueType {};
+template <typename T>
+struct IsVolatileValue<const volatile T*> : TrueType {};
 
-template <typename T> struct IsVolatile : IsVolatileValue<T*> {};
-template <typename T> struct IsVolatile<T&> : FalseType {};
+template <typename T>
+struct IsVolatile : IsVolatileValue<T*> {};
+template <typename T>
+struct IsVolatile<T&> : FalseType {};
 
 //-----------------------------------------------------------------------------
 
@@ -312,10 +440,9 @@ struct IsEnum {
   enum { Value = __is_enum(T) };
 };
 
-//TODO 적용을 해야하나 말아야하나?
+// TODO 적용을 해야하나 말아야하나?
 template <typename WrappedEnumType>
-struct IsWrappedEnum : FalseType {
-};
+struct IsWrappedEnum : FalseType {};
 
 namespace IsEnumClass_internal {
 
@@ -327,17 +454,21 @@ struct IsEnumConvertibleToInt {
   enum { Value = sizeof(Resolve(T())) - 1 };
 };
 
-} // IsEnumClass_internal
+}  // namespace IsEnumClass_internal
 
-//TODO IsEnum와의 차이는 무엇인지??
-//IsEnum은 정확하게 enum인지 체크하는것이고
-//IsEnumClass는 enum으로 캐스팅이 가능한지 여부로??
+// TODO IsEnum와의 차이는 무엇인지??
+// IsEnum은 정확하게 enum인지 체크하는것이고
+// IsEnumClass는 enum으로 캐스팅이 가능한지 여부로??
 /**
  * Traits class which tests if a type is arithmetic.
  */
 template <typename T>
 struct IsEnumClass {
-  enum { Value = AndValue<__is_enum(T), Not<IsEnumClass_internal::IsEnumConvertibleToInt<T>>>::Value };
+  enum {
+    Value =
+        AndValue<__is_enum(T),
+                 Not<IsEnumClass_internal::IsEnumConvertibleToInt<T>>>::Value
+  };
 };
 
 //-----------------------------------------------------------------------------
@@ -345,66 +476,146 @@ struct IsEnumClass {
 /**
  * Traits class which tests if a type is floating point.
  */
-template <typename T> struct IsFloatingPoint : FalseType {};
+template <typename T>
+struct IsFloatingPoint : FalseType {};
 
-template <> struct IsFloatingPoint<float      > : TrueType {};
-template <> struct IsFloatingPoint<double     > : TrueType {};
-template <> struct IsFloatingPoint<long double> : TrueType {};
+template <>
+struct IsFloatingPoint<float> : TrueType {};
+template <>
+struct IsFloatingPoint<double> : TrueType {};
+template <>
+struct IsFloatingPoint<long double> : TrueType {};
 
-template <typename T> struct IsFloatingPoint<const T         > { enum { Value = IsFloatingPoint<T>::Value }; };
-template <typename T> struct IsFloatingPoint<volatile T      > { enum { Value = IsFloatingPoint<T>::Value }; };
-template <typename T> struct IsFloatingPoint<const volatile T> { enum { Value = IsFloatingPoint<T>::Value }; };
+template <typename T>
+struct IsFloatingPoint<const T> {
+  enum { Value = IsFloatingPoint<T>::Value };
+};
+template <typename T>
+struct IsFloatingPoint<volatile T> {
+  enum { Value = IsFloatingPoint<T>::Value };
+};
+template <typename T>
+struct IsFloatingPoint<const volatile T> {
+  enum { Value = IsFloatingPoint<T>::Value };
+};
 
 /**
  * Traits class which tests if a type is integral.
  */
-template <typename T> struct IsIntegral : FalseType {};
+template <typename T>
+struct IsIntegral : FalseType {};
 
-template <> struct IsIntegral<uint8   > : TrueType {};
-template <> struct IsIntegral<uint16  > : TrueType {};
-template <> struct IsIntegral<uint32  > : TrueType {};
-template <> struct IsIntegral<uint64  > : TrueType {};
-template <> struct IsIntegral<int8    > : TrueType {};
-template <> struct IsIntegral<int16   > : TrueType {};
-template <> struct IsIntegral<int32   > : TrueType {};
-template <> struct IsIntegral<int64   > : TrueType {};
-template <> struct IsIntegral<bool    > : TrueType {};
-template <> struct IsIntegral<char    > : TrueType {};
-template <> struct IsIntegral<wchar_t > : TrueType {};
-template <> struct IsIntegral<char16_t> : TrueType {};
-template <> struct IsIntegral<char32_t> : TrueType {};
+template <>
+struct IsIntegral<uint8> : TrueType {};
+template <>
+struct IsIntegral<uint16> : TrueType {};
+template <>
+struct IsIntegral<uint32> : TrueType {};
+template <>
+struct IsIntegral<uint64> : TrueType {};
+template <>
+struct IsIntegral<int8> : TrueType {};
+template <>
+struct IsIntegral<int16> : TrueType {};
+template <>
+struct IsIntegral<int32> : TrueType {};
+template <>
+struct IsIntegral<int64> : TrueType {};
+template <>
+struct IsIntegral<bool> : TrueType {};
+template <>
+struct IsIntegral<char> : TrueType {};
+template <>
+struct IsIntegral<wchar_t> : TrueType {};
+template <>
+struct IsIntegral<char16_t> : TrueType {};
+template <>
+struct IsIntegral<char32_t> : TrueType {};
 
-template <typename T> struct IsIntegral<const T         > { enum { Value = IsIntegral<T>::Value }; };
-template <typename T> struct IsIntegral<volatile T      > { enum { Value = IsIntegral<T>::Value }; };
-template <typename T> struct IsIntegral<const volatile T> { enum { Value = IsIntegral<T>::Value }; };
+template <typename T>
+struct IsIntegral<const T> {
+  enum { Value = IsIntegral<T>::Value };
+};
+template <typename T>
+struct IsIntegral<volatile T> {
+  enum { Value = IsIntegral<T>::Value };
+};
+template <typename T>
+struct IsIntegral<const volatile T> {
+  enum { Value = IsIntegral<T>::Value };
+};
 
 /**
  * Traits class which tests if a type is a signed integral type.
  */
-template <typename T> struct IsSigned : FalseType {};
+template <typename T>
+struct IsSigned : FalseType {};
 
-template <> struct IsSigned<int8 > : TrueType {};
-template <> struct IsSigned<int16> : TrueType {};
-template <> struct IsSigned<int32> : TrueType {};
-template <> struct IsSigned<int64> : TrueType {};
+template <>
+struct IsSigned<int8> : TrueType {};
+template <>
+struct IsSigned<int16> : TrueType {};
+template <>
+struct IsSigned<int32> : TrueType {};
+template <>
+struct IsSigned<int64> : TrueType {};
 
-template <typename T> struct IsSigned<const T         > { enum { Value = IsSigned<T>::Value }; };
-template <typename T> struct IsSigned<volatile T      > { enum { Value = IsSigned<T>::Value }; };
-template <typename T> struct IsSigned<const volatile T> { enum { Value = IsSigned<T>::Value }; };
+template <typename T>
+struct IsSigned<const T> {
+  enum { Value = IsSigned<T>::Value };
+};
+template <typename T>
+struct IsSigned<volatile T> {
+  enum { Value = IsSigned<T>::Value };
+};
+template <typename T>
+struct IsSigned<const volatile T> {
+  enum { Value = IsSigned<T>::Value };
+};
 
-template <typename T> struct MakeSigned { using Type = T; };
+template <typename T>
+struct MakeSigned {
+  using Type = T;
+};
 
-template <> struct MakeSigned<uint8 > { using Type = int8 ; };
-template <> struct MakeSigned<uint16> { using Type = int16; };
-template <> struct MakeSigned<uint32> { using Type = int32; };
-template <> struct MakeSigned<uint64> { using Type = int64; };
+template <>
+struct MakeSigned<uint8> {
+  using Type = int8;
+};
+template <>
+struct MakeSigned<uint16> {
+  using Type = int16;
+};
+template <>
+struct MakeSigned<uint32> {
+  using Type = int32;
+};
+template <>
+struct MakeSigned<uint64> {
+  using Type = int64;
+};
 
-template <typename T> struct MakeUnsigned { using Type = T; };
+template <typename T>
+struct MakeUnsigned {
+  using Type = T;
+};
 
-template <> struct MakeUnsigned<int8 > { using Type = uint8; };
-template <> struct MakeUnsigned<int16> { using Type = uint16; };
-template <> struct MakeUnsigned<int32> { using Type = uint32; };
-template <> struct MakeUnsigned<int64> { using Type = uint64; };
+template <>
+struct MakeUnsigned<int8> {
+  using Type = uint8;
+};
+template <>
+struct MakeUnsigned<int16> {
+  using Type = uint16;
+};
+template <>
+struct MakeUnsigned<int32> {
+  using Type = uint32;
+};
+template <>
+struct MakeUnsigned<int64> {
+  using Type = uint64;
+};
 
 //-----------------------------------------------------------------------------
 
@@ -417,8 +628,10 @@ struct IsClass {
   enum { Value = !__is_union(T) && sizeof(Func<T>(0)) - 1 };
 
  private:
-  template <typename U> static uint16 Func(int U::*);
-  template <typename U> static uint8 Func(...);
+  template <typename U>
+  static uint16 Func(int U::*);
+  template <typename U>
+  static uint8 Func(...);
 };
 
 //-----------------------------------------------------------------------------
@@ -438,7 +651,7 @@ struct PointerIsConvertibleFromTo {
 
 //-----------------------------------------------------------------------------
 
-//TODO std::is_base_of 와 동일하게 처리하는게 좋을듯...?
+// TODO std::is_base_of 와 동일하게 처리하는게 좋을듯...?
 
 /**
  * Is type DerivedType inherited from BaseType.
@@ -456,68 +669,93 @@ struct IsDerivedFrom {
   static No& Test(...);
 
   // Makes a DerivedType ptr.
-  static DerivedType* DerivedTypePtr() { return nullptr ;}
+  static DerivedType* DerivedTypePtr() { return nullptr; }
 
-  // Test the derived type pointer. If it inherits from BaseType, the Test(BaseType*)
-  // will be chosen. If it does not, Test(...) will be chosen.
+  // Test the derived type pointer. If it inherits from BaseType, the
+  // Test(BaseType*) will be chosen. If it does not, Test(...) will be chosen.
   static const bool Value = sizeof(Test(DerivedTypePtr())) == sizeof(Yes);
 };
 
 /**
  * IsSame (std::is_same)
  */
-template <typename A, typename B> struct IsSame : FalseType {};
-template <typename T> struct IsSame<T, T> : TrueType {};
+template <typename A, typename B>
+struct IsSame : FalseType {};
+template <typename T>
+struct IsSame<T, T> : TrueType {};
 
 /**
  * IsCharType
  */
-template <typename T> struct IsCharType : FalseType {};
-template <> struct IsCharType<char    > : TrueType {};
-template <> struct IsCharType<char16_t> : TrueType {};
-template <> struct IsCharType<char32_t> : TrueType {};
-template <> struct IsCharType<wchar_t > : TrueType {};
+template <typename T>
+struct IsCharType : FalseType {};
+template <>
+struct IsCharType<char> : TrueType {};
+template <>
+struct IsCharType<char16_t> : TrueType {};
+template <>
+struct IsCharType<char32_t> : TrueType {};
+template <>
+struct IsCharType<wchar_t> : TrueType {};
 
-//TODO IsCharType CV
+// TODO IsCharType CV
 
-//TODO FormatSpecifier
+// TODO FormatSpecifier
 
 /**
  * IsReferenceType
  */
-template <typename T> struct IsReferenceType      : FalseType {};
-template <typename T> struct IsReferenceType<T& > : TrueType {};
-template <typename T> struct IsReferenceType<T&&> : TrueType {};
+template <typename T>
+struct IsReferenceType : FalseType {};
+template <typename T>
+struct IsReferenceType<T&> : TrueType {};
+template <typename T>
+struct IsReferenceType<T&&> : TrueType {};
 
 /**
  * IsLValueReferenceType
  */
-template <typename T> struct IsLValueReferenceType     : FalseType {};
-template <typename T> struct IsLValueReferenceType<T&> : TrueType {};
+template <typename T>
+struct IsLValueReferenceType : FalseType {};
+template <typename T>
+struct IsLValueReferenceType<T&> : TrueType {};
 
 /**
  * IsRValueReferenceType
  */
-template <typename T> struct IsRValueReferenceType      : FalseType {};
-template <typename T> struct IsRValueReferenceType<T&&> : TrueType {};
+template <typename T>
+struct IsRValueReferenceType : FalseType {};
+template <typename T>
+struct IsRValueReferenceType<T&&> : TrueType {};
 
 /**
  * Wrapper for a type that yields a reference to that type.
  */
-template <typename T> struct MakeReferenceTo { typedef T& Type; };
+template <typename T>
+struct MakeReferenceTo {
+  typedef T& Type;
+};
 /**
  * Specialization for MakeReferenceTo<void>.
  */
-template <> struct MakeReferenceTo<void> { typedef void Type; };
+template <>
+struct MakeReferenceTo<void> {
+  typedef void Type;
+};
 
 /**
  * IsVoidType
  */
-template <typename T> struct IsVoidType : FalseType {};
-template <> struct IsVoidType<void               > : TrueType {};
-template <> struct IsVoidType<void const         > : TrueType {};
-template <> struct IsVoidType<void volatile      > : TrueType {};
-template <> struct IsVoidType<void const volatile> : TrueType {};
+template <typename T>
+struct IsVoidType : FalseType {};
+template <>
+struct IsVoidType<void> : TrueType {};
+template <>
+struct IsVoidType<void const> : TrueType {};
+template <>
+struct IsVoidType<void volatile> : TrueType {};
+template <>
+struct IsVoidType<void const volatile> : TrueType {};
 
 /**
  * IsFundamentalType
@@ -530,17 +768,20 @@ struct IsFundamentalType {
 /**
  * IsCppFunction
  */
-template <typename T> struct IsCppFunction : FalseType {};
+template <typename T>
+struct IsCppFunction : FalseType {};
 
 template <typename ReturnType, typename... Args>
-struct IsCppFunction<ReturnType (Args...)> : TrueType {};
+struct IsCppFunction<ReturnType(Args...)> : TrueType {};
 
 /**
  * IsZeroConstructible
  */
 template <typename T>
 struct IsZeroConstructible {
-  enum { Value = OrValue<IsEnum<T>::Value, IsArithmetic<T>, IsPointer<T>>::Value };
+  enum {
+    Value = OrValue<IsEnum<T>::Value, IsArithmetic<T>, IsPointer<T>>::Value
+  };
 };
 
 /**
@@ -549,7 +790,7 @@ struct IsZeroConstructible {
 template <typename T>
 struct IsWeakPointerType : FalseType {};
 
-//TODO NameOf
+// TODO NameOf
 
 /**
  * Call traits - Modeled somewhat after boost's interfaces.
@@ -582,40 +823,79 @@ struct CallTraitsParamTypeHelper<T*, true> {
  * RemovePointer<      int32**>::Type == int32*
  * RemovePointer<const int32* >::Type == const int32
  */
-template <typename T> struct RemovePointer     { using Type = T; };
-template <typename T> struct RemovePointer<T*> { using Type = T; };
+template <typename T>
+struct RemovePointer {
+  using Type = T;
+};
+template <typename T>
+struct RemovePointer<T*> {
+  using Type = T;
+};
 
 template <typename T>
-using RemovePointer_T = typename RemovePointer<T>::Type; // C++14
+using RemovePointer_T = typename RemovePointer<T>::Type;  // C++14
 
 /**
  * RemoveReference<type> will remove any references from a type.
  */
-template <typename T> struct RemoveReference      { using Type = T; };
-template <typename T> struct RemoveReference<T& > { using Type = T; };
-template <typename T> struct RemoveReference<T&&> { using Type = T; };
+template <typename T>
+struct RemoveReference {
+  using Type = T;
+};
+template <typename T>
+struct RemoveReference<T&> {
+  using Type = T;
+};
+template <typename T>
+struct RemoveReference<T&&> {
+  using Type = T;
+};
 
 template <typename T>
-using RemoveReference_T = typename RemoveReference<T>::Type; // C++14
+using RemoveReference_T = typename RemoveReference<T>::Type;  // C++14
 
 /**
  * RemoveConst
  */
-template <typename T> struct RemoveConst                       { using Type = T; };
-template <typename T> struct RemoveConst<const T>              { using Type = T; };
-template <typename T> struct RemoveConst<const T[]>            { using Type = T[]; };
-template <typename T, size_t N> struct RemoveConst<const T[N]> { using Type = T[N]; };
+template <typename T>
+struct RemoveConst {
+  using Type = T;
+};
+template <typename T>
+struct RemoveConst<const T> {
+  using Type = T;
+};
+template <typename T>
+struct RemoveConst<const T[]> {
+  using Type = T[];
+};
+template <typename T, size_t N>
+struct RemoveConst<const T[N]> {
+  using Type = T[N];
+};
 
 template <typename T>
-using RemoveConst_T = typename RemoveConst<T>::Type; // C++14
+using RemoveConst_T = typename RemoveConst<T>::Type;  // C++14
 
 /**
  * RemoveVolatile
  */
-template <typename T> struct RemoveVolatile                          { using Type = T; };
-template <typename T> struct RemoveVolatile<volatile T>              { using Type = T; };
-template <typename T> struct RemoveVolatile<volatile T[]>            { using Type = T[]; };
-template <typename T, size_t N> struct RemoveVolatile<volatile T[N]> { using Type = T[N]; };
+template <typename T>
+struct RemoveVolatile {
+  using Type = T;
+};
+template <typename T>
+struct RemoveVolatile<volatile T> {
+  using Type = T;
+};
+template <typename T>
+struct RemoveVolatile<volatile T[]> {
+  using Type = T[];
+};
+template <typename T, size_t N>
+struct RemoveVolatile<volatile T[N]> {
+  using Type = T[N];
+};
 
 /**
  * RemoveCV
@@ -626,40 +906,56 @@ struct RemoveCV {
 };
 
 template <typename T>
-using RemoveCV_T = typename RemoveCV<T>::Type; // C++14
+using RemoveCV_T = typename RemoveCV<T>::Type;  // C++14
 
 /**
  * RemoveCVRef
  */
 template <typename T>
 struct RemoveCVRef {
-  using Type = typename RemoveVolatile<typename RemoveConst<typename RemoveReference<T>::Type>::Type>::Type;
+  using Type = typename RemoveVolatile<
+      typename RemoveConst<typename RemoveReference<T>::Type>::Type>::Type;
 };
 
 template <typename T>
-using RemoveCVRef_T = typename RemoveCVRef<T>::Type; // C++14
-
-
-template <typename T> struct AddConst    { using Type = const T; };
-template <typename T> struct AddVolatile { using Type = volatile T; };
-template <typename T> struct AddCV       { using Type = const volatile T; };
+using RemoveCVRef_T = typename RemoveCVRef<T>::Type;  // C++14
 
 template <typename T>
-using AddConst_T = typename AddConst<T>::Type; // C++14
+struct AddConst {
+  using Type = const T;
+};
 template <typename T>
-using AddVolatile_T = typename AddVolatile<T>::Type; // C++14
+struct AddVolatile {
+  using Type = volatile T;
+};
 template <typename T>
-using AddCV_T = typename AddCV<T>::Type; // C++14
+struct AddCV {
+  using Type = const volatile T;
+};
+
+template <typename T>
+using AddConst_T = typename AddConst<T>::Type;  // C++14
+template <typename T>
+using AddVolatile_T = typename AddVolatile<T>::Type;  // C++14
+template <typename T>
+using AddCV_T = typename AddCV<T>::Type;  // C++14
 
 /**
  * RValueToLValueReference converts any rvalue reference type into
  * the equivalent lvalue reference, otherwise returns the same type.
  */
-template <typename T> struct RValueToLValueReference      { using Type = T; };
-template <typename T> struct RValueToLValueReference<T&&> { using Type = T&; };
+template <typename T>
+struct RValueToLValueReference {
+  using Type = T;
+};
+template <typename T>
+struct RValueToLValueReference<T&&> {
+  using Type = T&;
+};
 
 template <typename T>
-using RValueToLValueReference_T = typename RValueToLValueReference<T>::Type; // C++14
+using RValueToLValueReference_T =
+    typename RValueToLValueReference<T>::Type;  // C++14
 
 //-----------------------------------------------------------------------------
 
@@ -671,23 +967,30 @@ using RValueToLValueReference_T = typename RValueToLValueReference<T>::Type; // 
  * The main member to note is ParamType, which specifies the optimal
  * form to pass the type as a parameter to a function.
  *
- * Has a small-value optimization when a type is a POD type and as small as a pointer.
+ * Has a small-value optimization when a type is a POD type and as small as a
+ * pointer.
  * -----------------------------------------------------------------------------
  *
  *
- * base class for call traits. Used to more easily refine portions when specializing
+ * base class for call traits. Used to more easily refine portions when
+ * specializing
  */
 template <typename T>
 struct CallTraitsBase {
  private:
-  enum { PassByValue = Or<AndValue<(sizeof(T) <= sizeof(void*)), IsPOD<T>>, IsArithmetic<T>, IsPointer<T>>::Value };
+  enum {
+    PassByValue = Or<AndValue<(sizeof(T) <= sizeof(void*)), IsPOD<T>>,
+                     IsArithmetic<T>, IsPointer<T>>::Value
+  };
 
  public:
   using ValueType = T;
   using Reference = T&;
   using ConstReference = const T&;
-  using ParamType = typename CallTraitsParamTypeHelper<T, PassByValue>::ParamType;
-  using ConstPointerType = typename CallTraitsParamTypeHelper<T, PassByValue>::ConstParamType;
+  using ParamType =
+      typename CallTraitsParamTypeHelper<T, PassByValue>::ParamType;
+  using ConstPointerType =
+      typename CallTraitsParamTypeHelper<T, PassByValue>::ConstParamType;
 };
 
 template <typename T>
@@ -739,9 +1042,13 @@ struct TypeTraitsBase {
   typedef typename CallTraits<T>::ParamType ConstInitType;
   typedef typename CallTraits<T>::ConstPointerType ConstPointerType;
 
-  // There's no good way of detecting this so we'll just assume it to be true for certain known types and expect
-  // users to customize it for their custom types.
-  enum { IsBytewiseComparable = OrValue<IsEnum<T>::Value, IsArithmetic<T>, IsPointer<T>>::Value };
+  // There's no good way of detecting this so we'll just assume it to be true
+  // for certain known types and expect users to customize it for their custom
+  // types.
+  enum {
+    IsBytewiseComparable =
+        OrValue<IsEnum<T>::Value, IsArithmetic<T>, IsPointer<T>>::Value
+  };
 };
 
 /**
@@ -806,7 +1113,7 @@ struct MoveSupportTraitsBase<T, const T&> {
  */
 template <typename T>
 struct MoveSupportTraits
-  : MoveSupportTraitsBase<T, typename CallTraits<T>::ParamType> {};
+    : MoveSupportTraitsBase<T, typename CallTraits<T>::ParamType> {};
 
 /**
  * Tests if a type T is bitwise-constructible from a given
@@ -815,23 +1122,25 @@ struct MoveSupportTraits
  * rather than having to go via a constructor.
  *
  * Examples:
- * IsBitwiseConstructible<PODType,    PODType   >::Value == true  // PODs can be trivially copied
- * IsBitwiseConstructible<const int*, int*      >::Value == true  // a non-const Derived pointer is trivially copyable as a const Base pointer
- * IsBitwiseConstructible<int*,       const int*>::Value == false // not legal the other way because it would be a const-correctness violation
- * IsBitwiseConstructible<int32,      uint32    >::Value == true  // signed integers can be memcpy'd as unsigned integers
- * IsBitwiseConstructible<uint32,     int32     >::Value == true  // and vice versa
+ * IsBitwiseConstructible<PODType,    PODType   >::Value == true  // PODs can be
+ * trivially copied IsBitwiseConstructible<const int*, int*      >::Value ==
+ * true  // a non-const Derived pointer is trivially copyable as a const Base
+ * pointer IsBitwiseConstructible<int*,       const int*>::Value == false // not
+ * legal the other way because it would be a const-correctness violation
+ * IsBitwiseConstructible<int32,      uint32    >::Value == true  // signed
+ * integers can be memcpy'd as unsigned integers IsBitwiseConstructible<uint32,
+ * int32     >::Value == true  // and vice versa
  */
 template <typename T, typename Arg>
 struct IsBitwiseConstructible {
   static_assert(
-    !IsReferenceType<T>::Value &&
-    !IsReferenceType<Arg>::Value,
-    "IsBitwiseConstructible is not designed to accept reference types");
+      !IsReferenceType<T>::Value && !IsReferenceType<Arg>::Value,
+      "IsBitwiseConstructible is not designed to accept reference types");
 
   static_assert(
-    IsSame<T, typename RemoveCV<T>::Type>::Value &&
-    IsSame<Arg, typename RemoveCV<Arg>::Type>::Value,
-    "IsBitwiseConstructible is not designed to accept qualified types");
+      IsSame<T, typename RemoveCV<T>::Type>::Value &&
+          IsSame<Arg, typename RemoveCV<Arg>::Type>::Value,
+      "IsBitwiseConstructible is not designed to accept qualified types");
 
   // Assume no bitwise construction in general
   enum { Value = false };
@@ -839,7 +1148,8 @@ struct IsBitwiseConstructible {
 
 template <typename T>
 struct IsBitwiseConstructible<T, T> {
-  // Ts can always be bitwise constructed from itself if it is trivially copyable.
+  // Ts can always be bitwise constructed from itself if it is trivially
+  // copyable.
   enum { Value = IsTriviallyCopyConstructible<T>::Value };
 };
 
@@ -851,20 +1161,29 @@ struct IsBitwiseConstructible<const T, U> : IsBitwiseConstructible<T, U> {
 // Const pointers can be bitwise constructed from non-const pointers.
 // This is not true for pointer conversions in general,
 // e.g. where an offset may need to be applied in the case
-// of multiple inheritance, but there is no way of detecting that at compile-time.
+// of multiple inheritance, but there is no way of detecting that at
+// compile-time.
 template <typename T>
 struct IsBitwiseConstructible<const T*, T*> : TrueType {};
 
-// Unsigned types can be bitwise converted to their signed equivalents, and vice versa.
-// (assuming two's-complement, which we are)
-template <> struct IsBitwiseConstructible< uint8,  int8 > : TrueType {};
-template <> struct IsBitwiseConstructible<  int8,  uint8> : TrueType {};
-template <> struct IsBitwiseConstructible<uint16,  int16> : TrueType {};
-template <> struct IsBitwiseConstructible< int16, uint16> : TrueType {};
-template <> struct IsBitwiseConstructible<uint32,  int32> : TrueType {};
-template <> struct IsBitwiseConstructible< int32, uint32> : TrueType {};
-template <> struct IsBitwiseConstructible<uint64,  int64> : TrueType {};
-template <> struct IsBitwiseConstructible< int64, uint64> : TrueType {};
+// Unsigned types can be bitwise converted to their signed equivalents, and vice
+// versa. (assuming two's-complement, which we are)
+template <>
+struct IsBitwiseConstructible<uint8, int8> : TrueType {};
+template <>
+struct IsBitwiseConstructible<int8, uint8> : TrueType {};
+template <>
+struct IsBitwiseConstructible<uint16, int16> : TrueType {};
+template <>
+struct IsBitwiseConstructible<int16, uint16> : TrueType {};
+template <>
+struct IsBitwiseConstructible<uint32, int32> : TrueType {};
+template <>
+struct IsBitwiseConstructible<int32, uint32> : TrueType {};
+template <>
+struct IsBitwiseConstructible<uint64, int64> : TrueType {};
+template <>
+struct IsBitwiseConstructible<int64, uint64> : TrueType {};
 
 //-----------------------------------------------------------------------------
 
@@ -916,13 +1235,17 @@ template <typename T>
 struct TypeWrapper;
 
 template <typename T>
-struct UnwrapType { using Type = T; };
+struct UnwrapType {
+  using Type = T;
+};
 
 template <typename T>
-struct UnwrapType<TypeWrapper<T>> { using Type = T; };
+struct UnwrapType<TypeWrapper<T>> {
+  using Type = T;
+};
 
 template <typename T>
-using UnwrapType_T = typename UnwrapType<T>::Type; // C++14
+using UnwrapType_T = typename UnwrapType<T>::Type;  // C++14
 
 //-----------------------------------------------------------------------------
 
@@ -942,23 +1265,26 @@ struct Back<T> {
 };
 
 template <typename T>
-using Front_T = typename Front<T>::Type; // C++14
+using Front_T = typename Front<T>::Type;  // C++14
 template <typename T>
-using Back_T = typename Back<T>::Type; // C++14
+using Back_T = typename Back<T>::Type;  // C++14
 
 template <typename T1, typename T2, typename... Rest>
 struct AreSameTypes {
-  static constexpr bool Value = IsSame<T1, T2>::Value ? true : AreSameTypes<T1, Rest...>::Value;
+  static constexpr bool Value =
+      IsSame<T1, T2>::Value ? true : AreSameTypes<T1, Rest...>::Value;
 };
 
 template <typename T1, typename T2>
 struct AreSameTypes<T1, T2> {
-  static constexpr bool Value = IsSame<T1,T2>::Value;
+  static constexpr bool Value = IsSame<T1, T2>::Value;
 };
 
 template <typename T, typename... Rest>
 struct AreDifferentTypes {
-  static constexpr bool Value = AreSameTypes<T, Rest...>::Value ? false : AreDifferentTypes<Rest...>::Value;
+  static constexpr bool Value = AreSameTypes<T, Rest...>::Value
+                                    ? false
+                                    : AreDifferentTypes<Rest...>::Value;
 };
 
 template <typename T1>
@@ -974,13 +1300,26 @@ struct AreDifferentTypes<T1> {
  * CopyQualifiersFromTo<const T1, T2>::Type           == const T2
  * CopyQualifiersFromTo<volatile T1, const T2>::Type  == const volatile T2
  */
-template <typename From, typename To> struct CopyQualifiersFromTo { typedef To Type; };
-template <typename From, typename To> struct CopyQualifiersFromTo<const From, To> { typedef const To Type; };
-template <typename From, typename To> struct CopyQualifiersFromTo<volatile From, To> { typedef volatile To Type; };
-template <typename From, typename To> struct CopyQualifiersFromTo<const volatile From, To> { typedef const volatile To Type; };
+template <typename From, typename To>
+struct CopyQualifiersFromTo {
+  typedef To Type;
+};
+template <typename From, typename To>
+struct CopyQualifiersFromTo<const From, To> {
+  typedef const To Type;
+};
+template <typename From, typename To>
+struct CopyQualifiersFromTo<volatile From, To> {
+  typedef volatile To Type;
+};
+template <typename From, typename To>
+struct CopyQualifiersFromTo<const volatile From, To> {
+  typedef const volatile To Type;
+};
 
 template <typename From, typename To>
-using CopyQualifiersFromTo_T = typename CopyQualifiersFromTo<From, To>::Type; // C++14
+using CopyQualifiersFromTo_T =
+    typename CopyQualifiersFromTo<From, To>::Type;  // C++14
 
 /**
  * Tests if qualifiers are lost between one type and another, e.g.:
@@ -990,7 +1329,9 @@ using CopyQualifiersFromTo_T = typename CopyQualifiersFromTo<From, To>::Type; //
  */
 template <typename From, typename To>
 struct LosesQualifiersFromTo {
-  enum { Value = !IsSame<typename CopyQualifiersFromTo<From, To>::Type, To>::Value };
+  enum {
+    Value = !IsSame<typename CopyQualifiersFromTo<From, To>::Type, To>::Value
+  };
 };
 
 /**
@@ -1002,7 +1343,8 @@ struct LosesQualifiersFromTo {
  * void Func1(T val); // Can be called like Func(123) or Func<int>(123);
  *
  * template <typename T>
- * void Func2(typename Identity<T>::Type val); // Must be called like Func<int>(123)
+ * void Func2(typename Identity<T>::Type val); // Must be called like
+ * Func<int>(123)
  */
 template <typename T>
 struct Identity {
@@ -1010,7 +1352,7 @@ struct Identity {
 };
 
 template <typename T>
-using Identity_T = typename Identity<T>::Type; // C++14
+using Identity_T = typename Identity<T>::Type;  // C++14
 
 /**
  * Equivalent to std::declval.
@@ -1024,8 +1366,8 @@ T&& DeclVal();
 //-----------------------------------------------------------------------------
 
 /**
- * Returns the decayed type of T, meaning it removes all references, qualifiers and
- * applies array-to-pointer and function-to-pointer conversions.
+ * Returns the decayed type of T, meaning it removes all references, qualifiers
+ * and applies array-to-pointer and function-to-pointer conversions.
  *
  * http://en.cppreference.com/w/cpp/types/decay
  */
@@ -1050,19 +1392,20 @@ struct DecayNonReference<T[N]> {
 
 // C++ function
 template <typename R, typename... Args>
-struct DecayNonReference<R (Args...)> {
+struct DecayNonReference<R(Args...)> {
   typedef R (*Type)(Args...);
 };
 
-} // namespace Decay_internal
+}  // namespace Decay_internal
 
 template <typename T>
 struct Decay {
-  using Type = typename Decay_internal::DecayNonReference<typename RemoveReference<T>::Type>::Type;
+  using Type = typename Decay_internal::DecayNonReference<
+      typename RemoveReference<T>::Type>::Type;
 };
 
 template <typename T>
-using Decay_T = typename Decay<T>::Type; // C++14
+using Decay_T = typename Decay<T>::Type;  // C++14
 
 //-----------------------------------------------------------------------------
 
@@ -1077,7 +1420,9 @@ struct DereferenceWrapper {
    * Pass through for non-pointer types
    */
   FUN_ALWAYS_INLINE bool operator()(T& a, T& b) { return pred_(a, b); }
-  FUN_ALWAYS_INLINE bool operator()(const T& a, const T& b) const { return pred_(a, b); }
+  FUN_ALWAYS_INLINE bool operator()(const T& a, const T& b) const {
+    return pred_(a, b);
+  }
 
  private:
   const Predicate& pred_;
@@ -1094,16 +1439,16 @@ struct DereferenceWrapper<T*, Predicate> {
    * Dereference pointers
    */
   FUN_ALWAYS_INLINE bool operator()(T* a, T* b) const {
-    //note: 단순히 포인터 비교시에는 문제가 될 수 있음.  그러나, 좀더 고민이 필요해보임!!
+    // note: 단순히 포인터 비교시에는 문제가 될 수 있음.  그러나, 좀더 고민이
+    // 필요해보임!!
     return pred_(*a, *b);
     //아니네, 포인터 타입을 Predicate에 넘길수가 없구나... 어쩐다... 흠...
-    //return Pred(a, b);
+    // return Pred(a, b);
   }
 
  private:
   const Predicate& pred_;
 };
-
 
 //-----------------------------------------------------------------------------
 
@@ -1120,7 +1465,9 @@ struct MaxSizeof<> {
 
 template <typename T, typename... Rest>
 struct MaxSizeof<T, Rest...> {
-  static const uint32 Value = sizeof(T) > MaxSizeof<Rest...>::Value ? sizeof(T) : MaxSizeof<Rest...>::Value;
+  static const uint32 Value = sizeof(T) > MaxSizeof<Rest...>::Value
+                                  ? sizeof(T)
+                                  : MaxSizeof<Rest...>::Value;
 };
 
 //-----------------------------------------------------------------------------
@@ -1131,11 +1478,11 @@ struct UnderlyingType {
 };
 
 template <typename T>
-using UnderlyingType_T = typename UnderlyingType<T>::Type; // C++14
+using UnderlyingType_T = typename UnderlyingType<T>::Type;  // C++14
 
 //-----------------------------------------------------------------------------
 
-//TODO 아래 코드는 별도로 두도록 하자. 그게 바람직해보임.
+// TODO 아래 코드는 별도로 두도록 하자. 그게 바람직해보임.
 /*
 
 class MyClass_without_Swap {
@@ -1159,14 +1506,19 @@ class MyClass_with_Swap {
 FUN_DEFINE_HAS_METHOD_CHECKER(Swap, void, , MyClass_with_Swap&);
 
 */
-#define FUN_DEFINE_HAS_METHOD_CHECKER(MemberName, ResultType, ConstModifier, ...) \
-  template <typename T> \
-  class HasMethod_ ## MemberName { \
-    template <typename U, ResultType (U::*)(__VA_ARGS__) ConstModifier> struct Check; \
-    template <typename U> static char MemberTest(Check<U, &U::MemberName> *); \
-    template <typename U> static int MemberTest(...); \
-   public: \
-    enum { Value = sizeof(MemberTest<T>(nullptr)) == sizeof(char) }; \
+#define FUN_DEFINE_HAS_METHOD_CHECKER(MemberName, ResultType, ConstModifier, \
+                                      ...)                                   \
+  template <typename T>                                                      \
+  class HasMethod_##MemberName {                                             \
+    template <typename U, ResultType (U::*)(__VA_ARGS__) ConstModifier>      \
+    struct Check;                                                            \
+    template <typename U>                                                    \
+    static char MemberTest(Check<U, &U::MemberName>*);                       \
+    template <typename U>                                                    \
+    static int MemberTest(...);                                              \
+                                                                             \
+   public:                                                                   \
+    enum { Value = sizeof(MemberTest<T>(nullptr)) == sizeof(char) };         \
   };
 
 //-----------------------------------------------------------------------------
@@ -1181,19 +1533,36 @@ struct IsContiguousContainer {
   enum { Value = false };
 };
 
-template <typename T> struct IsContiguousContainer<             T& > : IsContiguousContainer<T> {};
-template <typename T> struct IsContiguousContainer<             T&&> : IsContiguousContainer<T> {};
-template <typename T> struct IsContiguousContainer<const          T> : IsContiguousContainer<T> {};
-template <typename T> struct IsContiguousContainer<      volatile T> : IsContiguousContainer<T> {};
-template <typename T> struct IsContiguousContainer<const volatile T> : IsContiguousContainer<T> {};
+template <typename T>
+struct IsContiguousContainer<T&> : IsContiguousContainer<T> {};
+template <typename T>
+struct IsContiguousContainer<T&&> : IsContiguousContainer<T> {};
+template <typename T>
+struct IsContiguousContainer<const T> : IsContiguousContainer<T> {};
+template <typename T>
+struct IsContiguousContainer<volatile T> : IsContiguousContainer<T> {};
+template <typename T>
+struct IsContiguousContainer<const volatile T> : IsContiguousContainer<T> {};
 
 /**
  * Specialization for C arrays (always contiguous)
  */
-template <typename T, size_t N> struct IsContiguousContainer<               T[N]> { enum { Value = true }; };
-template <typename T, size_t N> struct IsContiguousContainer<const          T[N]> { enum { Value = true }; };
-template <typename T, size_t N> struct IsContiguousContainer<      volatile T[N]> { enum { Value = true }; };
-template <typename T, size_t N> struct IsContiguousContainer<const volatile T[N]> { enum { Value = true }; };
+template <typename T, size_t N>
+struct IsContiguousContainer<T[N]> {
+  enum { Value = true };
+};
+template <typename T, size_t N>
+struct IsContiguousContainer<const T[N]> {
+  enum { Value = true };
+};
+template <typename T, size_t N>
+struct IsContiguousContainer<volatile T[N]> {
+  enum { Value = true };
+};
+template <typename T, size_t N>
+struct IsContiguousContainer<const volatile T[N]> {
+  enum { Value = true };
+};
 
 /**
  * Specialization for initializer lists (also always contiguous)
@@ -1206,7 +1575,8 @@ struct IsContiguousContainer<std::initializer_list<T>> {
 /**
  * Generically gets the data pointer of a contiguous container
  */
-template <typename T, typename = typename EnableIf<IsContiguousContainer<T>::Value>::Type>
+template <typename T,
+          typename = typename EnableIf<IsContiguousContainer<T>::Value>::Type>
 decltype(auto) GetMutableData(T&& container) {
   return container.MutableData();
 }
@@ -1224,7 +1594,8 @@ constexpr T* GetMutableData(std::initializer_list<T> list) {
 /**
  * Generically gets the data pointer of a contiguous container
  */
-template <typename T, typename = typename EnableIf<IsContiguousContainer<T>::Value>::Type>
+template <typename T,
+          typename = typename EnableIf<IsContiguousContainer<T>::Value>::Type>
 decltype(auto) GetConstData(T&& container) {
   return container.ConstData();
 }
@@ -1242,7 +1613,8 @@ constexpr const T* GetConstData(std::initializer_list<T> list) {
 /**
  * Generically gets the number of items in a contiguous container
  */
-template <typename T, typename = typename EnableIf<IsContiguousContainer<T>::Value>::Type>
+template <typename T,
+          typename = typename EnableIf<IsContiguousContainer<T>::Value>::Type>
 size_t GetCount(T&& container) {
   return (size_t)container.Count();
 }
@@ -1273,4 +1645,4 @@ FUN_ALWAYS_INLINE const T& AsConst(T& ref) {
   return ref;
 }
 
-} // namespace fun
+}  // namespace fun

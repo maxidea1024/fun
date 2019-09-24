@@ -1,18 +1,17 @@
-﻿#include "fun/base/base.h"
+﻿#include "fun/base/string/byte_string_matcher.h"
+#include "fun/base/base.h"
 #include "fun/base/string/byte_string.h"
-#include "fun/base/string/byte_string_matcher.h"
 #include "fun/base/string/byte_string_lut.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable : 4244) // truncation warning
+#pragma warning(disable : 4244)  // truncation warning
 #endif
 
 namespace fun {
 
-static inline void bm_init_skiptable( const uint8* pattern,
-                                      int32 pattern_len,
-                                      uint8* skip_table,
-                                      CaseSensitivity casesense) {
+static inline void bm_init_skiptable(const uint8* pattern, int32 pattern_len,
+                                     uint8* skip_table,
+                                     CaseSensitivity casesense) {
   int32 adjusted_len = MathBase::Min(pattern_len, 255);
 
   UnsafeMemory::Memset(skip_table, adjusted_len, 256);
@@ -22,19 +21,16 @@ static inline void bm_init_skiptable( const uint8* pattern,
     while (adjusted_len--) {
       skip_table[*pattern++] = adjusted_len;
     }
-  } else { // Ignore case
+  } else {  // Ignore case
     while (adjusted_len--) {
       skip_table[FoldCase(*pattern++)] = adjusted_len;
     }
   }
 }
 
-static inline int32 bm_find(const uint8* haystack,
-                            int32 haystack_len,
-                            int32 haystack_offset,
-                            const uint8* needle,
-                            uint32 needle_len,
-                            const uint8* skip_table,
+static inline int32 bm_find(const uint8* haystack, int32 haystack_len,
+                            int32 haystack_offset, const uint8* needle,
+                            uint32 needle_len, const uint8* skip_table,
                             CaseSensitivity casesense) {
   if (needle_len == 0) {
     return haystack_offset > haystack_len ? INVALID_INDEX : haystack_offset;
@@ -57,12 +53,12 @@ static inline int32 bm_find(const uint8* haystack,
           ++skip;
         }
 
-        if (skip > needle_len_minus_one) { // we have a match
+        if (skip > needle_len_minus_one) {  // we have a match
           return (current - haystack) - skip + 1;
         }
 
-        // in case we don't have a match we are a bit inefficient as we only skip by one
-        // when we have the non matching char in the string.
+        // in case we don't have a match we are a bit inefficient as we only
+        // skip by one when we have the non matching char in the string.
         if (skip_table[*(current - skip)] == needle_len) {
           skip = needle_len - skip;
         } else {
@@ -77,24 +73,25 @@ static inline int32 bm_find(const uint8* haystack,
 
       current += skip;
     }
-  } else { // Ignore case
+  } else {  // Ignore case
     while (current < end) {
       uint32 skip = skip_table[FoldCase(*current)];
       if (skip == 0) {
         // possible match
         while (skip < needle_len) {
-          if (FoldCase(*(current - skip)) != FoldCase(needle[needle_len_minus_one - skip])) {
+          if (FoldCase(*(current - skip)) !=
+              FoldCase(needle[needle_len_minus_one - skip])) {
             break;
           }
           ++skip;
         }
 
-        if (skip > needle_len_minus_one) { // we have a match
+        if (skip > needle_len_minus_one) {  // we have a match
           return (current - haystack) - skip + 1;
         }
 
-        // in case we don't have a match we are a bit inefficient as we only skip by one
-        // when we have the non matching char in the string.
+        // in case we don't have a match we are a bit inefficient as we only
+        // skip by one when we have the non matching char in the string.
         if (skip_table[FoldCase(*(current - skip))] == needle_len) {
           skip = needle_len - skip;
         } else {
@@ -111,15 +108,16 @@ static inline int32 bm_find(const uint8* haystack,
     }
   }
 
-  return INVALID_INDEX; // not found
+  return INVALID_INDEX;  // not found
 }
 
 ByteStringMatcher::ByteStringMatcher() {
   UnsafeMemory::Memset(skip_table_, 0x00, sizeof(skip_table_));
 }
 
-ByteStringMatcher::ByteStringMatcher(ByteStringView pattern, CaseSensitivity casesense)
-  : pattern_(pattern), casesense_(casesense) {
+ByteStringMatcher::ByteStringMatcher(ByteStringView pattern,
+                                     CaseSensitivity casesense)
+    : pattern_(pattern), casesense_(casesense) {
   UpdateSkipTable();
 }
 
@@ -128,11 +126,11 @@ ByteStringMatcher::~ByteStringMatcher() {
 }
 
 ByteStringMatcher::ByteStringMatcher(const ByteStringMatcher& rhs)
-  : pattern_(rhs.pattern_), casesense_(rhs.casesense_) {
+    : pattern_(rhs.pattern_), casesense_(rhs.casesense_) {
   UpdateSkipTable();
 }
 
-ByteStringMatcher& ByteStringMatcher::operator = (const ByteStringMatcher& rhs) {
+ByteStringMatcher& ByteStringMatcher::operator=(const ByteStringMatcher& rhs) {
   if (FUN_LIKELY(&rhs != this)) {
     pattern_ = rhs.pattern_;
     casesense_ = rhs.casesense_;
@@ -161,29 +159,26 @@ int32 ByteStringMatcher::IndexIn(ByteStringView str, int32 from) const {
     from = 0;
   }
 
-  return bm_find( reinterpret_cast<const uint8*>(str.ConstData()), str.Len(), from,
-                  reinterpret_cast<const uint8*>(pattern_.ConstData()), pattern_.Len(), skip_table_, casesense_);
+  return bm_find(reinterpret_cast<const uint8*>(str.ConstData()), str.Len(),
+                 from, reinterpret_cast<const uint8*>(pattern_.ConstData()),
+                 pattern_.Len(), skip_table_, casesense_);
 }
 
-const ByteString& ByteStringMatcher::GetPattern() const {
-  return pattern_;
-}
+const ByteString& ByteStringMatcher::GetPattern() const { return pattern_; }
 
 CaseSensitivity ByteStringMatcher::GetCaseSensitivity() const {
   return casesense_;
 }
 
 void ByteStringMatcher::UpdateSkipTable() {
-  bm_init_skiptable(reinterpret_cast<const uint8*>(pattern_.ConstData()), pattern_.Len(), skip_table_, casesense_);
+  bm_init_skiptable(reinterpret_cast<const uint8*>(pattern_.ConstData()),
+                    pattern_.Len(), skip_table_, casesense_);
 }
 
 // Standalone utility function
 
-int32 ByteStringMatcher::FastFindChar(const char* str,
-                                  int32 len,
-                                  char ch,
-                                  int32 from,
-                                  CaseSensitivity casesense) {
+int32 ByteStringMatcher::FastFindChar(const char* str, int32 len, char ch,
+                                      int32 from, CaseSensitivity casesense) {
   const uint8* ustr = (const uint8*)str;
   uint8 uc = (uint8)ch;
 
@@ -201,7 +196,7 @@ int32 ByteStringMatcher::FastFindChar(const char* str,
           return p - ustr;
         }
       }
-    } else { // Ignore case
+    } else {  // Ignore case
       uc = FoldCase(uc);
       while (++p != e) {
         if (FoldCase(*p) == uc) {
@@ -210,14 +205,12 @@ int32 ByteStringMatcher::FastFindChar(const char* str,
       }
     }
   }
-  return INVALID_INDEX; // not found
+  return INVALID_INDEX;  // not found
 }
 
-int32 ByteStringMatcher::FastLastFindChar(const char* str,
-                                      int32 len,
-                                      char ch,
-                                      int32 from,
-                                      CaseSensitivity casesense) {
+int32 ByteStringMatcher::FastLastFindChar(const char* str, int32 len, char ch,
+                                          int32 from,
+                                          CaseSensitivity casesense) {
   if (len <= 0) {
     return INVALID_INDEX;
   }
@@ -238,7 +231,7 @@ int32 ByteStringMatcher::FastLastFindChar(const char* str,
           return p - b;
         }
       }
-    } else { // Ignore case
+    } else {  // Ignore case
       ch = FoldCase(ch);
       while (p-- != b) {
         if (FoldCase(*p) == ch) {
@@ -248,15 +241,12 @@ int32 ByteStringMatcher::FastLastFindChar(const char* str,
     }
   }
 
-  return INVALID_INDEX; // not found
+  return INVALID_INDEX;  // not found
 }
 
-static int32 Find_BoyerMoore(const char* haystack,
-                            int32 haystack_len,
-                            int32 haystack_offset,
-                            const char* needle,
-                            int32 needle_len,
-                            CaseSensitivity casesense) {
+static int32 Find_BoyerMoore(const char* haystack, int32 haystack_len,
+                             int32 haystack_offset, const char* needle,
+                             int32 needle_len, CaseSensitivity casesense) {
   uint8 skip_table[256];
   bm_init_skiptable((const uint8*)needle, needle_len, skip_table, casesense);
 
@@ -265,18 +255,18 @@ static int32 Find_BoyerMoore(const char* haystack,
   }
 
   return bm_find((const uint8*)haystack, haystack_len, haystack_offset,
-                (const uint8*)needle, needle_len, skip_table, casesense);
+                 (const uint8*)needle, needle_len, skip_table, casesense);
 }
 
-#define REHASH(A) \
+#define REHASH(A)                                         \
   if (needle_len_minus_one < sizeof(uint32) * CHAR_BIT) { \
-    hash_haystack -= uint32(A) << needle_len_minus_one; \
-  } \
+    hash_haystack -= uint32(A) << needle_len_minus_one;   \
+  }                                                       \
   hash_haystack <<= 1;
 
-int32 ByteStringMatcher::FastFind(const char* in_haystack, int32 haystack_len, int32 from,
-                                  const char* needle, int32 needle_len,
-                                  CaseSensitivity casesense) {
+int32 ByteStringMatcher::FastFind(const char* in_haystack, int32 haystack_len,
+                                  int32 from, const char* needle,
+                                  int32 needle_len, CaseSensitivity casesense) {
   if (from < 0) {
     from += haystack_len;
   }
@@ -301,7 +291,8 @@ int32 ByteStringMatcher::FastFind(const char* in_haystack, int32 haystack_len, i
   // for the skip table should pay off, otherwise we use a simple
   // hash function.
   if (haystack_len > 500 && needle_len > 5) {
-    return Find_BoyerMoore(in_haystack, haystack_len, from, needle, needle_len, casesense);
+    return Find_BoyerMoore(in_haystack, haystack_len, from, needle, needle_len,
+                           casesense);
   }
 
   // We use some hashing for efficiency's sake. Instead of
@@ -323,9 +314,8 @@ int32 ByteStringMatcher::FastFind(const char* in_haystack, int32 haystack_len, i
     while (haystack <= end) {
       hash_haystack += *(haystack + needle_len_minus_one);
 
-      if (hash_haystack == hash_needle &&
-        *needle == *haystack &&
-        UnsafeMemory::Memcmp(needle, haystack, needle_len) == 0) {
+      if (hash_haystack == hash_needle && *needle == *haystack &&
+          UnsafeMemory::Memcmp(needle, haystack, needle_len) == 0) {
         return haystack - in_haystack;
       }
 
@@ -333,7 +323,7 @@ int32 ByteStringMatcher::FastFind(const char* in_haystack, int32 haystack_len, i
 
       ++haystack;
     }
-  } else { // Ignore case
+  } else {  // Ignore case
     for (int32 i = 0; i < needle_len; ++i) {
       hash_needle = ((hash_needle << 1) + FoldCase(needle[i]));
       hash_haystack = ((hash_haystack << 1) + FoldCase(haystack[i]));
@@ -345,8 +335,8 @@ int32 ByteStringMatcher::FastFind(const char* in_haystack, int32 haystack_len, i
       hash_haystack += FoldCase(*(haystack + needle_len_minus_one));
 
       if (hash_haystack == hash_needle &&
-        FoldCase(*needle) == FoldCase(*haystack) &&
-        CStringTraitsA::Strnicmp(needle, haystack, needle_len) == 0) {
+          FoldCase(*needle) == FoldCase(*haystack) &&
+          CStringTraitsA::Strnicmp(needle, haystack, needle_len) == 0) {
         return haystack - in_haystack;
       }
 
@@ -358,12 +348,10 @@ int32 ByteStringMatcher::FastFind(const char* in_haystack, int32 haystack_len, i
   return INVALID_INDEX;
 }
 
-int32 ByteStringMatcher::FastLastFind(const char* haystack,
-                                  int32 haystack_len,
-                                  int32 from,
-                                  const char* needle,
-                                  int32 needle_len,
-                                  CaseSensitivity casesense) {
+int32 ByteStringMatcher::FastLastFind(const char* haystack, int32 haystack_len,
+                                      int32 from, const char* needle,
+                                      int32 needle_len,
+                                      CaseSensitivity casesense) {
   const int32 delta = haystack_len - needle_len;
 
   if (from < 0) {
@@ -427,7 +415,7 @@ int32 ByteStringMatcher::FastLastFind(const char* haystack,
     }
   }
 
-  return INVALID_INDEX; // not found
+  return INVALID_INDEX;  // not found
 }
 
-} // namespace fun
+}  // namespace fun

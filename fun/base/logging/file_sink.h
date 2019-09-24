@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/logging/log_sink.h"
 #include "fun/base/date_time.h"
-#include "fun/base/timespan.h"
+#include "fun/base/logging/log_sink.h"
 #include "fun/base/mutex.h"
+#include "fun/base/timespan.h"
 
-#define FUN_WITH_FILE_SINK  1
+#define FUN_WITH_FILE_SINK 1
 
 #if FUN_WITH_FILE_SINK
 
@@ -18,7 +18,7 @@ class ArchiveStrategy;
 class PurgeStrategy;
 
 class FUN_BASE_API FileSink : public LogSink {
-  //FUN_DECLARE_RTCLASS(FileSink, LogSink)
+  // FUN_DECLARE_RTCLASS(FileSink, LogSink)
 
  public:
   FileSink();
@@ -60,8 +60,8 @@ class FUN_BASE_API FileSink : public LogSink {
 
  private:
   bool SetNoPurge(const String& value);
-  int32 ExtractDigit( const String& value,
-                      const char* next_to_digit = nullptr) const;
+  int32 ExtractDigit(const String& value,
+                     const char* next_to_digit = nullptr) const;
   void SetPurgeStrategy(PurgeStrategy* strategy);
   Timespan ExtractFactor(const String& value, const char* start) const;
 
@@ -81,6 +81,6 @@ class FUN_BASE_API FileSink : public LogSink {
   FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_FILE_SINK
+#endif  // FUN_WITH_FILE_SINK

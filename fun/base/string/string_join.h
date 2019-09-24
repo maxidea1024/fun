@@ -5,7 +5,7 @@
 
 namespace fun {
 
-//TODO 공용으로 빼줄까??
+// TODO 공용으로 빼줄까??
 
 template <typename T>
 inline static int32 GetTypedStrlen(const T& str) {
@@ -20,12 +20,9 @@ inline static int32 GetTypedStrlen(const UNICHAR* str) {
   return CStringTraitsU::Strlen(str);
 }
 
-
 template <typename ResultType, typename ElementType, typename SeparatorType>
-inline static ResultType
-StringJoin( const ElementType* list,
-            int32 count,
-            const SeparatorType& separator) {
+inline static ResultType StringJoin(const ElementType* list, int32 count,
+                                    const SeparatorType& separator) {
   if (list == nullptr || count <= 0) {
     return ResultType();
   }
@@ -50,4 +47,4 @@ StringJoin( const ElementType* list,
   return result;
 }
 
-} // namespace fun
+}  // namespace fun

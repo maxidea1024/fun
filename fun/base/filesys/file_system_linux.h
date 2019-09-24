@@ -24,7 +24,8 @@ class FUN_BASE_API LinuxFileSystem : public IPhysicalFileSystem {
   String GetFilenameOnDisk(const char* filename) override;
 
   IFile* OpenRead(const char* filename, bool allow_write = false) override;
-  IFile* OpenWrite(const char* filename, bool append = false, bool allow_read = false) override;
+  IFile* OpenWrite(const char* filename, bool append = false,
+                   bool allow_read = false) override;
   bool DirectoryExists(const char* directory) override;
   bool CreateDirectory(const char* directory) override;
   bool DeleteDirectory(const char* directory) override;
@@ -33,14 +34,17 @@ class FUN_BASE_API LinuxFileSystem : public IPhysicalFileSystem {
 
   bool CreateDirectoriesFromPath(const char* path);
 
-  bool IterateDirectory(const char* directory, DirectoryVisitor& visitor) override;
-  bool IterateDirectoryStat(const char* directory, DirectoryStatVisitor& visitor) override;
+  bool IterateDirectory(const char* directory,
+                        DirectoryVisitor& visitor) override;
+  bool IterateDirectoryStat(const char* directory,
+                            DirectoryStatVisitor& visitor) override;
 
  protected:
-  bool IterateDirectoryCommon(const char* directory, const FunctionRef<bool (struct dirent*)>& visitor);
+  bool IterateDirectoryCommon(const char* directory,
+                              const FunctionRef<bool(struct dirent*)>& visitor);
 
   virtual String NormalizeFilename(const char* filename);
   virtual String NormalizeDirectory(const char* directory);
 };
 
-} // namespace fun
+}  // namespace fun

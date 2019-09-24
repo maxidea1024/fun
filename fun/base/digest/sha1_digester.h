@@ -11,10 +11,7 @@ namespace fun {
  */
 class FUN_BASE_API SHA1Digester : public Digester {
  public:
-  enum {
-    BLOCK_SIZE  = 64,
-    DIGEST_SIZE = 20
-  };
+  enum { BLOCK_SIZE = 64, DIGEST_SIZE = 20 };
 
   SHA1Digester();
   virtual ~SHA1Digester();
@@ -26,7 +23,7 @@ class FUN_BASE_API SHA1Digester : public Digester {
 
   // Disable copy
   SHA1Digester(const SHA1Digester&) = delete;
-  SHA1Digester& operator = (const SHA1Digester&) = delete;
+  SHA1Digester& operator=(const SHA1Digester&) = delete;
 
  protected:
   // Digester interface
@@ -37,8 +34,8 @@ class FUN_BASE_API SHA1Digester : public Digester {
   static void ByteReverse(uint32* buffer, int32 byte_count);
 
   struct Context {
-    uint32 digest[5]; // Message digest
-    uint32 count_lo;  // 64-bit bit count
+    uint32 digest[5];  // Message digest
+    uint32 count_lo;   // 64-bit bit count
     uint32 count_hi;
     uint32 data[16];  // SHA data buffer
     uint32 slop;      // # of bytes saved in data[]
@@ -48,4 +45,4 @@ class FUN_BASE_API SHA1Digester : public Digester {
   Digester::Digest digest_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -2,8 +2,8 @@
 
 namespace fun {
 
-//TODO?
-//FUN_IMPLEMENT_RTCLASS(RemoteSyslogSink)
+// TODO?
+// FUN_IMPLEMENT_RTCLASS(RemoteSyslogSink)
 
 const String RemoteSyslogSink::BSD_TIMEFORMAT("%b %f %H:%M:%S");
 const String RemoteSyslogSink::SYSLOG_TIMEFORMAT("%Y-%m-%dT%H:%M:%S.%i%z");
@@ -15,21 +15,19 @@ const String RemoteSyslogSink::PROP_HOST("Host");
 const String RemoteSyslogSink::STRUCTURED_DATA("structured-data");
 
 RemoteSyslogSink::RemoteSyslogSink()
-  : log_host_("localhost"),
-    name_("-"),
-    facility_(SYSLOG_USER),
-    bsd_format_(false),
-    is_opened_(false) {}
+    : log_host_("localhost"),
+      name_("-"),
+      facility_(SYSLOG_USER),
+      bsd_format_(false),
+      is_opened_(false) {}
 
-RemoteSyslogSink::RemoteSyslogSink( const String& address,
-                                    const String& name,
-                                    int facility,
-                                    bool bsd_format)
-  : log_host_(address),
-    name_(name),
-    facility_(facility),
-    bsd_format_(bsd_format),
-    is_opened_(false) {
+RemoteSyslogSink::RemoteSyslogSink(const String& address, const String& name,
+                                   int facility, bool bsd_format)
+    : log_host_(address),
+      name_(name),
+      facility_(facility),
+      bsd_format_(bsd_format),
+      is_opened_(false) {
   if (name_.IsEmpty()) {
     name_ = "-";
   }
@@ -90,7 +88,7 @@ void RemoteSyslogSink::Log(const LogMessage& msg) {
     m += ' ';
     m += host_;
   } else {
-    m += "1 "; // version
+    m += "1 ";  // version
     fun::DateTimeFormatter::Append(m, msg.GetTime(), SYSLOG_TIMEFORMAT);
     m += ' ';
     m += host_;
@@ -283,8 +281,7 @@ int RemoteSyslogSink::GetPrio(const LogMessage& msg) {
 
 void RemoteSyslogSink::RegisterSink() {
   fun::LoggingFactory::DefaultFactory().RegisterSinkClass(
-            "RemoteSyslogSink",
-            new fun::Instantiator<RemoteSyslogSink, fun::Sink>);
+      "RemoteSyslogSink", new fun::Instantiator<RemoteSyslogSink, fun::Sink>);
 }
 
-} // namespace fun
+}  // namespace fun

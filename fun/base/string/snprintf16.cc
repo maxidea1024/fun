@@ -1,55 +1,47 @@
-//Reference source
-//https://github.com/mozilla/positron/blob/master/xpcom/glue/nsTextFormatter.cpp
+// Reference source
+// https://github.com/mozilla/positron/blob/master/xpcom/glue/nsTextFormatter.cpp
 
 #include <stdarg.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdint.h>
-#include <stdlib.h> // malloc / free
+#include <stdio.h>
+#include <stdlib.h>  // malloc / free
+#include <string.h>
 
 //#include "prdtoa.h"
 #include "v8/double-conversion.h"
 
-
-//workaround
+// workaround
 struct UnsafeMemory {
-  static void* Malloc(size_t size) {
-    return ::malloc(size);
-  }
+  static void* Malloc(size_t size) { return ::malloc(size); }
 
-  static void Free(void* p) {
-    ::free(p);
-  }
+  static void Free(void* p) { ::free(p); }
 };
 
 #include <assert.h>
 
-#define fun_check(x)      assert(x)
-#define fun_unexpected()  assert(0)
+#define fun_check(x) assert(x)
+#define fun_unexpected() assert(0)
 
-static int32_t strlen16(const char16_t* s)
-{
+static int32_t strlen16(const char16_t* s) {
   const char16_t* p = s;
   while (*p) ++p;
   return p - s;
 }
 
-///std:c++17 ¿É¼ÇÀÌ ÇÊ¿äÇÑ °ü°è·Î ÀÏ´ÜÀº disable
+/// std:c++17 ï¿½É¼ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ï¿½ï¿½ disable
 //#define FUN_FALLTHROUGH  [[fallthrough]]
 #define FUN_FALLTHROUGH
 
-
 #ifdef _MSC_VER
-#define VA_ASSIGN(destination, source)  va_copy(destination, source)
+#define VA_ASSIGN(destination, source) va_copy(destination, source)
 #elif defined(HAVE_VA_COPY)
-#define VA_ASSIGN(destination, source)  VA_COPY(destination, source)
+#define VA_ASSIGN(destination, source) VA_COPY(destination, source)
 #elif defined(HAVE_VA_LIST_AS_ARRAY)
-#define VA_ASSIGN(destination, source)  (destination[0] = source[0])
+#define VA_ASSIGN(destination, source) (destination[0] = source[0])
 #else
-#define VA_ASSIGN(destination, source)  ((destination) = (source))
+#define VA_ASSIGN(destination, source) ((destination) = (source))
 #endif
-
 
 typedef struct SprintfStateStr SprintfState;
 
@@ -84,18 +76,18 @@ struct NumArgState {
   };
 };
 
-#define NAS_DEFAULT_NUM  20
+#define NAS_DEFAULT_NUM 20
 
-#define _LEFT    0x01
-#define _SIGNED  0x02
-#define _SPACED  0x04
-#define _ZEROS   0x08
-#define _NEG     0x10
-#define _HASH    0x20
+#define _LEFT 0x01
+#define _SIGNED 0x02
+#define _SPACED 0x04
+#define _ZEROS 0x08
+#define _NEG 0x10
+#define _HASH 0x20
 
 // Fill into the buffer using the data in src
-static int32_t fill2(SprintfState* state, const char16_t* src, int32_t src_len, int32_t width, int32_t flags)
-{
+static int32_t fill2(SprintfState* state, const char16_t* src, int32_t src_len,
+                     int32_t width, int32_t flags) {
   char16_t space = ' ';
   int32_t rv;
 
@@ -135,14 +127,9 @@ static int32_t fill2(SprintfState* state, const char16_t* src, int32_t src_len, 
 }
 
 // Fill a number. The order is: optional-sign zero-filling conversion-digits
-static int32_t fill_n(SprintfState* state,
-                    const char16_t* src,
-                    int32_t src_len,
-                    int32_t width,
-                    int32_t prec,
-                    int32_t type,
-                    int32_t flags)
-{
+static int32_t fill_n(SprintfState* state, const char16_t* src, int32_t src_len,
+                      int32_t width, int32_t prec, int32_t type,
+                      int32_t flags) {
   int32_t zero_width = 0;
   int32_t prec_width = 0;
   int32_t sign_width = 0;
@@ -159,12 +146,10 @@ static int32_t fill_n(SprintfState* state,
     if (flags & _NEG) {
       sign = '-';
       sign_width = 1;
-    }
-    else if (flags & _SIGNED) {
+    } else if (flags & _SIGNED) {
       sign = '+';
       sign_width = 1;
-    }
-    else if (flags & _SPACED) {
+    } else if (flags & _SPACED) {
       sign = ' ';
       sign_width = 1;
     }
@@ -180,7 +165,7 @@ static int32_t fill_n(SprintfState* state,
     }
   }
 
-  if ((flags& _ZEROS) && prec < 0) {
+  if ((flags & _ZEROS) && prec < 0) {
     if (width > cvt_width) {
       // Zero filling.
       zero_width = width - cvt_width;
@@ -193,8 +178,7 @@ static int32_t fill_n(SprintfState* state,
       // Space filling on the right (i.e. left adjusting)
       r_spaces = width - cvt_width;
     }
-  }
-  else {
+  } else {
     if (width > cvt_width) {
       // Space filling on the left (i.e. right adjusting)
       l_spaces = width - cvt_width;
@@ -251,15 +235,9 @@ static int32_t fill_n(SprintfState* state,
 }
 
 // Convert a long its printable form.
-static int32_t cvt_l( SprintfState* state,
-                      long num,
-                      int32_t width,
-                      int32_t prec,
-                      int32_t radix,
-                      int32_t type,
-                      int32_t flags,
-                      const char16_t* hex_str)
-{
+static int32_t cvt_l(SprintfState* state, long num, int32_t width, int32_t prec,
+                     int32_t radix, int32_t type, int32_t flags,
+                     const char16_t* hex_str) {
   const int32_t BUFFER_SIZE = 100;
   char16_t cvt_buf[BUFFER_SIZE];
   char16_t* cvt;
@@ -286,15 +264,9 @@ static int32_t cvt_l( SprintfState* state,
   return fill_n(state, cvt, digits, width, prec, type, flags);
 }
 
-static int32_t cvt_ll(SprintfState* state,
-                      int64_t num,
-                      int32_t width,
-                      int32_t prec,
-                      int32_t radix,
-                      int32_t type,
-                      int32_t flags,
-                      const char16_t* hex_str)
-{
+static int32_t cvt_ll(SprintfState* state, int64_t num, int32_t width,
+                      int32_t prec, int32_t radix, int32_t type, int32_t flags,
+                      const char16_t* hex_str) {
   const int32_t BUFFER_SIZE = 100;
   char16_t cvt_buf[BUFFER_SIZE];
   char16_t* cvt;
@@ -322,13 +294,8 @@ static int32_t cvt_ll(SprintfState* state,
   return fill_n(state, cvt, digits, width, prec, type, flags);
 }
 
-static int32_t cvt_f( SprintfState* state,
-                      double dbl,
-                      int32_t width,
-                      int32_t prec,
-                      const char16_t type,
-                      int32_t flags)
-{
+static int32_t cvt_f(SprintfState* state, double dbl, int32_t width,
+                     int32_t prec, const char16_t type, int32_t flags) {
   int32_t mode = 2;
   int32_t decpt;
   int32_t sign;
@@ -343,8 +310,7 @@ static int32_t cvt_f( SprintfState* state,
 
   if (prec == -1) {
     prec = 6;
-  }
-  else if (prec > 50) {
+  } else if (prec > 50) {
     // limit precision to avoid PR_dtoa bug 108335
     // and to prevent buffers overflows.
     prec = 50;
@@ -377,7 +343,7 @@ static int32_t cvt_f( SprintfState* state,
       fun_unexpected();
   }
 
-  //double_conversion::DoubleToStringConverter::DoubleToAscii(
+  // double_conversion::DoubleToStringConverter::DoubleToAscii(
   //  dbl,
   //  mode,
   //  numdigits,
@@ -387,35 +353,34 @@ static int32_t cvt_f( SprintfState* state,
   //  &buflen,
   //  *decpt);
 
-  //NaN, Infinity°¡ ¿À´Â °æ¿ì°¡ ÀÖÀ»¼ö ÀÖÀ½.
+  // NaN, Infinityï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 
-  //TODO
-  //if (PR_dtoa(dbl, mode, numdigits, &decpt, &sign, &endnum, num, bufsiz) == PR_FAILURE) {
+  // TODO
+  // if (PR_dtoa(dbl, mode, numdigits, &decpt, &sign, &endnum, num, bufsiz) ==
+  // PR_FAILURE) {
   //  buf[0] = '\0';
   //  return -1;
   //}
-  //TODO ¾Æ·¡ÄÚµå´Â ÀÓ½ÃÀÓ...
+  // TODO ï¿½Æ·ï¿½ï¿½Úµï¿½ï¿½ ï¿½Ó½ï¿½ï¿½ï¿½...
   mode = 0;
   numdigits = 0;
   decpt = 0;
   sign = '+';
   endnum = nullptr;
 
-
   numdigits = endnum - num;
   nump = num;
 
   if (sign) {
     *bufp++ = '-';
-  }
-  else if (flags & _SIGNED) {
+  } else if (flags & _SIGNED) {
     *bufp++ = '+';
   }
 
   if (decpt == 9999) {
-    while ((*bufp++ = *nump++)) ;
-  }
-  else {
+    while ((*bufp++ = *nump++))
+      ;
+  } else {
     switch (type) {
       case 'E':
       case 'e':
@@ -450,8 +415,7 @@ static int32_t cvt_f( SprintfState* state,
               *bufp++ = '0';
             }
           }
-        }
-        else {
+        } else {
           while (*nump && decpt-- > 0) {
             *bufp++ = *nump++;
           }
@@ -484,8 +448,7 @@ static int32_t cvt_f( SprintfState* state,
           }
           *bufp++ = exp;
           snprintf(bufp, bufsz - (bufp - buf), "%+03d", decpt - 1);
-        }
-        else {
+        } else {
           if (decpt < 1) {
             *bufp++ = '0';
             if (prec > 0) {
@@ -497,8 +460,7 @@ static int32_t cvt_f( SprintfState* state,
                 *bufp++ = *nump++;
               }
             }
-          }
-          else {
+          } else {
             while (*nump && decpt-- > 0) {
               *bufp++ = *nump++;
               numdigits--;
@@ -524,42 +486,36 @@ static int32_t cvt_f( SprintfState* state,
   bufp = buf;
 
   // cast to char16_t
-  while ((*rbufp++ = *bufp++)) ;
+  while ((*rbufp++ = *bufp++))
+    ;
   *rbufp = '\0';
 
   return fill2(state, rbuf, rbufp - rbuf, width, flags);
 }
 
-static int32_t cvt_S( SprintfState* state,
-                      const char16_t* str,
-                      int32_t width,
-                      int32_t prec,
-                      int32_t flags)
-{
+static int32_t cvt_S(SprintfState* state, const char16_t* str, int32_t width,
+                     int32_t prec, int32_t flags) {
   int32_t str_len;
 
   if (prec == 0) {
     return 0;
   }
 
-  str_len = str ? strlen16(str) : 6; //6=strlen16("(null)")
+  str_len = str ? strlen16(str) : 6;  // 6=strlen16("(null)")
   if (prec > 0) {
     if (prec < str_len) {
       str_len = prec;
     }
   }
 
-  //return fill2(state, str ? str : UTEXT("(null)"), str_len, width, flags);
+  // return fill2(state, str ? str : UTEXT("(null)"), str_len, width, flags);
   return fill2(state, str ? str : u"(null)", str_len, width, flags);
 }
 
-static int32_t cvt_s( SprintfState* state,
-                      const char* str,
-                      int32_t width,
-                      int32_t prec,
-                      int32_t flags)
-{
-  char16_t* utf16 = (char16_t*)UnsafeMemory::Malloc(sizeof(char16_t) * (strlen(str) + 1));
+static int32_t cvt_s(SprintfState* state, const char* str, int32_t width,
+                     int32_t prec, int32_t flags) {
+  char16_t* utf16 =
+      (char16_t*)UnsafeMemory::Malloc(sizeof(char16_t) * (strlen(str) + 1));
   char16_t* d = utf16;
   while (*str) {
     *d++ = (char16_t)*str++;
@@ -570,17 +526,14 @@ static int32_t cvt_s( SprintfState* state,
   UnsafeMemory::Free(utf16);
   return rv;
 
-  //TODO
-  //UTF8_TO_UTF16 utf16(str);
-  //return cvt_S(state, utf16.ConstData(), width, prec, flags);
+  // TODO
+  // UTF8_TO_UTF16 utf16(str);
+  // return cvt_S(state, utf16.ConstData(), width, prec, flags);
 }
 
-static struct NumArgState*
-BuildArgArray(const char16_t* fmt,
-              va_list args,
-              int32_t* out_rv,
-              struct NumArgState* nas_array)
-{
+static struct NumArgState* BuildArgArray(const char16_t* fmt, va_list args,
+                                         int32_t* out_rv,
+                                         struct NumArgState* nas_array) {
   int32_t number = 0, cn = 0, i;
   const char16_t* p;
   char16_t c;
@@ -609,8 +562,7 @@ BuildArgArray(const char16_t* fmt,
           }
           number++;
           break;
-        }
-        else {
+        } else {
           // non numered argument case
           if (number > 0) {
             *out_rv = -1;
@@ -629,13 +581,13 @@ BuildArgArray(const char16_t* fmt,
   }
 
   if (number > NAS_DEFAULT_NUM) {
-    nas = (struct NumArgState*)UnsafeMemory::Malloc(number * sizeof(struct NumArgState));
+    nas = (struct NumArgState*)UnsafeMemory::Malloc(number *
+                                                    sizeof(struct NumArgState));
     if (!nas) {
       *out_rv = -1;
       return nullptr;
     }
-  }
-  else {
+  } else {
     nas = nas_array;
   }
 
@@ -679,8 +631,7 @@ BuildArgArray(const char16_t* fmt,
       // not supported feature, for the argument is not numbered
       *out_rv = -1;
       break;
-    }
-    else {
+    } else {
       while (c >= '0' && c <= '9') {
         c = *p++;
       }
@@ -693,8 +644,7 @@ BuildArgArray(const char16_t* fmt,
         // not supported feature, for the argument is not numbered
         *out_rv = -1;
         break;
-      }
-      else {
+      } else {
         while (c >= '0' && c <= '9') {
           c = *p++;
         }
@@ -706,13 +656,11 @@ BuildArgArray(const char16_t* fmt,
     if (c == 'h') {
       nas[cn].type = NumArgState::INT16;
       c = *p++;
-    }
-    else if (c == 'L') {
+    } else if (c == 'L') {
       // XXX not quiet sure here
       nas[cn].type = NumArgState::INT64;
       c = *p++;
-    }
-    else if (c == 'l') {
+    } else if (c == 'l') {
       nas[cn].type = NumArgState::INT32;
       c = *p++;
       if (c == 'l') {
@@ -742,14 +690,11 @@ BuildArgArray(const char16_t* fmt,
         // XXX should use cpp
         if (sizeof(void*) == sizeof(int32_t)) {
           nas[cn].type = NumArgState::UINT32;
-        }
-        else if (sizeof(void*) == sizeof(int64_t)) {
+        } else if (sizeof(void*) == sizeof(int64_t)) {
           nas[cn].type = NumArgState::UINT64;
-        }
-        else if (sizeof(void*) == sizeof(int)) {
+        } else if (sizeof(void*) == sizeof(int)) {
           nas[cn].type = NumArgState::UINTN;
-        }
-        else {
+        } else {
           nas[cn].type = NumArgState::UNKNOWN;
         }
         break;
@@ -848,8 +793,8 @@ BuildArgArray(const char16_t* fmt,
   return nas;
 }
 
-static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args)
-{
+static int32_t do_sprintf(SprintfState* state, const char16_t* fmt,
+                          va_list args) {
   char16_t c;
   int32_t flags, width, prec, radix, type;
 
@@ -866,8 +811,8 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
 
   char16_t space = ' ';
 
-  //const char16_t* hex = UTEXT("0123456789abcdef");
-  //const char16_t* HEX = UTEXT("0123456789ABCDEF");
+  // const char16_t* hex = UTEXT("0123456789abcdef");
+  // const char16_t* HEX = UTEXT("0123456789ABCDEF");
   const char16_t* hex = u"0123456789abcdef";
   const char16_t* HEX = u"0123456789ABCDEF";
 
@@ -878,7 +823,7 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
 
   nas = BuildArgArray(fmt, args, &rv, nas_array);
   if (rv < 0) {
-    //fun_unexpected();
+    // fun_unexpected();
     return rv;
   }
 
@@ -916,7 +861,7 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
         c = *fmt++;
       }
 
-      if (nas[i-1].type == NumArgState::UNKNOWN) {
+      if (nas[i - 1].type == NumArgState::UNKNOWN) {
         if (nas != nas_array) {
           UnsafeMemory::Free(nas);
         }
@@ -924,26 +869,22 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
         return -1;
       }
 
-      VA_ASSIGN(args, nas[i-1].ap);
+      VA_ASSIGN(args, nas[i - 1].ap);
       c = *fmt++;
     }
 
-    //TODO '#'
+    // TODO '#'
 
     while (c == '-' || c == '+' || c == ' ' || c == '0' || c == '#') {
       if (c == '-') {
         flags |= _LEFT;
-      }
-      else if (c == '+') {
+      } else if (c == '+') {
         flags |= _SIGNED;
-      }
-      else if (c == ' ') {
+      } else if (c == ' ') {
         flags |= _SPACED;
-      }
-      else if (c == '0') {
+      } else if (c == '0') {
         flags |= _ZEROS;
-      }
-      else if (c == '#') {
+      } else if (c == '#') {
         flags |= _HASH;
       }
       c = *fmt++;
@@ -961,8 +902,7 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
     if (c == '*') {
       c = *fmt++;
       width = va_arg(args, int32_t);
-    }
-    else {
+    } else {
       width = 0;
       while (c >= '0' && c <= '9') {
         width = (width * 10) + (c - '0');
@@ -977,8 +917,7 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
       if (c == '*') {
         c = *fmt++;
         prec = va_arg(args, int32_t);
-      }
-      else {
+      } else {
         prec = 0;
         while (c >= '0' && c <= '9') {
           prec = (prec * 10) + (c - '0');
@@ -992,13 +931,11 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
     if (c == 'h') {
       type = NumArgState::INT16;
       c = *fmt++;
-    }
-    else if (c == 'L') {
+    } else if (c == 'L') {
       // XXX not quiet sure here
       type = NumArgState::INT64;
       c = *fmt++;
-    }
-    else if (c == 'l') {
+    } else if (c == 'l') {
       type = NumArgState::INT32;
       c = *fmt++;
       if (c == 'l') {
@@ -1041,7 +978,7 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
         type |= 1;
         goto fetch_and_convert;
 
-       fetch_and_convert:
+      fetch_and_convert:
         switch (type) {
           case NumArgState::INT16:
             u.l = va_arg(args, int);
@@ -1124,7 +1061,7 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
       case 'c':
         u.ch = va_arg(args, int);
         if (!(flags & _LEFT)) {
-          //TODO ·çÇÁ¸¦ Á¦°ÅÇÏ´Â°Ô ÁÁÀ»µí??
+          // TODO ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½??
           while (width-- > 1) {
             rv = (*state->stuff)(state, &space, 1);
             if (rv < 0) {
@@ -1147,7 +1084,7 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
         }
 
         if (flags & _LEFT) {
-          //TODO ·çÇÁ¸¦ Á¦°ÅÇÏ´Â°Ô ÁÁÀ»µí??
+          // TODO ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½??
           while (width-- > 1) {
             rv = (*state->stuff)(state, &space, 1);
             if (rv < 0) {
@@ -1164,14 +1101,11 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
       case 'p':
         if (sizeof(void*) == sizeof(int32_t)) {
           type = NumArgState::UINT32;
-        }
-        else if (sizeof(void*) == sizeof(int64_t)) {
+        } else if (sizeof(void*) == sizeof(int64_t)) {
           type = NumArgState::UINT64;
-        }
-        else if (sizeof(void*) == sizeof(int)) {
+        } else if (sizeof(void*) == sizeof(int)) {
           type = NumArgState::UINTN;
-        }
-        else {
+        } else {
           fun_unexpected();
           break;
         }
@@ -1252,8 +1186,8 @@ static int32_t do_sprintf(SprintfState* state, const char16_t* fmt, va_list args
 }
 
 // Stuff routine that discards overflow data.
-static int32_t limit_stuff(SprintfState* state, const char16_t* str, uint32_t len)
-{
+static int32_t limit_stuff(SprintfState* state, const char16_t* str,
+                           uint32_t len) {
   uint32_t limit = state->max_len - (state->cur - state->base);
 
   if (len > limit) {
@@ -1268,8 +1202,8 @@ static int32_t limit_stuff(SprintfState* state, const char16_t* str, uint32_t le
   return 0;
 }
 
-int32_t vsnprintf16(char16_t* out, uint32_t out_len, const char16_t* fmt, va_list args)
-{
+int32_t vsnprintf16(char16_t* out, uint32_t out_len, const char16_t* fmt,
+                    va_list args) {
   SprintfState ss;
   int32_t n;
 
@@ -1293,8 +1227,7 @@ int32_t vsnprintf16(char16_t* out, uint32_t out_len, const char16_t* fmt, va_lis
   return n ? n - 1 : n;
 }
 
-int32_t snprintf16(char16_t* out, uint32_t out_len, const char16_t* fmt, ...)
-{
+int32_t snprintf16(char16_t* out, uint32_t out_len, const char16_t* fmt, ...) {
   va_list args;
   int32_t rv;
 

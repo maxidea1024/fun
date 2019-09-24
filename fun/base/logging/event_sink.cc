@@ -12,10 +12,8 @@ EventSink::~EventSink() {
   // NOOP
 }
 
-void EventSink::Log(const LogMessage& msg) {
-  message_logged(msg);
-}
+void EventSink::Log(const LogMessage& msg) { message_logged(msg); }
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_EVENT_SINK
+#endif  // FUN_WITH_EVENT_SINK

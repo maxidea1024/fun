@@ -1,10 +1,10 @@
 ﻿#include "fun/base/logging/async_sink.h"
-#include "fun/base/logging/log_message.h"
-#include "fun/base/logging/log_formatter.h"
-#include "fun/base/logging/logging_registry.h"
-#include "fun/base/ref_counted_ptr.h"
-#include "fun/base/notification.h"
 #include "fun/base/exception.h"
+#include "fun/base/logging/log_formatter.h"
+#include "fun/base/logging/log_message.h"
+#include "fun/base/logging/logging_registry.h"
+#include "fun/base/notification.h"
+#include "fun/base/ref_counted_ptr.h"
 #include "fun/base/str.h"
 
 namespace fun {
@@ -22,16 +22,14 @@ class MessageNotification : public Notification {
   LogMessage msg_;
 };
 
-} // namespace
-
+}  // namespace
 
 //
 // AsyncSink
 //
 
 AsyncSink::AsyncSink(LogSink::Ptr sink, Thread::Priority prio)
-  : sink_(sink),
-    thread_("AsyncSink") {
+    : sink_(sink), thread_("AsyncSink") {
   thread_.SetPriority(prio);
 }
 
@@ -43,13 +41,9 @@ AsyncSink::~AsyncSink() {
   }
 }
 
-void AsyncSink::SetSink(LogSink::Ptr sink) {
-  sink_ = sink;
-}
+void AsyncSink::SetSink(LogSink::Ptr sink) { sink_ = sink; }
 
-LogSink::Ptr AsyncSink::GetSink() const {
-  return sink_;
-}
+LogSink::Ptr AsyncSink::GetSink() const { return sink_; }
 
 void AsyncSink::Open() {
   ScopedLock<FastMutex> guard(thread_mutex_);
@@ -61,7 +55,8 @@ void AsyncSink::Open() {
 
 void AsyncSink::Close() {
   if (thread_.IsRunning()) {
-    // If there are messages that have not been processed yet, allow them to clear and exit.
+    // If there are messages that have not been processed yet, allow them to
+    // clear and exit.
     while (!queue_.IsEmpty()) {
       Thread::Sleep(100);
     }
@@ -92,7 +87,7 @@ void AsyncSink::SetProperty(const String& name, const String& value) {
 void AsyncSink::Run() {
   Notification::Ptr noti = queue_.WaitDequeue();
   while (noti) {
-    //TODO In fact, we don't need dynamic_cast??
+    // TODO In fact, we don't need dynamic_cast??
     MessageNotification* mn = dynamic_cast<MessageNotification*>(noti.Get());
     {
       ScopedLock<FastMutex> guard(sink_mutex_);
@@ -126,4 +121,4 @@ void AsyncSink::SetPriority(const String& value) {
   thread_.SetPriority(prio);
 }
 
-} // namespace fun
+}  // namespace fun

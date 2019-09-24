@@ -24,7 +24,7 @@ class FUN_BASE_API LogSink : public Configurable, public RefCountedObject {
 
   // Disable copy and assignment.
   LogSink(const LogSink&) = delete;
-  LogSink& operator = (const LogSink&) = delete;
+  LogSink& operator=(const LogSink&) = delete;
 
   /**
    * Does whatever is necessary to open the sink.
@@ -55,4 +55,4 @@ class FUN_BASE_API LogSink : public Configurable, public RefCountedObject {
   virtual ~LogSink();
 };
 
-} // namespace fun
+}  // namespace fun

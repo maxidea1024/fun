@@ -1,28 +1,31 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/serialization/compression.h"
 #include "fun/base/container/array.h"
+#include "fun/base/serialization/compression.h"
 
 namespace fun {
 
 /**
- * Growable compressed buffer. Usage is to append frequently but only request and therefore decompress
- * very infrequently. The prime usage case is the memory profiler keeping track of full call stacks.
+ * Growable compressed buffer. Usage is to append frequently but only request
+ * and therefore decompress very infrequently. The prime usage case is the
+ * memory profiler keeping track of full call stacks.
  */
 class FUN_BASE_API CompressedGrowableBuffer {
  public:
   /**
    * Constructor
    *
-   * @param max_pending_buffer_size - Max chunk size to compress in uncompressed bytes
+   * @param max_pending_buffer_size - Max chunk size to compress in uncompressed
+   * bytes
    * @param compression_flags - Compression flags to compress memory with
    */
-  CompressedGrowableBuffer(int32 max_pending_buffer_size, CompressionFlags compression_flags);
+  CompressedGrowableBuffer(int32 max_pending_buffer_size,
+                           CompressionFlags compression_flags);
 
   /**
-   * Locks the buffer for reading. Needs to be called before calls to Access and needs
-   * to be matched up with Unlock call.
+   * Locks the buffer for reading. Needs to be called before calls to Access and
+   * needs to be matched up with Unlock call.
    */
   void Lock();
 
@@ -32,8 +35,8 @@ class FUN_BASE_API CompressedGrowableBuffer {
   void Unlock();
 
   /**
-   * Appends passed in data to the buffer. The data needs to be less than the max
-   * pending buffer size. The code will assert on this assumption.
+   * Appends passed in data to the buffer. The data needs to be less than the
+   * max pending buffer size. The code will assert on this assumption.
    *
    * @param data - Data to append
    * @param size - Size of data in bytes.
@@ -43,9 +46,9 @@ class FUN_BASE_API CompressedGrowableBuffer {
   int32 Append(void* data, int32 size);
 
   /**
-   * Accesses the data at passed in offset and returns it. The memory is read-only and
-   * memory will be freed in call to unlock. The lifetime of the data is till the next
-   * call to Unlock, Append or Access
+   * Accesses the data at passed in offset and returns it. The memory is
+   * read-only and memory will be freed in call to unlock. The lifetime of the
+   * data is till the next call to Unlock, Append or Access
    *
    * @param offset - Offset to return corresponding data for
    */
@@ -54,9 +57,7 @@ class FUN_BASE_API CompressedGrowableBuffer {
   /**
    * @return  Number of entries appended.
    */
-  int32 Count() const {
-    return entry_count_;
-  }
+  int32 Count() const { return entry_count_; }
 
   /**
    * Helper function to return the amount of memory allocated by this buffer
@@ -64,10 +65,10 @@ class FUN_BASE_API CompressedGrowableBuffer {
    * @return number of bytes allocated by this buffer
    */
   uint32 GetAllocatedSize() const {
-    return  compressed_buffer_.GetAllocatedSize()
-          + pending_compression_buffer_.GetAllocatedSize()
-          + decompressed_buffer_.GetAllocatedSize()
-          + book_keeping_info_.GetAllocatedSize();
+    return compressed_buffer_.GetAllocatedSize() +
+           pending_compression_buffer_.GetAllocatedSize() +
+           decompressed_buffer_.GetAllocatedSize() +
+           book_keeping_info_.GetAllocatedSize();
   }
 
  private:
@@ -103,4 +104,4 @@ class FUN_BASE_API CompressedGrowableBuffer {
   Array<BufferBookKeeping> book_keeping_info_;
 };
 
-} // namespace fun
+}  // namespace fun

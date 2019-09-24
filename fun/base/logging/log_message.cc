@@ -10,59 +10,55 @@
 namespace fun {
 
 LogMessage::LogMessage()
-  : level_(LogLevel::Fatal),
-    tid_(0),
-    os_tid_(0),
-    pid_(0),
-    file_(0),
-    line_(0),
-    map_(nullptr) {
+    : level_(LogLevel::Fatal),
+      tid_(0),
+      os_tid_(0),
+      pid_(0),
+      file_(0),
+      line_(0),
+      map_(nullptr) {
   Init();
 }
 
-LogMessage::LogMessage( const String& source,
-                        const String& text,
-                        LogLevel::Type level)
-  : source_(source),
-    text_(text),
-    level_(level),
-    tid_(0),
-    os_tid_(0),
-    pid_(0),
-    file_(0),
-    line_(0),
-    map_(nullptr) {
+LogMessage::LogMessage(const String& source, const String& text,
+                       LogLevel::Type level)
+    : source_(source),
+      text_(text),
+      level_(level),
+      tid_(0),
+      os_tid_(0),
+      pid_(0),
+      file_(0),
+      line_(0),
+      map_(nullptr) {
   Init();
 }
 
-LogMessage::LogMessage( const String& source,
-                        const String& text,
-                        LogLevel::Type level,
-                        const char* file,
-                        int line)
-  : source_(source),
-    text_(text),
-    level_(level),
-    tid_(0),
-    os_tid_(0),
-    pid_(0),
-    file_(file),
-    line_(line),
-    map_(nullptr) {
+LogMessage::LogMessage(const String& source, const String& text,
+                       LogLevel::Type level, const char* file, int line)
+    : source_(source),
+      text_(text),
+      level_(level),
+      tid_(0),
+      os_tid_(0),
+      pid_(0),
+      file_(file),
+      line_(line),
+      map_(nullptr) {
   Init();
 }
 
 LogMessage::LogMessage(const LogMessage& msg)
-  : source_(msg.source_),
-    text_(msg.text_),
-    level_(msg.level_),
-    time_(msg.time_),
-    tid_(msg.tid_),
-    os_tid_(msg.os_tid_),
-    thread_(msg.thread_),
-    pid_(msg.pid_),
-    file_(msg.file_),
-    line_(msg.line_) {
+    : source_(msg.source_),
+      text_(msg.text_),
+      level_(msg.level_),
+      time_(msg.time_),
+      tid_(msg.tid_),
+      os_tid_(msg.os_tid_),
+      thread_(msg.thread_),
+      pid_(msg.pid_),
+      file_(msg.file_),
+      line_(msg.line_) {
   if (msg.map_) {
     map_ = new StringMap(*msg.map_);
   } else {
@@ -71,30 +67,30 @@ LogMessage::LogMessage(const LogMessage& msg)
 }
 
 LogMessage::LogMessage(LogMessage&& msg)
-  : source_(MoveTemp(msg.source_)),
-    text_(MoveTemp(msg.text_)),
-    level_(MoveTemp(msg.level_)),
-    time_(MoveTemp(msg.time_)),
-    tid_(MoveTemp(msg.tid_)),
-    thread_(MoveTemp(msg.thread_)),
-    pid_(MoveTemp(msg.pid_)),
-    file_(MoveTemp(msg.file_)),
-    line_(MoveTemp(msg.line_)) {
+    : source_(MoveTemp(msg.source_)),
+      text_(MoveTemp(msg.text_)),
+      level_(MoveTemp(msg.level_)),
+      time_(MoveTemp(msg.time_)),
+      tid_(MoveTemp(msg.tid_)),
+      thread_(MoveTemp(msg.thread_)),
+      pid_(MoveTemp(msg.pid_)),
+      file_(MoveTemp(msg.file_)),
+      line_(MoveTemp(msg.line_)) {
   map_ = msg.map_;
   msg.map_ = nullptr;
 }
 
 LogMessage::LogMessage(const LogMessage& msg, const String& text)
-  : source_(msg.source_),
-    text_(text),
-    level_(msg.level_),
-    time_(msg.time_),
-    tid_(msg.tid_),
-    os_tid_(msg.os_tid_),
-    thread_(msg.thread_),
-    pid_(msg.pid_),
-    file_(msg.file_),
-    line_(msg.line_) {
+    : source_(msg.source_),
+      text_(text),
+      level_(msg.level_),
+      time_(msg.time_),
+      tid_(msg.tid_),
+      os_tid_(msg.os_tid_),
+      thread_(msg.thread_),
+      pid_(msg.pid_),
+      file_(msg.file_),
+      line_(msg.line_) {
   if (msg.map_) {
     map_ = new StringMap(*msg.map_);
   } else {
@@ -102,9 +98,7 @@ LogMessage::LogMessage(const LogMessage& msg, const String& text)
   }
 }
 
-LogMessage::~LogMessage() {
-  delete map_;
-}
+LogMessage::~LogMessage() { delete map_; }
 
 void LogMessage::Init() {
 #if FUN_PLATFORM != FUN_PLATFORM_VXWORKS
@@ -112,7 +106,6 @@ void LogMessage::Init() {
 #endif
 
   os_tid_ = (intptr_t)Thread::CurrentTid();
-
 
   // 만약, 내부 Thread 클래스를 사용하지 않은 스레드일 경우에는
   // 스레드 ID 및 이름을 구할 수 없음.
@@ -126,7 +119,7 @@ void LogMessage::Init() {
   }
 }
 
-LogMessage& LogMessage::operator = (const LogMessage& other) {
+LogMessage& LogMessage::operator=(const LogMessage& other) {
   if (FUN_LIKELY(&other != this)) {
     LogMessage tmp(other);
     Swap(tmp);
@@ -134,7 +127,7 @@ LogMessage& LogMessage::operator = (const LogMessage& other) {
   return *this;
 }
 
-LogMessage& LogMessage::operator = (LogMessage&& other) {
+LogMessage& LogMessage::operator=(LogMessage&& other) {
   if (FUN_LIKELY(&other != this)) {
     source_ = MoveTemp(other.source_);
     text_ = MoveTemp(other.text_);
@@ -167,44 +160,26 @@ void LogMessage::Swap(LogMessage& other) {
   fun::Swap(map_, other.map_);
 }
 
-void LogMessage::SetSource(const String& source) {
-  source_ = source;
-}
+void LogMessage::SetSource(const String& source) { source_ = source; }
 
-void LogMessage::SetText(const String& text) {
-  text_ = text;
-}
+void LogMessage::SetText(const String& text) { text_ = text; }
 
-void LogMessage::SetLevel(LogLevel::Type level) {
-  level_ = level;
-}
+void LogMessage::SetLevel(LogLevel::Type level) { level_ = level; }
 
-void LogMessage::SetTime(const Timestamp& time) {
-  time_ = time;
-}
+void LogMessage::SetTime(const Timestamp& time) { time_ = time; }
 
-void LogMessage::SetThread(const String& thread) {
-  thread_ = thread;
-}
+void LogMessage::SetThread(const String& thread) { thread_ = thread; }
 
-void LogMessage::SetTid(long tid) {
-  tid_ = tid;
-}
+void LogMessage::SetTid(long tid) { tid_ = tid; }
 
-void LogMessage::SetPid(long pid) {
-  pid_ = pid;
-}
+void LogMessage::SetPid(long pid) { pid_ = pid; }
 
-void LogMessage::SetSourceFile(const char* file) {
-  file_ = file;
-}
+void LogMessage::SetSourceFile(const char* file) { file_ = file; }
 
-void LogMessage::SetSourceLine(int line) {
-  line_ = line;
-}
+void LogMessage::SetSourceLine(int line) { line_ = line; }
 
 bool LogMessage::Has(const String& param) const {
-  //return map_ && (map_->find(param) != map_->end());
+  // return map_ && (map_->find(param) != map_->end());
   return map_ && map_->Contains(param);
 }
 
@@ -238,7 +213,7 @@ void LogMessage::Set(const String& param, const String& value) {
   map_->Add(param, value);
 }
 
-const String& LogMessage::operator [] (const String& param) const {
+const String& LogMessage::operator[](const String& param) const {
   if (map_) {
     return (*map_)[param];
   } else {
@@ -246,7 +221,7 @@ const String& LogMessage::operator [] (const String& param) const {
   }
 }
 
-String& LogMessage::operator [] (const String& param) {
+String& LogMessage::operator[](const String& param) {
   if (!map_) {
     map_ = new StringMap;
   }
@@ -258,4 +233,4 @@ String& LogMessage::operator [] (const String& param) {
   return *found;
 }
 
-} // namespace fun
+}  // namespace fun

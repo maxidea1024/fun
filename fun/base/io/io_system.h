@@ -7,21 +7,14 @@ namespace fun {
 /**
  * Enum for async IO priorities.
  */
-enum class AsyncIoPriority {
-  Min = 0,
-  Low,
-  BelowNormal,
-  Normal,
-  High,
-  Max
-};
-
+enum class AsyncIoPriority { Min = 0, Low, BelowNormal, Normal, High, Max };
 
 /*
 
   char* buffer = new uint8[1024];
   AtomicCounter32 counter = 1;
-  IoSystem::Get().LoadData("sample.dat", 0, 1024, buffer, &counter, AsyncIoPriority::Normal);
+  IoSystem::Get().LoadData("sample.dat", 0, 1024, buffer, &counter,
+  AsyncIoPriority::Normal);
 
   if (count == 0) {
     StoreData(buffer);
@@ -36,8 +29,7 @@ enum class AsyncIoPriority {
 /**
  * Virtual base class of IO systems.
  */
-struct FUN_BASE_API IoSystem
-{
+struct FUN_BASE_API IoSystem {
   /**
    * System singleton
    */
@@ -58,7 +50,6 @@ struct FUN_BASE_API IoSystem
    */
   virtual ~IoSystem() {}
 
-
   /**
    * Requests data to be loaded async. Returns immediately.
    *
@@ -66,18 +57,16 @@ struct FUN_BASE_API IoSystem
    * @param offset - offset into file
    * @param size - size of load request
    * @param dst - Pointer to load data into
-   * @param counter - Thread safe counter to decrement when loading has finished, can be nullptr
+   * @param counter - Thread safe counter to decrement when loading has
+   * finished, can be nullptr
    * @param priority - priority of request
    *
-   * @return Returns an index to the request that can be used for canceling or 0 if the request failed.
+   * @return Returns an index to the request that can be used for canceling or 0
+   * if the request failed.
    */
-  virtual uint64 LoadData(
-        const String& filename,
-        int64 offset,
-        int64 size,
-        void* dst,
-        AtomicCounter32* counter,
-        AsyncIoPriority priority) = 0;
+  virtual uint64 LoadData(const String& filename, int64 offset, int64 size,
+                          void* dst, AtomicCounter32* counter,
+                          AsyncIoPriority priority) = 0;
 
   /**
    * Requests compressed data to be loaded async. Returns immediately.
@@ -88,20 +77,19 @@ struct FUN_BASE_API IoSystem
    * @param uncompressed_size - size of uncompressed data
    * @param dst - Pointer to load data into
    * @param compression_flags - Flags controlling data decompression
-   * @param counter - Thread safe counter to decrement when loading has finished, can be nullptr
+   * @param counter - Thread safe counter to decrement when loading has
+   * finished, can be nullptr
    * @param priority - priority of request
    *
-   * @return Returns an index to the request that can be used for canceling or 0 if the request failed.
+   * @return Returns an index to the request that can be used for canceling or 0
+   * if the request failed.
    */
-  virtual uint64 LoadCompressedData(
-        const String& filename,
-        int64 offset,
-        int64 compressed_size,
-        int64 uncompressed_size,
-        void* dst,
-        CompressionFlags compression_flags,
-        AtomicCounter32* counter,
-        AsyncIoPriority priority) = 0;
+  virtual uint64 LoadCompressedData(const String& filename, int64 offset,
+                                    int64 compressed_size,
+                                    int64 uncompressed_size, void* dst,
+                                    CompressionFlags compression_flags,
+                                    AtomicCounter32* counter,
+                                    AsyncIoPriority priority) = 0;
 
   /**
    * Removes N outstanding requests from the queue and returns
@@ -165,4 +153,4 @@ struct FUN_BASE_API IoSystem
   virtual int64 MinimumReadSize() = 0;
 };
 
-} // namespace fun
+}  // namespace fun

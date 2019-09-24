@@ -1,50 +1,51 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/digest/digester.h"
 #include "fun/base/byte_order.h"
+#include "fun/base/digest/digester.h"
 
 namespace fun {
 
 /**
  * https://en.wikipedia.org/wiki/PBKDF2
- * 
+ *
  * DK = PBKDF2(PRF, Password, salt, c, dkLen)
- * 
- * - PRF is a pseudorandom function of two parameters with output length hLen (e.g. a keyed HMAC)
+ *
+ * - PRF is a pseudorandom function of two parameters with output length hLen
+ * (e.g. a keyed HMAC)
  * - Password is the master password from which a derived key is generated
  * - salt is a sequence of bits, known as a cryptographic salt
  * - c is the number of iterations desired
  * - dkLen is the desired length of the derived key
  * - DK is the generated derived key
- * 
- * 
+ *
+ *
  * This class implements the Password-Based Key Derivation Function 2,
  * as specified in RFC 2898. The underlying Digester (THMACDigester, etc.),
  * which must accept the passphrase as constructor argument (String),
  * must be given as template argument.
- * 
- * PBKDF2 (Password-Based Key Derivation Function 2) is a key derivation function
- * that is part of RSA Laboratories' Public-Key Cryptography Standards (PKCS) series,
- * specifically PKCS #5 v2.0, also published as Internet Engineering Task Force's
- * RFC 2898. It replaces an earlier standard, PBKDF1, which could only produce
- * derived keys up to 160 bits long.
- * 
- * PBKDF2 applies a pseudorandom function, such as a cryptographic hash, cipher, or
- * HMAC to the input password or passphrase along with a salt value and repeats the
- * process many times to produce a derived key, which can then be used as a
- * cryptographic key in subsequent operations. The added computational work makes
- * password cracking much more difficult, and is known as key stretching.
- * When the standard was written in 2000, the recommended minimum number of
- * iterations was 1000, but the parameter is intended to be increased over time as
- * CPU speeds increase. Having a salt added to the password reduces the ability to
- * use precomputed hashes (rainbow tables) for attacks, and means that multiple
- * passwords have to be tested individually, not all at once. The standard
- * recommends a salt length of at least 64 bits. [Wikipedia]
- * 
- * The PBKDF2 algorithm is implemented as a Digester. The passphrase is specified
- * by calling Update().
- * 
+ *
+ * PBKDF2 (Password-Based Key Derivation Function 2) is a key derivation
+ * function that is part of RSA Laboratories' Public-Key Cryptography Standards
+ * (PKCS) series, specifically PKCS #5 v2.0, also published as Internet
+ * Engineering Task Force's RFC 2898. It replaces an earlier standard, PBKDF1,
+ * which could only produce derived keys up to 160 bits long.
+ *
+ * PBKDF2 applies a pseudorandom function, such as a cryptographic hash, cipher,
+ * or HMAC to the input password or passphrase along with a salt value and
+ * repeats the process many times to produce a derived key, which can then be
+ * used as a cryptographic key in subsequent operations. The added computational
+ * work makes password cracking much more difficult, and is known as key
+ * stretching. When the standard was written in 2000, the recommended minimum
+ * number of iterations was 1000, but the parameter is intended to be increased
+ * over time as CPU speeds increase. Having a salt added to the password reduces
+ * the ability to use precomputed hashes (rainbow tables) for attacks, and means
+ * that multiple passwords have to be tested individually, not all at once. The
+ * standard recommends a salt length of at least 64 bits. [Wikipedia]
+ *
+ * The PBKDF2 algorithm is implemented as a Digester. The passphrase is
+ * specified by calling Update().
+ *
  * Example (WPA2):
  *   TPBKDF2Digester<HMACDisgester<SHA1Digester> > PBKDF2(SSID, 4096, 256);
  *   PBKDF2.Update(pass_phrase);
@@ -55,17 +56,16 @@ class FUN_BASE_API PBKDF2Digester : public Digester {
  public:
   enum { PRF_DIGEST_SIZE = PRF::DIGEST_SIZE };
 
-  PBKDF2Digester(const String& salt, uint32 c = 4096, uint32 dk_len = PRF_DIGEST_SIZE)
-    : s_(salt), c_(c), dk_len_(dk_len) {
+  PBKDF2Digester(const String& salt, uint32 c = 4096,
+                 uint32 dk_len = PRF_DIGEST_SIZE)
+      : s_(salt), c_(c), dk_len_(dk_len) {
     result_.Reserve(dk_len + PRF_DIGEST_SIZE);
   }
 
   ~PBKDF2Digester() {}
 
   // Digester interface
-  int32 GetDigestLength() override {
-    return dk_len_;
-  }
+  int32 GetDigestLength() override { return dk_len_; }
 
   // Digester interface
   void Reset() override {
@@ -85,7 +85,7 @@ class FUN_BASE_API PBKDF2Digester : public Digester {
 
   // Disable copy
   PBKDF2Digester(const PBKDF2Digester&) = delete;
-  PBKDF2Digester& operator = (const PBKDF2Digester&) = delete;
+  PBKDF2Digester& operator=(const PBKDF2Digester&) = delete;
 
  protected:
   // Digester interface
@@ -122,4 +122,4 @@ class FUN_BASE_API PBKDF2Digester : public Digester {
   Digester::Digest result_;
 };
 
-} // namespace fun
+}  // namespace fun

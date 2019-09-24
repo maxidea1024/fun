@@ -2,11 +2,11 @@
 
 #include "fun/base/base.h"
 #include "fun/base/logging/log_sink.h"
-#include "fun/base/thread.h"
 #include "fun/base/mutex.h"
-#include "fun/base/runnable.h"
-#include "fun/base/ref_counted.h"
 #include "fun/base/notification_queue.h"
+#include "fun/base/ref_counted.h"
+#include "fun/base/runnable.h"
+#include "fun/base/thread.h"
 
 namespace fun {
 
@@ -24,7 +24,8 @@ class FUN_BASE_API AsyncSink : public LogSink, public Runnable {
  public:
   using Ptr = RefCountedPtr<AsyncSink>;
 
-  AsyncSink(LogSink::Ptr sink = nullptr, Thread::Priority prio = Thread::PRIO_NORMAL);
+  AsyncSink(LogSink::Ptr sink = nullptr,
+            Thread::Priority prio = Thread::PRIO_NORMAL);
 
   void SetSink(LogSink::Ptr sink);
   LogSink::Ptr GetSink() const;
@@ -33,7 +34,6 @@ class FUN_BASE_API AsyncSink : public LogSink, public Runnable {
   void Open() override;
   void Close() override;
   void Log(const LogMessage& msg) override;
-
 
   //
   // Configurable interface.
@@ -74,4 +74,4 @@ class FUN_BASE_API AsyncSink : public LogSink, public Runnable {
   NotificationQueue queue_;
 };
 
-} // namespace fun
+}  // namespace fun

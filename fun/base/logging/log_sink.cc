@@ -27,4 +27,4 @@ String LogSink::GetProperty(const String& name) const {
   throw PropertyNotSupportedException(name);
 }
 
-} // namespace fun
+}  // namespace fun

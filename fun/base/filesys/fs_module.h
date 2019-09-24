@@ -18,4 +18,4 @@ class IPlatformFileSystemModule : public IModuleInterface {
   virtual IPlatformFS* GetPlatformFileSystem() = 0;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -19,12 +19,13 @@ struct ReturnValueCheck<NotSpecified> {
 };
 
 template <typename Dest, typename T>
-NotSpecified operator << (Dest&&, T&&);
+NotSpecified operator<<(Dest&&, T&&);
 
 template <typename T>
 T&& Make();
 
-template <typename Dest, typename T, typename = decltype(Make<Dest&>() << Make<T&>())>
+template <typename Dest, typename T,
+          typename = decltype(Make<Dest&>() << Make<T&>())>
 struct HashOperator_LeftShift {
   enum { Value = true };
 };
@@ -34,14 +35,18 @@ struct HashOperator_LeftShift<Dest, T, NotSpecified> {
   enum { Value = false };
 };
 
-} // HashOperator_LeftShift_internal
+}  // namespace HashOperator_LeftShift_internal
 
 /**
- * Traits class which tests if a type has an `operator<<` overload between two types.
+ * Traits class which tests if a type has an `operator<<` overload between two
+ * types.
  */
 template <typename Dest, typename T>
 struct HashOperator_LeftShift {
-  enum { Value = HashOperator_LeftShift_internal::HashOperator_LeftShift<Dest, T>::Value };
+  enum {
+    Value =
+        HashOperator_LeftShift_internal::HashOperator_LeftShift<Dest, T>::Value
+  };
 };
 
-} // namespace
+}  // namespace fun

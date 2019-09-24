@@ -1,13 +1,14 @@
 ﻿#include "fun/base/filesys/file_system_linux.h"
 
-#include <sys/file.h>   // flock()
-#include <sys/stat.h>   // mkdirp()
+#include <sys/file.h>  // flock()
+#include <sys/stat.h>  // mkdirp()
 
 namespace fun {
 
 DEFINE_LOG_CATEGORY_STATIC(LogLinuxFS, info, All);
 
-// make an Timespan object that represents the "epoch" for time_t (from a stat struct)
+// make an Timespan object that represents the "epoch" for time_t (from a stat
+// struct)
 const DateTime UNIX_EPOCH(1970, 1, 1);
 
 namespace {
@@ -20,24 +21,21 @@ FileStatData UnixStatToFunFileData(struct stat& file_info) {
     file_size_ = file_info.st_size;
   }
 
-  return FileStatData(
-    UNIX_EPOCH + Timespan(0, 0, file_info.st_ctime),
-    UNIX_EPOCH + Timespan(0, 0, file_info.st_atime),
-    UNIX_EPOCH + Timespan(0, 0, file_info.st_mtime),
-    file_size_,
-    is_directory,
-    !!(file_info.st_mode & S_IWUSR));
+  return FileStatData(UNIX_EPOCH + Timespan(0, 0, file_info.st_ctime),
+                      UNIX_EPOCH + Timespan(0, 0, file_info.st_atime),
+                      UNIX_EPOCH + Timespan(0, 0, file_info.st_mtime),
+                      file_size_, is_directory,
+                      !!(file_info.st_mode & S_IWUSR));
 }
 
-}
+}  // namespace
 
-
-// Linux file handle implementation which limits number of open files per thread. This
-// is to prevent running out of system file handles. Should not be neccessary when
-// using pak file (e.g., SHIPPING?) so not particularly optimized. Only manages
-// files which are opened READ_ONLY.
-#define MANAGE_FILE_HANDLES  (FUN_PLATFORM == FUN_PLATFORM_LINUX) // !FUN_BUILD_SHIPPING
-
+// Linux file handle implementation which limits number of open files per
+// thread. This is to prevent running out of system file handles. Should not be
+// neccessary when using pak file (e.g., SHIPPING?) so not particularly
+// optimized. Only manages files which are opened READ_ONLY.
+#define MANAGE_FILE_HANDLES \
+  (FUN_PLATFORM == FUN_PLATFORM_LINUX)  // !FUN_BUILD_SHIPPING
 
 /**
  * Linux file handle implementation
@@ -45,19 +43,18 @@ FileStatData UnixStatToFunFileData(struct stat& file_info) {
 class FUN_BASE_API LinuxFile : public IFile {
   enum { READWRITE_SIZE = 1024 * 1024 };
 
-  inline bool IsValid() {
-    return file_handle_ != -1;
-  }
+  inline bool IsValid() { return file_handle_ != -1; }
 
  public:
   LinuxFileSystem(int32 file_handle, const char* filename, bool is_readonly)
-    : file_handle_(file_handle)
+      : file_handle_(file_handle)
 #if MANAGE_FILE_HANDLES
-    , filename_(filename)
-    , handle_slot_(-1)
-    , file_offset_(0)
-    , file_size_(0)
-#endif // MANAGE_FILE_HANDLES
+        ,
+        filename_(filename),
+        handle_slot_(-1),
+        file_offset_(0),
+        file_size_(0)
+#endif  // MANAGE_FILE_HANDLES
   {
     fun_check(file_handle_ > -1);
     fun_check(filename_.Len() > 0);
@@ -71,7 +68,7 @@ class FUN_BASE_API LinuxFile : public IFile {
       fstat(file_handle_, &file_info);
       file_size_ = file_info.st_size;
     }
-#endif // MANAGE_FILE_HANDLES
+#endif  // MANAGE_FILE_HANDLES
   }
 
   virtual ~LinuxFile() {
@@ -81,9 +78,8 @@ class FUN_BASE_API LinuxFile : public IFile {
         close(file_handle_);
         g_active_handles[handle_slot_] = nullptr;
       }
-    }
-    else
-#endif // MANAGE_FILE_HANDLES
+    } else
+#endif  // MANAGE_FILE_HANDLES
     {
       close(file_handle_);
     }
@@ -94,9 +90,8 @@ class FUN_BASE_API LinuxFile : public IFile {
 #if MANAGE_FILE_HANDLES
     if (IsManaged()) {
       return file_offset_;
-    }
-    else
-#endif // MANAGE_FILE_HANDLES
+    } else
+#endif  // MANAGE_FILE_HANDLES
     {
       fun_check(IsValid());
       return lseek(file_handle_, 0, SEEK_CUR);
@@ -109,10 +104,11 @@ class FUN_BASE_API LinuxFile : public IFile {
 #if MANAGE_FILE_HANDLES
     if (IsManaged()) {
       file_offset_ = new_pos >= file_size_ ? file_size_ - 1 : new_pos;
-      return IsValid() && g_active_handles[handle_slot_] == this ? lseek(file_handle_, file_offset_, SEEK_SET) != -1 : true;
-    }
-    else
-#endif // MANAGE_FILE_HANDLES
+      return IsValid() && g_active_handles[handle_slot_] == this
+                 ? lseek(file_handle_, file_offset_, SEEK_SET) != -1
+                 : true;
+    } else
+#endif  // MANAGE_FILE_HANDLES
     {
       fun_check(IsValid());
       return lseek(file_handle_, new_pos, SEEK_SET) != -1;
@@ -124,11 +120,14 @@ class FUN_BASE_API LinuxFile : public IFile {
 
 #if MANAGE_FILE_HANDLES
     if (IsManaged()) {
-      file_offset_ = (relative_pos_to_end >= file_size_) ? 0 : (file_size_ + relative_pos_to_end - 1);
-      return IsValid() && g_active_handles[handle_slot_] == this ? lseek(file_handle_, file_offset_, SEEK_SET) != -1 : true;
-    }
-    else
-#endif // MANAGE_FILE_HANDLES
+      file_offset_ = (relative_pos_to_end >= file_size_)
+                         ? 0
+                         : (file_size_ + relative_pos_to_end - 1);
+      return IsValid() && g_active_handles[handle_slot_] == this
+                 ? lseek(file_handle_, file_offset_, SEEK_SET) != -1
+                 : true;
+    } else
+#endif  // MANAGE_FILE_HANDLES
     {
       fun_check(IsValid());
       return lseek(file_handle_, relative_pos_to_end, SEEK_END) != -1;
@@ -142,9 +141,8 @@ class FUN_BASE_API LinuxFile : public IFile {
       int64 readed_len = ReadInternal(dst, len_to_read);
       file_offset_ += readed_len;
       return readed_len == len_to_read;
-    }
-    else
-#endif // MANAGE_FILE_HANDLES
+    } else
+#endif  // MANAGE_FILE_HANDLES
     {
       return ReadInternal(dst, len_to_read) == len_to_read;
     }
@@ -167,12 +165,11 @@ class FUN_BASE_API LinuxFile : public IFile {
   }
 
   int64 Size() override {
-    #if MANAGE_FILE_HANDLES
+#if MANAGE_FILE_HANDLES
     if (IsManaged()) {
       return file_size_;
-    }
-    else
-    #endif
+    } else
+#endif
     {
       struct stat file_info;
       fstat(file_handle_, &file_info);
@@ -182,13 +179,13 @@ class FUN_BASE_API LinuxFile : public IFile {
 
  private:
 #if MANAGE_FILE_HANDLES
-  inline bool IsManaged() {
-    return handle_slot_ != -1;
-  }
+  inline bool IsManaged() { return handle_slot_ != -1; }
 
   void ActivateSlot() {
     if (IsManaged()) {
-      if (g_active_handles[handle_slot_] != this || (g_active_handles[handle_slot_] && g_active_handles[handle_slot_]->file_handle_ == -1)) {
+      if (g_active_handles[handle_slot_] != this ||
+          (g_active_handles[handle_slot_] &&
+           g_active_handles[handle_slot_]->file_handle_ == -1)) {
         ReserveSlot();
 
         file_handle_ = open(TCHAR_TO_UTF8(*filename_), O_RDONLY | O_CLOEXEC);
@@ -196,7 +193,8 @@ class FUN_BASE_API LinuxFile : public IFile {
           lseek(file_handle_, file_offset_, SEEK_SET);
           g_active_handles[handle_slot_] = this;
         } else {
-          fun_log(LogLinuxFS, Warning, "Could not (re)activate slot for file '%s'", *filename_);
+          fun_log(LogLinuxFS, Warning,
+                  "Could not (re)activate slot for file '%s'", *filename_);
         }
       } else {
         g_access_times[handle_slot_] = SystemTime::Seconds();
@@ -232,7 +230,7 @@ class FUN_BASE_API LinuxFile : public IFile {
     g_active_handles[handle_slot_] = nullptr;
     g_access_times[handle_slot_] = SystemTime::Seconds();
   }
-#endif // MANAGE_FILE_HANDLES
+#endif  // MANAGE_FILE_HANDLES
 
   int64 ReadInternal(uint8* dst, int64 len_to_read) {
     fun_check(IsValid());
@@ -256,9 +254,11 @@ class FUN_BASE_API LinuxFile : public IFile {
   int32 file_handle_;
 
 #if MANAGE_FILE_HANDLES
-  // Holds the name of the file that this handle represents. Kept around for possible reopen of file.
+  // Holds the name of the file that this handle represents. Kept around for
+  // possible reopen of file.
   String filename_;
-  // Most recent valid slot index for this handle; >=0 for handles which are managed.
+  // Most recent valid slot index for this handle; >=0 for handles which are
+  // managed.
   int32 handle_slot_;
   // Current file offset; valid if a managed handle.
   int64 file_offset_;
@@ -269,18 +269,17 @@ class FUN_BASE_API LinuxFile : public IFile {
   static const int32 ACTIVE_HANDLE_COUNT = 256;
   static __thread LinuxFile* g_active_handles[ACTIVE_HANDLE_COUNT];
   static __thread double g_access_times[ACTIVE_HANDLE_COUNT];
-#endif // MANAGE_FILE_HANDLES
+#endif  // MANAGE_FILE_HANDLES
 };
 
 #if MANAGE_FILE_HANDLES
 __thread LinuxFile* LinuxFile::g_active_handles[LinuxFile::ACTIVE_HANDLE_COUNT];
 __thread double LinuxFile::g_access_times[LinuxFile::ACTIVE_HANDLE_COUNT];
-#endif // MANAGE_FILE_HANDLES
-
+#endif  // MANAGE_FILE_HANDLES
 
 /**
- * A class to handle case insensitive file opening. This is a band-aid, non-performant approach,
- * without any caching.
+ * A class to handle case insensitive file opening. This is a band-aid,
+ * non-performant approach, without any caching.
  */
 class LinuxFileMapper {
  public:
@@ -290,37 +289,43 @@ class LinuxFileMapper {
     // skip over empty part
     int start_position = (filename[0] == '/') ? 1 : 0;
 
-    for (int32 component_index = 0; component_index < path_component_count; ++component_index) {
-      int32 found_at_index = filename.Find("/", CaseSensitivity::CaseSensitive, ESearchDir::FromStart, start_position);
+    for (int32 component_index = 0; component_index < path_component_count;
+         ++component_index) {
+      int32 found_at_index =
+          filename.Find("/", CaseSensitivity::CaseSensitive,
+                        ESearchDir::FromStart, start_position);
 
       if (found_at_index == INVALID_INDEX) {
-        fun_check_msg(false, "Asked to get {0}-th path component, but filename '{1}' doesn't have that many!",
-             path_component_count, filename);
+        fun_check_msg(false,
+                      "Asked to get {0}-th path component, but filename '{1}' "
+                      "doesn't have that many!",
+                      path_component_count, filename);
         break;
       }
 
-      start_position = found_at_index + 1;   // skip the '/' itself
+      start_position = found_at_index + 1;  // skip the '/' itself
     }
 
     // now return the
-    int32 next_slash = filename.Find("/", CaseSensitivity::CaseSensitive, ESearchDir::FromStart, start_position);
+    int32 next_slash = filename.Find("/", CaseSensitivity::CaseSensitive,
+                                     ESearchDir::FromStart, start_position);
     if (next_slash == INVALID_INDEX) {
       // just return the rest of the String
       return filename.RightChop(start_position);
-    }
-    else if (next_slash == start_position) {
-      return ""; // encountered an invalid path like /foo/bar//baz
+    } else if (next_slash == start_position) {
+      return "";  // encountered an invalid path like /foo/bar//baz
     }
 
     return filename.Mid(start_position, next_slash - start_position);
   }
 
-  int32 CountPathComponents(const String & filename) {
+  int32 CountPathComponents(const String& filename) {
     if (filename.Len() == 0) {
       return 0;
     }
 
-    // if the first character is not a separator, it's part of a distinct component
+    // if the first character is not a separator, it's part of a distinct
+    // component
     int32 component_count = (filename[0] != '/') ? 1 : 0;
     for (const auto& ch : filename) {
       if (ch == '/') {
@@ -333,25 +338,28 @@ class LinuxFileMapper {
   }
 
   /**
-   * Tries to recursively find (using case-insensitive comparison) and open the file.
-   * The first file found will be opened.
+   * Tries to recursively find (using case-insensitive comparison) and open the
+   * file. The first file found will be opened.
    *
    * @param filename - Original file path as requested (absolute)
-   * @param path_component_to_look_for - Part of path we are currently trying to find.
-   * @param max_path_components - Maximum number of path components (directories), i.e. how deep the path is.
-   * @param constructed_path - The real (absolute) path that we have found so far
+   * @param path_component_to_look_for - Part of path we are currently trying to
+   * find.
+   * @param max_path_components - Maximum number of path components
+   * (directories), i.e. how deep the path is.
+   * @param constructed_path - The real (absolute) path that we have found so
+   * far
    *
    * @return a handle opened with open()
    */
   bool MapFileRecursively(const String& filename,
                           int32 path_component_to_look_for,
-                          int32 max_path_components,
-                          String& constructed_path) {
+                          int32 max_path_components, String& constructed_path) {
     // get the directory without the last path component
     String base_dir = constructed_path;
 
     // get the path component to compare
-    String PathComponent = GetPathComponent(filename, path_component_to_look_for);
+    String PathComponent =
+        GetPathComponent(filename, path_component_to_look_for);
     String PathComponentLower = PathComponent.ToLower();
 
     bool found = false;
@@ -368,7 +376,8 @@ class LinuxFileMapper {
             bool is_directory = de->d_type == DT_DIR;
             if (de->d_type == DT_UNKNOWN) {
               struct stat file_info;
-              if (stat(TCHAR_TO_UTF8(*(base_dir / de->d_name)), &file_info) == 0) {
+              if (stat(TCHAR_TO_UTF8(*(base_dir / de->d_name)), &file_info) ==
+                  0) {
                 is_directory = S_ISDIR(file_info.st_mode);
               }
             }
@@ -378,7 +387,9 @@ class LinuxFileMapper {
               String new_constructed_path = constructed_path;
               new_constructed_path /= de_name;
 
-              found = MapFileRecursively(filename, path_component_to_look_for + 1, max_path_components, new_constructed_path);
+              found =
+                  MapFileRecursively(filename, path_component_to_look_for + 1,
+                                     max_path_components, new_constructed_path);
               if (found) {
                 constructed_path = new_constructed_path;
                 break;
@@ -390,7 +401,8 @@ class LinuxFileMapper {
             constructed_filename /= de_name;
 
             struct stat file_info;
-            found = (stat(TCHAR_TO_UTF8(*constructed_filename), &file_info) == 0);
+            found =
+                (stat(TCHAR_TO_UTF8(*constructed_filename), &file_info) == 0);
             if (found) {
               constructed_path = constructed_filename;
               break;
@@ -405,17 +417,23 @@ class LinuxFileMapper {
   }
 
   /**
-   * Tries to map a filename (one with a possibly wrong case) to one that exists.
+   * Tries to map a filename (one with a possibly wrong case) to one that
+   * exists.
    *
-   * @param possibly_wrong_filename - absolute filename (that has possibly a wrong case)
-   * @param existing_filename - filename that exists (only valid to use if the function returned success).
+   * @param possibly_wrong_filename - absolute filename (that has possibly a
+   * wrong case)
+   * @param existing_filename - filename that exists (only valid to use if the
+   * function returned success).
    */
-  bool MapCaseInsensitiveFile(const String& possibly_wrong_filename, String& existing_filename) {
-    // Cannot log anything here, as this may result in infinite recursion when this function is called on log file itself
+  bool MapCaseInsensitiveFile(const String& possibly_wrong_filename,
+                              String& existing_filename) {
+    // Cannot log anything here, as this may result in infinite recursion when
+    // this function is called on log file itself
 
-    // We can get some "absolute" filenames like "D:/Blah/" here (e.g. non-Linux paths to src files embedded in assets).
-    // In that case, fail silently.
-    if (possibly_wrong_filename.IsEmpty() || possibly_wrong_filename[0] != '/') {
+    // We can get some "absolute" filenames like "D:/Blah/" here (e.g. non-Linux
+    // paths to src files embedded in assets). In that case, fail silently.
+    if (possibly_wrong_filename.IsEmpty() ||
+        possibly_wrong_filename[0] != '/') {
       return false;
     }
 
@@ -430,8 +448,9 @@ class LinuxFileMapper {
 
       int32 max_path_components = CountPathComponents(possibly_wrong_filename);
       if (max_path_components > 0) {
-        String found_filename("/");   // start with root
-        found = MapFileRecursively(possibly_wrong_filename, 0, max_path_components, found_filename);
+        String found_filename("/");  // start with root
+        found = MapFileRecursively(possibly_wrong_filename, 0,
+                                   max_path_components, found_filename);
         if (found) {
           existing_filename = found_filename;
         }
@@ -445,11 +464,13 @@ class LinuxFileMapper {
    * Opens a file for reading, disregarding the case.
    *
    * @param filename - absolute filename
-   * @param mapped_to_filename - absolute filename that we mapped the filename to (always filled out on success, even if the same as filename)
+   * @param mapped_to_filename - absolute filename that we mapped the filename
+   * to (always filled out on success, even if the same as filename)
    */
-  int32 OpenCaseInsensitiveRead(const String& filename, String& mapped_to_filename) {
-    // We can get some "absolute" filenames like "D:/Blah/" here (e.g. non-Linux paths to src files embedded in assets).
-    // In that case, fail silently.
+  int32 OpenCaseInsensitiveRead(const String& filename,
+                                String& mapped_to_filename) {
+    // We can get some "absolute" filenames like "D:/Blah/" here (e.g. non-Linux
+    // paths to src files embedded in assets). In that case, fail silently.
     if (filename.IsEmpty() || filename[0] != '/') {
       return -1;
     }
@@ -462,21 +483,28 @@ class LinuxFileMapper {
       // log non-standard errors only
       if (ENOENT != errno) {
         int err = errno;
-        fun_log(LogLinuxFS, Warning, "open('{0}', O_RDONLY | O_CLOEXEC) failed: errno={1} ({2})", filename, err, ANSI_TO_TCHAR(strerror(err)));
+        fun_log(LogLinuxFS, Warning,
+                "open('{0}', O_RDONLY | O_CLOEXEC) failed: errno={1} ({2})",
+                filename, err, ANSI_TO_TCHAR(strerror(err)));
       } else {
         // perform a case-insensitive search
         // make sure we get the absolute filename
-        fun_check_msg(filename[0] == '/', "filename '{0}' given to OpenCaseInsensitiveRead is not absolute!", filename);
+        fun_check_msg(
+            filename[0] == '/',
+            "filename '{0}' given to OpenCaseInsensitiveRead is not absolute!",
+            filename);
 
         int max_path_components = CountPathComponents(filename);
         if (max_path_components > 0) {
-          String found_filename("/"); // start with root
-          if (MapFileRecursively(filename, 0, max_path_components, found_filename)) {
+          String found_filename("/");  // start with root
+          if (MapFileRecursively(filename, 0, max_path_components,
+                                 found_filename)) {
             handle = open(TCHAR_TO_UTF8(*found_filename), O_RDONLY | O_CLOEXEC);
             if (handle != -1) {
               mapped_to_filename = found_filename;
               if (filename != mapped_to_filename) {
-                fun_log(LogLinuxFS, info, "Mapped '{0}' to '{1}'", filename, mapped_to_filename);
+                fun_log(LogLinuxFS, info, "Mapped '{0}' to '{1}'", filename,
+                        mapped_to_filename);
               }
             }
           }
@@ -503,7 +531,8 @@ String LinuxFileSystem::NormalizeDirectory(const char* directory) {
 
 bool LinuxFileSystem::FileExists(const char* filename) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename),
+                                                  casesensitive_filename)) {
     // could not find the file
     return false;
   }
@@ -517,7 +546,8 @@ bool LinuxFileSystem::FileExists(const char* filename) {
 
 int64 LinuxFileSystem::FileSize(const char* filename) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename),
+                                                  casesensitive_filename)) {
     // could not find the file
     return -1;
   }
@@ -536,21 +566,26 @@ int64 LinuxFileSystem::FileSize(const char* filename) {
 bool LinuxFileSystem::DeleteFile(const char* filename) {
   String casesensitive_filename;
   String intended_filename(NormalizeFilename(filename));
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(intended_filename, casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(intended_filename,
+                                                  casesensitive_filename)) {
     // could not find the file
     return false;
   }
 
   // removing mapped file is too dangerous
   if (intended_filename != casesensitive_filename) {
-    fun_log(LogLinuxFS, Warning, "Could not find file '{0}', deleting file '{1}' instead (for consistency with the rest of file ops)", intended_filename, casesensitive_filename);
+    fun_log(LogLinuxFS, Warning,
+            "Could not find file '{0}', deleting file '{1}' instead (for "
+            "consistency with the rest of file ops)",
+            intended_filename, casesensitive_filename);
   }
   return unlink(TCHAR_TO_UTF8(*casesensitive_filename)) == 0;
 }
 
 bool LinuxFileSystem::IsReadOnly(const char* filename) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename),
+                                                  casesensitive_filename)) {
     // could not find the file
     return false;
   }
@@ -565,17 +600,20 @@ bool LinuxFileSystem::IsReadOnly(const char* filename) {
 
 bool LinuxFileSystem::MoveFile(const char* to, const char* from) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(from), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(from),
+                                                  casesensitive_filename)) {
     // could not find the file
     return false;
   }
 
-  return rename(TCHAR_TO_UTF8(*casesensitive_filename), TCHAR_TO_UTF8(*NormalizeFilename(to))) != -1;
+  return rename(TCHAR_TO_UTF8(*casesensitive_filename),
+                TCHAR_TO_UTF8(*NormalizeFilename(to))) != -1;
 }
 
 bool LinuxFileSystem::SetReadOnly(const char* filename, bool readonly) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename),
+                                                  casesensitive_filename)) {
     // could not find the file
     return false;
   }
@@ -594,7 +632,8 @@ bool LinuxFileSystem::SetReadOnly(const char* filename, bool readonly) {
 
 DateTime LinuxFileSystem::GetTimestamp(const char* filename) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename),
+                                                  casesensitive_filename)) {
     // could not find the file
     return DateTime::Null;
   }
@@ -603,7 +642,8 @@ DateTime LinuxFileSystem::GetTimestamp(const char* filename) {
   struct stat file_info;
   if (stat(TCHAR_TO_UTF8(*casesensitive_filename), &file_info) == -1) {
     if (errno == EOVERFLOW) {
-      // hacky workaround for files mounted on Samba (see https://bugzilla.samba.org/show_bug.cgi?id=7707)
+      // hacky workaround for files mounted on Samba (see
+      // https://bugzilla.samba.org/show_bug.cgi?id=7707)
       return DateTime::Now();
     } else {
       return DateTime::Null;
@@ -615,9 +655,11 @@ DateTime LinuxFileSystem::GetTimestamp(const char* filename) {
   return UNIX_EPOCH + time_since_epoch;
 }
 
-void LinuxFileSystem::SetTimestamp(const char* filename, const DateTime& timestamp) {
+void LinuxFileSystem::SetTimestamp(const char* filename,
+                                   const DateTime& timestamp) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename),
+                                                  casesensitive_filename)) {
     // could not find the file
     return;
   }
@@ -637,7 +679,8 @@ void LinuxFileSystem::SetTimestamp(const char* filename, const DateTime& timesta
 
 DateTime LinuxFileSystem::GetAccessTimestamp(const char* filename) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename),
+                                                  casesensitive_filename)) {
     // could not find the file
     return DateTime::Null;
   }
@@ -655,27 +698,29 @@ DateTime LinuxFileSystem::GetAccessTimestamp(const char* filename) {
 
 String LinuxFileSystem::GetFilenameOnDisk(const char* filename) {
   return filename;
-/*
-  String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename), casesensitive_filename)) {
-    return filename;
-  }
+  /*
+    String casesensitive_filename;
+    if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename),
+    casesensitive_filename)) { return filename;
+    }
 
-  return casesensitive_filename;
-*/
+    return casesensitive_filename;
+  */
 }
 
 IFile* LinuxFileSystem::OpenRead(const char* filename, bool allow_write) {
   String mapped_to_name;
-  int32 handle = g_caseinsens_mapper.OpenCaseInsensitiveRead(NormalizeFilename(filename), mapped_to_name);
+  int32 handle = g_caseinsens_mapper.OpenCaseInsensitiveRead(
+      NormalizeFilename(filename), mapped_to_name);
   if (handle != -1) {
     return new LinuxFile(handle, *mapped_to_name, true);
   }
   return nullptr;
 }
 
-IFile* LinuxFileSystem::OpenWrite(const char* filename, bool append, bool allow_read) {
-  int flags = O_CREAT | O_CLOEXEC; // prevent children from inheriting this
+IFile* LinuxFileSystem::OpenWrite(const char* filename, bool append,
+                                  bool allow_read) {
+  int flags = O_CREAT | O_CLOEXEC;  // prevent children from inheriting this
 
   if (allow_read) {
     flags |= O_RDWR;
@@ -688,11 +733,15 @@ IFile* LinuxFileSystem::OpenWrite(const char* filename, bool append, bool allow_
     return nullptr;
   }
 
-  // Caveat: cannot specify O_TRUNC in flags, as this will corrupt the file which may be "locked" by other process. We will ftruncate() it once we "lock" it
-  int32 handle = open(TCHAR_TO_UTF8(*NormalizeFilename(filename)), flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  // Caveat: cannot specify O_TRUNC in flags, as this will corrupt the file
+  // which may be "locked" by other process. We will ftruncate() it once we
+  // "lock" it
+  int32 handle = open(TCHAR_TO_UTF8(*NormalizeFilename(filename)), flags,
+                      S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (handle != -1) {
-    // mimic Windows "exclusive write" behavior (we don't use FILE_SHARE_WRITE) by locking the file.
-    // note that the (non-mandatory) "lock" will be removed by itself when the last file descriptor is close()d
+    // mimic Windows "exclusive write" behavior (we don't use FILE_SHARE_WRITE)
+    // by locking the file. note that the (non-mandatory) "lock" will be removed
+    // by itself when the last file descriptor is close()d
     if (flock(handle, LOCK_EX | LOCK_NB) == -1) {
       // if locked, consider operation a failure
       if (EAGAIN == errno || EWOULDBLOCK == errno) {
@@ -706,18 +755,20 @@ IFile* LinuxFileSystem::OpenWrite(const char* filename, bool append, bool allow_
     if (!append) {
       if (ftruncate(handle, 0) != 0) {
         int err = errno;
-        fun_log(LogLinuxFS, Warning, "ftruncate() failed for '%s': errno=%d (%s)",
-                              filename, err, ANSI_TO_TCHAR(strerror(err)));
+        fun_log(LogLinuxFS, Warning,
+                "ftruncate() failed for '%s': errno=%d (%s)", filename, err,
+                ANSI_TO_TCHAR(strerror(err)));
         close(handle);
         return nullptr;
       }
     }
 
 #if MANAGE_FILE_HANDLES
-    LinuxFileSystem* file = new LinuxFile(handle, *NormalizeDirectory(filename), false);
+    LinuxFileSystem* file =
+        new LinuxFile(handle, *NormalizeDirectory(filename), false);
 #else
     LinuxFileSystem* file = new LinuxFile(handle, filename, false);
-#endif // MANAGE_FILE_HANDLES
+#endif  // MANAGE_FILE_HANDLES
 
     if (append) {
       file->SeekFromEnd(0);
@@ -726,13 +777,16 @@ IFile* LinuxFileSystem::OpenWrite(const char* filename, bool append, bool allow_
   }
 
   int err = errno;
-  fun_log(LogLinuxFS, Warning, "open('%s', flags=0x%08X) failed: errno=%d (%s)", *NormalizeFilename(filename), flags, err, ANSI_TO_TCHAR(strerror(err)));
+  fun_log(LogLinuxFS, Warning, "open('%s', flags=0x%08X) failed: errno=%d (%s)",
+          *NormalizeFilename(filename), flags, err,
+          ANSI_TO_TCHAR(strerror(err)));
   return nullptr;
 }
 
 bool LinuxFileSystem::DirectoryExists(const char* directory) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(directory), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(directory),
+                                                  casesensitive_filename)) {
     // could not find the file
     return false;
   }
@@ -751,21 +805,26 @@ bool LinuxFileSystem::CreateDirectory(const char* directory) {
 bool LinuxFileSystem::DeleteDirectory(const char* directory) {
   String casesensitive_filename;
   String intended_filename(NormalizeFilename(directory));
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(intended_filename, casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(intended_filename,
+                                                  casesensitive_filename)) {
     // could not find the directory
     return false;
   }
 
   // removing mapped directory is too dangerous
   if (intended_filename != casesensitive_filename) {
-    fun_log(LogLinuxFS, Warning, "Could not find directory '%s', deleting '%s' instead (for consistency with the rest of file ops)", *intended_filename, *casesensitive_filename);
+    fun_log(LogLinuxFS, Warning,
+            "Could not find directory '%s', deleting '%s' instead (for "
+            "consistency with the rest of file ops)",
+            *intended_filename, *casesensitive_filename);
   }
   return rmdir(TCHAR_TO_UTF8(*casesensitive_filename)) == 0;
 }
 
 FileStatData LinuxFileSystem::GetStatData(const char* filename_or_directory) {
   String casesensitive_filename;
-  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(NormalizeFilename(filename_or_directory), casesensitive_filename)) {
+  if (!g_caseinsens_mapper.MapCaseInsensitiveFile(
+          NormalizeFilename(filename_or_directory), casesensitive_filename)) {
     // could not find the file
     return FileStatData();
   }
@@ -778,7 +837,8 @@ FileStatData LinuxFileSystem::GetStatData(const char* filename_or_directory) {
   return UnixStatToFunFileData(file_info);
 }
 
-bool LinuxFileSystem::IterateDirectory(const char* directory, DirectoryVisitor& visitor) {
+bool LinuxFileSystem::IterateDirectory(const char* directory,
+                                       DirectoryVisitor& visitor) {
   const String directory_str = directory;
   const String normalized_directory_str = NormalizeFilename(directory);
 
@@ -791,12 +851,16 @@ bool LinuxFileSystem::IterateDirectory(const char* directory, DirectoryVisitor& 
     } else {
       // filesystem does not support d_type, fallback to stat
       struct stat file_info;
-      const String absolute_unicode_name = normalized_directory_str / UnicodeEntryName;
+      const String absolute_unicode_name =
+          normalized_directory_str / UnicodeEntryName;
       if (stat(TCHAR_TO_UTF8(*absolute_unicode_name), &file_info) != -1) {
         is_directory = ((file_info.st_mode & S_IFMT) == S_IFDIR);
       } else {
         int err = errno;
-        fun_log(LogLinuxFS, Warning, "Cannot determine whether '%s' is a directory - d_type not supported and stat() failed with errno=%d (%s)", *absolute_unicode_name, err, UTF8_TO_TCHAR(strerror(err)));
+        fun_log(LogLinuxFS, Warning,
+                "Cannot determine whether '%s' is a directory - d_type not "
+                "supported and stat() failed with errno=%d (%s)",
+                *absolute_unicode_name, err, UTF8_TO_TCHAR(strerror(err)));
       }
     }
 
@@ -804,7 +868,8 @@ bool LinuxFileSystem::IterateDirectory(const char* directory, DirectoryVisitor& 
   });
 }
 
-bool LinuxFileSystem::IterateDirectoryStat(const char* directory, DirectoryStatVisitor& visitor) {
+bool LinuxFileSystem::IterateDirectoryStat(const char* directory,
+                                           DirectoryStatVisitor& visitor) {
   const String directory_str = directory;
   const String normalized_directory_str = NormalizeFilename(directory);
 
@@ -812,16 +877,19 @@ bool LinuxFileSystem::IterateDirectoryStat(const char* directory, DirectoryStatV
     const String UnicodeEntryName = UTF8_TO_TCHAR(de->d_name);
 
     struct stat file_info;
-    const String absolute_unicode_name = normalized_directory_str / UnicodeEntryName;
+    const String absolute_unicode_name =
+        normalized_directory_str / UnicodeEntryName;
     if (stat(TCHAR_TO_UTF8(*absolute_unicode_name), &file_info) != -1) {
-      return visitor.Visit(*(directory_str / UnicodeEntryName), UnixStatToFunFileData(file_info));
+      return visitor.Visit(*(directory_str / UnicodeEntryName),
+                           UnixStatToFunFileData(file_info));
     }
 
     return true;
   });
 }
 
-bool LinuxFileSystem::IterateDirectoryCommon(const char* directory, const FunctionRef<bool(struct dirent*)>& visitor) {
+bool LinuxFileSystem::IterateDirectoryCommon(
+    const char* directory, const FunctionRef<bool(struct dirent*)>& visitor) {
   bool result = false;
 
   String normalized_directory = NormalizeFilename(directory);
@@ -830,7 +898,8 @@ bool LinuxFileSystem::IterateDirectoryCommon(const char* directory, const Functi
     result = true;
     struct dirent* de;
     while ((de = readdir(handle)) != nullptr) {
-      if (CStringTraitsA::Strcmp(UTF8_TO_TCHAR(de->d_name), ".") && CStringTraitsA::Strcmp(UTF8_TO_TCHAR(de->d_name), "..")) {
+      if (CStringTraitsA::Strcmp(UTF8_TO_TCHAR(de->d_name), ".") &&
+          CStringTraitsA::Strcmp(UTF8_TO_TCHAR(de->d_name), "..")) {
         result = visitor(de);
       }
     }
@@ -848,8 +917,10 @@ bool LinuxFileSystem::CreateDirectoriesFromPath(const char* path) {
 
   // convert path to native char String.
   int32 len = strlen(TCHAR_TO_UTF8(*NormalizeFilename(path)));
-  char* dir_path = reinterpret_cast<char*>(UnsafeMemory::Malloc((len + 2) * sizeof(char)));
-  char* sub_path = reinterpret_cast<char*>(UnsafeMemory::Malloc((len + 2) * sizeof(char)));
+  char* dir_path =
+      reinterpret_cast<char*>(UnsafeMemory::Malloc((len + 2) * sizeof(char)));
+  char* sub_path =
+      reinterpret_cast<char*>(UnsafeMemory::Malloc((len + 2) * sizeof(char)));
   strcpy(dir_path, TCHAR_TO_UTF8(*NormalizeFilename(path)));
 
   for (int32 i = 0; i < len; ++i) {
@@ -864,7 +935,8 @@ bool LinuxFileSystem::CreateDirectoriesFromPath(const char* path) {
         // nope. create it.
         if (mkdir(sub_path, 0755) == -1) {
           int err = errno;
-          fun_log(LogLinuxFS, Warning, "create dir('%s') failed: errno=%d (%s)", dir_path, err, ANSI_TO_TCHAR(strerror(err)));
+          fun_log(LogLinuxFS, Warning, "create dir('%s') failed: errno=%d (%s)",
+                  dir_path, err, ANSI_TO_TCHAR(strerror(err)));
           UnsafeMemory::Free(dir_path);
           UnsafeMemory::Free(sub_path);
           return false;
@@ -883,4 +955,4 @@ IFileSystem& IFileSystem::GetPhysicalFileSystem() {
   return singleton;
 }
 
-} // namespace fun
+}  // namespace fun

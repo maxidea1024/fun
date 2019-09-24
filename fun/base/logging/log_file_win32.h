@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/timestamp.h"
 #include "fun/base/string/string.h"
+#include "fun/base/timestamp.h"
 //#include "fun/base/windows_less.h"
 
 namespace fun {
@@ -31,4 +31,4 @@ class FUN_BASE_API LogFileImpl {
   Timestamp creation_date_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -1,18 +1,17 @@
 ﻿#include "CorePrivatePCH.h"
 
-#include "HAL/PlatformFSManager.h"
-#include "HAL/IPlatformFSLogWrapper.h"
-#include "HAL/IPlatformFSProfilerWrapper.h"
 #include "HAL/IPlatformFSCachedWrapper.h"
+#include "HAL/IPlatformFSLogWrapper.h"
 #include "HAL/IPlatformFSModule.h"
 #include "HAL/IPlatformFSOpenLogWrapper.h"
+#include "HAL/IPlatformFSProfilerWrapper.h"
+#include "HAL/PlatformFSManager.h"
 
 #include "Modules/ModuleManager.h"
 
 namespace fun {
 
-PlatformFSManager::PlatformFSManager()
-  : topmost_platform_fs_(nullptr) {}
+PlatformFSManager::PlatformFSManager() : topmost_platform_fs_(nullptr) {}
 
 IPlatformFS& PlatformFSManager::GetPlatformFS() {
   if (topmost_platform_fs_ == nullptr) {
@@ -28,7 +27,8 @@ void PlatformFSManager::SetPlatformFS(IPlatformFS& new_topmost_platform_fs) {
 
 IPlatformFS* PlatformFSManager::FindPlatformFS(const char* name) {
   fun_check_ptr(topmost_platform_fs_);
-  for (IPlatformFS* chain = topmost_platform_fs_; chain; chain = chain->GetLowerLevel()) {
+  for (IPlatformFS* chain = topmost_platform_fs_; chain;
+       chain = chain->GetLowerLevel()) {
     if (CharTraits::Stricmp(chain->GetName(), name) == 0) {
       return chain;
     }
@@ -44,32 +44,37 @@ IPlatformFS* PlatformFSManager::GetPlatformFS(const char* name) {
     static ScopedPtr<IPlatformFS> AutoDestroySingleton(new LoggedPlatformFS());
     platform_fs = AutoDestroySingleton.GetOwnedPointer();
   }
-
 #if !FUN_BUILD_SHIPPING
-  else if (CharTraits::Strcmp(TypedProfiledPlatformFileSystem<ProfiledFSStatsFileDetailed>::GetTypeName(), name) == 0) {
-    static ScopedPtr<IPlatformFS> AutoDestroySingleton(new TypedProfiledPlatformFileSystem<ProfiledFSStatsFileDetailed>());
+  else if (CharTraits::Strcmp(TypedProfiledPlatformFileSystem<
+                                  ProfiledFSStatsFileDetailed>::GetTypeName(),
+                              name) == 0) {
+    static ScopedPtr<IPlatformFS> AutoDestroySingleton(
+        new TypedProfiledPlatformFileSystem<ProfiledFSStatsFileDetailed>());
     platform_fs = AutoDestroySingleton.GetOwnedPointer();
-  }
-  else if (CharTraits::Strcmp(TypedProfiledPlatformFileSystem<ProfiledFSStatsFileSimple>::GetTypeName(), name) == 0) {
-    static ScopedPtr<IPlatformFS> AutoDestroySingleton(new TypedProfiledPlatformFileSystem<ProfiledFSStatsFileSimple>());
+  } else if (CharTraits::Strcmp(TypedProfiledPlatformFileSystem<
+                                    ProfiledFSStatsFileSimple>::GetTypeName(),
+                                name) == 0) {
+    static ScopedPtr<IPlatformFS> AutoDestroySingleton(
+        new TypedProfiledPlatformFileSystem<ProfiledFSStatsFileSimple>());
     platform_fs = AutoDestroySingleton.GetOwnedPointer();
-  }
-  else if (CharTraits::Strcmp(PlatformFSReadStats::GetTypeName(), name) == 0) {
-    static ScopedPtr<IPlatformFS> AutoDestroySingleton(new PlatformFSReadStats());
+  } else if (CharTraits::Strcmp(PlatformFSReadStats::GetTypeName(), name) ==
+             0) {
+    static ScopedPtr<IPlatformFS> AutoDestroySingleton(
+        new PlatformFSReadStats());
     platform_fs = AutoDestroySingleton.GetOwnedPointer();
-  }
-  else if (CharTraits::Strcmp(PlatformFSOpenLog::GetTypeName(), name) == 0) {
+  } else if (CharTraits::Strcmp(PlatformFSOpenLog::GetTypeName(), name) == 0) {
     static ScopedPtr<IPlatformFS> AutoDestroySingleton(new PlatformFSOpenLog());
     platform_fs = AutoDestroySingleton.GetOwnedPointer();
   }
 #endif
   else if (CharTraits::Strcmp(CachedReadPlatformFS::GetTypeName(), name) == 0) {
-    static ScopedPtr<IPlatformFS> AutoDestroySingleton(new CachedReadPlatformFS());
+    static ScopedPtr<IPlatformFS> AutoDestroySingleton(
+        new CachedReadPlatformFS());
     platform_fs = AutoDestroySingleton.GetOwnedPointer();
-  }
-  else {
+  } else {
     // Try to load a module containing the platform file.
-    if (IPlatformFSModule* platform_fs_module = ModuleManager::LoadModulePtr<IPlatformFSModule>(name)) {
+    if (IPlatformFSModule* platform_fs_module =
+            ModuleManager::LoadModulePtr<IPlatformFSModule>(name)) {
       // TODO: Attempt to create platform file
       platform_fs = platform_fs_module->GetPlatformFS();
     }
@@ -83,4 +88,4 @@ PlatformFSManager& PlatformFSManager::Get() {
   return singleton;
 }
 
-} // namespace fun
+}  // namespace fun

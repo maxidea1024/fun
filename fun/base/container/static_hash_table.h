@@ -5,8 +5,7 @@
 namespace fun {
 
 template <uint16 HashSize, uint16 IndexSize>
-class StaticHashTable
-{
+class StaticHashTable {
  public:
   StaticHashTable();
 
@@ -25,51 +24,49 @@ class StaticHashTable
   uint16 next_index_[IndexSize];
 };
 
-
 //
 // inlines
 //
 
 template <uint16 HashSize, uint16 IndexSize>
-FUN_ALWAYS_INLINE StaticHashTable<HashSize, IndexSize>::StaticHashTable()
-{
-  static_assert((HashSize & (HashSize - 1)) == 0, "hash_ size must be power of 2");
+FUN_ALWAYS_INLINE StaticHashTable<HashSize, IndexSize>::StaticHashTable() {
+  static_assert((HashSize & (HashSize - 1)) == 0,
+                "hash_ size must be power of 2");
   static_assert(IndexSize - 1 < 0xFFFF, "index 0xFFFF is reserved");
 
   Clear();
 }
 
 template <uint16 HashSize, uint16 IndexSize>
-FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Clear()
-{
+FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Clear() {
   UnsafeMemory::Memset(hash_, 0xFF, HashSize * 2);
 }
 
 // First in hash chain
 template <uint16 HashSize, uint16 IndexSize>
-FUN_ALWAYS_INLINE uint16 StaticHashTable<HashSize, IndexSize>::First(uint16 key) const
-{
+FUN_ALWAYS_INLINE uint16
+StaticHashTable<HashSize, IndexSize>::First(uint16 key) const {
   key &= HashSize - 1;
   return hash_[key];
 }
 
 // Next in hash chain
 template <uint16 HashSize, uint16 IndexSize>
-FUN_ALWAYS_INLINE uint16 StaticHashTable<HashSize, IndexSize>::Next(uint16 index) const
-{
+FUN_ALWAYS_INLINE uint16
+StaticHashTable<HashSize, IndexSize>::Next(uint16 index) const {
   fun_check_dbg(index < IndexSize);
   return next_index_[index];
 }
 
 template <uint16 HashSize, uint16 IndexSize>
-FUN_ALWAYS_INLINE bool StaticHashTable<HashSize, IndexSize>::IsValid(uint16 index) const
-{
+FUN_ALWAYS_INLINE bool StaticHashTable<HashSize, IndexSize>::IsValid(
+    uint16 index) const {
   return index != 0xFFFF;
 }
 
 template <uint16 HashSize, uint16 IndexSize>
-FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Add(uint16 key, uint16 index)
-{
+FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Add(uint16 key,
+                                                                 uint16 index) {
   fun_check_dbg(index < IndexSize);
 
   key &= HashSize - 1;
@@ -78,8 +75,8 @@ FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Add(uint16 key, uin
 }
 
 template <uint16 HashSize, uint16 IndexSize>
-FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Remove(uint16 key, uint16 index)
-{
+FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Remove(
+    uint16 key, uint16 index) {
   fun_check_dbg(index < IndexSize);
 
   key &= HashSize - 1;
@@ -87,8 +84,7 @@ FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Remove(uint16 key, 
   if (hash_[key] == index) {
     // Head of chain
     hash_[key] = next_index_[index];
-  }
-  else {
+  } else {
     for (uint16 i = hash_[key]; IsValid(i); i = next_index_[i]) {
       if (next_index_[i] == index) {
         // Next = Next->Next
@@ -99,20 +95,17 @@ FUN_ALWAYS_INLINE void StaticHashTable<HashSize, IndexSize>::Remove(uint16 key, 
   }
 }
 
-
 /**
 Dynamically sized hash table, used to index another data structure.
 Vastly simpler and faster than TMap.
 Example find:
 uint32 key = HashFunction(ID);
-for (uint32 i = HashTable.First(key); HashTable.IsValid(i); i = HashTable.Next(i)) {
-  if (Array[i].ID == ID) {
-    return Array[i];
+for (uint32 i = HashTable.First(key); HashTable.IsValid(i); i =
+HashTable.Next(i)) { if (Array[i].ID == ID) { return Array[i];
   }
 }
 */
-class HashTable
-{
+class HashTable {
  public:
   HashTable(uint16 hash_size = 1024, uint32 index_size = 0);
   ~HashTable();
@@ -141,18 +134,16 @@ class HashTable
   uint32* next_index_;
 };
 
-
 //
 // inlines
 //
 
 FUN_ALWAYS_INLINE HashTable::HashTable(uint16 hash_size, uint32 index_size)
-  : hash_size_(hash_size)
-  , hash_mask_(0)
-  , index_size_(index_size)
-  , hash_(EmptyHash)
-  , next_index_(nullptr)
-{
+    : hash_size_(hash_size),
+      hash_mask_(0),
+      index_size_(index_size),
+      hash_(EmptyHash),
+      next_index_(nullptr) {
   fun_check(MathBase::IsPowerOfTwo(hash_size_));
 
   if (index_size_) {
@@ -165,20 +156,15 @@ FUN_ALWAYS_INLINE HashTable::HashTable(uint16 hash_size, uint32 index_size)
   }
 }
 
-FUN_ALWAYS_INLINE HashTable::~HashTable()
-{
-  Free();
-}
+FUN_ALWAYS_INLINE HashTable::~HashTable() { Free(); }
 
-FUN_ALWAYS_INLINE void HashTable::Clear()
-{
+FUN_ALWAYS_INLINE void HashTable::Clear() {
   if (index_size_) {
     UnsafeMemory::Memset(hash_, 0xFF, hash_size_ * 4);
   }
 }
 
-FUN_ALWAYS_INLINE void HashTable::Free()
-{
+FUN_ALWAYS_INLINE void HashTable::Free() {
   if (index_size_) {
     hash_mask_ = 0;
     index_size_ = 0;
@@ -192,28 +178,25 @@ FUN_ALWAYS_INLINE void HashTable::Free()
 }
 
 // First in hash chain
-FUN_ALWAYS_INLINE uint32 HashTable::First(uint16 key) const
-{
+FUN_ALWAYS_INLINE uint32 HashTable::First(uint16 key) const {
   key &= hash_mask_;
   return hash_[key];
 }
 
 // Next in hash chain
-FUN_ALWAYS_INLINE uint32 HashTable::Next(uint32 index) const
-{
+FUN_ALWAYS_INLINE uint32 HashTable::Next(uint32 index) const {
   fun_check_dbg(index < index_size_);
   return next_index_[index];
 }
 
-FUN_ALWAYS_INLINE bool HashTable::IsValid(uint32 index) const
-{
+FUN_ALWAYS_INLINE bool HashTable::IsValid(uint32 index) const {
   return index != ~0u;
 }
 
-FUN_ALWAYS_INLINE void HashTable::Add(uint16 key, uint32 index)
-{
+FUN_ALWAYS_INLINE void HashTable::Add(uint16 key, uint32 index) {
   if (index >= index_size_) {
-    Resize(MathBase::Max<uint32>(32u, MathBase::RoundUpToPowerOfTwo(index + 1)));
+    Resize(
+        MathBase::Max<uint32>(32u, MathBase::RoundUpToPowerOfTwo(index + 1)));
   }
 
   key &= hash_mask_;
@@ -221,8 +204,7 @@ FUN_ALWAYS_INLINE void HashTable::Add(uint16 key, uint32 index)
   hash_[key] = index;
 }
 
-FUN_ALWAYS_INLINE void HashTable::Remove(uint16 key, uint32 index)
-{
+FUN_ALWAYS_INLINE void HashTable::Remove(uint16 key, uint32 index) {
   if (index >= index_size_) {
     return;
   }
@@ -232,8 +214,7 @@ FUN_ALWAYS_INLINE void HashTable::Remove(uint16 key, uint32 index)
   if (hash_[key] == index) {
     // Head of chain
     hash_[key] = next_index_[index];
-  }
-  else {
+  } else {
     for (uint32 i = hash_[key]; IsValid(i); i = next_index_[i]) {
       if (next_index_[i] == index) {
         // Next = Next->Next
@@ -244,4 +225,4 @@ FUN_ALWAYS_INLINE void HashTable::Remove(uint16 key, uint32 index)
   }
 }
 
-} // namespace fun
+}  // namespace fun

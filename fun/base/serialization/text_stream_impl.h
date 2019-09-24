@@ -4,7 +4,7 @@
 
 namespace fun {
 
-//TODO unicode가 아닌 utf8인코딩을 기본으로 처리하는것은 어떨런지??
+// TODO unicode가 아닌 utf8인코딩을 기본으로 처리하는것은 어떨런지??
 class TextStreamImpl {
  public:
   // Streaming parameters
@@ -56,17 +56,11 @@ class TextStreamImpl {
   bool auto_detect_unicode_;
 
   // I/O
-  enum TokenDelimiter {
-    Space,
-    NotSpace,
-    EndOfLine
-  };
+  enum TokenDelimiter { Space, NotSpace, EndOfLine };
 
   UString Read(int32 max_len);
 
-  bool Scan(const UNICHAR** ptr,
-            int32* token_length,
-            int32 max_len,
+  bool Scan(const UNICHAR** ptr, int32* token_length, int32 max_len,
             TokenDelimiter delimiter);
 
   const UNICHAR* ReadPtr() const;
@@ -114,7 +108,6 @@ class TextStreamImpl {
   void FlushWriteBuffer();
 };
 
-
 //
 // inlines
 //
@@ -127,4 +120,4 @@ inline void TextStreamImpl::PutString(const UString& str, bool is_number) {
   PutString(str.ConstData(), str.Len(), is_number);
 }
 
-} // namespace fun
+}  // namespace fun

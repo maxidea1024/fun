@@ -9,4 +9,4 @@ class FUN_BASE_API GenericCString {
  public:
 };
 
-} // namespace fun
+}  // namespace fun

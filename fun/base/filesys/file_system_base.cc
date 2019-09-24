@@ -10,26 +10,28 @@ int64 IFile::Size() {
   return result;
 }
 
-const char* IFileSystem::GetPhysicalTypeName() {
-  return "PhysicalFileSystem";
-}
+const char* IFileSystem::GetPhysicalTypeName() { return "PhysicalFileSystem"; }
 
-void IFileSystem::GetTimestampPair(const char* path_a, const char* path_b, DateTime& out_timestamp_a, DateTime& out_timestamp_b) {
+void IFileSystem::GetTimestampPair(const char* path_a, const char* path_b,
+                                   DateTime& out_timestamp_a,
+                                   DateTime& out_timestamp_b) {
   if (GetLowerLevel()) {
-    GetLowerLevel()->GetTimestampPair(path_a, path_b, out_timestamp_a, out_timestamp_b);
+    GetLowerLevel()->GetTimestampPair(path_a, path_b, out_timestamp_a,
+                                      out_timestamp_b);
   } else {
     out_timestamp_a = GetTimestamp(path_a);
     out_timestamp_b = GetTimestamp(path_b);
   }
 }
 
-bool IFileSystem::IterateDirectoryRecursively(const char* directory, DirectoryVisitor& visitor) {
+bool IFileSystem::IterateDirectoryRecursively(const char* directory,
+                                              DirectoryVisitor& visitor) {
   struct Recurse : public DirectoryVisitor {
     IFileSystem& platform_fs;
     DirectoryVisitor& visitor;
 
     Recurse(IFileSystem& platform_fs, DirectoryVisitor& visitor)
-      : platform_fs(platform_fs), visitor(visitor) {}
+        : platform_fs(platform_fs), visitor(visitor) {}
 
     bool Visit(const char* filename_or_directory, bool is_directory) override {
       bool result = visitor.Visit(filename_or_directory, is_directory);
@@ -43,16 +45,17 @@ bool IFileSystem::IterateDirectoryRecursively(const char* directory, DirectoryVi
   return IterateDirectory(directory, recurse);
 }
 
-
-bool IFileSystem::IterateDirectoryStatRecursively(const char* directory, DirectoryStatVisitor& visitor) {
+bool IFileSystem::IterateDirectoryStatRecursively(
+    const char* directory, DirectoryStatVisitor& visitor) {
   struct StatRecurse : public DirectoryStatVisitor {
     IFileSystem& platform_fs;
     DirectoryStatVisitor& visitor;
 
     StatRecurse(IFileSystem& platform_fs, DirectoryStatVisitor& visitor)
-      : platform_fs(platform_fs), visitor(visitor) {}
+        : platform_fs(platform_fs), visitor(visitor) {}
 
-    bool Visit(const char* filename_or_directory, const FileStatData& stat_data) override {
+    bool Visit(const char* filename_or_directory,
+               const FileStatData& stat_data) override {
       bool result = visitor.Visit(filename_or_directory, stat_data);
       if (result && stat_data.is_directory) {
         result = platform_fs.IterateDirectoryStat(filename_or_directory, *this);
@@ -64,13 +67,11 @@ bool IFileSystem::IterateDirectoryStatRecursively(const char* directory, Directo
   return IterateDirectoryStat(directory, recurse);
 }
 
-
 bool IFileSystem::DeleteDirectoryRecursively(const char* directory) {
   struct Recurse : public DirectoryVisitor {
     IFileSystem& platform_fs;
 
-    Recurse(IFileSystem& platform_fs)
-      : platform_fs(platform_fs) {}
+    Recurse(IFileSystem& platform_fs) : platform_fs(platform_fs) {}
 
     bool Visit(const char* filename_or_directory, bool is_directory) override {
       if (is_directory) {
@@ -80,7 +81,7 @@ bool IFileSystem::DeleteDirectoryRecursively(const char* directory) {
         platform_fs.SetReadOnly(filename_or_directory, false);
         platform_fs.DeleteFile(filename_or_directory);
       }
-      return true; // continue searching
+      return true;  // continue searching
     }
   };
   Recurse recurse(*this);
@@ -89,7 +90,7 @@ bool IFileSystem::DeleteDirectoryRecursively(const char* directory) {
 }
 
 bool IFileSystem::CopyFile(const char* to, const char* from) {
-  const int64 MAX_BUFFER_SIZE = 1024*1024;
+  const int64 MAX_BUFFER_SIZE = 1024 * 1024;
 
   AutoPtr<IFile> from_file(OpenRead(from));
   if (!from_file.IsValid()) {
@@ -122,7 +123,9 @@ bool IFileSystem::CopyFile(const char* to, const char* from) {
   return true;
 }
 
-bool IFileSystem::CopyDirectoryTree(const char* destination_directory, const char* src, bool overwwrite_all_existing) {
+bool IFileSystem::CopyDirectoryTree(const char* destination_directory,
+                                    const char* src,
+                                    bool overwwrite_all_existing) {
   fun_check_ptr(destination_directory);
   fun_check_ptr(src);
 
@@ -138,23 +141,23 @@ bool IFileSystem::CopyDirectoryTree(const char* destination_directory, const cha
   }
 
   // dst directory exists already or can be created ?
-  if (!DirectoryExists(*dest_dir) &&
-      !CreateDirectory(*dest_dir)) {
+  if (!DirectoryExists(*dest_dir) && !CreateDirectory(*dest_dir)) {
     return false;
   }
 
   // Copy all files and directories
   struct CopyFilesAndDirs : public DirectoryVisitor {
-    IFileSystem & platform_fs;
+    IFileSystem& platform_fs;
     const char* source_root;
     const char* dest_root;
     bool overwrite;
 
-    CopyFilesAndDirs(IFileSystem& platform_fs, const char* source_root, const char* dest_root, bool overwrite)
-      : platform_fs(platform_fs),
-        source_root(source_root),
-        dest_root(dest_root),
-        overwrite(overwrite) {}
+    CopyFilesAndDirs(IFileSystem& platform_fs, const char* source_root,
+                     const char* dest_root, bool overwrite)
+        : platform_fs(platform_fs),
+          source_root(source_root),
+          dest_root(dest_root),
+          overwrite(overwrite) {}
 
     bool Visit(const char* filename_or_directory, bool is_directory) override {
       string new_name(filename_or_directory);
@@ -163,7 +166,8 @@ bool IFileSystem::CopyDirectoryTree(const char* destination_directory, const cha
 
       if (is_directory) {
         // create new directory structure
-        if (!platform_fs.CreateDirectoryTree(*new_name) && !platform_fs.DirectoryExists(*new_name)) {
+        if (!platform_fs.CreateDirectoryTree(*new_name) &&
+            !platform_fs.DirectoryExists(*new_name)) {
           return false;
         }
       } else {
@@ -178,22 +182,25 @@ bool IFileSystem::CopyDirectoryTree(const char* destination_directory, const cha
           return false;
         }
       }
-      return true; // continue searching
+      return true;  // continue searching
     }
   };
 
   // copy files and directories visitor
-  CopyFilesAndDirs copy_files_and_dirs(*this, *source_dir, *dest_dir, overwwrite_all_existing);
+  CopyFilesAndDirs copy_files_and_dirs(*this, *source_dir, *dest_dir,
+                                       overwwrite_all_existing);
 
   // create all files subdirectories and files in subdirectories!
   return IterateDirectoryRecursively(*source_dir, copy_files_and_dirs);
 }
 
-String IFileSystem::ConvertToAbsolutePathForExternalAppForRead(const char* filename) {
+String IFileSystem::ConvertToAbsolutePathForExternalAppForRead(
+    const char* filename) {
   return CPaths::ConvertRelativePathToFull(filename);
 }
 
-String IFileSystem::ConvertToAbsolutePathForExternalAppForWrite(const char* filename) {
+String IFileSystem::ConvertToAbsolutePathForExternalAppForWrite(
+    const char* filename) {
   return CPaths::ConvertRelativePathToFull(filename);
 }
 
@@ -204,7 +211,8 @@ bool IFileSystem::CreateDirectoryTree(const char* directory) {
   int32 create_count = 0;
   const int32 max_characters = MAX_FUN_FILENAME_LENGTH - 1;
   int32 index = 0;
-  for (char full[max_characters + 1] = "", *ptr = full; index < max_characters; *ptr++ = *local_path++, index++) {
+  for (char full[max_characters + 1] = "", *ptr = full; index < max_characters;
+       *ptr++ = *local_path++, index++) {
     if (*local_path == '/' || *local_path == 0) {
       *ptr = 0;
       if (ptr != full && !CPaths::IsDrive(full)) {
@@ -227,4 +235,4 @@ bool IPhysicalFileSystem::Initialize(IFileSystem* inner, const char* cmdline) {
   return true;
 }
 
-} // namespace fun
+}  // namespace fun

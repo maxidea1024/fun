@@ -1,6 +1,6 @@
 #pragma once
 
-//NOTE FUN_BODY_MACRO_COMBINE ¸ÅÅ©·Î´Â Çì´õÅø¿¡¼­ ¼³Á¤ÇÏ´Â°Í °°Àºµ¥...??
+//NOTE FUN_BODY_MACRO_COMBINE ï¿½ï¿½Å©ï¿½Î´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...??
 
 namespace fun {
 struct WeakObjectPtr;

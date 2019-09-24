@@ -18,4 +18,4 @@ void NullSink::SetProperty(const String& name, const String& value) {
   // NOOP
 }
 
-} // namespace fun
+}  // namespace fun

@@ -2,9 +2,9 @@
 
 #include "fun/base/base.h"
 #include "fun/base/configurable.h"
+#include "fun/base/logging/log_message.h"
 #include "fun/base/ref_counted_object.h"
 #include "fun/base/ref_counted_ptr.h"
-#include "fun/base/logging/log_message.h"
 
 namespace fun {
 
@@ -27,9 +27,7 @@ namespace fun {
  *
  * Subclasses must at least provide a Format() method.
  */
-class FUN_BASE_API LogFormatter
-  : public Configurable
-  , public RefCountedObject {
+class FUN_BASE_API LogFormatter : public Configurable, public RefCountedObject {
  public:
   using Ptr = RefCountedPtr<LogFormatter>;
 
@@ -61,4 +59,4 @@ class FUN_BASE_API LogFormatter
   virtual ~LogFormatter();
 };
 
-} // namespace fun
+}  // namespace fun

@@ -7,8 +7,8 @@ namespace fun {
 /**
  * Works just like std::min_element.
  */
-template <typename ForwardIt> FUN_ALWAYS_INLINE
-ForwardIt MinElement(ForwardIt first, ForwardIt end) {
+template <typename ForwardIt>
+FUN_ALWAYS_INLINE ForwardIt MinElement(ForwardIt first, ForwardIt end) {
   ForwardIt result = first;
   for (; ++first != end;) {
     if (*first < *result) {
@@ -21,8 +21,9 @@ ForwardIt MinElement(ForwardIt first, ForwardIt end) {
 /**
  * Works just like std::min_element.
  */
-template <typename ForwardIt, typename Predicate> FUN_ALWAYS_INLINE
-ForwardIt MinElement(ForwardIt first, ForwardIt end, const Predicate& pred) {
+template <typename ForwardIt, typename Predicate>
+FUN_ALWAYS_INLINE ForwardIt MinElement(ForwardIt first, ForwardIt end,
+                                       const Predicate& pred) {
   ForwardIt result = first;
   for (; ++first != end;) {
     if (pred(*first, *result)) {
@@ -35,8 +36,8 @@ ForwardIt MinElement(ForwardIt first, ForwardIt end, const Predicate& pred) {
 /**
  * Works just like std::max_element.
  */
-template <typename ForwardIt> FUN_ALWAYS_INLINE
-ForwardIt MaxElement(ForwardIt first, ForwardIt end) {
+template <typename ForwardIt>
+FUN_ALWAYS_INLINE ForwardIt MaxElement(ForwardIt first, ForwardIt end) {
   ForwardIt result = first;
   for (; ++first != end;) {
     if (*result < *first) {
@@ -49,8 +50,9 @@ ForwardIt MaxElement(ForwardIt first, ForwardIt end) {
 /**
  * Works just like std::max_element.
  */
-template <typename ForwardIt, typename Predicate> FUN_ALWAYS_INLINE
-ForwardIt MaxElement(ForwardIt first, ForwardIt end, const Predicate& pred) {
+template <typename ForwardIt, typename Predicate>
+FUN_ALWAYS_INLINE ForwardIt MaxElement(ForwardIt first, ForwardIt end,
+                                       const Predicate& pred) {
   ForwardIt result = first;
   for (; ++first != end;) {
     if (pred(*result, *first)) {
@@ -60,4 +62,4 @@ ForwardIt MaxElement(ForwardIt first, ForwardIt end, const Predicate& pred) {
   return result;
 }
 
-} // namespace fun
+}  // namespace fun

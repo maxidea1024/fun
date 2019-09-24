@@ -35,7 +35,8 @@ class FUN_BASE_API LayeredPlatformFS {
    *
    * @param name - name of the platform file system.
    *
-   * @return Pointer to the active platform file system or nullptr if the platform file system was not found.
+   * @return Pointer to the active platform file system or nullptr if the
+   * platform file system was not found.
    */
   IPlatformFS* FindPlatformFS(const char* name);
 
@@ -44,7 +45,8 @@ class FUN_BASE_API LayeredPlatformFS {
    *
    * @param name - name of the platform file system to create.
    *
-   * @return Platform file instance of the platform file system type was found, nullptr otherwise.
+   * @return Platform file instance of the platform file system type was found,
+   * nullptr otherwise.
    */
   IPlatformFS* GetPlatformFS(const char* name);
 
@@ -58,4 +60,4 @@ class FUN_BASE_API LayeredPlatformFS {
   IPlatformFS* topmost_platform_fs_;
 };
 
-} // namespace fun
+}  // namespace fun

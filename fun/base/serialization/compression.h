@@ -22,25 +22,27 @@ FUN_DECLARE_FLAGS(CompressionFlags, CompressionFlag);
 
 namespace CompressionConstants {
 
-  static const int32 LOADING_COMPRESSION_CHUNK_SIZE_PRE_369 = 32768;
-  static const int32 LOADING_COMPRESSION_CHUNK_SIZE = 131072;
-  static const int32 SAVING_COMPRESSION_CHUNK_SIZE = LOADING_COMPRESSION_CHUNK_SIZE;
+static const int32 LOADING_COMPRESSION_CHUNK_SIZE_PRE_369 = 32768;
+static const int32 LOADING_COMPRESSION_CHUNK_SIZE = 131072;
+static const int32 SAVING_COMPRESSION_CHUNK_SIZE =
+    LOADING_COMPRESSION_CHUNK_SIZE;
 
-} // namespace CompressionConstants
+}  // namespace CompressionConstants
 
 class Compression {
  public:
   static const uint32 MAX_UNCOMPRESSED_SIZE = 256 * 1024;
 
-  //TODO
-  //static FUN_ALIGNED_VOLATILE double compressor_time;
-  //static FUN_ALIGNED_VOLATILE uint64 compressor_src_bytes;
-  //static FUN_ALIGNED_VOLATILE uint64 compressor_dst_bytes;
+  // TODO
+  // static FUN_ALIGNED_VOLATILE double compressor_time;
+  // static FUN_ALIGNED_VOLATILE uint64 compressor_src_bytes;
+  // static FUN_ALIGNED_VOLATILE uint64 compressor_dst_bytes;
   static volatile double compressor_time;
   static volatile uint64 compressor_src_bytes;
   static volatile uint64 compressor_dst_bytes;
 
-  FUN_BASE_API static int32 CompressBound(CompressionFlags flags, int32 uncompressed_size);
+  FUN_BASE_API static int32 CompressBound(CompressionFlags flags,
+                                          int32 uncompressed_size);
 
   FUN_BASE_API static bool Compress(CompressionFlags flags,
                                     void* compressed_buffer,
@@ -56,4 +58,4 @@ class Compression {
                                       bool is_source_padded = false);
 };
 
-} // namespace fun
+}  // namespace fun

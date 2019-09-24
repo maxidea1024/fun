@@ -1,14 +1,13 @@
-#include "fun/base/delegate/i_delegate_instance.h"
 #include "fun/base/atomic_counter.h"
+#include "fun/base/delegate/i_delegate_instance.h"
 
 namespace fun {
 
 namespace {
-  static AtomicCounter64 g_next_id(1);
+static AtomicCounter64 g_next_id(1);
 }
 
-uint64 DelegateHandle::GenerateNewId()
-{
+uint64 DelegateHandle::GenerateNewId() {
   // Just increment a counter to generate an ID.
   uint64 result = ++g_next_id;
 
@@ -22,4 +21,4 @@ uint64 DelegateHandle::GenerateNewId()
   return result;
 }
 
-} // namespace fun
+}  // namespace fun

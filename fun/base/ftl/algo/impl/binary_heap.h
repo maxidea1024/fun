@@ -21,14 +21,19 @@ FUN_ALWAYS_INLINE int32 HeapGetParentIndex(int32 index) {
 }
 
 template <typename RangeValue, typename Projection, typename Predicate>
-FUN_ALWAYS_INLINE void HeapSiftDown(RangeValue* heap, int32 index, const int32 count, const Projection& proj, const Predicate& pred) {
+FUN_ALWAYS_INLINE void HeapSiftDown(RangeValue* heap, int32 index,
+                                    const int32 count, const Projection& proj,
+                                    const Predicate& pred) {
   while (!HeapIsLeaf(index, count)) {
     const int32 left_child_index = HeapGetLeftChildIndex(index);
     const int32 right_child_index = left_child_index + 1;
 
     int32 min_child_index = left_child_index;
     if (right_child_index < count) {
-      min_child_index = pred(Invoke(proj, heap[left_child_index]), Invoke(proj, heap[right_child_index])) ? left_child_index : right_child_index;
+      min_child_index = pred(Invoke(proj, heap[left_child_index]),
+                             Invoke(proj, heap[right_child_index]))
+                            ? left_child_index
+                            : right_child_index;
     }
 
     if (!pred(Invoke(proj, heap[min_child_index]), Invoke(proj, heap[index]))) {
@@ -41,10 +46,13 @@ FUN_ALWAYS_INLINE void HeapSiftDown(RangeValue* heap, int32 index, const int32 c
 }
 
 template <typename RangeValue, typename Projection, typename Predicate>
-FUN_ALWAYS_INLINE int32 HeapSiftUp(RangeValue* heap, int32 root_index, int32 node_index, const Projection& proj, const Predicate& pred) {
+FUN_ALWAYS_INLINE int32 HeapSiftUp(RangeValue* heap, int32 root_index,
+                                   int32 node_index, const Projection& proj,
+                                   const Predicate& pred) {
   while (node_index > root_index) {
     int32 parent_index = HeapGetParentIndex(node_index);
-    if (!pred(Invoke(proj, heap[node_index]), Invoke(proj, heap[parent_index]))) {
+    if (!pred(Invoke(proj, heap[node_index]),
+              Invoke(proj, heap[parent_index]))) {
       break;
     }
 
@@ -56,14 +64,17 @@ FUN_ALWAYS_INLINE int32 HeapSiftUp(RangeValue* heap, int32 root_index, int32 nod
 }
 
 template <typename RangeValue, typename Projection, typename Predicate>
-FUN_ALWAYS_INLINE void HeapifyInternal(RangeValue* first, size_t count, Projection proj, Predicate pred) {
-  for (int32 index = HeapGetParentIndex((int32)count - 1); index >= 0; --index) {
+FUN_ALWAYS_INLINE void HeapifyInternal(RangeValue* first, size_t count,
+                                       Projection proj, Predicate pred) {
+  for (int32 index = HeapGetParentIndex((int32)count - 1); index >= 0;
+       --index) {
     HeapSiftDown(first, index, (int32)count, proj, pred);
   }
 }
 
 template <typename RangeValue, typename Projection, typename Predicate>
-FUN_ALWAYS_INLINE void HeapSortInternal(RangeValue* first, size_t count, Projection proj, Predicate pred) {
+FUN_ALWAYS_INLINE void HeapSortInternal(RangeValue* first, size_t count,
+                                        Projection proj, Predicate pred) {
   // Reverse the predicate to build a max-heap instead of a min-heap
   ReversePredicate<Predicate> reverse_pred(pred);
   HeapifyInternal(first, count, proj, reverse_pred);
@@ -74,7 +85,7 @@ FUN_ALWAYS_INLINE void HeapSortInternal(RangeValue* first, size_t count, Project
   }
 }
 
-} // namespace impl
+}  // namespace impl
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

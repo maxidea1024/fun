@@ -37,7 +37,8 @@ class FUN_BASE_API DoubleByteEncoding : public TextEncoding {
 
  protected:
   /**
-   * Creates a DoubleByteEncoding using the given mapping and reverse-mapping tables.
+   * Creates a DoubleByteEncoding using the given mapping and reverse-mapping
+   * tables.
    *
    * names must be a static array declared in the derived class,
    * containing the names of this encoding, declared as:
@@ -58,9 +59,9 @@ class FUN_BASE_API DoubleByteEncoding : public TextEncoding {
    * representing the first character in the sequence and the lower byte
    * representing the second character in the sequence.
    *
-   * For each reverse_mapping_table item, from must be unicode code point from the
-   * Basic Multilingual Plane, and to is a one-byte or two-byte sequence.
-   * As with mapping_table, a one-byte sequence is in range 0x00 to 0xFF, and a
+   * For each reverse_mapping_table item, from must be unicode code point from
+   * the Basic Multilingual Plane, and to is a one-byte or two-byte sequence. As
+   * with mapping_table, a one-byte sequence is in range 0x00 to 0xFF, and a
    * two-byte sequence is in range 0x0100 to 0xFFFF.
    *
    * unicode code points are restricted to the Basic Multilingual Plane
@@ -68,12 +69,11 @@ class FUN_BASE_API DoubleByteEncoding : public TextEncoding {
    *
    * Items in both tables must be sorted by from, in ascending order.
    */
-  DoubleByteEncoding( const char** names,
-                      const TextEncoding::CharacterMap& char_map,
-                      const Mapping mapping_table[],
-                      size_t mapping_table_size,
-                      const Mapping reverse_mapping_table[],
-                      size_t reverse_mapping_table_size);
+  DoubleByteEncoding(const char** names,
+                     const TextEncoding::CharacterMap& char_map,
+                     const Mapping mapping_table[], size_t mapping_table_size,
+                     const Mapping reverse_mapping_table[],
+                     size_t reverse_mapping_table_size);
 
   /**
    * Destroys the DoubleByteEncoding.
@@ -108,4 +108,4 @@ class FUN_BASE_API DoubleByteEncoding : public TextEncoding {
   const size_t reverse_mapping_table_size_;
 };
 
-} // namespace fun
+}  // namespace fun

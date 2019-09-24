@@ -1,13 +1,14 @@
-﻿#include "fun/sql/sql.h"
-#include "fun/framework/layered_configuration.h"
+﻿#include "fun/framework/layered_configuration.h"
+#include "fun/sql/sql.h"
 
 namespace fun {
-//namespace sql {
+// namespace sql {
 
 class FUN_BASE_API MongoDbSink : public LogSink {
  public:
   MongoDbSink();
-  MongoDbSink(const String& connector, const String& connect, const String& name = "-");
+  MongoDbSink(const String& connector, const String& connect,
+              const String& name = "-");
 
   void Open() override;
   void Close() override;
@@ -61,7 +62,6 @@ class FUN_BASE_API MongoDbSink : public LogSink {
   SharedPtr<ArchiveStrategy> archive_strategy_;
 };
 
-
 //
 // inlines
 //
@@ -75,12 +75,10 @@ FUN_ALWAYS_INLINE vint32 MongoDbSink::Wait() {
 }
 
 FUN_ALWAYS_INLINE bool MongoDbSink::IsTrue(const String& value) const {
-  //TODO 좀 이상한데??
-  return  icompare(value, "true") == 0 ||
-          icompare(value, "t") == 0 ||
-          icompare(value, "yes") == 0 ||
-          icompare(value, "y") == 0;
+  // TODO 좀 이상한데??
+  return icompare(value, "true") == 0 || icompare(value, "t") == 0 ||
+         icompare(value, "yes") == 0 || icompare(value, "y") == 0;
 }
 
 //} // namespace sql
-} // namespace fun
+}  // namespace fun

@@ -7,7 +7,7 @@ namespace fun {
 
 /**
  * The NullSink is the /dev/null of sinks.
- * 
+ *
  * A NullSink discards all information sent to it.
  * Furthermore, its SetProperty method ignores
  * all properties, so it the NullSink has the
@@ -25,4 +25,4 @@ class FUN_BASE_API NullSink : public LogSink {
   void SetProperty(const String& name, const String& value) override;
 };
 
-} // namespace fun
+}  // namespace fun

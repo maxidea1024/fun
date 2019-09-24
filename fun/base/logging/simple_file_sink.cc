@@ -1,29 +1,26 @@
 ﻿#include "fun/base/logging/simple_file_sink.h"
-#include "fun/base/logging/log_file.h"
-#include "fun/base/file.h"
-#include "fun/base/logging/log_message.h"
 #include "fun/base/exception.h"
-#include "fun/base/string/string.h"
+#include "fun/base/file.h"
+#include "fun/base/logging/log_file.h"
+#include "fun/base/logging/log_message.h"
 #include "fun/base/str.h"
+#include "fun/base/string/string.h"
 
 namespace fun {
 
-const String SimpleFileSink::PROP_PATH          = "Path";
+const String SimpleFileSink::PROP_PATH = "Path";
 const String SimpleFileSink::PROP_SECONDARYPATH = "SecondaryPath";
-const String SimpleFileSink::PROP_ROTATION      = "Rotation";
-const String SimpleFileSink::PROP_FLUSH         = "Flush";
+const String SimpleFileSink::PROP_ROTATION = "Rotation";
+const String SimpleFileSink::PROP_FLUSH = "Flush";
 
-SimpleFileSink::SimpleFileSink()
-  : limit_(0),
-    flush_(true),
-    file_(0) {}
+SimpleFileSink::SimpleFileSink() : limit_(0), flush_(true), file_(0) {}
 
 SimpleFileSink::SimpleFileSink(const String& path)
-  : path_(path),
-    secondard_path_(path + ".0"),
-    limit_(0),
-    flush_(true),
-    file_(0) {}
+    : path_(path),
+      secondard_path_(path + ".0"),
+      limit_(0),
+      flush_(true),
+      file_(0) {}
 
 SimpleFileSink::~SimpleFileSink() {
   try {
@@ -119,28 +116,29 @@ uint64 SimpleFileSink::GetSize() const {
   }
 }
 
-const String& SimpleFileSink::GetPath() const {
-  return path_;
-}
+const String& SimpleFileSink::GetPath() const { return path_; }
 
 const String& SimpleFileSink::GetSecondaryPath() const {
   return secondard_path_;
 }
 
 void SimpleFileSink::SetRotation(const String& rotation) {
-  String::const_iterator it  = rotation.begin();
+  String::const_iterator it = rotation.begin();
   String::const_iterator end = rotation.end();
   uint64 n = 0;
   while (it != end && CharTraitsA::IsWhitespace(*it)) ++it;
-  while (it != end && CharTraitsA::IsDigit(*it)) { n *= 10; n += *it++ - '0'; }
+  while (it != end && CharTraitsA::IsDigit(*it)) {
+    n *= 10;
+    n += *it++ - '0';
+  }
   while (it != end && CharTraitsA::IsWhitespace(*it)) ++it;
   String unit;
   while (it != end && CharTraitsA::IsAlpha(*it)) unit += *it++;
 
   if (icompare(unit, "K") == 0) {
-    limit_ = n*1024;
+    limit_ = n * 1024;
   } else if (icompare(unit, "M") == 0) {
-    limit_ = n*1024*1024;
+    limit_ = n * 1024 * 1024;
   } else if (unit.IsEmpty()) {
     limit_ = n;
   } else if (icompare(unit, "Never") == 0) {
@@ -168,10 +166,11 @@ void SimpleFileSink::Rotate() {
   if (f.Exists()) {
     try {
       f.Remove();
-    } catch (...) {}
+    } catch (...) {
+    }
   }
   delete file_;
   file_ = new LogFile(new_path);
 }
 
-} // namespace fun
+}  // namespace fun

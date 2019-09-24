@@ -10,9 +10,9 @@ namespace fun {
 
 /**
  * A sink that writes to an ostream.
- * 
+ *
  * Only the message's text is written, followed by a newline.
- * 
+ *
  * Chain this sink to a FormattingSink with an
  * appropriate LogFormatter to control what is contained
  * in the text.
@@ -37,4 +37,4 @@ class FUN_BASE_API StreamSink : public LogSink {
   FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

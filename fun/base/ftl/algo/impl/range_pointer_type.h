@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/ftl/template.h" // DeclVal
+#include "fun/base/ftl/template.h"  // DeclVal
 
 namespace fun {
 namespace algo {
@@ -18,7 +18,7 @@ struct RangePointerType<T[N]> {
   using Type = T*;
 };
 
-} // namespace impl
+}  // namespace impl
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

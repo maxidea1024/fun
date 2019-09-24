@@ -1,12 +1,11 @@
 ﻿#include "fun/base/logging/log_file_win32.h"
-#include "fun/base/file.h"
 #include "fun/base/exception.h"
+#include "fun/base/file.h"
 
 namespace fun {
 
 LogFileImpl::LogFileImpl(const String& path)
-  : path_(path),
-    file_handle_(INVALID_HANDLE_VALUE) {
+    : path_(path), file_handle_(INVALID_HANDLE_VALUE) {
   File file(path);
   if (file.Exists()) {
     if (GetSizeImpl() == 0) {
@@ -30,7 +29,8 @@ void LogFileImpl::WriteImpl(const String& text, bool flush) {
   }
 
   DWORD written;
-  BOOL res = WriteFile(file_handle_, text.ConstData(), (DWORD)text.Len(), &written, NULL);
+  BOOL res = WriteFile(file_handle_, text.ConstData(), (DWORD)text.Len(),
+                       &written, NULL);
   if (!res) {
     throw WriteFileException(path_);
   }
@@ -60,29 +60,20 @@ uint64 LogFileImpl::GetSizeImpl() const {
 
   LARGE_INTEGER li;
   li.HighPart = 0;
-  li.LowPart  = SetFilePointer(file_handle_, 0, &li.HighPart, FILE_CURRENT);
+  li.LowPart = SetFilePointer(file_handle_, 0, &li.HighPart, FILE_CURRENT);
   return li.QuadPart;
 }
 
-Timestamp LogFileImpl::GetCreationDateImpl() const {
-  return creation_date_;
-}
+Timestamp LogFileImpl::GetCreationDateImpl() const { return creation_date_; }
 
-const String& LogFileImpl::GetPathImpl() const {
-  return path_;
-}
+const String& LogFileImpl::GetPathImpl() const { return path_; }
 
 void LogFileImpl::CreateFile() {
   UString upath;
   FileImpl::ConvertPath(path_, upath);
 
-  file_handle_ = CreateFileW( upath.c_str(),
-                              GENERIC_WRITE,
-                              FILE_SHARE_READ,
-                              NULL,
-                              OPEN_ALWAYS,
-                              FILE_ATTRIBUTE_NORMAL,
-                              NULL);
+  file_handle_ = CreateFileW(upath.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
+                             NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   if (file_handle_ == INVALID_HANDLE_VALUE) {
     throw OpenFileException(path_);
   }
@@ -109,4 +100,4 @@ void LogFileImpl::CreateFile() {
   }
 }
 
-} // namespace fun
+}  // namespace fun

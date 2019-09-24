@@ -31,37 +31,29 @@ const UNICHAR CStringData<UNICHAR>::TabArray[MAX_TABS + 1] =
   UTEXT("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t")
   UTEXT("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
 
-
 bool ToBoolHelper::FromString(const char* str) {
   return ToBoolHelper::FromString(UTF8_TO_UNICHAR(str));
 }
 
 bool ToBoolHelper::FromString(const UNICHAR* str) {
-  if (
-        CStringTraitsU::Stricmp(str, UTEXT("true")) == 0
-    ||  CStringTraitsU::Stricmp(str, UTEXT("yes")) == 0
-    ||  CStringTraitsU::Stricmp(str, UTEXT("on")) == 0
-    //||  CStringTraitsU::Stricmp(str, *(GTrue.ToString())) == 0
-    //||  CStringTraitsU::Stricmp(str, *(GYes.ToString())) == 0
-    )
-  {
+  if (CStringTraitsU::Stricmp(str, UTEXT("true")) == 0 ||
+      CStringTraitsU::Stricmp(str, UTEXT("yes")) == 0 ||
+      CStringTraitsU::Stricmp(str, UTEXT("on")) == 0
+      //||  CStringTraitsU::Stricmp(str, *(GTrue.ToString())) == 0
+      //||  CStringTraitsU::Stricmp(str, *(GYes.ToString())) == 0
+  ) {
     return true;
-  }
-  else if (
-        CStringTraitsU::Stricmp(str, UTEXT("false")) == 0
-    ||  CStringTraitsU::Stricmp(str, UTEXT("no")) == 0
-    ||  CStringTraitsU::Stricmp(str, UTEXT("off")) == 0
-    //||  CStringTraitsU::Stricmp(str, *(GFalse.ToString())) == 0
-    //||  CStringTraitsU::Stricmp(str, *(GNo.ToString())) == 0
-    )
-  {
+  } else if (CStringTraitsU::Stricmp(str, UTEXT("false")) == 0 ||
+             CStringTraitsU::Stricmp(str, UTEXT("no")) == 0 ||
+             CStringTraitsU::Stricmp(str, UTEXT("off")) == 0
+             //||  CStringTraitsU::Stricmp(str, *(GFalse.ToString())) == 0
+             //||  CStringTraitsU::Stricmp(str, *(GNo.ToString())) == 0
+  ) {
     return false;
-  }
-  else {
+  } else {
     return !!CStringTraitsU::Atoi(str);
   }
 }
-
 
 //
 // StringCmp
@@ -71,9 +63,10 @@ namespace {
 FUN_ALWAYS_INLINE UNICHAR FoldCase(UNICHAR ch) {
   return !CharTraitsU::IsLower(ch) ? CharTraitsU::ToUpper(ch) : ch;
 }
-} // namespace
+}  // namespace
 
-int32 StringCmp::Compare(const char* str1, const char* str2, CaseSensitivity casesense) {
+int32 StringCmp::Compare(const char* str1, const char* str2,
+                         CaseSensitivity casesense) {
   if (casesense == CaseSensitivity::CaseSensitive) {
     return CStringTraitsA::Strcmp(str1, str2);
   } else {
@@ -81,7 +74,8 @@ int32 StringCmp::Compare(const char* str1, const char* str2, CaseSensitivity cas
   }
 }
 
-int32 StringCmp::Compare(const UNICHAR* str1, const UNICHAR* str2, CaseSensitivity casesense) {
+int32 StringCmp::Compare(const UNICHAR* str1, const UNICHAR* str2,
+                         CaseSensitivity casesense) {
   if (casesense == CaseSensitivity::CaseSensitive) {
     return CStringTraitsU::Strcmp(str1, str2);
   } else {
@@ -89,19 +83,22 @@ int32 StringCmp::Compare(const UNICHAR* str1, const UNICHAR* str2, CaseSensitivi
   }
 }
 
-int32 StringCmp::Compare(const char* str1, const UNICHAR* str2, CaseSensitivity casesense) {
-  //TODO
+int32 StringCmp::Compare(const char* str1, const UNICHAR* str2,
+                         CaseSensitivity casesense) {
+  // TODO
   fun_check(0);
   return 0;
 }
 
-int32 StringCmp::Compare(const UNICHAR* str1, const char* str2, CaseSensitivity casesense) {
-  //TODO
+int32 StringCmp::Compare(const UNICHAR* str1, const char* str2,
+                         CaseSensitivity casesense) {
+  // TODO
   fun_check(0);
   return 0;
 }
 
-int32 StringCmp::Compare(const char* str1, int32 str1_len, const char* str2, int32 str2_len, CaseSensitivity casesense) {
+int32 StringCmp::Compare(const char* str1, int32 str1_len, const char* str2,
+                         int32 str2_len, CaseSensitivity casesense) {
   fun_check(str1_len >= 0);
   fun_check(str2_len >= 0);
 
@@ -127,7 +124,8 @@ int32 StringCmp::Compare(const char* str1, int32 str1_len, const char* str2, int
   return diff ? diff : CompareLength(str1_len, str2_len);
 }
 
-int32 StringCmp::Compare(const char* str1, const char* str2, int32 len, CaseSensitivity casesense) {
+int32 StringCmp::Compare(const char* str1, const char* str2, int32 len,
+                         CaseSensitivity casesense) {
   fun_check(len >= 0);
 
   if (str1 == nullptr || str2 == nullptr) {
@@ -146,11 +144,13 @@ int32 StringCmp::Compare(const char* str1, const char* str2, int32 len, CaseSens
         return diff;
       }
     }
-    return 0; // equals
+    return 0;  // equals
   }
 }
 
-int32 StringCmp::Compare(const UNICHAR* str1, int32 str1_len, const UNICHAR* str2, int32 str2_len, CaseSensitivity casesense) {
+int32 StringCmp::Compare(const UNICHAR* str1, int32 str1_len,
+                         const UNICHAR* str2, int32 str2_len,
+                         CaseSensitivity casesense) {
   fun_check(str1_len >= 0);
   fun_check(str2_len >= 0);
 
@@ -174,7 +174,8 @@ int32 StringCmp::Compare(const UNICHAR* str1, int32 str1_len, const UNICHAR* str
   return diff ? diff : CompareLength(str1_len, str2_len);
 }
 
-int32 StringCmp::Compare(const UNICHAR* str1, const UNICHAR* str2, int32 len, CaseSensitivity casesense) {
+int32 StringCmp::Compare(const UNICHAR* str1, const UNICHAR* str2, int32 len,
+                         CaseSensitivity casesense) {
   fun_check(len >= 0);
 
   if (str1 == nullptr || str2 == nullptr) {
@@ -191,11 +192,12 @@ int32 StringCmp::Compare(const UNICHAR* str1, const UNICHAR* str2, int32 len, Ca
         return diff;
       }
     }
-    return 0; // equals
+    return 0;  // equals
   }
 }
 
-int32 StringCmp::Compare(const UNICHAR* str1, int32 str1_len, const char* str2, int32 str2_len, CaseSensitivity casesense) {
+int32 StringCmp::Compare(const UNICHAR* str1, int32 str1_len, const char* str2,
+                         int32 str2_len, CaseSensitivity casesense) {
   fun_check(str1_len >= 0);
   fun_check(str2_len >= 0);
 
@@ -228,7 +230,8 @@ int32 StringCmp::Compare(const UNICHAR* str1, int32 str1_len, const char* str2, 
   return diff ? diff : CompareLength(str1_len, str2_len);
 }
 
-int32 StringCmp::Compare(const UNICHAR* str1, const char* str2, int32 len, CaseSensitivity casesense) {
+int32 StringCmp::Compare(const UNICHAR* str1, const char* str2, int32 len,
+                         CaseSensitivity casesense) {
   fun_check(len >= 0);
 
   if (str1 == nullptr || str2 == nullptr) {
@@ -257,7 +260,7 @@ int32 StringCmp::Compare(const UNICHAR* str1, const char* str2, int32 len, CaseS
     }
   }
 
-  return 0; // equals
+  return 0;  // equals
 }
 
-} // namespace fun
+}  // namespace fun

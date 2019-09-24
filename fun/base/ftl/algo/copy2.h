@@ -2,7 +2,7 @@
 
 namespace fun {
 
-//memcpy가 가능한 경우에 특수화를 해줄수 있으면 좋을듯...
+// memcpy가 가능한 경우에 특수화를 해줄수 있으면 좋을듯...
 
 template <typename InputIt, typename OutputIt>
 OutputIt Copy(InputIt first, InputIt last, OutputIt output) {
@@ -24,7 +24,8 @@ OutputIt CopyN(InputIt first, size_t count, OutputIt output) {
 }
 
 template <typename InputIt, typename OutputIt, typename UnaryPredicate>
-OutputIt CopyIf(InputIt first, InputIt last, OutputIt output, UnaryPredicate pred) {
+OutputIt CopyIf(InputIt first, InputIt last, OutputIt output,
+                UnaryPredicate pred) {
   while (first != last) {
     if (pred(*first)) {
       *output++ = *first;
@@ -40,11 +41,10 @@ ForwardIt UninitializedCopy(InputIt first, InputIt last, ForwardIt output) {
   ForwardIt current = output;
   try {
     for (; first != last; ++first, (void)++current) {
-      ::new(static_cast<void*>(AddressOf(*current))) ValueType(*first);
+      ::new (static_cast<void*>(AddressOf(*current))) ValueType(*first);
     }
     return current;
-  }
-  catch (...) {
+  } catch (...) {
     for (; output != current; ++output) {
       output->~ValueType();
     }
@@ -58,7 +58,7 @@ ForwardIt UninitializedCopyN(InputIt first, size_t count, ForwardIt output) {
   ForwardIt current = output;
   try {
     for (; count > 0; ++first, (void)++current, --count) {
-      ::new(static_cast<void*>(AddressOf(*current))) ValueType(*first);
+      ::new (static_cast<void*>(AddressOf(*current))) ValueType(*first);
     }
     return current;
   } catch (...) {
@@ -69,8 +69,7 @@ ForwardIt UninitializedCopyN(InputIt first, size_t count, ForwardIt output) {
   }
 }
 
-
-//memcpy가 가능한 경우에 특수화를 해줄수 있으면 좋을듯...
+// memcpy가 가능한 경우에 특수화를 해줄수 있으면 좋을듯...
 
 template <typename ForwardIt, typename T>
 void Fill(ForwardIt first, ForwardIt last, const T& value) {
@@ -86,8 +85,6 @@ void FillN(OutputIt first, size_t count, const T& value) {
   }
   return first;
 }
-
-
 
 template <typename InputIt, typename UnaryFunction>
 constexpr UnaryFunction ForEach(InputIt first, InputIt last, UnaryFunction f) {
@@ -105,13 +102,11 @@ InputIt ForEachN(InputIt first, size_t count, UnaryFunction f) {
   return first;
 }
 
-
-
 template <typename ForwardIt, typename T>
 ForwardIt Remove(ForwardIt first, ForwardIt last, const T& value) {
   first = algo::Find(first, last, value);
   if (first != last) {
-    for (ForwardIt i = first; ++i != last; ) {
+    for (ForwardIt i = first; ++i != last;) {
       if (!(*i == value)) {
         *first++ = MoveTemp(*i);
       }
@@ -124,7 +119,7 @@ template <typename ForwardIt, typename UnaryPredicate>
 ForwardIt RemoveIf(ForwardIt first, ForwardIt last, UnaryPredicate pred) {
   first = algo::Find(first, last, value);
   if (first != last) {
-    for (ForwardIt i = first; ++i != last; ) {
+    for (ForwardIt i = first; ++i != last;) {
       if (!pred(*i)) {
         *first++ = MoveTemp(*i);
       }
@@ -133,10 +128,9 @@ ForwardIt RemoveIf(ForwardIt first, ForwardIt last, UnaryPredicate pred) {
   return first;
 }
 
-
-
 template <typename InputIt, typename OutputIt, typename T>
-OutputIt RemoveCopy(InputIt first, InputIt last, OutputIt output, const T& value) {
+OutputIt RemoveCopy(InputIt first, InputIt last, OutputIt output,
+                    const T& value) {
   for (; first != last; ++first) {
     if (!(*first == value)) {
       *output++ = *first;
@@ -146,7 +140,8 @@ OutputIt RemoveCopy(InputIt first, InputIt last, OutputIt output, const T& value
 }
 
 template <typename InputIt, typename OutputIt, typename UnaryPredicate>
-OutputIt RemoveCopy(InputIt first, InputIt last, OutputIt output, UnaryPredicate pred) {
+OutputIt RemoveCopy(InputIt first, InputIt last, OutputIt output,
+                    UnaryPredicate pred) {
   for (; first != last; ++first) {
     if (!pred(*first)) {
       *output++ = *first;
@@ -155,7 +150,4 @@ OutputIt RemoveCopy(InputIt first, InputIt last, OutputIt output, UnaryPredicate
   return first;
 }
 
-
-
-
-} // namespace fun
+}  // namespace fun

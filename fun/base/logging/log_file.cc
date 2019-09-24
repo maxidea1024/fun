@@ -16,4 +16,4 @@ LogFile::~LogFile() {
   // NOOP
 }
 
-} // namespace fun
+}  // namespace fun

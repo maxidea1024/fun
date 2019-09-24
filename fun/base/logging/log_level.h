@@ -5,57 +5,57 @@
 namespace fun {
 
 namespace LogLevel {
-  /** Log level type */
-  typedef uint8 Type;
+/** Log level type */
+typedef uint8 Type;
+
+/**
+ * Logging severity level.
+ */
+enum {
+  /**
+   * A fatal error. The application will most likely terminate.
+   * This is the highest level.
+   */
+  Fatal = 1,
 
   /**
-   * Logging severity level.
+   * A critical error. The application might not be able to
+   * continue running successfully.
    */
-  enum {
-    /**
-     * A fatal error. The application will most likely terminate.
-     * This is the highest level.
-     */
-    Fatal = 1,
+  Critical,
 
-    /**
-     * A critical error. The application might not be able to
-     * continue running successfully.
-     */
-    Critical,
+  /**
+   * An error. An operation did not complete successfully,
+   * but the application as a whole is not affected.
+   */
+  Error,
 
-    /**
-     * An error. An operation did not complete successfully,
-     * but the application as a whole is not affected.
-     */
-    Error,
+  /**
+   * A warning. An operation completed with an unexpected result.
+   */
+  Warning,
 
-    /**
-     * A warning. An operation completed with an unexpected result.
-     */
-    Warning,
+  /**
+   * A notice, which is an information with just a higher level.
+   */
+  Notice,
 
-    /**
-     * A notice, which is an information with just a higher level.
-     */
-    Notice,
+  /**
+   * An informational message, usually denoting
+   * the successful completion of an operation.
+   */
+  Information,
 
-    /**
-     * An informational message, usually denoting
-     * the successful completion of an operation.
-     */
-    Information,
+  /**
+   * A debugging message.
+   */
+  Debug,
 
-    /**
-     * A debugging message.
-     */
-    Debug,
+  /**
+   * A tracing message. This is the lowest level.
+   */
+  Trace
+};
+}  // namespace LogLevel
 
-    /**
-     * A tracing message. This is the lowest level.
-     */
-    Trace
-  };
-} // namespace LogLevel
-
-} // namespace fun
+}  // namespace fun

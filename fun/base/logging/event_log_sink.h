@@ -2,10 +2,10 @@
 
 #include "fun/base/base.h"
 #include "fun/base/logging/log_sink.h"
-#include "fun/base/windows_less.h"
 #include "fun/base/string/string.h"
+#include "fun/base/windows_less.h"
 
-#define FUN_WITH_EVENT_LOG_SINK  0
+#define FUN_WITH_EVENT_LOG_SINK 0
 
 #if FUN_WITH_EVENT_LOG_SINK
 
@@ -98,6 +98,6 @@ class FUN_BASE_API EventLogSink : public LogSink {
   HANDLE handle_;
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_EVENT_LOG_SINK
+#endif  // FUN_WITH_EVENT_LOG_SINK

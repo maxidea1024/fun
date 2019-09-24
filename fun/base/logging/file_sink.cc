@@ -3,9 +3,9 @@
 #if FUN_WITH_FILE_SINK
 
 #include "fun/base/logging/archive_strategy.h"
-#include "fun/base/logging/rotate_strategy.h"
-#include "fun/base/logging/purge_strategy.h"
 #include "fun/base/logging/log_message.h"
+#include "fun/base/logging/purge_strategy.h"
+#include "fun/base/logging/rotate_strategy.h"
 #include "fun/base/str.h"
 //#include "fun/base/number_parser.h"
 //#include "fun/base/datetime_formatter.h"
@@ -15,36 +15,36 @@
 
 namespace fun {
 
-const String FileSink::PROP_PATH            = "Path";
-const String FileSink::PROP_ROTATION        = "Rotation";
-const String FileSink::PROP_ARCHIVE         = "Archive";
-const String FileSink::PROP_TIMES           = "Times";
-const String FileSink::PROP_COMPRESS        = "Compress";
-const String FileSink::PROP_PURGE_AGE       = "PurgeAge";
-const String FileSink::PROP_PURGE_COUNT     = "PurgeCount";
-const String FileSink::PROP_FLUSH           = "Flush";
-const String FileSink::PROP_ROTATE_ON_OPEN  = "RotateOnOpen";
+const String FileSink::PROP_PATH = "Path";
+const String FileSink::PROP_ROTATION = "Rotation";
+const String FileSink::PROP_ARCHIVE = "Archive";
+const String FileSink::PROP_TIMES = "Times";
+const String FileSink::PROP_COMPRESS = "Compress";
+const String FileSink::PROP_PURGE_AGE = "PurgeAge";
+const String FileSink::PROP_PURGE_COUNT = "PurgeCount";
+const String FileSink::PROP_FLUSH = "Flush";
+const String FileSink::PROP_ROTATE_ON_OPEN = "RotateOnOpen";
 
 FileSink::FileSink()
-  : times_("utc"),
-    compress_(false),
-    flush_(true),
-    rotate_on_open_(false),
-    log_file_(nullptr),
-    rotate_strategy_(nullptr),
-    archive_strategy_(new ArchiveByNumberStrategy),
-    purge_strategy_(nullptr) {}
+    : times_("utc"),
+      compress_(false),
+      flush_(true),
+      rotate_on_open_(false),
+      log_file_(nullptr),
+      rotate_strategy_(nullptr),
+      archive_strategy_(new ArchiveByNumberStrategy),
+      purge_strategy_(nullptr) {}
 
 FileSink::FileSink(const String& path)
-  : path_(path),
-    times_("utc"),
-    compress_(false),
-    flush_(true),
-    rotate_on_open_(false),
-    log_file_(nullptr),
-    rotate_strategy_(nullptr),
-    archive_strategy_(new ArchiveByNumberStrategy),
-    purge_strategy_(nullptr) {}
+    : path_(path),
+      times_("utc"),
+      compress_(false),
+      flush_(true),
+      rotate_on_open_(false),
+      log_file_(nullptr),
+      rotate_strategy_(nullptr),
+      archive_strategy_(new ArchiveByNumberStrategy),
+      purge_strategy_(nullptr) {}
 
 FileSink::~FileSink() {
   try {
@@ -87,8 +87,7 @@ void FileSink::Log(const LogMessage& msg) {
 
   ScopedLock<FastMutex> guard(mutex_);
 
-  if (rotate_strategy_ &&
-      archive_strategy_ &&
+  if (rotate_strategy_ && archive_strategy_ &&
       rotate_strategy_->MustRotate(log_file_)) {
     try {
       log_file_ = archive_strategy_->Archive(log_file_);
@@ -180,22 +179,24 @@ uint64 FileSink::GetSize() const {
   }
 }
 
-const String& FileSink::GetPath() const {
-  return path_;
-}
+const String& FileSink::GetPath() const { return path_; }
 
 void FileSink::SetRotation(const String& rotation) {
-  String::const_iterator it  = rotation.begin();
+  String::const_iterator it = rotation.begin();
   String::const_iterator end = rotation.end();
   int n = 0;
   while (it != end && CharTraitsA::IsWhitespace(*it)) ++it;
-  while (it != end && CharTraitsA::IsDigit(*it)) { n *= 10; n += *it++ - '0'; }
+  while (it != end && CharTraitsA::IsDigit(*it)) {
+    n *= 10;
+    n += *it++ - '0';
+  }
   while (it != end && CharTraitsA::IsWhitespace(*it)) ++it;
   String unit;
   while (it != end && CharTraitsA::IsAlpha(*it)) unit += *it++;
 
   RotateStrategy* strategy = nullptr;
-  if ((rotation.find(',') != String::npos) || (rotation.find(':') != String::npos)) {
+  if ((rotation.find(',') != String::npos) ||
+      (rotation.find(':') != String::npos)) {
     if (icompare(times_, "UTC") == 0) {
       strategy = new RotateAtTimeStrategy<DateTime>(rotation);
     } else if (icompare(times_, "Local") == 0) {
@@ -204,27 +205,27 @@ void FileSink::SetRotation(const String& rotation) {
       throw PropertyNotSupportedException("Times", times_);
     }
   } else if (icompare(unit, "Daily") == 0) {
-    strategy = new RotateByIntervalStrategy(Timespan(1*Timespan::DAYS));
+    strategy = new RotateByIntervalStrategy(Timespan(1 * Timespan::DAYS));
   } else if (icompare(unit, "Weekly") == 0) {
-    strategy = new RotateByIntervalStrategy(Timespan(7*Timespan::DAYS));
+    strategy = new RotateByIntervalStrategy(Timespan(7 * Timespan::DAYS));
   } else if (icompare(unit, "Monthly") == 0) {
-    strategy = new RotateByIntervalStrategy(Timespan(30*Timespan::DAYS));
-  } else if (icompare(unit, "Seconds") == 0) { // for testing only
-    strategy = new RotateByIntervalStrategy(Timespan(n*Timespan::SECONDS));
+    strategy = new RotateByIntervalStrategy(Timespan(30 * Timespan::DAYS));
+  } else if (icompare(unit, "Seconds") == 0) {  // for testing only
+    strategy = new RotateByIntervalStrategy(Timespan(n * Timespan::SECONDS));
   } else if (icompare(unit, "Minutes") == 0) {
-    strategy = new RotateByIntervalStrategy(Timespan(n*Timespan::MINUTES));
+    strategy = new RotateByIntervalStrategy(Timespan(n * Timespan::MINUTES));
   } else if (icompare(unit, "Hours") == 0) {
-    strategy = new RotateByIntervalStrategy(Timespan(n*Timespan::HOURS));
+    strategy = new RotateByIntervalStrategy(Timespan(n * Timespan::HOURS));
   } else if (icompare(unit, "Days") == 0) {
-    strategy = new RotateByIntervalStrategy(Timespan(n*Timespan::DAYS));
+    strategy = new RotateByIntervalStrategy(Timespan(n * Timespan::DAYS));
   } else if (icompare(unit, "Weeks") == 0) {
-    strategy = new RotateByIntervalStrategy(Timespan(n*7*Timespan::DAYS));
+    strategy = new RotateByIntervalStrategy(Timespan(n * 7 * Timespan::DAYS));
   } else if (icompare(unit, "Months") == 0) {
-    strategy = new RotateByIntervalStrategy(Timespan(n*30*Timespan::DAYS));
+    strategy = new RotateByIntervalStrategy(Timespan(n * 30 * Timespan::DAYS));
   } else if (icompare(unit, "K") == 0) {
-    strategy = new RotateBySizeStrategy(n*1024);
+    strategy = new RotateBySizeStrategy(n * 1024);
   } else if (icompare(unit, "M") == 0) {
-    strategy = new RotateBySizeStrategy(n*1024*1024);
+    strategy = new RotateBySizeStrategy(n * 1024 * 1024);
   } else if (unit.IsEmpty()) {
     strategy = new RotateBySizeStrategy(n);
   } else if (icompare(unit, "Never") != 0) {
@@ -315,8 +316,8 @@ bool FileSink::SetNoPurge(const String& value) {
   }
 }
 
-int FileSink::ExtractDigit( const String& value,
-                            String::const_iterator* next_to_digit) const {
+int FileSink::ExtractDigit(const String& value,
+                           String::const_iterator* next_to_digit) const {
   String::const_iterator it = value.begin();
   String::const_iterator end = value.end();
   int digit = 0;
@@ -342,9 +343,8 @@ void FileSink::SetPurgeStrategy(PurgeStrategy* strategy) {
   purge_strategy_ = strategy;
 }
 
-Timespan::TimeDiff
-FileSink::ExtractFactor(const String& value,
-                        String::const_iterator start) const {
+Timespan::TimeDiff FileSink::ExtractFactor(const String& value,
+                                           String::const_iterator start) const {
   while (start != value.end() && CharTraitsA::IsWhitespace(*start)) {
     ++start;
   }
@@ -373,6 +373,6 @@ FileSink::ExtractFactor(const String& value,
   return Timespan::TimeDiff();
 }
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_FILE_SINK
+#endif  // FUN_WITH_FILE_SINK

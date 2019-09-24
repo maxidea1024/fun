@@ -1,5 +1,4 @@
 ﻿#include "fun/base/encoding/encodings.h"
-#include "fun/base/encoding/text_encoding.h"
 #include "fun/base/encoding/iso8859_10_encoding.h"
 #include "fun/base/encoding/iso8859_11_encoding.h"
 #include "fun/base/encoding/iso8859_13_encoding.h"
@@ -12,6 +11,7 @@
 #include "fun/base/encoding/iso8859_7_encoding.h"
 #include "fun/base/encoding/iso8859_8_encoding.h"
 #include "fun/base/encoding/iso8859_9_encoding.h"
+#include "fun/base/encoding/text_encoding.h"
 #include "fun/base/encoding/windows1253_encoding.h"
 #include "fun/base/encoding/windows1254_encoding.h"
 #include "fun/base/encoding/windows1255_encoding.h"
@@ -52,4 +52,4 @@ void RegisterExtraEncodings() {
   TextEncoding::Add(new Windows950_Encoding);
 }
 
-} // namespace fun
+}  // namespace fun

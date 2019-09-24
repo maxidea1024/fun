@@ -1,24 +1,22 @@
 ﻿#include "fun/base/logging/event_log_sink.h"
-#include "fun/base/logging/log_message.h"
-#include "fun/base/string/string.h"
-#include "fun/base/str.h"
 #include "fun/base/exception.h"
+#include "fun/base/logging/log_message.h"
+#include "fun/base/str.h"
+#include "fun/base/string/string.h"
 
 #if FUN_WITH_EVENT_LOG_SINK
 
-//TODO
+// TODO
 //#include "fun_msg.h"
 
 namespace fun {
 
-const String EventLogSink::PROP_NAME    = "Name";
-const String EventLogSink::PROP_HOST    = "Host";
+const String EventLogSink::PROP_NAME = "Name";
+const String EventLogSink::PROP_HOST = "Host";
 const String EventLogSink::PROP_LOGHOST = "LogHost";
 const String EventLogSink::PROP_LOGFILE = "LogFile";
 
-EventLogSink::EventLogSink()
-  : log_file_("Application"),
-    handle_(0) {
+EventLogSink::EventLogSink() : log_file_("Application"), handle_(0) {
   const DWORD MAX_PATH_LEN = MAX_PATH + 1;
   wchar_t name[MAX_PATH_LEN];
   int n = GetModuleFileNameW(NULL, name, MAX_PATH_LEN);
@@ -36,15 +34,10 @@ EventLogSink::EventLogSink()
 }
 
 EventLogSink::EventLogSink(const String& name)
-  : name_(name),
-    log_file_("Application"),
-    handle_(0) {}
+    : name_(name), log_file_("Application"), handle_(0) {}
 
 EventLogSink::EventLogSink(const String& name, const String& host)
-  : name_(name),
-    host_(host),
-    log_file_("Application"),
-    handle_(0) {}
+    : name_(name), host_(host), log_file_("Application"), handle_(0) {}
 
 EventLogSink::~EventLogSink() {
   try {
@@ -58,7 +51,8 @@ void EventLogSink::Open() {
   SetupRegistry();
   UString uhost = UString::FromUtf8(host_);
   UString uname = UString::FromUtf8(name_);
-  handle_ = RegisterEventSourceW(uhost.IsEmpty() ? NULL : uhost.c_str(), uname.c_str());
+  handle_ = RegisterEventSourceW(uhost.IsEmpty() ? NULL : uhost.c_str(),
+                                 uname.c_str());
   if (!handle_) {
     throw SystemException("cannot register event source");
   }
@@ -76,10 +70,10 @@ void EventLogSink::Log(const LogMessage& msg) {
     Open();
   }
 
-  //TODO
-  //UString utext = UString::FromUtf8(msg.GetText());
-  //const wchar_t* umsg = utext.c_str();
-  //ReportEventW(handle_,
+  // TODO
+  // UString utext = UString::FromUtf8(msg.GetText());
+  // const wchar_t* umsg = utext.c_str();
+  // ReportEventW(handle_,
   //    static_cast<WORD>(GetType(msg)),
   //    static_cast<WORD>(GetCategory(msg)),
   //    FUN_MSG_LOG,
@@ -133,8 +127,8 @@ int32 EventLogSink::GetType(const LogMessage& msg) {
 }
 
 int32 EventLogSink::GetCategory(const LogMessage& msg) {
-  //TODO
-  //switch (msg.GetLevel()) {
+  // TODO
+  // switch (msg.GetLevel()) {
   //  case LogLevel::Trace:
   //    return FUN_CTG_TRACE;
   //  case LogLevel::Debug:
@@ -165,28 +159,30 @@ void EventLogSink::SetupRegistry() const {
   HKEY key_handle;
   DWORD disp;
   UString ukey = UString::FromUtf8(key);
-  DWORD rc = RegCreateKeyExW(HKEY_LOCAL_MACHINE, ukey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key_handle, &disp);
+  DWORD rc = RegCreateKeyExW(HKEY_LOCAL_MACHINE, ukey.c_str(), 0, NULL,
+                             REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL,
+                             &key_handle, &disp);
   if (rc != ERROR_SUCCESS) {
     return;
   }
 
   if (disp == REG_CREATED_NEW_KEY) {
     UString path;
-    #if defined(FUN_DLL)
-      #if defined(_DEBUG)
-        #if defined(_WIN64)
-          path = FindLibrary(L"fun-base64d.dll");
-        #else
-          path = FindLibrary(L"fun-based.dll");
-        #endif
-      #else
-        #if defined(_WIN64)
-          path = FindLibrary(L"fun-base64.dll");
-        #else
-          path = FindLibrary(L"fun-base.dll");
-        #endif
-      #endif
-    #endif
+#if defined(FUN_DLL)
+#if defined(_DEBUG)
+#if defined(_WIN64)
+    path = FindLibrary(L"fun-base64d.dll");
+#else
+    path = FindLibrary(L"fun-based.dll");
+#endif
+#else
+#if defined(_WIN64)
+    path = FindLibrary(L"fun-base64.dll");
+#else
+    path = FindLibrary(L"fun-base.dll");
+#endif
+#endif
+#endif
 
     if (path.IsEmpty()) {
       path = FindLibrary(L"fun-msg.dll");
@@ -195,10 +191,16 @@ void EventLogSink::SetupRegistry() const {
     if (!path.IsEmpty()) {
       DWORD count = 8;
       DWORD types = 7;
-      RegSetValueExW(key_handle, L"CategoryMessageFile", 0, REG_SZ,    (const BYTE*)path.c_str(), static_cast<DWORD>(sizeof(wchar_t)*(path.Len() + 1)));
-      RegSetValueExW(key_handle, L"EventMessageFile",    0, REG_SZ,    (const BYTE*)path.c_str(), static_cast<DWORD>(sizeof(wchar_t)*(path.Len() + 1)));
-      RegSetValueExW(key_handle, L"CategoryCount",       0, REG_DWORD, (const BYTE*)&count,       static_cast<DWORD>(sizeof(count)));
-      RegSetValueExW(key_handle, L"TypesSupported",      0, REG_DWORD, (const BYTE*)&types,       static_cast<DWORD>(sizeof(types)));
+      RegSetValueExW(key_handle, L"CategoryMessageFile", 0, REG_SZ,
+                     (const BYTE*)path.c_str(),
+                     static_cast<DWORD>(sizeof(wchar_t) * (path.Len() + 1)));
+      RegSetValueExW(key_handle, L"EventMessageFile", 0, REG_SZ,
+                     (const BYTE*)path.c_str(),
+                     static_cast<DWORD>(sizeof(wchar_t) * (path.Len() + 1)));
+      RegSetValueExW(key_handle, L"CategoryCount", 0, REG_DWORD,
+                     (const BYTE*)&count, static_cast<DWORD>(sizeof(count)));
+      RegSetValueExW(key_handle, L"TypesSupported", 0, REG_DWORD,
+                     (const BYTE*)&types, static_cast<DWORD>(sizeof(types)));
     }
   }
   RegCloseKey(key_handle);
@@ -219,6 +221,6 @@ UString EventLogSink::FindLibrary(const wchar_t* name) {
   return path;
 }
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_EVENT_LOG_SINK
+#endif  // FUN_WITH_EVENT_LOG_SINK

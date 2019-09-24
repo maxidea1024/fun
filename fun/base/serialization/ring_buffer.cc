@@ -1,4 +1,4 @@
-﻿//PRIVATE
+﻿// PRIVATE
 
 #include "fun/base/ring_buffer.h"
 
@@ -21,7 +21,8 @@ void RingBuffer::Chunk::Detach() {
 
   const int32 chunk_size = Size();
   ByteArray tmp(chunk_size, Uninitialized);
-  UnsafeMemory::Memcpy(tmp.MutableData(), chunk_.ConstData() + head_, chunk_size);
+  UnsafeMemory::Memcpy(tmp.MutableData(), chunk_.ConstData() + head_,
+                       chunk_size);
   chunk_ = MoveTemp(tmp);
   head_ = 0;
   tail_ = chunk_size;
@@ -40,20 +41,18 @@ ByteArray RingBuffer::Chunk::ToByteArray() {
       head_ = 0;
     }
 
-    chunk_.Reserve(0); // avoid that resizing needlessly reallocates
+    chunk_.Reserve(0);  // avoid that resizing needlessly reallocates
     chunk_.Resize(tail_);
   }
 
   return chunk_;
 }
 
-
 //
 // RingBuffer
 //
 
-const char*
-RingBuffer::ReadPointerAtPosition(int64 pos, int64& len) const {
+const char* RingBuffer::ReadPointerAtPosition(int64 pos, int64& len) const {
   fun_check(pos >= 0);
 
   for (const Chunk& chunk : buffers_) {
@@ -86,7 +85,7 @@ void RingBuffer::Free(int64 len) {
           chunk.Reset();
           buffer_size_ = 0;
         } else {
-          Clear(); // try to minify/squeeze us
+          Clear();  // try to minify/squeeze us
         }
       } else {
         fun_check(len < MaxByteArraySize);
@@ -173,7 +172,7 @@ void RingBuffer::Chop(int64 len) {
           chunk.Reset();
           buffer_size_ = 0;
         } else {
-          Clear(); // try to minify/squeeze us
+          Clear();  // try to minify/squeeze us
         }
       } else {
         fun_check(len < MaxByteArraySize);
@@ -217,7 +216,8 @@ int64 RingBuffer::IndexOf(char c, int64 max_len, int64 pos) const {
         index = 0;
       }
 
-      const char* found_ptr = reinterpret_cast<const char*>(memchr(ptr, c, next_block_index - index));
+      const char* found_ptr = reinterpret_cast<const char*>(
+          memchr(ptr, c, next_block_index - index));
       if (found_ptr) {
         return int64(found_ptr - ptr) + index + pos;
       }
@@ -236,9 +236,10 @@ int64 RingBuffer::Read(char* buf, int64 max_len) {
   int64 read_so_far = 0;
   while (read_so_far < bytes_to_read) {
     const int64 bytes_to_read_from_this_block =
-              MathBase::Min(bytes_to_read - read_so_far, GetNextDataBlockSize());
+        MathBase::Min(bytes_to_read - read_so_far, GetNextDataBlockSize());
     if (buf) {
-      UnsafeMemory::Memcpy(buf + read_so_far, ReadPointer(), bytes_to_read_from_this_block);
+      UnsafeMemory::Memcpy(buf + read_so_far, ReadPointer(),
+                           bytes_to_read_from_this_block);
     }
     read_so_far += bytes_to_read_from_this_block;
     Free(bytes_to_read_from_this_block);
@@ -265,7 +266,8 @@ int64 RingBuffer::Peek(char* buf, int64 max_len, int64 pos) const {
 
     if (pos < block_len) {
       block_len = MathBase::Min(block_len - pos, max_len - read_so_far);
-      UnsafeMemory::Memcpy(buf + read_so_far, buffers_[i].ConstData() + pos, block_len);
+      UnsafeMemory::Memcpy(buf + read_so_far, buffers_[i].ConstData() + pos,
+                           block_len);
       read_so_far += block_len;
       pos = 0;
     } else {
@@ -313,4 +315,4 @@ int64 RingBuffer::ReadLine(char* buf, int64 max_len) {
   return i;
 }
 
-} // namespace fun
+}  // namespace fun

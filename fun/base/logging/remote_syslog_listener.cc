@@ -9,32 +9,23 @@ namespace net {
 
 class MessageNotification : public Notification {
  public:
-  MessageNotification(const char* buffer,
-                      size_t length,
+  MessageNotification(const char* buffer, size_t length,
                       const InetAddress& source_addr)
-    : message_(buffer, length),
-      source_addr_(source_addr) {}
+      : message_(buffer, length), source_addr_(source_addr) {}
 
-  MessageNotification(const String& message,
-                      const InetAddress& source_addr)
-    : message_(message),
-      source_addr_(source_addr) {}
+  MessageNotification(const String& message, const InetAddress& source_addr)
+      : message_(message), source_addr_(source_addr) {}
 
   ~MessageNotification() {}
 
-  const String& GetMessage() const {
-    return message_;
-  }
+  const String& GetMessage() const { return message_; }
 
-  const InetAddress& GetSourceAddress() const {
-    return source_addr_;
-  }
+  const InetAddress& GetSourceAddress() const { return source_addr_; }
 
  private:
   String message_;
   InetAddress source_addr_;
 };
-
 
 //
 // RemoteUdpListener
@@ -42,10 +33,7 @@ class MessageNotification : public Notification {
 
 class RemoteUdpListener : public Runnable {
  public:
-  enum {
-    WAITTIME_MILLISEC = 1000,
-    BUFFER_SIZE = 65536
-  };
+  enum { WAITTIME_MILLISEC = 1000, BUFFER_SIZE = 65536 };
 
   RemoteUdpListener(NotificationQueue& queue, uint16 port);
   ~RemoteUdpListener();
@@ -60,9 +48,7 @@ class RemoteUdpListener : public Runnable {
 };
 
 RemoteUdpListener::RemoteUdpListener(NotificationQueue& queue, uint16 port)
-  : queue_(queue),
-    socket_(InetAddress(port)),
-    stopped_(false) {}
+    : queue_(queue), socket_(InetAddress(port)), stopped_(false) {}
 
 RemoteUdpListener::~RemoteUdpListener() {}
 
@@ -75,7 +61,8 @@ void RemoteUdpListener::Run() {
         InetAddress source_addr;
         int n = socket_.ReceiveFrom(buffer.begin(), BUFFER_SIZE, source_addr);
         if (n > 0) {
-          queue_.Enqueue(new MessageNotification(buffer.begin(), n, source_addr));
+          queue_.Enqueue(
+              new MessageNotification(buffer.begin(), n, source_addr));
         }
       }
     } catch (...) {
@@ -84,11 +71,7 @@ void RemoteUdpListener::Run() {
   }
 }
 
-
-void RemoteUdpListener::SafeStop() {
-  stopped_ = true;
-}
-
+void RemoteUdpListener::SafeStop() { stopped_ = true; }
 
 //
 // SyslogParser
@@ -98,9 +81,7 @@ class SyslogParser : public Runnable {
  public:
   static const String NIL_VALUE;
 
-  enum {
-    WAITTIME_MILLISEC = 1000
-  };
+  enum { WAITTIME_MILLISEC = 1000 };
 
   SyslogParser(NotificationQueue& queue, RemoteSyslogListener* listener);
   ~SyslogParser();
@@ -112,21 +93,16 @@ class SyslogParser : public Runnable {
   static LogLevel::Type Convert(RemoteSyslogSink::Severity severity);
 
  private:
-  void ParsePrio( const String& line,
-                  size_t& pos,
-                  RemoteSyslogSink::Severity& severity,
-                  RemoteSyslogSink::Facility& facility);
+  void ParsePrio(const String& line, size_t& pos,
+                 RemoteSyslogSink::Severity& severity,
+                 RemoteSyslogSink::Facility& facility);
 
-  void ParseNew(const String& line,
-                RemoteSyslogSink::Severity severity,
-                RemoteSyslogSink::Facility facility,
-                size_t& pos,
+  void ParseNew(const String& line, RemoteSyslogSink::Severity severity,
+                RemoteSyslogSink::Facility facility, size_t& pos,
                 LogMessage& message);
 
-  void ParseBsd(const String& line,
-                RemoteSyslogSink::Severity severity,
-                RemoteSyslogSink::Facility facility,
-                size_t& pos,
+  void ParseBsd(const String& line, RemoteSyslogSink::Severity severity,
+                RemoteSyslogSink::Facility facility, size_t& pos,
                 LogMessage& message);
 
   /**
@@ -151,14 +127,11 @@ class SyslogParser : public Runnable {
   RemoteSyslogListener* listener_;
 };
 
-
 const String SyslogParser::NIL_VALUE("-");
 
-SyslogParser::SyslogParser( NotificationQueue& queue,
-                            RemoteSyslogListener* listener)
-  : queue_(queue),
-    stopped_(false),
-    listener_(listener) {
+SyslogParser::SyslogParser(NotificationQueue& queue,
+                           RemoteSyslogListener* listener)
+    : queue_(queue), stopped_(false), listener_(listener) {
   fun_check_ptr(listener_);
 }
 
@@ -169,7 +142,8 @@ void SyslogParser::Run() {
     try {
       RefCountedPtr<Notification> noti(queue_.WaitDequeue(WAITTIME_MILLISEC));
       if (noti) {
-        RefCountedPtr<MessageNotification> msg_noti = noti.Cast<MessageNotification>();
+        RefCountedPtr<MessageNotification> msg_noti =
+            noti.Cast<MessageNotification>();
         LogMessage message;
         Parse(msg_noti->GetMessage(), message);
         message["addr"] = msg_noti->GetSourceAddress().GetHost().ToString();
@@ -182,9 +156,7 @@ void SyslogParser::Run() {
   }
 }
 
-void SyslogParser::SafeStop() {
-  stopped_ = true;
-}
+void SyslogParser::SafeStop() { stopped_ = true; }
 
 void SyslogParser::Parse(const String& line, LogMessage& message) {
   // <int> -> int: lower 3 bits severity, upper bits: facility
@@ -193,9 +165,9 @@ void SyslogParser::Parse(const String& line, LogMessage& message) {
   RemoteSyslogSink::Facility facility;
   ParsePrio(line, pos, severity, facility);
 
-  // the next field decide if we Parse an old BSD message or a new syslog message
-  // BSD: expects a month value in string form: Jan, Feb...
-  // SYSLOG expects a version number: 1
+  // the next field decide if we Parse an old BSD message or a new syslog
+  // message BSD: expects a month value in string form: Jan, Feb... SYSLOG
+  // expects a version number: 1
 
   if (CharTraitsA::IsDigit(line[pos])) {
     ParseNew(line, severity, facility, pos, message);
@@ -205,10 +177,9 @@ void SyslogParser::Parse(const String& line, LogMessage& message) {
   fun_check(pos == line.Len());
 }
 
-void SyslogParser::ParsePrio( const String& line,
-                              size_t& pos,
-                              RemoteSyslogSink::Severity& severity,
-                              RemoteSyslogSink::Facility& facility) {
+void SyslogParser::ParsePrio(const String& line, size_t& pos,
+                             RemoteSyslogSink::Severity& severity,
+                             RemoteSyslogSink::Facility& facility) {
   fun_check(pos < line.Len());
   fun_check(line[pos] == '<');
   ++pos;
@@ -221,10 +192,11 @@ void SyslogParser::ParsePrio( const String& line,
   fun_check(line[pos] == '>');
   fun_check(pos - start > 0);
   String value_str = line.Mid(start, pos - start);
-  ++pos; // skip the >
+  ++pos;  // skip the >
 
   int val = NumberParser::Parse(value_str);
-  fun_check(val >= 0 && val <= (RemoteSyslogSink::SYSLOG_LOCAL7 + RemoteSyslogSink::SYSLOG_DEBUG));
+  fun_check(val >= 0 && val <= (RemoteSyslogSink::SYSLOG_LOCAL7 +
+                                RemoteSyslogSink::SYSLOG_DEBUG));
 
   uint16 pri = static_cast<uint16>(val);
   // now get the lowest 3 bits
@@ -235,13 +207,12 @@ void SyslogParser::ParsePrio( const String& line,
 void SyslogParser::ParseNew(const String& line,
                             RemoteSyslogSink::Severity severity,
                             RemoteSyslogSink::Facility /*facility*/,
-                            size_t& pos,
-                            LogMessage& message) {
+                            size_t& pos, LogMessage& message) {
   LogLevel::Type level = Convert(severity);
   // rest of the unparsed header is:
   // VERSION SP TIMESTAMP SP HOSTNAME SP APP-NAME SP PROCID SP MSGID
   String version_str(ParseUntilSpace(line, pos));
-  String time_str(ParseUntilSpace(line, pos)); // can be the nilvalue!
+  String time_str(ParseUntilSpace(line, pos));  // can be the nilvalue!
   String host_name(ParseUntilSpace(line, pos));
   String app_name(ParseUntilSpace(line, pos));
   String proc_id(ParseUntilSpace(line, pos));
@@ -251,7 +222,8 @@ void SyslogParser::ParseNew(const String& line,
   pos = line.Len();
   DateTime date;
   int tzd = 0;
-  bool has_date = DateTimeParser::TryParse(RemoteSyslogSink::SYSLOG_TIMEFORMAT, time_str, date, tzd);
+  bool has_date = DateTimeParser::TryParse(RemoteSyslogSink::SYSLOG_TIMEFORMAT,
+                                           time_str, date, tzd);
   LogMessage log_entry(msg_id, message_text, level);
   log_entry[RemoteSyslogListener::LOG_PROP_HOST] = host_name;
   log_entry[RemoteSyslogListener::LOG_PROP_APP] = app_name;
@@ -270,8 +242,7 @@ void SyslogParser::ParseNew(const String& line,
 void SyslogParser::ParseBsd(const String& line,
                             RemoteSyslogSink::Severity severity,
                             RemoteSyslogSink::Facility /*facility*/,
-                            size_t& pos,
-                            LogMessage& message) {
+                            size_t& pos, LogMessage& message) {
   LogLevel::Type level = Convert(severity);
   // rest of the unparsed header is:
   // "%b %f %H:%M:%S" SP hostname|ipaddress
@@ -286,30 +257,34 @@ void SyslogParser::ParseBsd(const String& line,
         if (pos - start != 3) {
           // probably a shortened time value, or the hostname
           // assume host_name
-          LogMessage log_entry(line.Mid(start, pos-start), line.Mid(pos+1), level);
+          LogMessage log_entry(line.Mid(start, pos - start), line.Mid(pos + 1),
+                               level);
           message.Swap(log_entry);
           return;
         }
       } else if (space_count == 2) {
         // a day value!
-        if (!(CharTraitsA::IsDigit(line[pos-1]) && (CharTraitsA::IsDigit(line[pos-2]) || CharTraitsA::IsSpace(line[pos-2])))) {
+        if (!(CharTraitsA::IsDigit(line[pos - 1]) &&
+              (CharTraitsA::IsDigit(line[pos - 2]) ||
+               CharTraitsA::IsSpace(line[pos - 2])))) {
           // assume the next field is a hostname
           space_count = 3;
         }
       }
-      if (pos + 1 < line.Len() && line[pos+1] == ' ') {
+      if (pos + 1 < line.Len() && line[pos + 1] == ' ') {
         // we have two spaces when the day value is smaller than 10!
-        ++pos; // skip one
+        ++pos;  // skip one
       }
     }
     ++pos;
   }
 
-  String time_str(line.Mid(start, pos-start-1));
+  String time_str(line.Mid(start, pos - start - 1));
   int tzd(0);
   DateTime date;
-  int year = date.year(); // year is not included, use the current one
-  bool has_date = DateTimeParser::TryParse(RemoteSyslogSink::BSD_TIMEFORMAT, time_str, date, tzd);
+  int year = date.year();  // year is not included, use the current one
+  bool has_date = DateTimeParser::TryParse(RemoteSyslogSink::BSD_TIMEFORMAT,
+                                           time_str, date, tzd);
   if (has_date) {
     int32 m = date.Month();
     int32 d = date.Day();
@@ -321,8 +296,8 @@ void SyslogParser::ParseBsd(const String& line,
   // next entry is host SP
   String host_name(ParseUntilSpace(line, pos));
 
-  // TAG: at most 32 alphanumeric chars, ANY non alphannumeric indicates start of message content
-  // ignore: treat everything as content
+  // TAG: at most 32 alphanumeric chars, ANY non alphannumeric indicates start
+  // of message content ignore: treat everything as content
   String message_text(line.Mid(pos));
   pos = line.Len();
   LogMessage log_entry(host_name, message_text, level);
@@ -337,7 +312,7 @@ String SyslogParser::ParseUntilSpace(const String& line, size_t& pos) {
   }
   // skip space
   ++pos;
-  return line.Mid(start, pos-start-1);
+  return line.Mid(start, pos - start - 1);
 }
 
 String SyslogParser::ParseStructuredData(const String& line, size_t& pos) {
@@ -370,7 +345,8 @@ String SyslogParser::ParseStructuredData(const String& line, size_t& pos) {
 String SyslogParser::ParseStructuredDataToken(const String& line, size_t& pos) {
   String tok;
   if (pos < line.Len()) {
-    if (CharTraitsA::IsSpace(line[pos]) || line[pos] == '=' || line[pos] == '[' || line[pos] == ']') {
+    if (CharTraitsA::IsSpace(line[pos]) || line[pos] == '=' ||
+        line[pos] == '[' || line[pos] == ']') {
       tok += line[pos++];
     } else if (line[pos] == '"') {
       tok += line[pos++];
@@ -382,7 +358,8 @@ String SyslogParser::ParseStructuredDataToken(const String& line, size_t& pos) {
         pos++;
       }
     } else {
-      while (pos < line.Len() && !CharTraitsA::IsSpace(line[pos]) && line[pos] != '=') {
+      while (pos < line.Len() && !CharTraitsA::IsSpace(line[pos]) &&
+             line[pos] != '=') {
         tok += line[pos++];
       }
     }
@@ -412,7 +389,6 @@ LogLevel::Type SyslogParser::Convert(RemoteSyslogSink::Severity severity) {
   throw LogicException("Illegal severity value in message");
 }
 
-
 //
 // RemoteSyslogListener
 //
@@ -425,22 +401,19 @@ const String RemoteSyslogListener::LOG_PROP_HOST("Host");
 const String RemoteSyslogListener::LOG_PROP_STRUCTURED_DATA("structured-data");
 
 RemoteSyslogListener::RemoteSyslogListener()
-  : listener_(nullptr),
-    parser_(nullptr),
-    port_(RemoteSyslogSink::SYSLOG_PORT),
-    thread_count_(1) {}
+    : listener_(nullptr),
+      parser_(nullptr),
+      port_(RemoteSyslogSink::SYSLOG_PORT),
+      thread_count_(1) {}
 
 RemoteSyslogListener::RemoteSyslogListener(uint16 port)
-  : listener_(nullptr),
-    parser_(nullptr),
-    port_(port),
-    thread_count_(1) {}
+    : listener_(nullptr), parser_(nullptr), port_(port), thread_count_(1) {}
 
 RemoteSyslogListener::RemoteSyslogListener(uint16 port, int thread_count)
-  : listener_(nullptr),
-    parser_(nullptr),
-    port_(port),
-    thread_count_(thread_count) {}
+    : listener_(nullptr),
+      parser_(nullptr),
+      port_(port),
+      thread_count_(thread_count) {}
 
 RemoteSyslogListener::~RemoteSyslogListener() {}
 
@@ -455,7 +428,8 @@ void RemoteSyslogListener::EnqueueMessage(const String& text,
   queue_.Enqueue(new MessageNotification(text, sender_addr));
 }
 
-void RemoteSyslogListener::SetProperty(const String& name, const String& value) {
+void RemoteSyslogListener::SetProperty(const String& name,
+                                       const String& value) {
   if (icompare(name, PROP_PORT) == 0) {
     int val = NumberParser::Parse(value);
     if (val >= 0 && val < 65536) {
@@ -524,9 +498,8 @@ void RemoteSyslogListener::Close() {
 
 void RemoteSyslogListener::RegisterSink() {
   LoggingFactory::DefaultFactory().RegisterSinkClass(
-        "RemoteSyslogListener",
-        new Instantiator<RemoteSyslogListener, LogSink>);
+      "RemoteSyslogListener", new Instantiator<RemoteSyslogListener, LogSink>);
 }
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

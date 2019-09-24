@@ -1,36 +1,28 @@
 ﻿#include "fun/base/logging/logger.h"
+#include "fun/base/exception.h"
 #include "fun/base/logging/log_formatter.h"
 #include "fun/base/logging/logging_registry.h"
-#include "fun/base/exception.h"
 //#include "fun/base/number_formatter.h"
 //#include "fun/base/number_parser.h"
-#include "fun/base/string/string.h"
 #include "fun/base/str.h"
+#include "fun/base/string/string.h"
 
 namespace fun {
 
 Logger::Logger(const String& name, LogSink::Ptr sink, LogLevel::Type level)
-  : name_(name), sink_(sink), level_(level) {}
+    : name_(name), sink_(sink), level_(level) {}
 
 Logger::~Logger() {
   // NOOP
 }
 
-void Logger::SetSink(LogSink::Ptr sink) {
-  sink_ = sink;
-}
+void Logger::SetSink(LogSink::Ptr sink) { sink_ = sink; }
 
-LogSink::Ptr Logger::GetSink() const {
-  return sink_;
-}
+LogSink::Ptr Logger::GetSink() const { return sink_; }
 
-void Logger::SetLevel(LogLevel::Type level) {
-  level_ = level;
-}
+void Logger::SetLevel(LogLevel::Type level) { level_ = level; }
 
-void Logger::SetLevel(const String& level) {
-  SetLevel(ParseLevel(level));
-}
+void Logger::SetLevel(const String& level) { SetLevel(ParseLevel(level)); }
 
 void Logger::SetProperty(const String& name, const String& value) {
   if (icompare(name, "sink") == 0) {
@@ -48,17 +40,13 @@ void Logger::Log(const LogMessage& msg) {
   }
 }
 
-void Logger::Log(const Exception& e) {
-  LogError(e.GetDisplayText());
-}
+void Logger::Log(const Exception& e) { LogError(e.GetDisplayText()); }
 
 void Logger::Log(const Exception& e, const char* file, int line) {
   LogError(e.GetDisplayText(), file, line);
 }
 
-void Logger::Dump(const String& msg,
-                  const void* buffer,
-                  size_t length,
+void Logger::Dump(const String& msg, const void* buffer, size_t length,
                   LogLevel::Type level) {
   if (level_ >= level && sink_) {
     String text(msg);
@@ -73,8 +61,8 @@ void Logger::SetLevel(const String& name, LogLevel::Type level) {
   if (logger_map_) {
     int32 len = name.Len();
     for (auto& pair : *logger_map_) {
-      if (len == 0 ||
-          (pair.key.MidRef(0, len) == name && (pair.key.Len() == len || pair.key[len] == '.'))) {
+      if (len == 0 || (pair.key.MidRef(0, len) == name &&
+                       (pair.key.Len() == len || pair.key[len] == '.'))) {
         pair.value->SetLevel(level);
       }
     }
@@ -87,56 +75,57 @@ void Logger::SetSink(const String& name, LogSink::Ptr sink) {
   if (logger_map_) {
     int32 len = name.Len();
     for (auto& pair : *logger_map_) {
-      if (len == 0 ||
-          (pair.key.MidRef(0, len) == name && (pair.key.Len() == len || pair.key[len] == '.'))) {
+      if (len == 0 || (pair.key.MidRef(0, len) == name &&
+                       (pair.key.Len() == len || pair.key[len] == '.'))) {
         pair.value->SetSink(sink);
       }
     }
   }
 }
 
-void Logger::SetProperty( const String& logger_name,
-                          const String& property_name,
-                          const String& value) {
+void Logger::SetProperty(const String& logger_name, const String& property_name,
+                         const String& value) {
   ScopedLock<Mutex> lock(logger_map_mutex_);
 
   if (logger_map_) {
     int32 len = logger_name.Len();
     for (auto& pair : *logger_map_) {
-      if (len == 0 ||
-          (pair.key.MidRef(0, len) == logger_name && (pair.key.Len() == len || pair.key[len] == '.'))) {
+      if (len == 0 || (pair.key.MidRef(0, len) == logger_name &&
+                       (pair.key.Len() == len || pair.key[len] == '.'))) {
         pair.value->SetProperty(property_name, value);
       }
     }
   }
 }
 
-
 //
 // Formatting
 //
 
-//String Logger::Format(const String& fmt, const String& arg) {
+// String Logger::Format(const String& fmt, const String& arg) {
 //  String args[] = { arg };
 //  return Format(fmt, 1, args);
 //}
 //
-//String Logger::Format(const String& fmt, const String& arg0, const String& arg1) {
+// String Logger::Format(const String& fmt, const String& arg0, const String&
+// arg1) {
 //  String args[] = { arg0, arg1 };
 //  return Format(fmt, 2, args);
 //}
 //
-//String Logger::Format(const String& fmt, const String& arg0, const String& arg1, const String& arg2) {
+// String Logger::Format(const String& fmt, const String& arg0, const String&
+// arg1, const String& arg2) {
 //  String args[] = { arg0, arg1, arg2 };
 //  return Format(fmt, 3, args);
 //}
 //
-//String Logger::Format(const String& fmt, const String& arg0, const String& arg1, const String& arg2, const String& arg3) {
+// String Logger::Format(const String& fmt, const String& arg0, const String&
+// arg1, const String& arg2, const String& arg3) {
 //  String args[] = { arg0, arg1, arg2, arg3 };
 //  return Format(fmt, 4, args);
 //}
 //
-//String Logger::Format(const String& fmt, int argc, String argv[]) {
+// String Logger::Format(const String& fmt, int argc, String argv[]) {
 //  String result;
 //  String::const_iterator it = fmt.begin();
 //  while (it != fmt.end()) {
@@ -161,20 +150,20 @@ void Logger::SetProperty( const String& logger_name,
 //}
 
 void Logger::FormatDump(String& message, const void* buffer, size_t length) {
-  //TODO
+  // TODO
 
   fun_check(0);
 
-  //const int BYTES_PER_LINE = 16;
+  // const int BYTES_PER_LINE = 16;
   //
-  //message.Reserve(message.Len() + length*6);
-  //if (!message.IsEmpty()) {
+  // message.Reserve(message.Len() + length*6);
+  // if (!message.IsEmpty()) {
   //  message.Append("\n");
   //}
   //
-  //unsigned char* base = (unsigned char*) buffer;
-  //int addr = 0;
-  //while (addr < length) {
+  // unsigned char* base = (unsigned char*) buffer;
+  // int addr = 0;
+  // while (addr < length) {
   //  if (addr > 0) {
   //    message.Append("\n");
   //  }
@@ -222,9 +211,8 @@ Logger& Logger::UnsafeGet(const String& name) {
   return *logger;
 }
 
-Logger& Logger::Create( const String& name,
-                        LogSink::Ptr sink,
-                        LogLevel::Type level) {
+Logger& Logger::Create(const String& name, LogSink::Ptr sink,
+                       LogLevel::Type level) {
   ScopedLock<Mutex> lock(logger_map_mutex_);
 
   if (Find(name)) {
@@ -341,4 +329,4 @@ void Logger::Add(Ptr logger) {
   logger_map_->Add(logger->GetName(), logger);
 }
 
-} // namespace fun
+}  // namespace fun

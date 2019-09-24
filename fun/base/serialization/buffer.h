@@ -14,7 +14,7 @@ class FUN_BASE_API Buffer : public IoDevice {
   ~Buffer();
 
   Buffer(const Buffer&) = delete;
-  Buffer& operator = (const Buffer&) = delete;
+  Buffer& operator=(const Buffer&) = delete;
 
   ByteArray& GetBuffer();
   const ByteArray& GetBuffer() const;
@@ -41,4 +41,4 @@ class FUN_BASE_API Buffer : public IoDevice {
   ScopedPtr<BufferImpl> impl_;
 };
 
-} // namespace fun
+}  // namespace fun

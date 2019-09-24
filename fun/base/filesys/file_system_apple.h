@@ -25,20 +25,24 @@ class FUN_BASE_API AppleFileSystem : public IPhysicalFileSystem {
   String GetFilenameOnDisk(const char* filename) override;
 
   IFile* OpenRead(const char* filename, bool allow_write = false) override;
-  IFile* OpenWrite(const char* filename, bool append = false, bool allow_read = false) override;
+  IFile* OpenWrite(const char* filename, bool append = false,
+                   bool allow_read = false) override;
   bool DirectoryExists(const char* directory) override;
   bool CreateDirectory(const char* directory) override;
   bool DeleteDirectory(const char* directory) override;
 
   FileStatData GetStatData(const char* filename_or_directory) override;
 
-  bool IterateDirectory(const char* directory, DirectoryVisitor& visitor) override;
-  bool IterateDirectoryStat(const char* directory, DirectoryStatVisitor& visitor) override;
+  bool IterateDirectory(const char* directory,
+                        DirectoryVisitor& visitor) override;
+  bool IterateDirectoryStat(const char* directory,
+                            DirectoryStatVisitor& visitor) override;
 
   bool CopyFile(const char* to, const char* from) override;
 
  private:
-  bool IterateDirectoryCommon(const char* directory, const FunctionRef<bool (struct dirent*)>& visitor);
+  bool IterateDirectoryCommon(const char* directory,
+                              const FunctionRef<bool(struct dirent*)>& visitor);
 
   int32 stat(const char* filename, struct stat* out_file_info);
 
@@ -47,4 +51,4 @@ class FUN_BASE_API AppleFileSystem : public IPhysicalFileSystem {
   virtual String NormalizeDirectory(const char* directory);
 };
 
-} // namespace fun
+}  // namespace fun

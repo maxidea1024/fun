@@ -1,12 +1,13 @@
 ﻿#include "fun/base/string/ucstring.h"
-#include "fun/base/string/char_traits.h"
 #include "fun/base/memory.h"
+#include "fun/base/string/char_traits.h"
 
 namespace fun {
 
 size_t ucslen(const UNICHAR* str) {
   const UNICHAR* s = str;
-  while (*s++);
+  while (*s++)
+    ;
   return s - str;
 }
 
@@ -27,11 +28,13 @@ UNICHAR* ucsnset(UNICHAR* dst, UNICHAR ch, size_t n) {
 
 UNICHAR* ucscpy(UNICHAR* __restrict dst, const UNICHAR* __restrict src) {
   UNICHAR* d = dst;
-  while ((*d++ = *src++) != '\0') ;
+  while ((*d++ = *src++) != '\0')
+    ;
   return dst;
 }
 
-UNICHAR* ucsncpy(UNICHAR* __restrict dst, const UNICHAR* __restrict src, size_t n) {
+UNICHAR* ucsncpy(UNICHAR* __restrict dst, const UNICHAR* __restrict src,
+                 size_t n) {
   if (n != 0) {
     UNICHAR* d = dst;
     const UNICHAR* s = src;
@@ -50,20 +53,24 @@ UNICHAR* ucsncpy(UNICHAR* __restrict dst, const UNICHAR* __restrict src, size_t 
   return dst;
 }
 
-UNICHAR* ucscat(UNICHAR * __restrict dst, const UNICHAR * __restrict src) {
+UNICHAR* ucscat(UNICHAR* __restrict dst, const UNICHAR* __restrict src) {
   UNICHAR* d = dst;
-  while (*d++);
-  while ((*d++ = *src++));
+  while (*d++)
+    ;
+  while ((*d++ = *src++))
+    ;
   return dst;
 }
 
-UNICHAR* ucsncat(UNICHAR* __restrict dst, const UNICHAR* __restrict src, size_t n) {
+UNICHAR* ucsncat(UNICHAR* __restrict dst, const UNICHAR* __restrict src,
+                 size_t n) {
   UNICHAR* d;
   UNICHAR* q;
   const UNICHAR* r;
 
   d = dst;
-  while (*d++);
+  while (*d++)
+    ;
   q = d;
   r = src;
   while (n && *r) {
@@ -130,7 +137,8 @@ int32 ucsicmp(const UNICHAR* str1, const UNICHAR* str2) {
   }
 
   --str2;
-  return (int32)CharTraitsU::ToLower(*str1) - (int32)CharTraitsU::ToLower(*str2);
+  return (int32)CharTraitsU::ToLower(*str1) -
+         (int32)CharTraitsU::ToLower(*str2);
 }
 
 int32 ucsnicmp(const UNICHAR* str1, const UNICHAR* str2, size_t n) {
@@ -194,8 +202,8 @@ UNICHAR* ucsichr(const UNICHAR* str, UNICHAR ch) {
   return nullptr;
 }
 
-//TODO?
-//UNICHAR* ucsrichr(const UNICHAR* str, UNICHAR ch)
+// TODO?
+// UNICHAR* ucsrichr(const UNICHAR* str, UNICHAR ch)
 
 UNICHAR* ucsstr(const UNICHAR* __restrict str, const UNICHAR* __restrict sub) {
   UNICHAR c, sc;
@@ -255,7 +263,8 @@ UNICHAR* ucsistr(const UNICHAR* __restrict str, const UNICHAR* __restrict sub) {
   return (UNICHAR*)str;
 }
 
-UNICHAR* ucsristr(const UNICHAR* __restrict str, const UNICHAR* __restrict sub) {
+UNICHAR* ucsristr(const UNICHAR* __restrict str,
+                  const UNICHAR* __restrict sub) {
   const size_t str_len = ucslen(str);
   const size_t sub_len = ucslen(sub);
 
@@ -294,7 +303,7 @@ Cont:
     }
   }
 
-  if (c == '\0') { // no non-delimiter characters
+  if (c == '\0') {  // no non-delimiter characters
     *last = nullptr;
     return nullptr;
   }
@@ -309,8 +318,7 @@ Cont:
       if ((sc = *spanp++) == c) {
         if (c == '\0') {
           str = nullptr;
-        }
-        else {
+        } else {
           str[-1] = '\0';
         }
         *last = str;
@@ -322,7 +330,7 @@ Cont:
 }
 
 UNICHAR* ucsitok(UNICHAR* __restrict str, const UNICHAR* __restrict delim,
-                UNICHAR** __restrict last) {
+                 UNICHAR** __restrict last) {
   const UNICHAR* spanp;
   UNICHAR* tok;
   UNICHAR c;
@@ -341,7 +349,7 @@ Cont:
     }
   }
 
-  if (c == '\0') { // no non-delimiter characters
+  if (c == '\0') {  // no non-delimiter characters
     *last = nullptr;
     return nullptr;
   }
@@ -356,8 +364,7 @@ Cont:
       if ((sc = CharTraitsU::ToLower(*spanp++)) == c) {
         if (c == '\0') {
           str = nullptr;
-        }
-        else {
+        } else {
           str[-1] = '\0';
         }
         *last = str;
@@ -456,7 +463,8 @@ UNICHAR* umemmove(UNICHAR* dst, const UNICHAR* src, size_t n) {
   return (UNICHAR*)UnsafeMemory::Memmove(dst, src, n * sizeof(UNICHAR));
 }
 
-UNICHAR* umemcpy(UNICHAR* __restrict dst, const UNICHAR* __restrict src, size_t n) {
+UNICHAR* umemcpy(UNICHAR* __restrict dst, const UNICHAR* __restrict src,
+                 size_t n) {
   return (UNICHAR*)UnsafeMemory::Memcpy(dst, src, n * sizeof(UNICHAR));
 }
 
@@ -480,4 +488,4 @@ UNICHAR* umemchr(const UNICHAR* str, UNICHAR ch, size_t n) {
   return nullptr;
 }
 
-} // namespace fun
+}  // namespace fun

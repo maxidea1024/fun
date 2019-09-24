@@ -39,22 +39,22 @@ class ValueOrError {
    */
   template <typename A>
   ValueOrError(ValueOrError_ValueProxy<A>&& proxy)
-    : value_(MoveTemp(proxy.arg)) {}
+      : value_(MoveTemp(proxy.arg)) {}
 
   template <typename A>
   ValueOrError(ValueOrError_ErrorProxy<A>&& proxy)
-    : error_(MoveTemp(proxy.arg)) {}
+      : error_(MoveTemp(proxy.arg)) {}
 
   /**
    * Move construction / assignment
    */
   ValueOrError(ValueOrError&& rhs)
-    : error_(MoveTemp(rhs.error_)), value_(MoveTemp(rhs.value_)) {}
+      : error_(MoveTemp(rhs.error_)), value_(MoveTemp(rhs.value_)) {}
 
   /**
    * Move operator
    */
-  ValueOrError& operator = (ValueOrError&& rhs) {
+  ValueOrError& operator=(ValueOrError&& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       error_ = MoveTemp(rhs.error_);
       value_ = MoveTemp(rhs.value_);
@@ -65,28 +65,22 @@ class ValueOrError {
 
   // Disable copy and assignment.
   ValueOrError(const ValueOrError&) = delete;
-  ValueOrError& operator = (const ValueOrError&) = delete;
+  ValueOrError& operator=(const ValueOrError&) = delete;
 
   /**
    * Check whether this value is valid
    */
-  bool IsValid() const {
-    return value_.IsSet() && !error_.IsSet();
-  }
+  bool IsValid() const { return value_.IsSet() && !error_.IsSet(); }
 
   /**
    * Get the error, if set
    */
-  ErrorType& Error() {
-    return error_.Value();
-  }
+  ErrorType& Error() { return error_.Value(); }
 
   /**
    * Get the error, if set
    */
-  const ErrorType& Error() const {
-    return error_.Value();
-  }
+  const ErrorType& Error() const { return error_.Value(); }
 
   /**
    * Steal this result's error, if set, causing it to become unset
@@ -100,16 +94,12 @@ class ValueOrError {
   /**
    * Access the value contained in this result
    */
-  ValueType& Value() {
-    return value_.Value();
-  }
+  ValueType& Value() { return value_.Value(); }
 
   /**
    * Access the value contained in this result
    */
-  const ValueType& Value() const {
-    return value_.Value();
-  }
+  const ValueType& Value() const { return value_.Value(); }
 
   /**
    * Steal this result's value, causing it to become unset
@@ -127,4 +117,4 @@ class ValueOrError {
   Optional<ValueType> value_;
 };
 
-} // namespace fun
+}  // namespace fun

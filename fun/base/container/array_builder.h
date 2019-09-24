@@ -12,8 +12,7 @@ namespace fun {
  * \param Allocator - The allocator to use for elements.
  */
 template <typename _ElementType, typename Allocator = DefaultAllocator>
-class ArrayBuilder
-{
+class ArrayBuilder {
  public:
   using ElementType = _ElementType;
   using ArrayType = Array<ElementType, Allocator>;
@@ -30,8 +29,7 @@ class ArrayBuilder
    */
   template <typename OtherAllocator>
   ArrayBuilder(const Array<ElementType, OtherAllocator>& array)
-    : array_(array)
-  {}
+      : array_(array) {}
 
   /**
    * Adds an item.
@@ -42,8 +40,7 @@ class ArrayBuilder
    *
    * \see AddUnique
    */
-  ArrayBuilder& Add(const ElementType& item)
-  {
+  ArrayBuilder& Add(const ElementType& item) {
     array_.Add(item);
     return *this;
   }
@@ -57,8 +54,7 @@ class ArrayBuilder
    *
    * \see Add
    */
-  ArrayBuilder& AddUnique(const ElementType& item)
-  {
+  ArrayBuilder& AddUnique(const ElementType& item) {
     array_.AddUnique(item);
     return *this;
   }
@@ -71,8 +67,7 @@ class ArrayBuilder
    * \return This instance (for method chaining).
    */
   template <typename OtherAllocator>
-  ArrayBuilder& Append(const ArrayType& other_array)
-  {
+  ArrayBuilder& Append(const ArrayType& other_array) {
     array_.Append(other_array);
     return *this;
   }
@@ -82,24 +77,18 @@ class ArrayBuilder
    *
    * \return A new array.
    */
-  ArrayType Build() const
-  {
-    return array_;
-  }
+  ArrayType Build() const { return array_; }
 
   /**
    * Implicit conversion operator to build the array as configured.
    *
    * \return A new array.
    */
-  operator ArrayType() const
-  {
-    return Build();
-  }
+  operator ArrayType() const { return Build(); }
 
  private:
   /** Holds the array. */
   ArrayType array_;
 };
 
-} // namespace fun
+}  // namespace fun

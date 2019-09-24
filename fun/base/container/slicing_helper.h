@@ -13,8 +13,8 @@ class SlicingHelper {
     Subset,
   };
 
-  FUN_ALWAYS_INLINE static
-  SlicingResult Slice(int32 original_len, int32* position, int32* len) {
+  FUN_ALWAYS_INLINE static SlicingResult Slice(int32 original_len,
+                                               int32* position, int32* len) {
     int32& adjusted_pos = *position;
     int32& adjusted_len = *len;
 
@@ -45,4 +45,4 @@ class SlicingHelper {
   }
 };
 
-} // namespace fun
+}  // namespace fun

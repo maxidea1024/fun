@@ -22,28 +22,29 @@ struct AlignedStorage<size, 1> {
 // we enforce that the element size is a multiple of the desired alignment.
 #ifdef __cplusplus_cli
 
-  #define __DEFINE_ALIGNED_STORAGE(align) \
-    template <size_t size> \
-    struct AlignedStorage<size, align> { \
-      uint8 pad[size]; \
-      static_assert((size % align) == 0, "CLR interop types must not be aligned."); \
-    };
+#define __DEFINE_ALIGNED_STORAGE(align)                      \
+  template <size_t size>                                     \
+  struct AlignedStorage<size, align> {                       \
+    uint8 pad[size];                                         \
+    static_assert((size % align) == 0,                       \
+                  "CLR interop types must not be aligned."); \
+  };
 
-#else // __cplusplus_cli
+#else  // __cplusplus_cli
 
-  /**
-   * A macro that implements AlignedStorage for a specific alignment.
-   */
-  #define __DEFINE_ALIGNED_STORAGE(align) \
-    template <size_t size> \
-    struct AlignedStorage<size, align> { \
-      struct alignas(align) Padding { \
-        uint8 pad[size]; \
-      }; \
-      Padding padding; \
-    };
+/**
+ * A macro that implements AlignedStorage for a specific alignment.
+ */
+#define __DEFINE_ALIGNED_STORAGE(align) \
+  template <size_t size>                \
+  struct AlignedStorage<size, align> {  \
+    struct alignas(align) Padding {     \
+      uint8 pad[size];                  \
+    };                                  \
+    Padding padding;                    \
+  };
 
-#endif // !__cplusplus_cli
+#endif  // !__cplusplus_cli
 
 // 16, 8, 4, 2 alignments.
 __DEFINE_ALIGNED_STORAGE(16);
@@ -53,7 +54,6 @@ __DEFINE_ALIGNED_STORAGE(2);
 
 #undef __DEFINE_ALIGNED_STORAGE
 
-
 /**
  * An untyped array of data with compile-time alignment and
  * size derived from another type.
@@ -61,4 +61,4 @@ __DEFINE_ALIGNED_STORAGE(2);
 template <typename T>
 struct TypeCompatibleStorage : public AlignedStorage<sizeof(T), alignof(T)> {};
 
-} // namespace fun
+}  // namespace fun

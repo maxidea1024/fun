@@ -23,4 +23,4 @@ class FUN_BASE_API ISO8859_3_Encoding : public DoubleByteEncoding {
   static const Mapping reverse_mapping_table_[];
 };
 
-} // namespace fun
+}  // namespace fun

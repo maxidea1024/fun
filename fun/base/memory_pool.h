@@ -4,10 +4,10 @@
 #include "fun/base/mutex.h"
 #include "fun/base/ndc.h"
 
-#include <vector>
-#include <cstring>
 #include <cstddef>
+#include <cstring>
 #include <iostream>
+#include <vector>
 
 namespace fun {
 
@@ -50,28 +50,22 @@ class FUN_BASE_API MemoryPool {
   /**
    * Returns the block size.
    */
-  size_t GetBlockSize() const {
-    return block_size_;
-  }
+  size_t GetBlockSize() const { return block_size_; }
 
   /**
    * Returns the number of allocated blocks.
    */
-  int32 AllocatedCount() const {
-    return allocated_count_;
-  }
+  int32 AllocatedCount() const { return allocated_count_; }
 
   /**
    * Returns the number of available blocks in the pool.
    */
-  int32 AvailableCount() const {
-    return (int32)blocks_.Count();
-  }
+  int32 AvailableCount() const { return (int32)blocks_.Count(); }
 
  private:
   MemoryPool() = delete;
   MemoryPool(const MemoryPool&) = delete;
-  MemoryPool& operator = (const MemoryPool&) = delete;
+  MemoryPool& operator=(const MemoryPool&) = delete;
 
   void Clear();
 
@@ -84,11 +78,10 @@ class FUN_BASE_API MemoryPool {
   FastMutex mutex_;
 };
 
-
 // Macro defining the default initial size of any
 // FastMemoryPool; can be overriden by specifying
 // FastMemoryPool pre-alloc at runtime.
-#define FUN_FAST_MEMORY_POOL_PREALLOC  1000
+#define FUN_FAST_MEMORY_POOL_PREALLOC 1000
 
 /**
  * FastMemoryPool is a class for pooling fixed-size blocks of memory.
@@ -209,17 +202,13 @@ class FUN_BASE_API FastMemoryPool {
      * must be set to zero. This design improves performance,
      * because otherwise the block array would require an
      * initialization loop after the allocation.
-    */
-    Block() {
-      memory_.next = this + 1;
-    }
+     */
+    Block() { memory_.next = this + 1; }
 
     /**
      * Creates a Block and sets its next pointer.
      */
-    explicit Block(Block* next) {
-      memory_.next = next;
-    }
+    explicit Block(Block* next) { memory_.next = next; }
 
     /**
      * Memory block storage.
@@ -238,9 +227,9 @@ class FUN_BASE_API FastMemoryPool {
 
    private:
     Block(const Block&);
-    Block& operator = (const Block&);
+    Block& operator=(const Block&);
     Block(Block&&);
-    Block& operator = (Block&&);
+    Block& operator=(Block&&);
   };
 
  public:
@@ -267,14 +256,14 @@ class FUN_BASE_API FastMemoryPool {
    *
    *   - max_alloc specifies maximum allowed total pool size in bytes.
    */
-  FastMemoryPool( size_t blocks_per_bucket = FUN_FAST_MEMORY_POOL_PREALLOC,
-                  size_t bucket_pre_alloc = 10,
-                  size_t max_alloc = 0)
-    : blocks_per_bucket_(blocks_per_bucket),
-      max_alloc_(max_alloc),
-      available_(0) {
+  FastMemoryPool(size_t blocks_per_bucket = FUN_FAST_MEMORY_POOL_PREALLOC,
+                 size_t bucket_pre_alloc = 10, size_t max_alloc = 0)
+      : blocks_per_bucket_(blocks_per_bucket),
+        max_alloc_(max_alloc),
+        available_(0) {
     if (blocks_per_bucket_ < 2) {
-      throw std::invalid_argument("FastMemoryPool: blocks_per_bucket must be >=2");
+      throw std::invalid_argument(
+          "FastMemoryPool: blocks_per_bucket must be >=2");
     }
     buckets_.Reserve(bucket_pre_alloc);
     Resize();
@@ -285,13 +274,11 @@ class FUN_BASE_API FastMemoryPool {
    * Any emory taken from, but not returned to, the pool
    * becomes invalid.
    */
-  ~FastMemoryPool() {
-    Clear();
-  }
+  ~FastMemoryPool() { Clear(); }
 
   /**
-   * Returns pointer to the next available memory block. If the pool is exhausted,
-   * it will be resized by allocating a new bucket.
+   * Returns pointer to the next available memory block. If the pool is
+   * exhausted, it will be resized by allocating a new bucket.
    */
   void* Get() {
     Block* ret;
@@ -330,9 +317,7 @@ class FUN_BASE_API FastMemoryPool {
   /**
    * Returns the block size in bytes.
    */
-  size_t GetBlockSize() const {
-    return sizeof(Block);
-  }
+  size_t GetBlockSize() const { return sizeof(Block); }
 
   /**
    * Returns the total amount of memory allocated, in bytes.
@@ -344,15 +329,13 @@ class FUN_BASE_API FastMemoryPool {
   /**
    * Returns currently available amount of memory in bytes.
    */
-  size_t AvailableCount() const {
-    return available_;
-  }
+  size_t AvailableCount() const { return available_; }
 
  private:
   FastMemoryPool(const FastMemoryPool&) = delete;
-  FastMemoryPool& operator = (const FastMemoryPool&) = delete;
+  FastMemoryPool& operator=(const FastMemoryPool&) = delete;
   FastMemoryPool(FastMemoryPool&&) = delete;
-  FastMemoryPool& operator = (FastMemoryPool&&) = delete;
+  FastMemoryPool& operator=(FastMemoryPool&&) = delete;
 
   /**
    * Creates new bucket and initializes it for internal use.
@@ -371,7 +354,7 @@ class FUN_BASE_API FastMemoryPool {
     buckets_.emplace_back(new Block[blocks_per_bucket_]);
     first_block_ = buckets_.back();
     // terminate last block
-    first_block_[blocks_per_bucket_-1].memory_.next = 0;
+    first_block_[blocks_per_bucket_ - 1].memory_.next = 0;
     available_ += blocks_per_bucket_;
   }
 
@@ -391,4 +374,4 @@ class FUN_BASE_API FastMemoryPool {
   mutable MutexT mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

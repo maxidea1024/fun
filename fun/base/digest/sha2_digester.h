@@ -28,7 +28,7 @@ class FUN_BASE_API SHA2Digester : public Digester {
 
   // Disable copy
   SHA2Digester(const SHA2Digester&) = delete;
-  SHA2Digester& operator = (const SHA2Digester&) = delete;
+  SHA2Digester& operator=(const SHA2Digester&) = delete;
 
  protected:
   // Digester interface
@@ -42,4 +42,4 @@ class FUN_BASE_API SHA2Digester : public Digester {
   Digester::Digest digest_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -7,13 +7,14 @@ namespace fun {
 /**
  * Implements a lock-free first-in first-out queue using a circular array.
  *
- * This class is thread safe only in two-thread scenarios, where the first thread
- * always reads and the second thread always writes. The head and tail indices are
- * stored in volatile memory to prevent the compiler from reordering the instructions
- * that are meant to update the indices AFTER items have been inserted or removed.
+ * This class is thread safe only in two-thread scenarios, where the first
+ * thread always reads and the second thread always writes. The head and tail
+ * indices are stored in volatile memory to prevent the compiler from reordering
+ * the instructions that are meant to update the indices AFTER items have been
+ * inserted or removed.
  *
- * The number of items that can be enqueued is one less than the queue's capacity,
- * because one item will be used for detecting full and empty states.
+ * The number of items that can be enqueued is one less than the queue's
+ * capacity, because one item will be used for detecting full and empty states.
  *
  * \param ElementType - The type of elements held in the queue.
  */
@@ -28,8 +29,7 @@ class CircularQueue {
    * \param size The number of elements that the queue can hold
    *             (will be rounded up to the next power of 2).
    */
-  CircularQueue(uint32 size)
-    : buffer_(size), head_(0), tail_(0) {}
+  CircularQueue(uint32 size) : buffer_(size), head_(0), tail_(0) {}
 
   /**
    * Virtual destructor.
@@ -73,9 +73,7 @@ class CircularQueue {
    *
    * \see IsEmpty
    */
-  void Clear() {
-    head_ = tail_;
-  }
+  void Clear() { head_ = tail_; }
 
   /**
    * Adds an item to the end of the queue.
@@ -103,9 +101,7 @@ class CircularQueue {
    *
    * \see Clear, IsFull
    */
-  FUN_ALWAYS_INLINE bool IsEmpty() const {
-    return head_ == tail_;
-  }
+  FUN_ALWAYS_INLINE bool IsEmpty() const { return head_ == tail_; }
 
   /**
    * Checks whether the queue is full.
@@ -114,9 +110,7 @@ class CircularQueue {
    *
    * \see IsEmpty
    */
-  bool IsFull() const {
-    return buffer_.GetNextIndex(tail_) == head_;
-  }
+  bool IsFull() const { return buffer_.GetNextIndex(tail_) == head_; }
 
   /**
    * Returns the oldest item in the queue without removing it.
@@ -143,4 +137,4 @@ class CircularQueue {
   alignas(FUN_PLATFORM_CACHE_LINE_SIZE) volatile uint32 tail_;
 };
 
-} // namespace fun
+}  // namespace fun

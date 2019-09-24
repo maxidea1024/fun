@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
+#include "fun/base/container/array.h"
 #include "fun/base/serialization/archive.h"
 #include "fun/base/string/string.h"
-#include "fun/base/container/array.h"
 
 namespace fun {
 
@@ -12,20 +12,14 @@ namespace fun {
  */
 class MemoryArchive : public Archive {
  public:
-  String GetArchiveName() const override {
-    return "MemoryArchive";
-  }
+  String GetArchiveName() const override { return "MemoryArchive"; }
 
-  void Seek(int64 new_pos) override {
-    offset_ = new_pos;
-  }
+  void Seek(int64 new_pos) override { offset_ = new_pos; }
 
-  int64 Tell() override {
-    return offset_;
-  }
+  int64 Tell() override { return offset_; }
 
-  //TODO
-  //Archive& operator & (Name& name) override {
+  // TODO
+  // Archive& operator & (Name& name) override {
   //  // Serialize the Name as a String
   //  if (IsLoading()) {
   //    String string_name;
@@ -38,8 +32,8 @@ class MemoryArchive : public Archive {
   //  return *this;
   //}
 
-  //TODO
-  //Archive& operator & (class FObject*& object) override {
+  // TODO
+  // Archive& operator & (class FObject*& object) override {
   //  // Not supported through this archive
   //  //fun_check(0);
   //  return *this;
@@ -55,19 +49,14 @@ class MemoryArchive : public Archive {
   int64 offset_;
 };
 
-
 /**
  * Archive for storing arbitrary data to the specified memory location
  */
 class MemoryWriter : public MemoryArchive {
  public:
-  MemoryWriter( Array<uint8>& bytes,
-                bool is_persistent = false,
-                bool appendable = false,
-                const String archive_name = "")
-    : MemoryArchive(),
-      bytes_(bytes),
-      archive_name_(archive_name) {
+  MemoryWriter(Array<uint8>& bytes, bool is_persistent = false,
+               bool appendable = false, const String archive_name = "")
+      : MemoryArchive(), bytes_(bytes), archive_name_(archive_name) {
     SetSaving(true);
     SetPersistent(is_persistent);
 
@@ -81,14 +70,15 @@ class MemoryWriter : public MemoryArchive {
     if (len_to_add > 0) {
       const int64 new_array_len = bytes_.Count() + len_to_add;
       if (new_array_len >= int32_MAX) {
-        //TODO
-        //fun_log2(Serialization, Fatal, "MemoryWriter does not support data larger than 2GB. Archive name: {}.", archive_name_.ToString());
+        // TODO
+        // fun_log2(Serialization, Fatal, "MemoryWriter does not support data
+        // larger than 2GB. Archive name: {}.", archive_name_.ToString());
       }
 
       bytes_.AddUninitialized((int32)len_to_add);
     }
 
-    //fun_check((offset_ + len) <= (int64)bytes_.Count());
+    // fun_check((offset_ + len) <= (int64)bytes_.Count());
 
     if (len > 0) {
       UnsafeMemory::Memcpy(&bytes_[(int32)offset_], v, len);
@@ -96,9 +86,7 @@ class MemoryWriter : public MemoryArchive {
     }
   }
 
-  int64 TotalSize() override {
-    return bytes_.Count();
-  }
+  int64 TotalSize() override { return bytes_.Count(); }
 
   String GetArchiveName() const override {
     return archive_name_.Len() > 0 ? archive_name_ : "MemoryWriter";
@@ -111,14 +99,14 @@ class MemoryWriter : public MemoryArchive {
   const String archive_name_;
 };
 
-
 /**
  * Buffer archiver.
  */
 class BufferArchive : public MemoryWriter, public Array<uint8> {
  public:
   BufferArchive(bool is_persistent = false, const String archive_name = "")
-    : MemoryWriter((Array<uint8>&)*this, is_persistent, false, archive_name) {}
+      : MemoryWriter((Array<uint8>&)*this, is_persistent, false, archive_name) {
+  }
 
   String GetArchiveName() const override {
     if (archive_name_.Len() > 0) {
@@ -129,28 +117,25 @@ class BufferArchive : public MemoryWriter, public Array<uint8> {
   }
 };
 
-
 /**
  * Archive for reading arbitrary data from the specified memory location
  */
 class MemoryReader : public MemoryArchive {
  public:
   /**
-   * Returns the name of the Archive.  Useful for getting the name of the package a struct or object
-   * is in when a loading error occurs.
+   * Returns the name of the Archive.  Useful for getting the name of the
+   * package a struct or object is in when a loading error occurs.
    *
    * This is overridden for the specific Archive Types
    */
-  String GetArchiveName() const override {
-    return "MemoryReader";
-  }
+  String GetArchiveName() const override { return "MemoryReader"; }
 
   int64 TotalSize() override {
     return MathBase::Min((int64)bytes_.Count(), limit_size_);
   }
 
   void Seek(int64 new_pos) override {
-    //fun_check(new_pos <= TotalSize());
+    // fun_check(new_pos <= TotalSize());
     MemoryArchive::Seek(new_pos);
   }
 
@@ -167,9 +152,7 @@ class MemoryReader : public MemoryArchive {
   }
 
   MemoryReader(const Array<uint8>& bytes, bool is_persistent = false)
-    : MemoryArchive(),
-      bytes_(bytes),
-      limit_size_(int64_MAX) {
+      : MemoryArchive(), bytes_(bytes), limit_size_(int64_MAX) {
     SetLoading(true);
     SetPersistent(is_persistent);
   }
@@ -177,15 +160,12 @@ class MemoryReader : public MemoryArchive {
   /**
    * With this method it's possible to attach data behind some serialized data.
    */
-  void SetLimitSize(int64 limit_size) {
-    limit_size_ = limit_size;
-  }
+  void SetLimitSize(int64 limit_size) { limit_size_ = limit_size; }
 
  protected:
   const Array<uint8>& bytes_;
   int64 limit_size_;
 };
-
 
 /**
  * Archive objects that are also a Array. Since BufferArchive is already the
@@ -196,13 +176,10 @@ typedef BufferArchive ArrayWriter;
 class ArrayReader : public MemoryReader, public Array<uint8> {
  public:
   ArrayReader(bool is_persistent = false)
-    : MemoryReader((Array<uint8>&)*this, is_persistent) {}
+      : MemoryReader((Array<uint8>&)*this, is_persistent) {}
 
-  String GetArchiveName() const override {
-    return "ArrayReader";
-  }
+  String GetArchiveName() const override { return "ArrayReader"; }
 };
-
 
 /**
  * Similar to MemoryReader, but able to internally
@@ -215,21 +192,21 @@ class BufferReader : public Archive {
    *
    * @param data - Buffer to use as the source data to read from
    * @param size - Size of Data
-   * @param free_on_close - If true, Data will be UnsafeMemory::Free'd when this archive is closed
+   * @param free_on_close - If true, Data will be UnsafeMemory::Free'd when this
+   * archive is closed
    * @param is_persistent - Uses this value for ArIsPersistent
    */
-  BufferReader(void* data, int64 size, bool free_on_close, bool is_persistent = false)
-    : reader_data_(data),
-      reader_pos_(0),
-      reader_size_(size),
-      free_on_close_(free_on_close) {
+  BufferReader(void* data, int64 size, bool free_on_close,
+               bool is_persistent = false)
+      : reader_data_(data),
+        reader_pos_(0),
+        reader_size_(size),
+        free_on_close_(free_on_close) {
     SetLoading(true);
     SetPersistent(is_persistent);
   }
 
-  ~BufferReader() {
-    Close();
-  }
+  ~BufferReader() { Close(); }
 
   bool Close() override {
     if (free_on_close_) {
@@ -240,33 +217,25 @@ class BufferReader : public Archive {
   }
 
   void Serialize(void* v, int64 len) override {
-    //fun_check(reader_pos_ >= 0);
-    //fun_check(reader_pos_ + len <= reader_size_);
+    // fun_check(reader_pos_ >= 0);
+    // fun_check(reader_pos_ + len <= reader_size_);
     UnsafeMemory::Memcpy(v, (uint8*)reader_data_ + reader_pos_, len);
     reader_pos_ += len;
   }
 
-  int64 Tell() override {
-    return reader_pos_;
-  }
+  int64 Tell() override { return reader_pos_; }
 
-  int64 TotalSize() override {
-    return reader_size_;
-  }
+  int64 TotalSize() override { return reader_size_; }
 
   void Seek(int64 new_pos) override {
-    //fun_check(new_pos >= 0);
-    //fun_check(new_pos <= reader_size_);
+    // fun_check(new_pos >= 0);
+    // fun_check(new_pos <= reader_size_);
     reader_pos_ = new_pos;
   }
 
-  bool AtEnd() override {
-    return reader_pos_ >= reader_size_;
-  }
+  bool AtEnd() override { return reader_pos_ >= reader_size_; }
 
-  String GetArchiveName() const override {
-    return "BufferReader";
-  }
+  String GetArchiveName() const override { return "BufferReader"; }
 
  protected:
   void* reader_data_;
@@ -274,7 +243,6 @@ class BufferReader : public Archive {
   int64 reader_size_;
   bool free_on_close_;
 };
-
 
 /**
  * Similar to MemoryWriter, but able to internally
@@ -287,24 +255,21 @@ class BufferWriter : public Archive {
    *
    * @param data - Buffer to use as the source data to read from
    * @param size - Size of Data
-   * @param free_on_close - If true, Data will be UnsafeMemory::Free'd when this archive is closed
+   * @param free_on_close - If true, Data will be UnsafeMemory::Free'd when this
+   * archive is closed
    * @param is_persistent - Uses this value for ArIsPersistent
    */
-  BufferWriter( void* data,
-                int64 size,
-                bool free_on_close,
-                bool is_persistent = false)
-    : writer_data_(data),
-      writer_pos_(0),
-      writer_size_(size),
-      free_on_close_(free_on_close) {
+  BufferWriter(void* data, int64 size, bool free_on_close,
+               bool is_persistent = false)
+      : writer_data_(data),
+        writer_pos_(0),
+        writer_size_(size),
+        free_on_close_(free_on_close) {
     SetSaving(true);
     SetPersistent(is_persistent);
   }
 
-  ~BufferWriter() {
-    Close();
-  }
+  ~BufferWriter() { Close(); }
 
   bool Close() override {
     if (free_on_close_) {
@@ -319,45 +284,36 @@ class BufferWriter : public Archive {
     if (len_to_add > 0) {
       const int64 new_array_len = writer_size_ + len_to_add;
       if (new_array_len >= int32_MAX) {
-        //TODO
-        //fun_log(LogSerialization, Fatal, "BufferWriter does not support data larger than 2GB. Archive name: {}.", *GetArchiveName());
+        // TODO
+        // fun_log(LogSerialization, Fatal, "BufferWriter does not support data
+        // larger than 2GB. Archive name: {}.", *GetArchiveName());
       }
 
       UnsafeMemory::Realloc(writer_data_, new_array_len);
       writer_size_ = new_array_len;
     }
 
-    //fun_check(writer_pos_ >= 0);
-    //fun_check((writer_pos_ + len) <= writer_size_);
+    // fun_check(writer_pos_ >= 0);
+    // fun_check((writer_pos_ + len) <= writer_size_);
     UnsafeMemory::Memcpy((uint8*)writer_data_ + writer_pos_, v, len);
     writer_pos_ += len;
   }
 
-  int64 Tell() override {
-    return writer_pos_;
-  }
+  int64 Tell() override { return writer_pos_; }
 
-  int64 TotalSize() override {
-    return writer_size_;
-  }
+  int64 TotalSize() override { return writer_size_; }
 
   void Seek(int64 new_pos) override {
-    //fun_check(new_pos >= 0);
-    //fun_check(new_pos <= writer_size_);
+    // fun_check(new_pos >= 0);
+    // fun_check(new_pos <= writer_size_);
     writer_pos_ = new_pos;
   }
 
-  bool AtEnd() override {
-    return writer_pos_ >= writer_size_;
-  }
+  bool AtEnd() override { return writer_pos_ >= writer_size_; }
 
-  String GetArchiveName() const override {
-    return "BufferWriter";
-  }
+  String GetArchiveName() const override { return "BufferWriter"; }
 
-  void* GetWriterData() {
-    return writer_data_;
-  }
+  void* GetWriterData() { return writer_data_; }
 
  protected:
   void* writer_data_;
@@ -365,7 +321,6 @@ class BufferWriter : public Archive {
   int64 writer_size_;
   bool free_on_close_;
 };
-
 
 /**
  * Archive Proxy to transparently write out compressed data to an array.
@@ -375,11 +330,12 @@ class FUN_BASE_API ArchiveSaveCompressedProxy : public Archive {
   /**
    * Constructor, initializing all member variables and allocating temp memory.
    *
-   * @param compressed_data - [ref]  Array of bytes that is going to hold compressed data
+   * @param compressed_data - [ref]  Array of bytes that is going to hold
+   * compressed data
    * @param compression_flags - Compression flags to use for compressing data
    */
-  ArchiveSaveCompressedProxy( Array<uint8>& compressed_data,
-                              CompressionFlags compression_flags);
+  ArchiveSaveCompressedProxy(Array<uint8>& compressed_data,
+                             CompressionFlags compression_flags);
 
   /** Destructor, flushing array if needed. Also frees temporary memory. */
   ~ArchiveSaveCompressedProxy();
@@ -416,7 +372,6 @@ class FUN_BASE_API ArchiveSaveCompressedProxy : public Archive {
   CompressionFlags compression_flags_;
 };
 
-
 /**
  * Archive Proxy to transparently load compressed data from an array.
  */
@@ -426,10 +381,11 @@ class FUN_BASE_API ArchiveLoadCompressedProxy : public Archive {
    * Constructor, initializing all member variables and allocating temp memory.
    *
    * @param compressed_data - Array of bytes that is holding compressed data
-   * @param compression_flags - Compression flags that were used to compress data
+   * @param compression_flags - Compression flags that were used to compress
+   * data
    */
-  ArchiveLoadCompressedProxy( const Array<uint8>& compressed_data,
-                              CompressionFlags compression_flags);
+  ArchiveLoadCompressedProxy(const Array<uint8>& compressed_data,
+                             CompressionFlags compression_flags);
 
   /** Destructor, freeing temporary memory. */
   ~ArchiveLoadCompressedProxy();
@@ -468,4 +424,4 @@ class FUN_BASE_API ArchiveLoadCompressedProxy : public Archive {
   CompressionFlags compression_flags_;
 };
 
-} // namespace fun
+}  // namespace fun

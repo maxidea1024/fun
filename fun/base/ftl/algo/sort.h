@@ -26,5 +26,5 @@ FUN_ALWAYS_INLINE void SortBy(Range& range, Projection proj, Predicate pred) {
   IntroSortBy(range, MoveTemp(proj), MoveTemp(pred));
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

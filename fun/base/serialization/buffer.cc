@@ -12,13 +12,15 @@ class BufferImpl : public IoDeviceImpl {
   ~BufferImpl() {}
 
   int64 Peek(char* buf, int64 max_len) override {
-    int64 readable_len = MathBase::Min(max_len, static_cast<int64>(buffer_->Count()) - position_);
+    int64 readable_len = MathBase::Min(
+        max_len, static_cast<int64>(buffer_->Count()) - position_);
     UnsafeMemory::Memcpy(buf, buffer_->ConstData() + position_, readable_len);
     return readable_len;
   }
 
   ByteArray Peek(int64 max_len) override {
-    int64 readable_len = MathBase::Min(max_len, static_cast<int64>(buffer_->Count()) - position_);
+    int64 readable_len = MathBase::Min(
+        max_len, static_cast<int64>(buffer_->Count()) - position_);
     if (position_ == 0 && max_len >= buffer_->Count()) {
       return *buf;
     }
@@ -26,7 +28,6 @@ class BufferImpl : public IoDeviceImpl {
     return ByteArray(buffer_->ConstData() + position_, readable_len);
   }
 };
-
 
 //
 // Buffer
@@ -43,13 +44,9 @@ Buffer::Buffer(ByteArray* buf) : IoDevice(*new BufferImpl) {
 
 Buffer::~Buffer() {}
 
-ByteArray& Buffer::GetBuffer() {
-  return *impl_->buffer_;
-}
+ByteArray& Buffer::GetBuffer() { return *impl_->buffer_; }
 
-const ByteArray& Buffer::GetBuffer() const {
-  return *impl_->buffer_;
-}
+const ByteArray& Buffer::GetBuffer() const { return *impl_->buffer_; }
 
 void Buffer::SetBuffer(ByteArray* buf) {
   if (IsOpened()) {
@@ -79,9 +76,7 @@ void Buffer::SetData(const char* data, int32 len) {
   SetData(ByteArray(data, len));
 }
 
-const ByteArray& Buffer::GetData() const {
-  return *impl_->buffer_;
-}
+const ByteArray& Buffer::GetData() const { return *impl_->buffer_; }
 
 bool Buffer::Open(OpenMode open_mode) {
   if ((open_mode & (Append | Truncate)) != 0) {
@@ -100,17 +95,11 @@ bool Buffer::Open(OpenMode open_mode) {
   return IoDevice::Open(open_mode | IoDevice::Unbuffered);
 }
 
-void Buffer::Close() {
-  IoDevice::Close();
-}
+void Buffer::Close() { IoDevice::Close(); }
 
-int64 Buffer::Size() const {
-  return int64(impl_->buffer_->Count());
-}
+int64 Buffer::Size() const { return int64(impl_->buffer_->Count()); }
 
-int64 Buffer::Tell() const {
-  return IoDevice::Tell();
-}
+int64 Buffer::Tell() const { return IoDevice::Tell(); }
 
 bool Buffer::Seek(int64 position) {
   if (position > impl_->buffer_->Count() && IsWritable()) {
@@ -134,23 +123,23 @@ bool Buffer::Seek(int64 position) {
   return IoDevice::Seek(position);
 }
 
-bool Buffer::AtEnd() const {
-  return IoDevice::AtEnd();
-}
+bool Buffer::AtEnd() const { return IoDevice::AtEnd(); }
 
 bool Buffer::CanReadLine() const {
   if (!IsOpened()) {
     return false;
   }
 
-  return impl_->buffer_->IndexOf('\n', int32(Tell())) != -1 || IoDevice::CanReadLine();
+  return impl_->buffer_->IndexOf('\n', int32(Tell())) != -1 ||
+         IoDevice::CanReadLine();
 }
 
 int64 Buffer::ReadData(char* buf, int64 max_len) {
   fun_check(buf || max_len == 0);
   fun_check(max_len >= 0);
 
-  const int64 readable_len = MathBase::Min(max_len, int64(impl_->buffer_->Count()) - Tell());
+  const int64 readable_len =
+      MathBase::Min(max_len, int64(impl_->buffer_->Count()) - Tell());
   if (readable_len <= 0) {
     return 0;
   }
@@ -164,18 +153,18 @@ int64 Buffer::WriteData(const char* data, int64 len) {
   fun_check(len >= 0);
 
   const int32 over_len = Tell() + len - impl_->buffer_->Count();
-  if (over_len > 0) // overflow {
+  if (over_len > 0)  // overflow {
     const int32 new_len = impl_->buffer_->Count() + over_len;
 
-    impl_->buffer_->Resize(new_len);
+  impl_->buffer_->Resize(new_len);
 
-    if (impl_->buffer_->Count() != new_len) // could not resize {
-      fun_log(Warning, "Buffer::writeData: Memory allocation error");
-      return -1;
-    }
-  }
+  if (impl_->buffer_->Count() != new_len)  // could not resize {
+    fun_log(Warning, "Buffer::writeData: Memory allocation error");
+  return -1;
+}
+}  // namespace fun
 
-  UnsafeMemory::Memcpy(impl_->buffer_->MutableData() + Tell(), data, (size_t)len);
+UnsafeMemory::Memcpy(impl_->buffer_->MutableData() + Tell(), data, (size_t)len);
 }
 
-} // namespace fun
+}  // namespace fun

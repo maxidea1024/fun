@@ -1,8 +1,8 @@
-﻿#include "fun/net/net.h"
-#include "fun/net/inet_address.h"
-#include "fun/base/thread_pool.h"
+﻿#include "fun/base/notification_queue.h"
 #include "fun/base/splitter_sink.h"
-#include "fun/base/notification_queue.h"
+#include "fun/base/thread_pool.h"
+#include "fun/net/inet_address.h"
+#include "fun/net/net.h"
 
 namespace fun {
 namespace net {
@@ -115,5 +115,5 @@ class Net_API RemoteSyslogListener : public SplitterSink {
   int32 thread_count_;
 };
 
-} // namespace net
-} // namespace fun
+}  // namespace net
+}  // namespace fun

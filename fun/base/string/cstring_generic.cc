@@ -4,23 +4,27 @@ namespace fun {
 
 // Sizes as defined by the ISO C99 standard - fallback
 #ifndef LLONG_MAX
-# define LLONG_MAX  0x7FFFFFFFFFFFFFFFLL
+#define LLONG_MAX 0x7FFFFFFFFFFFFFFFLL
 #endif
 
 #ifndef LLONG_MIN
-# define LLONG_MIN  (-LLONG_MAX - 1)
+#define LLONG_MIN (-LLONG_MAX - 1)
 #endif
 
 #ifndef ULLONG_MAX
-# define ULLONG_MAX  0xFFFFFFFFFFFFFFFFULL
+#define ULLONG_MAX 0xFFFFFFFFFFFFFFFFULL
 #endif
 
-#define FAILURE_IF_END()  if (cur >= end) { goto failure; }
+#define FAILURE_IF_END() \
+  if (cur >= end) {      \
+    goto failure;        \
+  }
 
 namespace {
 
 template <typename Char>
-int64 Strtoi64Impl(const Char* str, const Char* end, Char** end_ptr, int32 base) {
+int64 Strtoi64Impl(const Char* str, const Char* end, Char** end_ptr,
+                   int32 base) {
   const Char* cur;
   uint64 acc;
   Char ch;
@@ -48,10 +52,8 @@ int64 Strtoi64Impl(const Char* str, const Char* end, Char** end_ptr, int32 base)
     }
   }
 
-  if ((base == 0 || base == 16) &&
-      ch == '0' && (*cur == 'x' || *cur == 'X') &&
-      ((cur[1] >= '0' && cur[1] <= '9') ||
-       (cur[1] >= 'a' && cur[1] <= 'f') ||
+  if ((base == 0 || base == 16) && ch == '0' && (*cur == 'x' || *cur == 'X') &&
+      ((cur[1] >= '0' && cur[1] <= '9') || (cur[1] >= 'a' && cur[1] <= 'f') ||
        (cur[1] >= 'A' && cur[1] <= 'F'))) {
     ch = cur[1];
     cur += 2;
@@ -68,7 +70,7 @@ int64 Strtoi64Impl(const Char* str, const Char* end, Char** end_ptr, int32 base)
     goto failure;
   }
 
-  cut_off = neg ? (uint64)-(LLONG_MIN + LLONG_MAX) + LLONG_MAX : LLONG_MAX;
+  cut_off = neg ? (uint64) - (LLONG_MIN + LLONG_MAX) + LLONG_MAX : LLONG_MAX;
   cut_lim = cut_off % base;
   cut_off /= base;
 
@@ -100,10 +102,10 @@ int64 Strtoi64Impl(const Char* str, const Char* end, Char** end_ptr, int32 base)
     acc = neg ? LLONG_MIN : LLONG_MAX;
     errno = ERANGE;
   } else if (!any) {
-failure:
+  failure:
     errno = EINVAL;
   } else if (neg) {
-    acc = (uint64)-(int64)acc;
+    acc = (uint64) - (int64)acc;
   }
 
   if (end_ptr) {
@@ -114,7 +116,8 @@ failure:
 }
 
 template <typename Char>
-uint64 Strtoui64Impl(const Char* str, const Char* end, Char** end_ptr, int32 base) {
+uint64 Strtoui64Impl(const Char* str, const Char* end, Char** end_ptr,
+                     int32 base) {
   const Char* cur;
   uint64 acc;
   Char ch;
@@ -142,10 +145,8 @@ uint64 Strtoui64Impl(const Char* str, const Char* end, Char** end_ptr, int32 bas
     }
   }
 
-  if ((base == 0 || base == 16) &&
-      ch == '0' && (*cur == 'x' || *cur == 'X') &&
-      ((cur[1] >= '0' && cur[1] <= '9') ||
-       (cur[1] >= 'a' && cur[1] <= 'f') ||
+  if ((base == 0 || base == 16) && ch == '0' && (*cur == 'x' || *cur == 'X') &&
+      ((cur[1] >= '0' && cur[1] <= '9') || (cur[1] >= 'a' && cur[1] <= 'f') ||
        (cur[1] >= 'A' && cur[1] <= 'F'))) {
     ch = cur[1];
     cur += 2;
@@ -193,10 +194,10 @@ uint64 Strtoui64Impl(const Char* str, const Char* end, Char** end_ptr, int32 bas
     acc = ULLONG_MAX;
     errno = ERANGE;
   } else if (!any) {
-failure:
+  failure:
     errno = EINVAL;
   } else if (neg) {
-    acc = (uint64)-(int64)acc;
+    acc = (uint64) - (int64)acc;
   }
 
   if (end_ptr) {
@@ -206,12 +207,10 @@ failure:
   return acc;
 }
 
-
 /**
 
-int32 Strtoi32(const Char* str, const Char* end, Char** end_ptr, int32 base, bool* ok = nullptr) {
-  if (ok) {
-    *ok = true;
+int32 Strtoi32(const Char* str, const Char* end, Char** end_ptr, int32 base,
+bool* ok = nullptr) { if (ok) { *ok = true;
   }
 
   errno = 0;
@@ -221,9 +220,8 @@ int32 Strtoi32(const Char* str, const Char* end, Char** end_ptr, int32 base, boo
     *end_ptr = end_ptr2;
   }
 
-  if ((result == 0 || result < int32_MIN || result > int32_MAX) && (errno || end_ptr2 == str)) {
-    if (ok) {
-      *ok = false;
+  if ((result == 0 || result < int32_MIN || result > int32_MAX) && (errno ||
+end_ptr2 == str)) { if (ok) { *ok = false;
     }
     return 0;
   }
@@ -231,9 +229,8 @@ int32 Strtoi32(const Char* str, const Char* end, Char** end_ptr, int32 base, boo
   return (int32)result;
 }
 
-uint32 Strtoui32(const Char* str, const Char* end, Char** end_ptr, int32 base, bool* ok = nullptr) {
-  if (ok) {
-    *ok = true;
+uint32 Strtoui32(const Char* str, const Char* end, Char** end_ptr, int32 base,
+bool* ok = nullptr) { if (ok) { *ok = true;
   }
 
   errno = 0;
@@ -254,9 +251,8 @@ uint32 Strtoui32(const Char* str, const Char* end, Char** end_ptr, int32 base, b
 }
 
 
-int64 Strtoi64(const Char* str, const Char* end, Char** end_ptr, int32 base, bool* ok = nullptr) {
-  if (ok) {
-    *ok = true;
+int64 Strtoi64(const Char* str, const Char* end, Char** end_ptr, int32 base,
+bool* ok = nullptr) { if (ok) { *ok = true;
   }
 
   errno = 0;
@@ -266,9 +262,8 @@ int64 Strtoi64(const Char* str, const Char* end, Char** end_ptr, int32 base, boo
     *end_ptr = end_ptr2;
   }
 
-  if ((result == 0 || result == int64_MIN || result == int64_MAX) && (errno || end_ptr2 == str)) {
-    if (ok) {
-      *ok = false;
+  if ((result == 0 || result == int64_MIN || result == int64_MAX) && (errno ||
+end_ptr2 == str)) { if (ok) { *ok = false;
     }
     return 0;
   }
@@ -277,9 +272,8 @@ int64 Strtoi64(const Char* str, const Char* end, Char** end_ptr, int32 base, boo
 }
 
 
-int64 Strtoui64(const Char* str, const Char* end, Char** end_ptr, int32 base, bool* ok = nullptr) {
-  if (ok) {
-    *ok = true;
+int64 Strtoui64(const Char* str, const Char* end, Char** end_ptr, int32 base,
+bool* ok = nullptr) { if (ok) { *ok = true;
   }
 
   errno = 0;
@@ -300,12 +294,10 @@ int64 Strtoui64(const Char* str, const Char* end, Char** end_ptr, int32 base, bo
 }
 
 
-double GenericCString::Strtod(const char* str, const char* end, char** end_ptr, bool* ok) {
-  int32 processed = 0;
-  bool non_null_ok = false;
-  double result = AsciiToDouble(str, end - str, non_null_ok, processed);
-  if (end_ptr) {
-    *end_ptr = const_cast<char*>(str) + processed;
+double GenericCString::Strtod(const char* str, const char* end, char** end_ptr,
+bool* ok) { int32 processed = 0; bool non_null_ok = false; double result =
+AsciiToDouble(str, end - str, non_null_ok, processed); if (end_ptr) { *end_ptr =
+const_cast<char*>(str) + processed;
   }
   if (ok) {
     *ok = non_null_ok;
@@ -313,14 +305,13 @@ double GenericCString::Strtod(const char* str, const char* end, char** end_ptr, 
   return result;
 }
 
-double GenericCString::Strtod(const UNICHAR* str, const UNICHAR* end, UNICHAR** end_ptr, bool* ok) {
-  auto ascii = UNICHAR_TO_ASCII_VIEW(str, end - str);
+double GenericCString::Strtod(const UNICHAR* str, const UNICHAR* end, UNICHAR**
+end_ptr, bool* ok) { auto ascii = UNICHAR_TO_ASCII_VIEW(str, end - str);
 
   int32 processed = 0;
   bool non_null_ok = false;
-  double result = AsciiToDouble(ascii.ConstData(), ascii.Len(), non_null_ok, processed);
-  if (end_ptr) {
-    *end_ptr = const_cast<UNICHAR*>(str) + processed;
+  double result = AsciiToDouble(ascii.ConstData(), ascii.Len(), non_null_ok,
+processed); if (end_ptr) { *end_ptr = const_cast<UNICHAR*>(str) + processed;
   }
   if (ok) {
     *ok = non_null_ok;
@@ -330,6 +321,6 @@ double GenericCString::Strtod(const UNICHAR* str, const UNICHAR* end, UNICHAR** 
 
 */
 
-} // namespace
+}  // namespace
 
-} // namespace fun
+}  // namespace fun

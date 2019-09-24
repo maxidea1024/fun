@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/io/io_system.h"
-#include "fun/base/string/string.h"
 #include "fun/base/container/array.h"
-#include "fun/base/runnable.h"
+#include "fun/base/io/io_system.h"
 #include "fun/base/mutex.h"
+#include "fun/base/runnable.h"
+#include "fun/base/string/string.h"
 //#include "fun/base/thread.h"
 #include "fun/base/atomic_counter.h"
 #include "fun/base/filesys/file_system.h"
@@ -16,37 +16,22 @@ namespace fun {
  * Base implementation of an async IO system
  * allowing most of the code to be shared across platforms.
  */
-class FUN_BASE_API AsyncIoSystemBase
-  : public IoSystem
-  , public Runnable
-{
+class FUN_BASE_API AsyncIoSystemBase : public IoSystem, public Runnable {
  public:
-  AsyncIoSystemBase(IPlatfformFileSystem& low_level)
-    : low_level_(low_level)
-  {
-  }
-
+  AsyncIoSystemBase(IPlatfformFileSystem& low_level) : low_level_(low_level) {}
 
   //
   // IoSystem interface
   //
 
-  uint64 LoadData(
-        const String& filename,
-        int64 offset,
-        int64 size,
-        AtomicCounter32* counter,
-        AsyncIoPriority priority) override;
+  uint64 LoadData(const String& filename, int64 offset, int64 size,
+                  AtomicCounter32* counter, AsyncIoPriority priority) override;
 
-  uint64 LoadCompressedData(
-        const String& filename,
-        int64 offset,
-        int64 compressed_size,
-        int64 uncompressed_size,
-        void* dst,
-        CompressionFlags compression_flags,
-        AtomicCounter32* counter,
-        AsyncIoPriority priority) override;
+  uint64 LoadCompressedData(const String& filename, int64 offset,
+                            int64 compressed_size, int64 uncompressed_size,
+                            void* dst, CompressionFlags compression_flags,
+                            AtomicCounter32* counter,
+                            AsyncIoPriority priority) override;
 
   int32 CancelRequests(const uint64* request_indices, int32 count) override;
 
@@ -83,29 +68,27 @@ class FUN_BASE_API AsyncIoSystemBase
     bool has_already_requested_handle_to_be_cached;
 
     IoRequest()
-      : request_index(0)
-      , file_sort_key(-1)
-      , offset(-1)
-      , uncompressed_size(-1)
-      , dst(nullptr)
-      , compression_flags(CompressionFlags::None)
-      , counter(nullptr)
-      , priority(AsyncIoPriority::Min)
-      , destroy_handle_request(false)
-      , has_already_requested_handle_to_be_cached(false)
-    {
-    }
+        : request_index(0),
+          file_sort_key(-1),
+          offset(-1),
+          uncompressed_size(-1),
+          dst(nullptr),
+          compression_flags(CompressionFlags::None),
+          counter(nullptr),
+          priority(AsyncIoPriority::Min),
+          destroy_handle_request(false),
+          has_already_requested_handle_to_be_cached(false) {}
 
-    String ToString() const
-    {
-      //TODO
+    String ToString() const {
+      // TODO
       return String();
     }
   };
 
   void Internalread(IFile* file, int64 offset, int64 size, void* dst);
 
-  virtual bool PlatformReadDoNotCallDirectly(IFile* file, int64 offset, int64 size, void* dst);
+  virtual bool PlatformReadDoNotCallDirectly(IFile* file, int64 offset,
+                                             int64 size, void* dst);
 
   virtual IFile* PlatformCreateHandle(const char* filename);
 
@@ -126,15 +109,10 @@ class FUN_BASE_API AsyncIoSystemBase
 
   void ConstrainBandWidth(int64 bytes_read, float read_time);
 
-  uint64 QueueIoRequest(
-      const char* filename,
-      int64 offset,
-      int64 size,
-      int64 uncompressed_size,
-      void* dst,
-      CompressionFlags compression_flags,
-      AtomicCounter32* counter,
-      AsyncIoPriority priority);
+  uint64 QueueIoRequest(const char* filename, int64 offset, int64 size,
+                        int64 uncompressed_size, void* dst,
+                        CompressionFlags compression_flags,
+                        AtomicCounter32* counter, AsyncIoPriority priority);
 
   uint64 QueueDestroyHandleRequest(const char* filename);
 
@@ -154,4 +132,4 @@ class FUN_BASE_API AsyncIoSystemBase
   IPlatformFS& low_level_;
 };
 
-} // namespace fun
+}  // namespace fun

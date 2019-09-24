@@ -2,7 +2,7 @@
 
 #include "fun/base/base.h"
 #include "fun/base/ftl/algo/none_of.h"
-#include "fun/base/ftl/template.h" // MoveTemp
+#include "fun/base/ftl/template.h"  // MoveTemp
 
 namespace fun {
 namespace algo {
@@ -17,5 +17,5 @@ FUN_ALWAYS_INLINE bool AnyOf(const Range& range, Projection proj) {
   return !NoneOf(range, MoveTemp(proj));
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

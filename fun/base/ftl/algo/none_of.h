@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/ftl/functional.h" // Invoke
+#include "fun/base/ftl/functional.h"  // Invoke
 
 namespace fun {
 namespace algo {
@@ -28,5 +28,5 @@ FUN_ALWAYS_INLINE bool NoneOf(const Range& range, Projection proj) {
   return true;
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

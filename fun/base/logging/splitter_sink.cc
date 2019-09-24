@@ -56,4 +56,4 @@ int32 SplitterSink::GetSinkCount() const {
   return sinks_.Count();
 }
 
-} // namespace fun
+}  // namespace fun

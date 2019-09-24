@@ -2,7 +2,7 @@
 
 #include "fun/base/base.h"
 
-#define FUN_WITH_EVENT_SINK  0
+#define FUN_WITH_EVENT_SINK 0
 
 #if FUN_WITH_EVENT_SINK
 
@@ -21,7 +21,7 @@ namespace fun {
  */
 class FUN_BASE_API EventSink : public LogSink {
  public:
-  //TODO 범용 delegate로 교체하는게 좋을듯 한데...
+  // TODO 범용 delegate로 교체하는게 좋을듯 한데...
   MulticastEvent<const LogMessage> message_logged;
 
   EventSink();
@@ -33,6 +33,6 @@ class FUN_BASE_API EventSink : public LogSink {
   ~EventSink();
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_EVENT_SINK
+#endif  // FUN_WITH_EVENT_SINK

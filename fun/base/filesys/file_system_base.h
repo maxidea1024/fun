@@ -31,7 +31,8 @@ class FUN_BASE_API IFile {
   /**
    * Change the current write or read position, relative to the end of the file.
    *
-   * @param relative_pos_to_end - new write or read position, relative to the end of the file should be <=0!
+   * @param relative_pos_to_end - new write or read position, relative to the
+   * end of the file should be <=0!
    *
    * @return true if the operation completed successfully.
    */
@@ -40,7 +41,8 @@ class FUN_BASE_API IFile {
   /**
    * Read bytes from the file.
    *
-   * @param dst - Buffer to holds the results, should be at least len_to_read in size.
+   * @param dst - Buffer to holds the results, should be at least len_to_read in
+   * size.
    * @param len_to_read - Number of bytes to read into the destination.
    *
    * @return true if the operation completed successfully.
@@ -58,47 +60,47 @@ class FUN_BASE_API IFile {
   virtual bool Write(const uint8* src, int64 len_to_write) = 0;
 
  public:
-  /////////// Utility Functions. These have a default implementation that uses the pure virtual operations.
+  /////////// Utility Functions. These have a default implementation that uses
+  ///the pure virtual operations.
 
   /** Return the total size of the file */
   virtual int64 Size();
 };
-
 
 /**
  * Contains the information that's returned from stat'ing a file or directory
  */
 struct FileStatData {
   FileStatData()
-    : creation_time(DateTime::Null),
-      access_time(DateTime::Null),
-      modification_time(DateTime::Null),
-      file_size(-1),
-      is_directory(false),
-      is_readonly(false),
-      is_valid(false) {}
+      : creation_time(DateTime::Null),
+        access_time(DateTime::Null),
+        modification_time(DateTime::Null),
+        file_size(-1),
+        is_directory(false),
+        is_readonly(false),
+        is_valid(false) {}
 
-  FileStatData( const DateTime& creation_time,
-                const DateTime& access_time,
-                const DateTime& modification_time,
-                const int64 file_size,
-                const bool is_directory,
-                const bool is_readonly)
-    : creation_time(creation_time),
-      access_time(access_time),
-      modification_time(modification_time),
-      file_size(file_size),
-      is_directory(is_directory),
-      is_readonly(is_readonly),
-      is_valid(true) {}
+  FileStatData(const DateTime& creation_time, const DateTime& access_time,
+               const DateTime& modification_time, const int64 file_size,
+               const bool is_directory, const bool is_readonly)
+      : creation_time(creation_time),
+        access_time(access_time),
+        modification_time(modification_time),
+        file_size(file_size),
+        is_directory(is_directory),
+        is_readonly(is_readonly),
+        is_valid(true) {}
 
-  /** The time that the file or directory was originally created, or DateTime::Null if the creation time is unknown */
+  /** The time that the file or directory was originally created, or
+   * DateTime::Null if the creation time is unknown */
   DateTime creation_time;
 
-  /** The time that the file or directory was last accessed, or DateTime::Null if the access time is unknown */
+  /** The time that the file or directory was last accessed, or DateTime::Null
+   * if the access time is unknown */
   DateTime access_time;
 
-  /** The time the the file or directory was last modified, or DateTime::Null if the modification time is unknown */
+  /** The time the the file or directory was last modified, or DateTime::Null if
+   * the modification time is unknown */
   DateTime modification_time;
 
   /** Size of the file (in bytes), or -1 if the file size is unknown */
@@ -110,7 +112,9 @@ struct FileStatData {
   /** True if this file is read-only */
   bool is_readonly : 1;
 
-  /** True if file or directory was found, false otherwise. Note that this value being true does not ensure that the other members are filled in with meaningful data, as not all file systems have access to all of this data */
+  /** True if file or directory was found, false otherwise. Note that this value
+   * being true does not ensure that the other members are filled in with
+   * meaningful data, as not all file systems have access to all of this data */
   bool is_valid : 1;
 };
 
@@ -143,10 +147,12 @@ class FUN_BASE_API IFileSystem {
   virtual bool IsSandboxEnabled() const { return false; }
 
   /**
-   * Checks if this platform file should be used even though it was not asked to be.
-   * i.e. pak files exist on disk so we should use a pak file
+   * Checks if this platform file should be used even though it was not asked to
+   * be. i.e. pak files exist on disk so we should use a pak file
    */
-  virtual bool ShouldBeUsed(IFileSystem* inner, const char* cmdline) const { return false; }
+  virtual bool ShouldBeUsed(IFileSystem* inner, const char* cmdline) const {
+    return false;
+  }
 
   /**
    * Initializes platform file.
@@ -159,12 +165,14 @@ class FUN_BASE_API IFileSystem {
   virtual bool Initialize(IFileSystem* inner, const char* cmdline) = 0;
 
   /**
-   * Performs initialization of the platform file after it has become the active (PlatformFSManager.GetPlatformFS() will return this
+   * Performs initialization of the platform file after it has become the active
+   * (PlatformFSManager.GetPlatformFS() will return this
    */
   virtual void InitializeAfterSetActive() {}
 
   /**
-   * Identifies any platform specific paths that are guaranteed to be local (i.e. cache, scratch space)
+   * Identifies any platform specific paths that are guaranteed to be local
+   * (i.e. cache, scratch space)
    */
   virtual void AddLocalDirectories(Array<String>& local_directories) {
     if (GetLowerLevel()) {
@@ -184,54 +192,68 @@ class FUN_BASE_API IFileSystem {
   /** Return the size of the file, or -1 if it doesn't exist. */
   virtual int64 FileSize(const char* filename) = 0;
 
-  /** Delete a file and return true if the file exists. Will not delete read only files. */
+  /** Delete a file and return true if the file exists. Will not delete read
+   * only files. */
   virtual bool DeleteFile(const char* filename) = 0;
 
   /** Return true if the file is read only. */
   virtual bool IsReadOnly(const char* filename) = 0;
 
-  /** Attempt to move a file. Return true if successful. Will not overwrite existing files. */
+  /** Attempt to move a file. Return true if successful. Will not overwrite
+   * existing files. */
   virtual bool MoveFile(const char* to, const char* from) = 0;
 
-  /** Attempt to change the read only status of a file. Return true if successful. */
+  /** Attempt to change the read only status of a file. Return true if
+   * successful. */
   virtual bool SetReadOnly(const char* filename, bool readonly) = 0;
 
-  /** Return the modification time of a file. Returns DateTime::Null on failure */
+  /** Return the modification time of a file. Returns DateTime::Null on failure
+   */
   virtual DateTime GetTimestamp(const char* filename) = 0;
 
   /** Sets the modification time of a file */
-  virtual void SetTimestamp(const char* filename, const DateTime& timestamp) = 0;
+  virtual void SetTimestamp(const char* filename,
+                            const DateTime& timestamp) = 0;
 
-  /** Return the last access time of a file. Returns DateTime::Null on failure */
+  /** Return the last access time of a file. Returns DateTime::Null on failure
+   */
   virtual DateTime GetAccessTimestamp(const char* filename) = 0;
 
-  /** For case insensitive filesystems, returns the full path of the file with the same case as in the filesystem */
+  /** For case insensitive filesystems, returns the full path of the file with
+   * the same case as in the filesystem */
   virtual String GetFilenameOnDisk(const char* filename) = 0;
 
   /**
    * Attempt to open a file for reading.
    *
    * @param filename - file to be opened
-   * @param allow_write - (applies to certain platforms only) whether this file is allowed to be written to by other processes.
-   *               This flag is needed to open files that are currently being written to as well.
+   * @param allow_write - (applies to certain platforms only) whether this file
+   * is allowed to be written to by other processes. This flag is needed to open
+   * files that are currently being written to as well.
    *
-   * @return If successful will return a non-nullptr pointer. Close the file by delete'ing the handle.
+   * @return If successful will return a non-nullptr pointer. Close the file by
+   * delete'ing the handle.
    */
   virtual IFile* OpenRead(const char* filename, bool allow_write = false) = 0;
 
-  /** Attempt to open a file for writing. If successful will return a non-nullptr pointer. Close the file by delete'ing the handle. */
-  virtual IFile* OpenWrite(const char* filename, bool append = false, bool allow_read = false) = 0;
+  /** Attempt to open a file for writing. If successful will return a
+   * non-nullptr pointer. Close the file by delete'ing the handle. */
+  virtual IFile* OpenWrite(const char* filename, bool append = false,
+                           bool allow_read = false) = 0;
 
   /** Return true if the directory exists. */
   virtual bool DirectoryExists(const char* directory) = 0;
 
-  /** Create a directory and return true if the directory was created or already existed. */
+  /** Create a directory and return true if the directory was created or already
+   * existed. */
   virtual bool CreateDirectory(const char* directory) = 0;
 
-  /** Delete a directory and return true if the directory was deleted or otherwise does not exist. */
+  /** Delete a directory and return true if the directory was deleted or
+   * otherwise does not exist. */
   virtual bool DeleteDirectory(const char* directory) = 0;
 
-  /** Return the stat data for the given file or directory. Check the FileStatData::is_valid member before using the returned data */
+  /** Return the stat data for the given file or directory. Check the
+   * FileStatData::is_valid member before using the returned data */
   virtual FileStatData GetStatData(const char* filename_or_directory) = 0;
 
   /** Base class for file and directory visitors that take only the name. */
@@ -241,12 +263,14 @@ class FUN_BASE_API IFileSystem {
     /**
      * Callback for a single file or a directory in a directory iteration.
      *
-     * @param filename_or_directory - If is_directory is true, this is a directory (with no trailing path delimiter), otherwise it is a file name.
+     * @param filename_or_directory - If is_directory is true, this is a
+     * directory (with no trailing path delimiter), otherwise it is a file name.
      * @param is_directory - true if filename_or_directory is a directory.
      *
      * @return true if the iteration should continue.
      */
-    virtual bool Visit(const char* filename_or_directory, bool is_directory) = 0;
+    virtual bool Visit(const char* filename_or_directory,
+                       bool is_directory) = 0;
   };
 
   /** Base class for file and directory visitors that take all the stat data. */
@@ -256,64 +280,83 @@ class FUN_BASE_API IFileSystem {
     /**
      * Callback for a single file or a directory in a directory iteration.
      *
-     * @param filename_or_directory - If is_directory is true, this is a directory (with no trailing path delimiter), otherwise it is a file name.
+     * @param filename_or_directory - If is_directory is true, this is a
+     * directory (with no trailing path delimiter), otherwise it is a file name.
      * @param stat_data - The stat data for the file or directory.
      *
      * @return true if the iteration should continue.
      */
-    virtual bool Visit(const char* filename_or_directory, const FileStatData& stat_data) = 0;
+    virtual bool Visit(const char* filename_or_directory,
+                       const FileStatData& stat_data) = 0;
   };
 
   /**
-   * Call the Visit function of the visitor once for each file or directory in a single directory. This function does not explore subdirectories.
+   * Call the Visit function of the visitor once for each file or directory in a
+   * single directory. This function does not explore subdirectories.
    *
    * @param directory - The directory to iterate the contents of.
    * @param visitor - visitor to call for each element of the directory
    *
-   * @return false if the directory did not exist or if the visitor returned false.
+   * @return false if the directory did not exist or if the visitor returned
+   * false.
    */
-  virtual bool IterateDirectory(const char* directory, DirectoryVisitor& visitor) = 0;
+  virtual bool IterateDirectory(const char* directory,
+                                DirectoryVisitor& visitor) = 0;
 
   /**
-   * Call the Visit function of the visitor once for each file or directory in a single directory. This function does not explore subdirectories.
+   * Call the Visit function of the visitor once for each file or directory in a
+   * single directory. This function does not explore subdirectories.
    *
    * @param directory - The directory to iterate the contents of.
    * @param visitor - visitor to call for each element of the directory
    *
-   * @return false if the directory did not exist or if the visitor returned false.
+   * @return false if the directory did not exist or if the visitor returned
+   * false.
    */
-  virtual bool IterateDirectoryStat(const char* directory, DirectoryStatVisitor& visitor) = 0;
-
+  virtual bool IterateDirectoryStat(const char* directory,
+                                    DirectoryStatVisitor& visitor) = 0;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////// Utility Functions. These have a default implementation that uses the pure virtual operations.
+  /////////// Utility Functions. These have a default implementation that uses
+  ///the pure virtual operations.
   /////////// Generally, these do not need to be implemented per platform.
   /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  virtual void GetTimestampPair(const char* path_a, const char* path_b, DateTime& out_timestamp_a, DateTime& out_timestamp_b);
+  virtual void GetTimestampPair(const char* path_a, const char* path_b,
+                                DateTime& out_timestamp_a,
+                                DateTime& out_timestamp_b);
 
   /**
-   * Call the Visit function of the visitor once for each file or directory in a directory tree. This function explores subdirectories.
+   * Call the Visit function of the visitor once for each file or directory in a
+   * directory tree. This function explores subdirectories.
    *
    * @param directory - The directory to iterate the contents of, recursively.
-   * @param visitor - visitor to call for each element of the directory and each element of all subdirectories.
+   * @param visitor - visitor to call for each element of the directory and each
+   * element of all subdirectories.
    *
-   * @return false if the directory did not exist or if the visitor returned false.
+   * @return false if the directory did not exist or if the visitor returned
+   * false.
    */
-  virtual bool IterateDirectoryRecursively(const char* directory, DirectoryVisitor& visitor);
+  virtual bool IterateDirectoryRecursively(const char* directory,
+                                           DirectoryVisitor& visitor);
 
   /**
-   * Call the Visit function of the visitor once for each file or directory in a directory tree. This function explores subdirectories.
+   * Call the Visit function of the visitor once for each file or directory in a
+   * directory tree. This function explores subdirectories.
    *
    * @param directory - The directory to iterate the contents of, recursively.
-   * @param visitor - visitor to call for each element of the directory and each element of all subdirectories.
+   * @param visitor - visitor to call for each element of the directory and each
+   * element of all subdirectories.
    *
-   * @return false if the directory did not exist or if the visitor returned false.
+   * @return false if the directory did not exist or if the visitor returned
+   * false.
    */
-  virtual bool IterateDirectoryStatRecursively(const char* directory, DirectoryStatVisitor& visitor);
+  virtual bool IterateDirectoryStatRecursively(const char* directory,
+                                               DirectoryStatVisitor& visitor);
 
   /**
-   * Delete all files and subdirectories in a directory, then delete the directory itself
+   * Delete all files and subdirectories in a directory, then delete the
+   * directory itself
    *
    * @param directory - The directory to delete.
    *
@@ -321,7 +364,8 @@ class FUN_BASE_API IFileSystem {
    */
   virtual bool DeleteDirectoryRecursively(const char* directory);
 
-  /** Create a directory, including any parent directories and return true if the directory was created or already existed. */
+  /** Create a directory, including any parent directories and return true if
+   * the directory was created or already existed. */
   virtual bool CreateDirectoryTree(const char* directory);
 
   /**
@@ -337,31 +381,38 @@ class FUN_BASE_API IFileSystem {
   /**
    * Copy a file or a hierarchy of files (directory).
    *
-   * @param destination_directory - Target path (either absolute or relative) to copy to - always a directory! (e.g. "/home/dst/").
+   * @param destination_directory - Target path (either absolute or relative) to
+   * copy to - always a directory! (e.g. "/home/dst/").
    * @param src - src file (or directory) to copy (e.g. "/home/src/stuff").
-   * @param overwwrite_all_existing - Whether to overwrite everything that exists at target
+   * @param overwwrite_all_existing - Whether to overwrite everything that
+   * exists at target
    *
    * @return true if operation completed successfully.
    */
-  virtual bool CopyDirectoryTree(const char* destination_directory, const char* src, bool overwwrite_all_existing);
+  virtual bool CopyDirectoryTree(const char* destination_directory,
+                                 const char* src, bool overwwrite_all_existing);
 
   /**
    * Converts passed in filename to use an absolute path (for reading).
    *
-   * @param filename - filename to convert to use an absolute path, safe to pass in already using absolute path
+   * @param filename - filename to convert to use an absolute path, safe to pass
+   * in already using absolute path
    *
    * @return filename using absolute path
    */
-  virtual String ConvertToAbsolutePathForExternalAppForRead(const char* filename);
+  virtual String ConvertToAbsolutePathForExternalAppForRead(
+      const char* filename);
 
   /**
    * Converts passed in filename to use an absolute path (for writing)
    *
-   * @param filename - filename to convert to use an absolute path, safe to pass in already using absolute path
+   * @param filename - filename to convert to use an absolute path, safe to pass
+   * in already using absolute path
    *
    * @return filename using absolute path
    */
-  virtual String ConvertToAbsolutePathForExternalAppForWrite(const char* filename);
+  virtual String ConvertToAbsolutePathForExternalAppForWrite(
+      const char* filename);
 
   /**
    * Helper class to send/receive data to the file server function
@@ -377,15 +428,17 @@ class FUN_BASE_API IFileSystem {
   };
 
   /**
-   * Sends a message to the file server, and will block until it's complete. Will return
-   * immediately if the file manager doesn't support talking to a server.
+   * Sends a message to the file server, and will block until it's complete.
+   * Will return immediately if the file manager doesn't support talking to a
+   * server.
    *
    * @param message - The string message to send to the server
    *
-   * @return true if the message was sent to server and it returned success, or false if there is no server, or the command failed
+   * @return true if the message was sent to server and it returned success, or
+   * false if there is no server, or the command failed
    */
-  virtual bool SendMessageToServer(const char* message, IFileServerMessageHandler* handler)
-  {
+  virtual bool SendMessageToServer(const char* message,
+                                   IFileServerMessageHandler* handler) {
     // by default, IFileSystem's can't talk to a server
     return false;
   }
@@ -396,13 +449,17 @@ class FUN_BASE_API IFileSystem {
  */
 class FUN_BASE_API IPhysicalFileSystem : public IFileSystem {
  public:
-  bool ShouldBeUsed(IFileSystem* inner, const char* cmdline) const override { return true; }
+  bool ShouldBeUsed(IFileSystem* inner, const char* cmdline) const override {
+    return true;
+  }
 
   bool Initialize(IFileSystem* inner, const char* cmdline) override;
 
   IFileSystem* GetLowerLevel() override { return nullptr; }
 
-  const char* GetName() const override { return IFileSystem::GetPhysicalTypeName(); }
+  const char* GetName() const override {
+    return IFileSystem::GetPhysicalTypeName();
+  }
 };
 
-} // namespace fun
+}  // namespace fun

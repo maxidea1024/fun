@@ -18,7 +18,7 @@ class FUN_BASE_API DataStream {
     WriteFailed,
   };
 
-  //TODO 제거하자..
+  // TODO 제거하자..
   enum FloatingPointPrecision {
     SinglePrecision,
     DoublePrecision,
@@ -40,7 +40,7 @@ class FUN_BASE_API DataStream {
   void SetStatus(Status status);
   void ResetStatus();
 
-  //TODO 이것은 제거하는쪽으로...
+  // TODO 이것은 제거하는쪽으로...
   FloatingPointPrecision GetFloatingPointPrecision() const;
   void SetFloatingPointPrecision(FloatingPointPrecision precision);
 
@@ -50,33 +50,36 @@ class FUN_BASE_API DataStream {
   int32 GetVersion() const;
   void SetVersion(int32 version);
 
-  DataStream& operator >> (bool&);
-  DataStream& operator >> (int8&);
-  DataStream& operator >> (int16&);
-  DataStream& operator >> (int32&);
-  DataStream& operator >> (int64&);
-  DataStream& operator >> (uint8&);
-  DataStream& operator >> (uint16&);
-  DataStream& operator >> (uint32&);
-  DataStream& operator >> (uint64&);
-  DataStream& operator >> (float&);
-  DataStream& operator >> (double&);
-  DataStream& operator >> (std::nullptr_t& ptr) { ptr = nullptr; return *this; }
-  DataStream& operator >> (char*&);
+  DataStream& operator>>(bool&);
+  DataStream& operator>>(int8&);
+  DataStream& operator>>(int16&);
+  DataStream& operator>>(int32&);
+  DataStream& operator>>(int64&);
+  DataStream& operator>>(uint8&);
+  DataStream& operator>>(uint16&);
+  DataStream& operator>>(uint32&);
+  DataStream& operator>>(uint64&);
+  DataStream& operator>>(float&);
+  DataStream& operator>>(double&);
+  DataStream& operator>>(std::nullptr_t& ptr) {
+    ptr = nullptr;
+    return *this;
+  }
+  DataStream& operator>>(char*&);
 
-  DataStream& operator << (bool);
-  DataStream& operator << (int8);
-  DataStream& operator << (int16);
-  DataStream& operator << (int32);
-  DataStream& operator << (int64);
-  DataStream& operator << (uint8);
-  DataStream& operator << (uint16);
-  DataStream& operator << (uint32);
-  DataStream& operator << (uint64);
-  DataStream& operator << (float);
-  DataStream& operator << (double);
-  DataStream& operator << (std::nullptr_t ptr) { return *this; }
-  DataStream& operator << (const char*);
+  DataStream& operator<<(bool);
+  DataStream& operator<<(int8);
+  DataStream& operator<<(int16);
+  DataStream& operator<<(int32);
+  DataStream& operator<<(int64);
+  DataStream& operator<<(uint8);
+  DataStream& operator<<(uint16);
+  DataStream& operator<<(uint32);
+  DataStream& operator<<(uint64);
+  DataStream& operator<<(float);
+  DataStream& operator<<(double);
+  DataStream& operator<<(std::nullptr_t ptr) { return *this; }
+  DataStream& operator<<(const char*);
 
   DataStream& ReadBytes(char*& buf, uint32& len);
   int32 ReadRawData(char* buf, int32 len);
@@ -92,10 +95,10 @@ class FUN_BASE_API DataStream {
   void AbortTransaction();
 
   DataStream(const DataStream&) = delete;
-  DataStream& operator = (const DataStream&) = delete;
+  DataStream& operator=(const DataStream&) = delete;
 
  private:
-  //TODO 제거하자..
+  // TODO 제거하자..
   ScopedPtr<DataStreamImpl> impl_;
 
   IoDevice* device_;
@@ -104,20 +107,18 @@ class FUN_BASE_API DataStream {
   ByteOrder byte_order_;
   int32 version_;
   Status status_;
-  //int3 transaction_depth_;
+  // int3 transaction_depth_;
 
   int32 ReadBlock(char* buf, int32 len);
   friend class DataStream_internal::StreamStateSaver;
 };
-
 
 namespace DataStream_internal {
 
 class StreamStateSaver {
  public:
   StreamStateSaver(DataStream* stream)
-    : stream_(stream),
-      old_status_(stream->GetStatus()) {
+      : stream_(stream), old_status_(stream->GetStatus()) {
     if (!stream_->device_ || !stream_->device_->IsInTransaction()) {
       stream_->ResetStatus();
     }
@@ -135,8 +136,7 @@ class StreamStateSaver {
   DataStream::Status old_status_;
 };
 
-
-//TODO 여기서 하는것 보다는 각 container 클래스에서 하는게 자연스러울듯...
+// TODO 여기서 하는것 보다는 각 container 클래스에서 하는게 자연스러울듯...
 template <typename Container>
 DataStream& ReadyArrayFamilyContainer(DataStream& stream, Container& array) {
   StreamStateSaver scoped_state_saver(&stream);
@@ -201,7 +201,7 @@ DataStream& ReadAssociativeContainer(DataStream& s, Container& c) {
 template <typename Container>
 DataStream& WriteSequentialContainer(DataStream& s, const Container& c) {
   s << uint32(c.Count());
-  for (const typename Container::value_type &t : c) {
+  for (const typename Container::value_type& t : c) {
     s << t;
   }
 
@@ -224,143 +224,132 @@ DataStream& WriteAssociativeContainer(DataStream& s, const Container& c) {
   return s;
 }
 
-
-} // namespace DataStream_internal
-
+}  // namespace DataStream_internal
 
 //
 // inlines
 //
 
-inline IoDevice* DataStream::GetDevice() const {
-  return device_;
-}
+inline IoDevice* DataStream::GetDevice() const { return device_; }
 
 inline DataStream::ByteOrder DataStream::GetByteOrder() const {
   return byte_order_;
 }
 
-inline int32 DataStream::GetVersion() const {
-  return version_;
-}
+inline int32 DataStream::GetVersion() const { return version_; }
 
-inline void DataStream::SetVersion(int32 version) {
-  version_ = version;
-}
+inline void DataStream::SetVersion(int32 version) { version_ = version; }
 
-
-inline DataStream& DataStream::operator >> (uint8& i) {
+inline DataStream& DataStream::operator>>(uint8& i) {
   return *this >> reinterpret_cast<int8&>(i);
 }
 
-inline DataStream& DataStream::operator >> (uint16& i) {
+inline DataStream& DataStream::operator>>(uint16& i) {
   return *this >> reinterpret_cast<int16&>(i);
 }
 
-inline DataStream& DataStream::operator >> (uint32& i) {
+inline DataStream& DataStream::operator>>(uint32& i) {
   return *this >> reinterpret_cast<int32&>(i);
 }
 
-inline DataStream& DataStream::operator >> (uint64& i) {
+inline DataStream& DataStream::operator>>(uint64& i) {
   return *this >> reinterpret_cast<int64&>(i);
 }
 
-inline DataStream& DataStream::operator << (uint8 i) {
-  return *this << int8(i);
-}
+inline DataStream& DataStream::operator<<(uint8 i) { return *this << int8(i); }
 
-inline DataStream& DataStream::operator << (uint16 i) {
+inline DataStream& DataStream::operator<<(uint16 i) {
   return *this << int16(i);
 }
 
-inline DataStream& DataStream::operator << (uint32 i) {
+inline DataStream& DataStream::operator<<(uint32 i) {
   return *this << int32(i);
 }
 
-inline DataStream& DataStream::operator << (uint64 i) {
+inline DataStream& DataStream::operator<<(uint64 i) {
   return *this << int64(i);
 }
 
 template <typename Enum>
-inline DataStream& operator << (DataStream& stream, Flags<Enum> e) {
+inline DataStream& operator<<(DataStream& stream, Flags<Enum> e) {
   return stream << e.i;
 }
 
 template <typename Enum>
-inline DataStream& operator >> (DataStream& stream, Flags<Enum>& e) {
+inline DataStream& operator>>(DataStream& stream, Flags<Enum>& e) {
   return stream >> e.i;
 }
 
 template <typename T>
-inline DataStream& operator >> (DataStream& stream, List<T>>& l) {
+inline DataStream& operator>>(DataStream& stream, List<T>> &l) {
   return DataStream_internal::ReadArrayFamilyContainer(stream, l);
 }
 
 template <typename T>
-inline DataStream& operator << (DataStream& stream, const List<T>>& l) {
+inline DataStream& operator<<(DataStream& stream, const List<T>> &l) {
   return DataStream_internal::WriteSequentialContainer(stream, l);
 }
 
 template <typename T>
-inline DataStream& operator >> (DataStream& stream, LinkedList<T>>& l) {
+inline DataStream& operator>>(DataStream& stream, LinkedList<T>> &l) {
   return DataStream_internal::ReadListFamilyContainer(stream, l);
 }
 
 template <typename T>
-inline DataStream& operator << (DataStream& stream, const LinkedList<T>>& l) {
+inline DataStream& operator<<(DataStream& stream, const LinkedList<T>> &l) {
   return DataStream_internal::WriteSequentialContainer(stream, l);
 }
 
 template <typename T>
-inline DataStream& operator >> (DataStream& stream, Array<T>& a) {
+inline DataStream& operator>>(DataStream& stream, Array<T>& a) {
   return DataStream_internal::ReadArrayFamilyContainer(stream, a);
 }
 
 template <typename T>
-inline DataStream& operator << (DataStream& stream, const Array<T>& a) {
+inline DataStream& operator<<(DataStream& stream, const Array<T>& a) {
   return DataStream_internal::WriteSequentialContainer(stream, a);
 }
 
 template <typename T>
-inline DataStream& operator >> (DataStream& stream, Set<T>& s) {
+inline DataStream& operator>>(DataStream& stream, Set<T>& s) {
   return DataStream_internal::ReadListFamilyContainer(stream, s);
 }
 
 template <typename T>
-inline DataStream& operator << (DataStream& stream, const Set<T>& s) {
+inline DataStream& operator<<(DataStream& stream, const Set<T>& s) {
   return DataStream_internal::WriteSequentialContainer(stream, s);
 }
 
 template <typename Key, typename T>
-inline DataStream& operator >> (DataStream& stream, Hash<Key, T>& h) {
+inline DataStream& operator>>(DataStream& stream, Hash<Key, T>& h) {
   return DataStream_internal::ReadAssociativeContainer(stream, h);
 }
 
 template <typename Key, typename T>
-inline DataStream& operator << (DataStream& stream, const Hash<Key, T>& h) {
+inline DataStream& operator<<(DataStream& stream, const Hash<Key, T>& h) {
   return DataStream_internal::WriteAssociativeContainer(stream, h);
 }
 
 template <typename Key, typename T>
-inline DataStream& operator >> (DataStream& stream, Map<Key, T>& m) {
+inline DataStream& operator>>(DataStream& stream, Map<Key, T>& m) {
   return DataStream_internal::ReadAssociativeContainer(stream, m);
 }
 
 template <typename Key, typename T>
-inline DataStream& operator << (DataStream& stream, const Map<Key, T>& m) {
+inline DataStream& operator<<(DataStream& stream, const Map<Key, T>& m) {
   return DataStream_internal::WriteAssociativeContainer(stream, m);
 }
 
 template <typename T1, typename T2>
-inline DataStream& operator >> (DataStream& stream, Pair<T1, T2>& p) {
+inline DataStream& operator>>(DataStream& stream, Pair<T1, T2>& p) {
   stream >> p.first >> p.second;
   return stream;
 }
 
 template <typename T1, typename T2>
-inline DataStream& operator << (DataStream& stream, const Pair<T1, T2>& p) {
+inline DataStream& operator<<(DataStream& stream, const Pair<T1, T2>& p) {
   stream << p.first << p.second;
   return stream;
 }
 
-} // namespace fun
+}  // namespace fun

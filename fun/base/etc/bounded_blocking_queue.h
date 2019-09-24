@@ -3,27 +3,24 @@
 #include "fun/base/base.h"
 #include "fun/base/container/list.h"
 //#include "fun/base/container/circular_buffer.h"
-#include "fun/base/mutex.h"
 #include "fun/base/event.h"
+#include "fun/base/mutex.h"
 
 namespace fun {
 
 template <typename T>
-class BoundedBlockingQueue : Noncopyable
-{
+class BoundedBlockingQueue : Noncopyable {
  public:
   BoundedBlockingQueue(int32 max_size)
-    : mutex_()
-    , not_empty_()
-    , not_full_()
-    //TODO CircularBuffer<T> Áö¿ø!
-    //, queue_(max_size)
-    , queue_()
-  {
-  }
+      : mutex_(),
+        not_empty_(),
+        not_full_()
+        // TODO CircularBuffer<T> ï¿½ï¿½ï¿½ï¿½!
+        //, queue_(max_size)
+        ,
+        queue_() {}
 
-  void Enqueue(const T& item)
-  {
+  void Enqueue(const T& item) {
     ScopedLock<FastMutex> guard(mutex_);
 
     while (queue_.IsFull()) {
@@ -35,8 +32,7 @@ class BoundedBlockingQueue : Noncopyable
     not_empty_.Set();
   }
 
-  void Enqueue(T&& item)
-  {
+  void Enqueue(T&& item) {
     ScopedLock<FastMutex> guard(mutex_);
 
     while (queue_.IsFull()) {
@@ -48,8 +44,7 @@ class BoundedBlockingQueue : Noncopyable
     not_empty_.Set();
   }
 
-  T Dequeue()
-  {
+  T Dequeue() {
     ScopedLock<FastMutex> guard(mutex_);
     while (queue_.IsEmpty()) {
       not_empty_.Wait();
@@ -64,22 +59,19 @@ class BoundedBlockingQueue : Noncopyable
     return front;
   }
 
-  //TODO timed-wait version?
+  // TODO timed-wait version?
 
-  bool IsEmpty() const
-  {
+  bool IsEmpty() const {
     ScopedLock<FastMutex> guard(mutex_);
     return queue_.IsEmpty();
   }
 
-  int32 Count() const
-  {
+  int32 Count() const {
     ScopedLock<FastMutex> guard(mutex_);
     return queue_.Count();
   }
 
-  int32 Capacity() const
-  {
+  int32 Capacity() const {
     ScopedLock<FastMutex> guard(mutex_);
     return queue_.Capacity();
   }
@@ -88,9 +80,9 @@ class BoundedBlockingQueue : Noncopyable
   mutable FastMutex mutex_;
   Event not_empty_;
   Event not_full_;
-  //TODO CircularBuffer<T>·Î ´ëÃ¼ÇØ¾ßÇÔ?
-  //CircularBuffer<T> queue_;
+  // TODO CircularBuffer<T>ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½Ø¾ï¿½ï¿½ï¿½?
+  // CircularBuffer<T> queue_;
   List<T> queue_;
 };
 
-} // namespace fun
+}  // namespace fun

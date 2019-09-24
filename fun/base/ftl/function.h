@@ -4,9 +4,9 @@
 
 #include <new>
 
-#include "fun/base/ftl/type_traits.h"
-#include "fun/base/ftl/template.h"
 #include "fun/base/container/allocation_policies.h"
+#include "fun/base/ftl/template.h"
+#include "fun/base/ftl/type_traits.h"
 
 //#include "Math/MathUtility.h"
 //#include "HAL/FunMemory.h"
@@ -16,9 +16,9 @@
 
 // Disable visualization hack for shipping or test builds.
 #if !(FUN_BUILD_SHIPPING || FUN_BUILD_TEST)
-# define FUN_ENABLE_TFUNCTIONREF_VISUALIZATION  1
+#define FUN_ENABLE_TFUNCTIONREF_VISUALIZATION 1
 #else
-# define FUN_ENABLE_TFUNCTIONREF_VISUALIZATION  0
+#define FUN_ENABLE_TFUNCTIONREF_VISUALIZATION 0
 #endif
 
 namespace fun {
@@ -42,281 +42,291 @@ class TFunctionRef;
 /**
  * Traits class which checks if T is a TFunction<> type.
  */
-template <typename T> struct IsATFunction : FalseType {};
-template <typename T> struct IsATFunction<TFunction<T>> : TrueType {};
+template <typename T>
+struct IsATFunction : FalseType {};
+template <typename T>
+struct IsATFunction<TFunction<T>> : TrueType {};
 
 /**
  * Traits class which checks if T is a TFunction<> type.
  */
-template <typename T> struct IsATFunctionRef : FalseType {};
-template <typename T> struct IsATFunctionRef<TFunctionRef<T>> : TrueType {};
+template <typename T>
+struct IsATFunctionRef : FalseType {};
+template <typename T>
+struct IsATFunctionRef<TFunctionRef<T>> : TrueType {};
 
 // Private implementation details of TFunction and TFunctionRef.
 namespace Function_internal {
 
-  struct FunctionStorage;
+struct FunctionStorage;
+
+/**
+ * Common interface to a callable object owned by TFunction.
+ */
+struct IFunction_OwnedObject {
+  /**
+   * Creates a copy of the object in the allocator and returns a pointer to it.
+   */
+  virtual IFunction_OwnedObject* CopyToEmptyStorage(
+      FunctionStorage& storage) const = 0;
 
   /**
-   * Common interface to a callable object owned by TFunction.
+   * Returns the address of the object.
    */
-  struct IFunction_OwnedObject {
-    /**
-     * Creates a copy of the object in the allocator and returns a pointer to it.
-     */
-    virtual IFunction_OwnedObject* CopyToEmptyStorage(FunctionStorage& storage) const = 0;
-
-    /**
-     * Returns the address of the object.
-     */
-    virtual void* GetAddress() = 0;
-
-    /**
-     * Destructor.
-     */
-    virtual ~IFunction_OwnedObject() = 0;
-  };
+  virtual void* GetAddress() = 0;
 
   /**
    * Destructor.
    */
-  FUN_ALWAYS_INLINE IFunction_OwnedObject::~IFunction_OwnedObject() {}
+  virtual ~IFunction_OwnedObject() = 0;
+};
+
+/**
+ * Destructor.
+ */
+FUN_ALWAYS_INLINE IFunction_OwnedObject::~IFunction_OwnedObject() {}
 
 #if !defined(_WIN32) || defined(_WIN64)
-  // Let TFunction store up to 32 bytes which are 16-byte aligned before we heap allocate
-  typedef AlignedStorage<16, 16> AlignedInlineFunctionType;
-  typedef InlineAllocator<2> FunctionAllocatorType;
+// Let TFunction store up to 32 bytes which are 16-byte aligned before we heap
+// allocate
+typedef AlignedStorage<16, 16> AlignedInlineFunctionType;
+typedef InlineAllocator<2> FunctionAllocatorType;
 #else
-  // ... except on Win32, because we can't pass 16-byte aligned types by value, as some TFunctions are.
-  // So we'll just keep it heap-allocated, which is always sufficiently aligned.
-  typedef AlignedStorage<16, 8> AlignedInlineFunctionType;
-  typedef HeapAllocator FunctionAllocatorType;
+// ... except on Win32, because we can't pass 16-byte aligned types by value, as
+// some TFunctions are. So we'll just keep it heap-allocated, which is always
+// sufficiently aligned.
+typedef AlignedStorage<16, 8> AlignedInlineFunctionType;
+typedef HeapAllocator FunctionAllocatorType;
 #endif
 
-  struct FunctionStorage {
-    FunctionStorage() : allocated_size(0) {}
+struct FunctionStorage {
+  FunctionStorage() : allocated_size(0) {}
 
-    FunctionStorage(FunctionStorage&& other)
-      : allocated_size(0) {
-      allocator.MoveToEmpty(other.allocator);
-      allocated_size = other.allocated_size;
-      other.allocated_size = 0;
-    }
+  FunctionStorage(FunctionStorage&& other) : allocated_size(0) {
+    allocator.MoveToEmpty(other.allocator);
+    allocated_size = other.allocated_size;
+    other.allocated_size = 0;
+  }
 
-    void Clear() {
-      allocator.ResizeAllocation(0, 0, sizeof(Function_internal::AlignedInlineFunctionType));
-      allocated_size = 0;
-    }
+  void Clear() {
+    allocator.ResizeAllocation(
+        0, 0, sizeof(Function_internal::AlignedInlineFunctionType));
+    allocated_size = 0;
+  }
 
-    typedef FunctionAllocatorType::ForElementType<AlignedInlineFunctionType> AllocatorType;
+  typedef FunctionAllocatorType::ForElementType<AlignedInlineFunctionType>
+      AllocatorType;
 
-    IFunction_OwnedObject* GetBoundObject() const {
-      return allocated_size > 0 ? (IFunction_OwnedObject*)allocator.GetAllocation() : nullptr;
-    }
+  IFunction_OwnedObject* GetBoundObject() const {
+    return allocated_size > 0
+               ? (IFunction_OwnedObject*)allocator.GetAllocation()
+               : nullptr;
+  }
 
-    AllocatorType allocator;
-    size_t allocated_size;
-  };
-}
+  AllocatorType allocator;
+  size_t allocated_size;
+};
+}  // namespace Function_internal
 
-} // namespace fun
-
+}  // namespace fun
 
 // 전역 new는 namespace안에 놓일 수 없음.
-FUN_ALWAYS_INLINE void* operator new(fun::size_t size, fun::Function_internal::FunctionStorage& storage) {
+FUN_ALWAYS_INLINE void* operator new(
+    fun::size_t size, fun::Function_internal::FunctionStorage& storage) {
   if (auto* obj = storage.GetBoundObject()) {
     obj->~IFunction_OwnedObject();
   }
 
-  const fun::size_t new_size = fun::MathBase::DivideAndRoundUp(size, sizeof(fun::Function_internal::AlignedInlineFunctionType));
+  const fun::size_t new_size = fun::MathBase::DivideAndRoundUp(
+      size, sizeof(fun::Function_internal::AlignedInlineFunctionType));
   if (storage.allocated_size != new_size) {
-    storage.allocator.ResizeAllocation(0, (fun::int32)new_size, sizeof(fun::Function_internal::AlignedInlineFunctionType));
+    storage.allocator.ResizeAllocation(
+        0, (fun::int32)new_size,
+        sizeof(fun::Function_internal::AlignedInlineFunctionType));
     storage.allocated_size = new_size;
   }
 
   return storage.allocator.GetAllocation();
 }
 
-
 namespace fun {
 
 namespace Function_internal {
 
+/**
+ * Implementation of IFunction_OwnedObject for a given T.
+ */
+template <typename T>
+struct TFunction_OwnedObject : public IFunction_OwnedObject {
   /**
-   * Implementation of IFunction_OwnedObject for a given T.
+   * Constructor which creates its T by copying.
    */
-  template <typename T>
-  struct TFunction_OwnedObject : public IFunction_OwnedObject {
-    /**
-     * Constructor which creates its T by copying.
-     */
-    explicit TFunction_OwnedObject(const T& obj)
-      : obj(obj) {}
-
-    /**
-     * Constructor which creates its T by moving.
-     */
-    explicit TFunction_OwnedObject(T&& obj)
-      : obj(MoveTemp(obj)) {}
-
-    IFunction_OwnedObject* CopyToEmptyStorage(FunctionStorage& storage) const override {
-      return new(storage) TFunction_OwnedObject(obj);
-    }
-
-    void* GetAddress() override {
-      return &obj;
-    }
-
-    T obj;
-  };
+  explicit TFunction_OwnedObject(const T& obj) : obj(obj) {}
 
   /**
-   * A class which is used to instantiate the code needed to call a bound function.
+   * Constructor which creates its T by moving.
    */
-  template <typename Functor, typename FunctionType>
-  struct TFunctionRefCaller;
+  explicit TFunction_OwnedObject(T&& obj) : obj(MoveTemp(obj)) {}
 
-  /**
-   * A class which is used to instantiate the code needed to assert when called - used for null bindings.
-   */
-  template <typename FunctionType>
-  struct TFunctionRefAsserter;
-
-  /**
-   * A class which defines an operator() which will invoke the TFunctionRefCaller::Call function.
-   */
-  template <typename DerivedType, typename FunctionType>
-  struct TFunctionRefBase;
-
-#if FUN_ENABLE_TFUNCTIONREF_VISUALIZATION
-  /**
-   * Helper classes to help debugger visualization.
-   */
-  struct IDebugHelper {
-    virtual ~IDebugHelper() = 0;
-  };
-
-  FUN_ALWAYS_INLINE IDebugHelper::~IDebugHelper() {
+  IFunction_OwnedObject* CopyToEmptyStorage(
+      FunctionStorage& storage) const override {
+    return new (storage) TFunction_OwnedObject(obj);
   }
 
-  template <typename T>
-  struct TDebugHelper : IDebugHelper {
-    T* ptr;
-  };
-#endif
+  void* GetAddress() override { return &obj; }
 
-  template <typename T>
-  FUN_ALWAYS_INLINE T&& FakeCall(T* ptr) {
-    return MoveTemp(*ptr);
-  }
+  T obj;
+};
 
-  FUN_ALWAYS_INLINE void FakeCall(void* ptr) {
-  }
+/**
+ * A class which is used to instantiate the code needed to call a bound
+ * function.
+ */
+template <typename Functor, typename FunctionType>
+struct TFunctionRefCaller;
 
-  template <typename FunctionType, typename CallableType>
-  struct TFunctionRefBaseCommon {
-    explicit TFunctionRefBaseCommon(NoInit_TAG) {
-      // Not really designed to be initialized directly, but want to be explicit about that.
-    }
+/**
+ * A class which is used to instantiate the code needed to assert when called -
+ * used for null bindings.
+ */
+template <typename FunctionType>
+struct TFunctionRefAsserter;
 
-    template <typename FunctorType>
-    void Set(FunctorType* functor) {
-      callable_ = &Function_internal::TFunctionRefCaller<FunctorType, FunctionType>::Call;
-
-#if FUN_ENABLE_TFUNCTIONREF_VISUALIZATION
-      // We placement new over the top of the same object each time.  This is illegal,
-      // but it ensures that the vptr is set correctly for the bound type, and so is
-      // visualizable.  We never depend on the state of this object at runtime, so it's
-      // ok.
-      new((void*)&debug_ptr_storage_) Function_internal::TDebugHelper<FunctorType>;
-      debug_ptr_storage_.ptr = (void*)functor;
-#endif
-    }
-
-    void CopyAndReseat(const TFunctionRefBaseCommon& other, void* functor) {
-      callable_ = other.callable_;
+/**
+ * A class which defines an operator() which will invoke the
+ * TFunctionRefCaller::Call function.
+ */
+template <typename DerivedType, typename FunctionType>
+struct TFunctionRefBase;
 
 #if FUN_ENABLE_TFUNCTIONREF_VISUALIZATION
-      // Use Memcpy to copy the other debug_ptr_storage_, including vptr (because we don't know the bound type
-      // here), and then reseat the underlying pointer.  Possibly even more evil than the Set code.
-      UnsafeMemory::Memcpy(&debug_ptr_storage_, &other.debug_ptr_storage_, sizeof(debug_ptr_storage_));
-      debug_ptr_storage_.ptr = functor;
+/**
+ * Helper classes to help debugger visualization.
+ */
+struct IDebugHelper {
+  virtual ~IDebugHelper() = 0;
+};
+
+FUN_ALWAYS_INLINE IDebugHelper::~IDebugHelper() {}
+
+template <typename T>
+struct TDebugHelper : IDebugHelper {
+  T* ptr;
+};
 #endif
-    }
 
-    void Unset() {
-      callable_ = &Function_internal::TFunctionRefAsserter<FunctionType>::Call;
-    }
-
-    CallableType* GetCallable() const {
-      return callable_;
-    }
-
-   private:
-    // A pointer to a function which invokes the call operator on the callable object
-    CallableType* callable_;
-
-#if FUN_ENABLE_TFUNCTIONREF_VISUALIZATION
-    // To help debug visualizers
-    Function_internal::TDebugHelper<void> debug_ptr_storage_;
-#endif
-  };
-
-  /**
-   * Switch on the existence of variadics.  Once all our supported compilers
-   * support variadics, a lot of this code
-   *
-   * can be collapsed into FunctionRefCaller.
-   * They're currently separated out to minimize the amount of workarounds
-   * needed.
-   */
-  template <typename Functor, typename R, typename... Args>
-  struct TFunctionRefCaller<Functor, R (Args...)> {
-    static R Call(void* obj, Args&... args) {
-      return (*(Functor*)obj)(Forward<Args>(args)...);
-    }
-  };
-
-  /**
-   * Specialization for void return types.
-   */
-  template <typename Functor, typename... Args>
-  struct TFunctionRefCaller<Functor, void (Args...)> {
-    static void Call(void* obj, Args&... args) {
-      (*(Functor*)obj)(Forward<Args>(args)...);
-    }
-  };
-
-  template <typename R, typename... Args>
-  struct TFunctionRefAsserter<R (Args...)> {
-    static R Call(void* obj, Args&...) {
-      fun_check_msg(false, "Attempting to call a null TFunction!");
-
-      // This doesn't need to be valid, because it'll never be reached,
-      // but it does at least need to compile.
-      return FakeCall((R*)obj);
-    }
-  };
-
-  template <typename DerivedType, typename R, typename... Args>
-  struct TFunctionRefBase<DerivedType, R (Args...)>
-    : TFunctionRefBaseCommon<R (Args...), R (void*, Args&...)> {
-    typedef TFunctionRefBaseCommon<R (Args...), R (void*, Args&...)> Super;
-
-    explicit TFunctionRefBase(NoInit_TAG)
-      : Super(NoInit) {
-    }
-
-    template <typename FunctorType>
-    explicit TFunctionRefBase(FunctorType* functor)
-      : Super(functor) {
-    }
-
-    R operator()(Args... args) const {
-      const auto* derived = static_cast<const DerivedType*>(this);
-      return this->GetCallable()(derived->GetPtr(), args...);
-    }
-  };
+template <typename T>
+FUN_ALWAYS_INLINE T&& FakeCall(T* ptr) {
+  return MoveTemp(*ptr);
 }
+
+FUN_ALWAYS_INLINE void FakeCall(void* ptr) {}
+
+template <typename FunctionType, typename CallableType>
+struct TFunctionRefBaseCommon {
+  explicit TFunctionRefBaseCommon(NoInit_TAG) {
+    // Not really designed to be initialized directly, but want to be explicit
+    // about that.
+  }
+
+  template <typename FunctorType>
+  void Set(FunctorType* functor) {
+    callable_ =
+        &Function_internal::TFunctionRefCaller<FunctorType, FunctionType>::Call;
+
+#if FUN_ENABLE_TFUNCTIONREF_VISUALIZATION
+    // We placement new over the top of the same object each time.  This is
+    // illegal, but it ensures that the vptr is set correctly for the bound
+    // type, and so is visualizable.  We never depend on the state of this
+    // object at runtime, so it's ok.
+    new ((void*)&debug_ptr_storage_)
+        Function_internal::TDebugHelper<FunctorType>;
+    debug_ptr_storage_.ptr = (void*)functor;
+#endif
+  }
+
+  void CopyAndReseat(const TFunctionRefBaseCommon& other, void* functor) {
+    callable_ = other.callable_;
+
+#if FUN_ENABLE_TFUNCTIONREF_VISUALIZATION
+    // Use Memcpy to copy the other debug_ptr_storage_, including vptr (because
+    // we don't know the bound type here), and then reseat the underlying
+    // pointer.  Possibly even more evil than the Set code.
+    UnsafeMemory::Memcpy(&debug_ptr_storage_, &other.debug_ptr_storage_,
+                         sizeof(debug_ptr_storage_));
+    debug_ptr_storage_.ptr = functor;
+#endif
+  }
+
+  void Unset() {
+    callable_ = &Function_internal::TFunctionRefAsserter<FunctionType>::Call;
+  }
+
+  CallableType* GetCallable() const { return callable_; }
+
+ private:
+  // A pointer to a function which invokes the call operator on the callable
+  // object
+  CallableType* callable_;
+
+#if FUN_ENABLE_TFUNCTIONREF_VISUALIZATION
+  // To help debug visualizers
+  Function_internal::TDebugHelper<void> debug_ptr_storage_;
+#endif
+};
+
+/**
+ * Switch on the existence of variadics.  Once all our supported compilers
+ * support variadics, a lot of this code
+ *
+ * can be collapsed into FunctionRefCaller.
+ * They're currently separated out to minimize the amount of workarounds
+ * needed.
+ */
+template <typename Functor, typename R, typename... Args>
+struct TFunctionRefCaller<Functor, R(Args...)> {
+  static R Call(void* obj, Args&... args) {
+    return (*(Functor*)obj)(Forward<Args>(args)...);
+  }
+};
+
+/**
+ * Specialization for void return types.
+ */
+template <typename Functor, typename... Args>
+struct TFunctionRefCaller<Functor, void(Args...)> {
+  static void Call(void* obj, Args&... args) {
+    (*(Functor*)obj)(Forward<Args>(args)...);
+  }
+};
+
+template <typename R, typename... Args>
+struct TFunctionRefAsserter<R(Args...)> {
+  static R Call(void* obj, Args&...) {
+    fun_check_msg(false, "Attempting to call a null TFunction!");
+
+    // This doesn't need to be valid, because it'll never be reached,
+    // but it does at least need to compile.
+    return FakeCall((R*)obj);
+  }
+};
+
+template <typename DerivedType, typename R, typename... Args>
+struct TFunctionRefBase<DerivedType, R(Args...)>
+    : TFunctionRefBaseCommon<R(Args...), R(void*, Args&...)> {
+  typedef TFunctionRefBaseCommon<R(Args...), R(void*, Args&...)> Super;
+
+  explicit TFunctionRefBase(NoInit_TAG) : Super(NoInit) {}
+
+  template <typename FunctorType>
+  explicit TFunctionRefBase(FunctorType* functor) : Super(functor) {}
+
+  R operator()(Args... args) const {
+    const auto* derived = static_cast<const DerivedType*>(this);
+    return this->GetCallable()(derived->GetPtr(), args...);
+  }
+};
+}  // namespace Function_internal
 
 /**
  * TFunctionRef<FunctionType>
@@ -343,13 +353,13 @@ namespace Function_internal {
  * Example:
  *
  * // something.h
- * void DoSomethingWithConvertingStringsToInts(TFunctionRef<int32 (const String& str)> convert);
+ * void DoSomethingWithConvertingStringsToInts(TFunctionRef<int32 (const String&
+ * str)> convert);
  *
  * // something.cc
- * void DoSomethingWithConvertingStringsToInts(TFunctionRef<int32 (const String& str)> convert) {
- *   for (const String& str : SomeBunchOfStrings) {
- *     int32 i = func(str);
- *     DoSomething(i);
+ * void DoSomethingWithConvertingStringsToInts(TFunctionRef<int32 (const String&
+ * str)> convert) { for (const String& str : SomeBunchOfStrings) { int32 i =
+ * func(str); DoSomething(i);
  *   }
  * }
  *
@@ -371,18 +381,26 @@ namespace Function_internal {
  * }
  */
 template <typename FunctionType>
-class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<FunctionType>, FunctionType> {
-  friend struct Function_internal::TFunctionRefBase<TFunctionRef<FunctionType>, FunctionType>;
+class TFunctionRef
+    : public Function_internal::TFunctionRefBase<TFunctionRef<FunctionType>,
+                                                 FunctionType> {
+  friend struct Function_internal::TFunctionRefBase<TFunctionRef<FunctionType>,
+                                                    FunctionType>;
 
-  typedef Function_internal::TFunctionRefBase<TFunctionRef<FunctionType>, FunctionType> Super;
+  typedef Function_internal::TFunctionRefBase<TFunctionRef<FunctionType>,
+                                              FunctionType>
+      Super;
 
  public:
   /**
-   * Constructor which binds a TFunctionRef to a non-const lvalue function object.
+   * Constructor which binds a TFunctionRef to a non-const lvalue function
+   * object.
    */
-  template <typename FunctorType, typename = typename EnableIf<!IsCppFunction<FunctorType>::Value && !IsSame<TFunctionRef, FunctorType>::Value>::Type>
-  TFunctionRef(FunctorType& functor)
-    : Super(NoInit) {
+  template <typename FunctorType,
+            typename = typename EnableIf<
+                !IsCppFunction<FunctorType>::Value &&
+                !IsSame<TFunctionRef, FunctorType>::Value>::Type>
+  TFunctionRef(FunctorType& functor) : Super(NoInit) {
     // This constructor is disabled for function types
     // because we want it to call the function pointer overload.
     // It is also disabled for TFunctionRef types
@@ -391,11 +409,14 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
   }
 
   /**
-   * Constructor which binds a TFunctionRef to an rvalue or const lvalue function object.
+   * Constructor which binds a TFunctionRef to an rvalue or const lvalue
+   * function object.
    */
-  template <typename FunctorType, typename = typename EnableIf<!IsCppFunction<FunctorType>::Value && !IsSame<TFunctionRef, FunctorType>::Value>::Type>
-  TFunctionRef(const FunctorType& functor)
-    : Super(NoInit) {
+  template <typename FunctorType,
+            typename = typename EnableIf<
+                !IsCppFunction<FunctorType>::Value &&
+                !IsSame<TFunctionRef, FunctorType>::Value>::Type>
+  TFunctionRef(const FunctorType& functor) : Super(NoInit) {
     // This constructor is disabled for function types
     // because we want it to call the function pointer overload.
     // It is also disabled for TFunctionRef types
@@ -406,11 +427,13 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
   /**
    * Constructor which binds a TFunctionRef to a function pointer.
    */
-  template <typename FunctionType, typename = typename EnableIf<IsCppFunction<FunctionType>::Value>::Type>
-  TFunctionRef(FunctionType* function)
-    : Super(NoInit) {
+  template <
+      typename FunctionType,
+      typename = typename EnableIf<IsCppFunction<FunctionType>::Value>::Type>
+  TFunctionRef(FunctionType* function) : Super(NoInit) {
     // This constructor is enabled only for function types
-    // because we don't want weird errors from it being called with arbitrary pointers.
+    // because we don't want weird errors from it being called with arbitrary
+    // pointers.
     Set(function);
   }
 
@@ -418,8 +441,7 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
   /**
    * Copy constructor.
    */
-  TFunctionRef(const TFunctionRef& other)
-    : Super(NoInit) {
+  TFunctionRef(const TFunctionRef& other) : Super(NoInit) {
     // If visualization is enabled, then we need to do an explicit copy
     // to ensure that our hacky debug_ptr_storage_'s vptr is copied.
     CopyAndReseat(other, other.ptr_);
@@ -435,7 +457,7 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
 #if !FUN_ENABLE_TFUNCTIONREF_VISUALIZATION
   TFunctionRef(const TFunctionRef&) = default;
 #endif
-  TFunctionRef& operator = (const TFunctionRef&) const = delete;
+  TFunctionRef& operator=(const TFunctionRef&) const = delete;
   ~TFunctionRef() = default;
 
  private:
@@ -444,10 +466,11 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
    */
   template <typename FunctorType>
   void Set(FunctorType* functor) {
-    // We force a void* cast here because if FunctorType is an actual function then
-    // this won't compile.  We convert it back again before we use it anyway.
+    // We force a void* cast here because if FunctorType is an actual function
+    // then this won't compile.  We convert it back again before we use it
+    // anyway.
 
-    ptr_  = (void*)functor;
+    ptr_ = (void*)functor;
     Super::Set(functor);
   }
 
@@ -463,7 +486,8 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
    * Copies another TFunctionRef and rebinds it to another object of
    * the same type which was originally bound.
    *
-   * Only intended to be used by TFunction's copy constructor/assignment operator.
+   * Only intended to be used by TFunction's copy constructor/assignment
+   * operator.
    */
   void CopyAndReseat(const TFunctionRef& other, void* functor) {
     ptr_ = functor;
@@ -473,9 +497,7 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
   /**
    * Returns a pointer to the callable object - needed by TFunctionRefBase.
    */
-  void* GetPtr() const {
-    return ptr_;
-  }
+  void* GetPtr() const { return ptr_; }
 
   // A pointer to the callable object
   void* ptr_;
@@ -488,12 +510,13 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
  * FunctionType represents a function type and so TFunction
  * should be defined as follows:
  *
- * // A function taking a string and float and returning int32.  Parameter names are optional.
- * TFunction<int32 (const String& name, float scale)>
+ * // A function taking a string and float and returning int32.  Parameter names
+ * are optional. TFunction<int32 (const String& name, float scale)>
  *
- * Unlike TFunctionRef, this object is intended to be used like a FUN version of std::function.  That is,
- * it takes a copy of whatever is bound to it, meaning you can return it from functions and store them in
- * objects without caring about the lifetime of the original object being bound.
+ * Unlike TFunctionRef, this object is intended to be used like a FUN version of
+ * std::function.  That is, it takes a copy of whatever is bound to it, meaning
+ * you can return it from functions and store them in objects without caring
+ * about the lifetime of the original object being bound.
  *
  * Example:
  *
@@ -518,50 +541,57 @@ class TFunctionRef : public Function_internal::TFunctionRefBase<TFunctionRef<Fun
  * }
  */
 template <typename FunctionType>
-class TFunction : public Function_internal::TFunctionRefBase<TFunction<FunctionType>, FunctionType> {
-  friend struct Function_internal::TFunctionRefBase<TFunction<FunctionType>, FunctionType>;
+class TFunction
+    : public Function_internal::TFunctionRefBase<TFunction<FunctionType>,
+                                                 FunctionType> {
+  friend struct Function_internal::TFunctionRefBase<TFunction<FunctionType>,
+                                                    FunctionType>;
 
-  typedef Function_internal::TFunctionRefBase<TFunction<FunctionType>, FunctionType> Super;
+  typedef Function_internal::TFunctionRefBase<TFunction<FunctionType>,
+                                              FunctionType>
+      Super;
 
  public:
   /**
    * Default constructor.
    */
-  TFunction(decltype(nullptr) = nullptr)
-    : Super(NoInit) {
-    Super::Unset();
-  }
+  TFunction(decltype(nullptr) = nullptr) : Super(NoInit) { Super::Unset(); }
 
   /**
    * Constructor which binds a TFunction to any function object.
    */
-  template <typename FunctorType, typename = typename EnableIf<!IsSame<TFunction, typename Decay<FunctorType>::Type>::Value>::Type>
-  TFunction(FunctorType&& functor)
-    : Super(NoInit) {
-    // This constructor is disabled for TFunction types because VC is incorrectly treating it as copy/move constructors.
+  template <typename FunctorType,
+            typename = typename EnableIf<!IsSame<
+                TFunction, typename Decay<FunctorType>::Type>::Value>::Type>
+  TFunction(FunctorType&& functor) : Super(NoInit) {
+    // This constructor is disabled for TFunction types because VC is
+    // incorrectly treating it as copy/move constructors.
 
     typedef typename Decay<FunctorType>::Type DecayedFunctorType;
-    typedef Function_internal::TFunction_OwnedObject<DecayedFunctorType> OwnedType;
+    typedef Function_internal::TFunction_OwnedObject<DecayedFunctorType>
+        OwnedType;
 
     // This is probably a mistake if you expect TFunction to take a copy of what
     // TFunctionRef is bound to, because that's not possible.
     //
-    // If you really intended to bind a TFunction to a TFunctionRef, you can just
-    // wrap it in a lambda (and thus it's clear you're just binding to a call to another
-    // reference):
+    // If you really intended to bind a TFunction to a TFunctionRef, you can
+    // just wrap it in a lambda (and thus it's clear you're just binding to a
+    // call to another reference):
     //
-    // TFunction<int32(float)> MyFunction = [=](float F) -> int32 { return MyFunctionRef(F); };
-    static_assert(!IsATFunctionRef<DecayedFunctorType>::Value, "Cannot construct a TFunction from a TFunctionRef");
+    // TFunction<int32(float)> MyFunction = [=](float F) -> int32 { return
+    // MyFunctionRef(F); };
+    static_assert(!IsATFunctionRef<DecayedFunctorType>::Value,
+                  "Cannot construct a TFunction from a TFunctionRef");
 
-    OwnedType* new_obj = new(storage_) OwnedType(Forward<FunctorType>(functor));
+    OwnedType* new_obj =
+        new (storage_) OwnedType(Forward<FunctorType>(functor));
     Super::Set(&new_obj->obj);
   }
 
   /**
    * Copy constructor.
    */
-  TFunction(const TFunction& other)
-    : Super(NoInit) {
+  TFunction(const TFunction& other) : Super(NoInit) {
     if (auto* other_func = other.storage_.GetBoundObject()) {
       auto* this_func = other_func->CopyToEmptyStorage(storage_);
       Super::CopyAndReseat(other, this_func->GetAddress());
@@ -574,8 +604,7 @@ class TFunction : public Function_internal::TFunctionRefBase<TFunction<FunctionT
    * Move constructor.
    */
   TFunction(TFunction&& other)
-    : Super(NoInit)
-    , storage_(MoveTemp(other.storage_)) {
+      : Super(NoInit), storage_(MoveTemp(other.storage_)) {
     if (auto* func = storage_.GetBoundObject()) {
       Super::CopyAndReseat(other, func->GetAddress());
     } else {
@@ -588,7 +617,7 @@ class TFunction : public Function_internal::TFunctionRefBase<TFunction<FunctionT
   /**
    * Copy/move assignment operator.
    */
-  TFunction& operator = (TFunction other) {
+  TFunction& operator=(TFunction other) {
     UnsafeMemory::Memswap(&other, this, sizeof(TFunction));
     return *this;
   }
@@ -596,7 +625,7 @@ class TFunction : public Function_internal::TFunctionRefBase<TFunction<FunctionT
   /**
    * Nullptr assignment operator.
    */
-  TFunction& operator = (decltype(nullptr)) {
+  TFunction& operator=(decltype(nullptr)) {
     if (auto* obj = storage_.GetBoundObject()) {
       obj->~IFunction_OwnedObject();
     }
@@ -622,7 +651,7 @@ class TFunction : public Function_internal::TFunctionRefBase<TFunction<FunctionT
     return storage_.GetBoundObject() != nullptr;
   }
 
-  FUN_ALWAYS_INLINE bool operator !() const {
+  FUN_ALWAYS_INLINE bool operator!() const {
     return storage_.GetBoundObject() == nullptr;
   }
 
@@ -639,23 +668,27 @@ class TFunction : public Function_internal::TFunctionRefBase<TFunction<FunctionT
 };
 
 template <typename FunctionType>
-FUN_ALWAYS_INLINE bool operator == (decltype(nullptr), const TFunction<FunctionType>& func) {
+FUN_ALWAYS_INLINE bool operator==(decltype(nullptr),
+                                  const TFunction<FunctionType>& func) {
   return !func;
 }
 
 template <typename FunctionType>
-FUN_ALWAYS_INLINE bool operator == (const TFunction<FunctionType>& func, decltype(nullptr)) {
+FUN_ALWAYS_INLINE bool operator==(const TFunction<FunctionType>& func,
+                                  decltype(nullptr)) {
   return !func;
 }
 
 template <typename FunctionType>
-FUN_ALWAYS_INLINE bool operator != (decltype(nullptr), const TFunction<FunctionType>& func) {
+FUN_ALWAYS_INLINE bool operator!=(decltype(nullptr),
+                                  const TFunction<FunctionType>& func) {
   return (bool)func;
 }
 
 template <typename FunctionType>
-FUN_ALWAYS_INLINE bool operator != (const TFunction<FunctionType>& func, decltype(nullptr)) {
+FUN_ALWAYS_INLINE bool operator!=(const TFunction<FunctionType>& func,
+                                  decltype(nullptr)) {
   return (bool)func;
 }
 
-} // namespace fun
+}  // namespace fun

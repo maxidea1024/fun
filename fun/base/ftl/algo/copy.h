@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/ftl/functional.h" // Invoke
+#include "fun/base/ftl/functional.h"  // Invoke
 
 namespace fun {
 namespace algo {
@@ -11,10 +11,12 @@ namespace algo {
  *
  * \param input - Any iterable type.
  * \param output - Container to hold the output.
- * \param pred - Condition which returns true for elements that should be copied and false for elements that should be skipped.
+ * \param pred - Condition which returns true for elements that should be copied
+ * and false for elements that should be skipped.
  */
 template <typename Input, typename Output, typename Predicate>
-FUN_ALWAYS_INLINE void CopyIf(const Input& input, Output& output, Predicate pred) {
+FUN_ALWAYS_INLINE void CopyIf(const Input& input, Output& output,
+                              Predicate pred) {
   for (auto&& elem : input) {
     if (Invoke(pred, elem)) {
       output.Add(elem);
@@ -35,5 +37,5 @@ FUN_ALWAYS_INLINE void Copy(const Input& input, Output& output) {
   }
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

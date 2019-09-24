@@ -1,11 +1,11 @@
-﻿//TODO 커스텀 할당자를 지원할 수 있도록 해야함!
-//TODO 값 저장부분도 TypeCompatibleStorage로 처리하는게 좋을듯..?
+﻿// TODO 커스텀 할당자를 지원할 수 있도록 해야함!
+// TODO 값 저장부분도 TypeCompatibleStorage로 처리하는게 좋을듯..?
 
 #pragma once
 
+#include <initializer_list>
 #include "fun/base/base.h"
 #include "fun/base/serialization/archive.h"
-#include <initializer_list>
 
 namespace fun {
 
@@ -14,11 +14,12 @@ namespace fun {
 //
 
 // 풀링등을 통한 node 할당 처리는 하지 않는다. 지저분하다.
-// 자체적으로 전역 메모리 풀링을 하므로, 깔끔한 코드를 유지한채 작업 하도록 하자.
+// 자체적으로 전역 메모리 풀링을 하므로, 깔끔한 코드를 유지한채 작업 하도록
+// 하자.
 //
 // 그냥 allocator를 지정할 수 있도록 하는게 좋을듯...
 
-//TODO sorting을 지원하도록 하자.
+// TODO sorting을 지원하도록 하자.
 
 template <typename _ElementType>
 class List {
@@ -29,59 +30,47 @@ class List {
   class Node {
    public:
     Node(const ElementType& value, Node* next, Node* prev)
-      : value_(value), next_(next), prev_(prev) {}
+        : value_(value), next_(next), prev_(prev) {}
 
     Node(ElementType&& value, Node* next, Node* prev)
-      : value_(MoveTemp(value)), next_(next_), prev_(prev_) {}
+        : value_(MoveTemp(value)), next_(next_), prev_(prev_) {}
 
     Node* next_;
     Node* prev_;
     ElementType value_;
 
    public:
-    const ElementType& Value() const {
-      return value_;
-    }
+    const ElementType& Value() const { return value_; }
 
-    ElementType& Value() {
-      return value_;
-    }
+    ElementType& Value() { return value_; }
 
-    const Node* Next() const {
-      return next_;
-    }
+    const Node* Next() const { return next_; }
 
-    Node* Next() {
-      return next_;
-    }
+    Node* Next() { return next_; }
 
-    const Node* Prev() const {
-      return prev_;
-    }
+    const Node* Prev() const { return prev_; }
 
-    Node* Prev() {
-      return prev_;
-    }
+    Node* Prev() { return prev_; }
   };
 
  public:
   class Iterator {
    public:
     Iterator(Node* node, bool reversed = false)
-      : current_node_(node)
-      , reversed_(reversed)
-      , element_has_been_removed_(false) {}
+        : current_node_(node),
+          reversed_(reversed),
+          element_has_been_removed_(false) {}
 
-    //Iterator(const Iterator&) = default;
-    //Iterator& operator = (const Iterator&) = default;
-    //Iterator& operator = (Iterator&&) = default;
+    // Iterator(const Iterator&) = default;
+    // Iterator& operator = (const Iterator&) = default;
+    // Iterator& operator = (Iterator&&) = default;
 
     Iterator(const Iterator& rhs)
-      : current_node_(rhs.current_node_)
-      , reversed_(rhs.reversed_)
-      , element_has_been_removed_(false) {}
+        : current_node_(rhs.current_node_),
+          reversed_(rhs.reversed_),
+          element_has_been_removed_(false) {}
 
-    Iterator& operator = (const Iterator& rhs) {
+    Iterator& operator=(const Iterator& rhs) {
       if (&rhs != this) {
         current_node_ = rhs.current_node_;
         reversed_ = rhs.reversed_;
@@ -91,19 +80,13 @@ class List {
       return *this;
     }
 
-    bool IsValid() const {
-      return !!current_node_;
-    }
+    bool IsValid() const { return !!current_node_; }
 
-    explicit operator bool() const {
-      return IsValid();
-    }
+    explicit operator bool() const { return IsValid(); }
 
-    bool operator !() const {
-      return IsValid() == false;
-    }
+    bool operator!() const { return IsValid() == false; }
 
-    Iterator& operator ++ () {
+    Iterator& operator++() {
       if (!element_has_been_removed_) {
         fun_check_ptr(current_node_);
         current_node_ = reversed_ ? current_node_->prev_ : current_node_->next_;
@@ -114,14 +97,14 @@ class List {
       return *this;
     }
 
-    Iterator operator ++ (int) {
+    Iterator operator++(int) {
       auto tmp = *this;
       ++(*this);
 
       return tmp;
     }
 
-    Iterator& operator -- () {
+    Iterator& operator--() {
       if (!element_has_been_removed_) {
         fun_check_ptr(current_node_);
         current_node_ = reversed_ ? current_node_->next_ : current_node_->prev_;
@@ -132,19 +115,19 @@ class List {
       return *this;
     }
 
-    Iterator operator -- (int) {
+    Iterator operator--(int) {
       auto tmp = *this;
       --(*this);
 
       return tmp;
     }
 
-    ElementType& operator -> () const {
+    ElementType& operator->() const {
       fun_check_ptr(current_node_);
       return current_node_->value_;
     }
 
-    ElementType& operator * () const {
+    ElementType& operator*() const {
       fun_check_ptr(current_node_);
       return current_node_->value_;
     }
@@ -154,20 +137,19 @@ class List {
       return current_node_->value_;
     }
 
-    Node* GetNode() const {
-      return current_node_;
-    }
+    Node* GetNode() const { return current_node_; }
 
-    bool operator == (const Iterator& rhs) const {
+    bool operator==(const Iterator& rhs) const {
       return current_node_ == rhs.current_node_;
     }
 
-    bool operator != (const Iterator& rhs) const {
+    bool operator!=(const Iterator& rhs) const {
       return current_node_ != rhs.current_node_;
     }
 
-    //void RemoveCurrent() {
-    //  fun_check(element_has_been_removed_ == false); // assert duplicated remove.
+    // void RemoveCurrent() {
+    //  fun_check(element_has_been_removed_ == false); // assert duplicated
+    //  remove.
     //}
 
    private:
@@ -179,55 +161,51 @@ class List {
   };
 
   struct ReversedIterator : public Iterator {
-    ReversedIterator(Node* starting_node)
-      : Iterator(starting_node, true) {}
+    ReversedIterator(Node* starting_node) : Iterator(starting_node, true) {}
   };
 
   struct ConstIterator {
     ConstIterator(const Node* node, bool reversed = false)
-      : current_node_(node)
-      , reversed_(reversed) {}
+        : current_node_(node), reversed_(reversed) {}
 
     ConstIterator(const ConstIterator&) = default;
-    ConstIterator& operator = (const ConstIterator&) = default;
-    ConstIterator& operator = (ConstIterator&&) = default;
+    ConstIterator& operator=(const ConstIterator&) = default;
+    ConstIterator& operator=(ConstIterator&&) = default;
 
-    bool IsValid() const {
-      return !!current_node_;
-    }
+    bool IsValid() const { return !!current_node_; }
 
-    explicit operator bool() const {
-      return IsValid();
-    }
+    explicit operator bool() const { return IsValid(); }
 
-    ConstIterator& operator ++ () {
+    ConstIterator& operator++() {
       fun_check_ptr(current_node_);
       current_node_ = reversed_ ? current_node_->prev_ : current_node_->next_;
       return *this;
     }
 
-    ConstIterator operator ++ (int) {
-      auto tmp = *this; ++(*this);
+    ConstIterator operator++(int) {
+      auto tmp = *this;
+      ++(*this);
       return tmp;
     }
 
-    ConstIterator& operator -- () {
+    ConstIterator& operator--() {
       fun_check_ptr(current_node_);
       current_node_ = reversed_ ? current_node_->next_ : current_node_->prev_;
       return *this;
     }
 
-    ConstIterator operator -- (int) {
-      auto tmp = *this; --(*this);
+    ConstIterator operator--(int) {
+      auto tmp = *this;
+      --(*this);
       return tmp;
     }
 
-    const ElementType& operator -> () const {
+    const ElementType& operator->() const {
       fun_check_ptr(current_node_);
       return current_node_->value_;
     }
 
-    const ElementType& operator * () const {
+    const ElementType& operator*() const {
       fun_check_ptr(current_node_);
       return current_node_->value_;
     }
@@ -237,15 +215,13 @@ class List {
       return current_node_->value_;
     }
 
-    const Node* GetNode() const {
-      return current_node_;
-    }
+    const Node* GetNode() const { return current_node_; }
 
-    bool operator == (const ConstIterator& rhs) const {
+    bool operator==(const ConstIterator& rhs) const {
       return current_node_ == rhs.current_node_;
     }
 
-    bool operator != (const ConstIterator& rhs) const {
+    bool operator!=(const ConstIterator& rhs) const {
       return current_node_ != rhs.current_node_;
     }
 
@@ -258,27 +234,26 @@ class List {
 
   struct ReversedConstIterator : public ConstIterator {
     ReversedConstIterator(const Node* starting_node)
-      : ConstIterator(starting_node, true) {}
+        : ConstIterator(starting_node, true) {}
   };
 
  public:
   List() : head_(nullptr), tail_(nullptr), count_(0) {}
 
   List(std::initializer_list<ElementType> init_list)
-    : head_(nullptr), tail_(nullptr), count_(0) {
+      : head_(nullptr), tail_(nullptr), count_(0) {
     for (const auto& item : init_list) {
       Append(item);
     }
   }
 
-  List(const List& rhs)
-    : head_(nullptr), tail_(nullptr), count_(0) {
+  List(const List& rhs) : head_(nullptr), tail_(nullptr), count_(0) {
     for (const Node* node = rhs.head_; node; node = node->next_) {
       Append(node->value_);
     }
   }
 
-  List& operator = (std::initializer_list<ElementType> init_list) {
+  List& operator=(std::initializer_list<ElementType> init_list) {
     Clear();
 
     for (const auto& item : init_list) {
@@ -288,7 +263,7 @@ class List {
     return *this;
   }
 
-  List& operator = (const List& rhs) {
+  List& operator=(const List& rhs) {
     Clear();
 
     for (const Node* node = rhs.head_; node; node = node->next_) {
@@ -298,7 +273,7 @@ class List {
     return *this;
   }
 
-  List& operator = (List&& rhs) {
+  List& operator=(List&& rhs) {
     if (FUN_LIKELY(&rhs != this)) {
       head_ = rhs.head_;
       tail_ = rhs.tail_;
@@ -312,10 +287,7 @@ class List {
     return *this;
   }
 
-  ~List() {
-    Clear();
-  }
-
+  ~List() { Clear(); }
 
   //
   // Prepends
@@ -376,7 +348,6 @@ class List {
     }
   }
 
-
   //
   // Appends
   //
@@ -429,59 +400,54 @@ class List {
     }
   }
 
-  List& operator << (const ElementType& item) {
+  List& operator<<(const ElementType& item) {
     Append(item);
     return *this;
   }
 
-  List& operator << (ElementType&& item) {
+  List& operator<<(ElementType&& item) {
     Append(MoveTemp(item));
     return *this;
   }
 
-  List& operator << (const List& list) {
+  List& operator<<(const List& list) {
     Append(list);
     return *this;
   }
 
-  //List& operator << (std::initializer_list<ElementType> init_list) {
+  // List& operator << (std::initializer_list<ElementType> init_list) {
   //  Append(init_list);
   //  return *this;
   //}
 
-  List& operator += (const ElementType& item) {
+  List& operator+=(const ElementType& item) {
     Append(item);
     return *this;
   }
 
-  List& operator += (ElementType&& item) {
+  List& operator+=(ElementType&& item) {
     Append(MoveTemp(item));
     return *this;
   }
 
-  List& operator += (const List& list) {
+  List& operator+=(const List& list) {
     Append(list);
     return *this;
   }
 
-  //List& operator += (std::initializer_list<ElementType> init_list) {
+  // List& operator += (std::initializer_list<ElementType> init_list) {
   //  Append(init_list);
   //  return *this;
   //}
-
 
   //
   // Insertions
   //
 
  public:
-  void InsertFront(const ElementType& item) {
-    Prepend(item);
-  }
+  void InsertFront(const ElementType& item) { Prepend(item); }
 
-  void InsertFront(ElementType&& item) {
-    Prepend(MoveTemp(item));
-  }
+  void InsertFront(ElementType&& item) { Prepend(MoveTemp(item)); }
 
   void InsertBefore(Iterator& position, const ElementType& item) {
     fun_check(position.IsValid());
@@ -489,7 +455,7 @@ class List {
     Node* pos_next = pos_node;
     Node* pos_prev = pos_node->prev_;
     Node* new_node = new Node(item, pos_next, pos_prev);
-    if (pos_prev == nullptr) { // this is the first element.
+    if (pos_prev == nullptr) {  // this is the first element.
       head_ = new_node;
     } else {
       pos_node->prev_->next_ = new_node;
@@ -505,7 +471,7 @@ class List {
     Node* pos_next = pos_node;
     Node* pos_prev = pos_node->prev_;
     Node* new_node = new Node(MoveTemp(item), pos_next, pos_prev);
-    if (pos_prev == nullptr) { // this is the first element.
+    if (pos_prev == nullptr) {  // this is the first element.
       head_ = new_node;
     } else {
       pos_node->prev_->next_ = new_node;
@@ -521,7 +487,7 @@ class List {
     Node* pos_next = pos_node->next_;
     Node* pos_prev = pos_node;
     Node* new_node = new Node(item, pos_next, pos_prev);
-    if (pos_next == nullptr) { // this is the last element
+    if (pos_next == nullptr) {  // this is the last element
       tail_ = new_node;
     } else {
       pos_node->next_->prev_ = new_node;
@@ -537,7 +503,7 @@ class List {
     Node* pos_next = pos_node->next_;
     Node* pos_prev = pos_node;
     Node* new_node = new Node(MoveTemp(item), pos_next, pos_prev);
-    if (pos_next == nullptr) { // this is the last element
+    if (pos_next == nullptr) {  // this is the last element
       tail_ = new_node;
     } else {
       pos_node->next_->prev_ = new_node;
@@ -546,7 +512,6 @@ class List {
 
     ++count_;
   }
-
 
   //
   // Removes
@@ -574,7 +539,7 @@ class List {
   }
 
   bool RemoveOne(const ElementType& item_to_remove) {
-    for (Node* node = head_; node; ) {
+    for (Node* node = head_; node;) {
       if (node->value_ == item_to_remove) {
         Remove(node);
         return true;
@@ -587,7 +552,7 @@ class List {
 
   int32 RemoveAll(const ElementType& item_to_remove) {
     int32 removed_count = 0;
-    for (Node* node = head_; node; ) {
+    for (Node* node = head_; node;) {
       if (node->value_ == item_to_remove) {
         Node* next_ = node->next_;
         Remove(node);
@@ -608,7 +573,7 @@ class List {
   template <typename Predicate>
   bool RemoveOneIf(const Predicate& pred) {
     int32 removed_count = 0;
-    for (Node* node = head_; node; ) {
+    for (Node* node = head_; node;) {
       if (pred(node->value_)) {
         Remove(node);
         return true;
@@ -622,7 +587,7 @@ class List {
   template <typename Predicate>
   int32 RemoveAllIf(const Predicate& pred) {
     int32 removed_count = 0;
-    for (Node* node = head_; node; ) {
+    for (Node* node = head_; node;) {
       if (pred(node->value_)) {
         Node* next = node->next_;
         Remove(node);
@@ -644,7 +609,8 @@ class List {
   void Remove(Iterator& iter) {
     fun_check(iter.IsValid());
 
-    fun_check(iter.element_has_been_removed_ == false); // check duplicated removes
+    fun_check(iter.element_has_been_removed_ ==
+              false);  // check duplicated removes
     iter.element_has_been_removed_ = true;
 
     Node* node = iter.current_node_;
@@ -678,7 +644,7 @@ class List {
   }
 
   void Clear() {
-    for (Node* node = head_; node; ) {
+    for (Node* node = head_; node;) {
       Node* next = node->next_;
       delete node;
       node = next;
@@ -686,7 +652,6 @@ class List {
     head_ = tail_ = nullptr;
     count_ = 0;
   }
-
 
   //
   // Moves
@@ -716,7 +681,7 @@ class List {
 
     item_node->next_ = pos_next;
     item_node->prev_ = pos_prev;
-    if (pos_prev == nullptr) { // this is the first element
+    if (pos_prev == nullptr) {  // this is the first element
       head_ = item_node;
     } else {
       pos_node->prev_->next_ = item_node;
@@ -728,7 +693,7 @@ class List {
     fun_check(item.IsValid());
     Node* item_node = item.current_node_;
 
-    if (item_node->prev_ == nullptr) { // already at first.
+    if (item_node->prev_ == nullptr) {  // already at first.
       return;
     }
 
@@ -772,7 +737,7 @@ class List {
 
     item_node->next_ = pos_next;
     item_node->prev_ = pos_prev;
-    if (pos_next == nullptr) { // this is the last element
+    if (pos_next == nullptr) {  // this is the last element
       tail_ = item_node;
     } else {
       pos_node->next_->prev_ = item_node;
@@ -784,7 +749,7 @@ class List {
     fun_check(item.IsValid());
     Node* item_node = item.current_node_;
 
-    if (item_node->next_ == nullptr) { // already at back.
+    if (item_node->next_ == nullptr) {  // already at back.
       return;
     }
 
@@ -805,87 +770,52 @@ class List {
     pos_node->next_ = item_node;
   }
 
-
   //
   // Stack or Queue
   //
 
  public:
-  void Enqueue(const ElementType& item) {
-    Append(item);
-  }
+  void Enqueue(const ElementType& item) { Append(item); }
 
-  void Enqueue(ElementType&& item) {
-    Append(MoveTemp(item));
-  }
+  void Enqueue(ElementType&& item) { Append(MoveTemp(item)); }
 
-  void Enqueue(const ElementType& item, int32 count) {
-    Append(item, count);
-  }
+  void Enqueue(const ElementType& item, int32 count) { Append(item, count); }
 
-  void Enqueue(const List& list) {
-    Append(list);
-  }
+  void Enqueue(const List& list) { Append(list); }
 
   void Enqueue(std::initializer_list<ElementType> init_list) {
     Append(init_list);
   }
 
-  bool Dequeue(ElementType& out_item) {
-    return PopFront(out_item);
-  }
+  bool Dequeue(ElementType& out_item) { return PopFront(out_item); }
 
-  bool Dequeue(ElementType&& out_item) {
-    return PopFront(out_item);
-  }
+  bool Dequeue(ElementType&& out_item) { return PopFront(out_item); }
 
-  ElementType Dequeue() {
-    return CutFront();
-  }
+  ElementType Dequeue() { return CutFront(); }
 
-  void PushFront(const ElementType& item) {
-    Prepend(item);
-  }
+  void PushFront(const ElementType& item) { Prepend(item); }
 
-  void PushFront(ElementType&& item) {
-    Prepend(MoveTemp(item));
-  }
+  void PushFront(ElementType&& item) { Prepend(MoveTemp(item)); }
 
-  ElementType& PushFrontDefault() {
-    return PrependDefault();
-  }
+  ElementType& PushFrontDefault() { return PrependDefault(); }
 
-  void PushFront(const ElementType& item, int32 count) {
-    Prepend(item, count);
-  }
+  void PushFront(const ElementType& item, int32 count) { Prepend(item, count); }
 
-  void PushFront(const List& list) {
-    Prepend(list);
-  }
+  void PushFront(const List& list) { Prepend(list); }
 
   void PushFront(std::initializer_list<ElementType> init_list) {
     Prepend(init_list);
   }
 
-  void PushBack(const ElementType& item) {
-    Append(item);
-  }
+  void PushBack(const ElementType& item) { Append(item); }
 
-  void PushBack(ElementType&& item) {
-    Append(MoveTemp(item));
-  }
+  void PushBack(ElementType&& item) { Append(MoveTemp(item)); }
 
-  ElementType& PushBackDefault() {
-    return AppendDefault();
-  }
+  ElementType& PushBackDefault() { return AppendDefault(); }
 
-  void PushBack(const ElementType& item, int32 count) {
-    Append(item, count);
-  }
+  void PushBack(const ElementType& item, int32 count) { Append(item, count); }
 
-  void PushBack(const List& list) {
-    Append(list);
-  }
+  void PushBack(const List& list) { Append(list); }
 
   void PushBack(std::initializer_list<ElementType> init_list) {
     Append(init_list);
@@ -910,7 +840,7 @@ class List {
     return false;
   }
 
-  //bool PopFront(ElementType&& item) {
+  // bool PopFront(ElementType&& item) {
   //  if (head_) {
   //    item = MoveTemp(head_->value_);
   //    Remove(head_);
@@ -939,7 +869,7 @@ class List {
     return false;
   }
 
-  //bool PopBack(ElementType&& item) {
+  // bool PopBack(ElementType&& item) {
   //  if (tail_) {
   //    item = MoveTemp(tail_->value_);
   //    Remove(tail_);
@@ -949,15 +879,12 @@ class List {
   //  return false;
   //}
 
-
   //
   // Finds
   //
 
  public:
-  Iterator Find(const ElementType& item) {
-    return Iterator(FindNode(item));
-  }
+  Iterator Find(const ElementType& item) { return Iterator(FindNode(item)); }
 
   ConstIterator Find(const ElementType& item) const {
     return ConstIterator(FindNode(item));
@@ -1016,15 +943,12 @@ class List {
     return nullptr;
   }
 
-
   //
   // Contains
   //
 
  public:
-  bool Contains(const ElementType& item) const {
-    return !!FindNode(item);
-  }
+  bool Contains(const ElementType& item) const { return !!FindNode(item); }
 
   template <typename Predicate>
   bool ContainsIf(const Predicate& pred) const {
@@ -1079,18 +1003,13 @@ class List {
     return INVALID_INDEX;
   }
 
-
   //
   // Accessors
   //
 
-  bool IsEmpty() const {
-    return count_ == 0;
-  }
+  bool IsEmpty() const { return count_ == 0; }
 
-  int32 Count() const {
-    return count_;
-  }
+  int32 Count() const { return count_; }
 
   const ElementType& Front() const {
     fun_check_ptr(head_);
@@ -1112,30 +1031,23 @@ class List {
     return tail_->value_;
   }
 
-
   //
   // Iterations
   //
 
-  Iterator CreateIterator() {
-    return Iterator(head_);
-  }
+  Iterator CreateIterator() { return Iterator(head_); }
 
   Iterator CreateIterator(const ElementType& item) {
     return Iterator(FindNode(item));
   }
 
-  ConstIterator CreateConstIterator() const {
-    return ConstIterator(head_);
-  }
+  ConstIterator CreateConstIterator() const { return ConstIterator(head_); }
 
   ConstIterator CreateConstIterator(const ElementType& item) const {
     return ConstIterator(FindNode(item));
   }
 
-  ReversedIterator CreateReversedIterator() {
-    return ReversedIterator(tail_);
-  }
+  ReversedIterator CreateReversedIterator() { return ReversedIterator(tail_); }
 
   ReversedIterator CreateReversedIterator(const ElementType& item) {
     return ReversedIterator(FindNode(item));
@@ -1145,24 +1057,25 @@ class List {
     return ReversedConstIterator(tail_);
   }
 
-  ReversedConstIterator CreateReversedConstIterator(const ElementType& item) const {
+  ReversedConstIterator CreateReversedConstIterator(
+      const ElementType& item) const {
     return ReversedConstIterator(FindNode(item));
   }
-
 
   //
   // Comparisions
   //
 
  public:
-  bool operator == (const List& rhs) const {
+  bool operator==(const List& rhs) const {
     if (Count() != rhs.Count()) {
       return false;
     }
 
     const Node* this_node = head_;
     const Node* other_node = rhs.head_;
-    for (; this_node; this_node = this_node->next_, other_node = other_node->next_) {
+    for (; this_node;
+         this_node = this_node->next_, other_node = other_node->next_) {
       if (this_node->value_ != other_node->value_) {
         return false;
       }
@@ -1171,26 +1084,24 @@ class List {
     return true;
   }
 
-  bool operator != (const List& rhs) const {
-    return !(*this == rhs);
-  }
+  bool operator!=(const List& rhs) const { return !(*this == rhs); }
 
-  //less, greater ??
+  // less, greater ??
 
   // Serializer
-  friend Archive& operator & (Archive& ar, List& list) {
+  friend Archive& operator&(Archive& ar, List& list) {
     if (ar.IsLoading()) {
       list.Clear();
       int32 count;
-      ar & count;
+      ar& count;
       for (int32 i = 0; i < count; ++i) {
         ElementType tmp;
-        ar & tmp;
+        ar& tmp;
         list.Append(MoveTemp(tmp));
       }
     } else {
       int32 count = list.Count();
-      ar & count;
+      ar& count;
       for (Node* node = list.head_; node; node = node->next_) {
         ar & node->value_;
       }
@@ -1211,10 +1122,9 @@ class List {
 
  public:
   void CheckConsistency() const {
-    //Count가 0일 경우, head_, Tail이 모두 nullptr이어야함.
-    //TODO
+    // Count가 0일 경우, head_, Tail이 모두 nullptr이어야함.
+    // TODO
   }
-
 
   //
   // STL Compatibilities
@@ -1237,7 +1147,6 @@ class List {
   int32 count_;
 };
 
-
 /**
  * Simple single-linked list template.
  */
@@ -1249,11 +1158,10 @@ class SingleLinkedList {
   ElementType element;
   SingleLinkedList<ElementType>* next;
 
-  SingleLinkedList(const ElementType& element, SingleLinkedList<ElementType>* next = nullptr)
-    : element(element)
-    , next(next) {}
+  SingleLinkedList(const ElementType& element,
+                   SingleLinkedList<ElementType>* next = nullptr)
+      : element(element), next(next) {}
 };
-
 
 template <typename _ElementType>
 class ListNode {
@@ -1271,11 +1179,9 @@ class ListNode {
 
    public:
     FUN_ALWAYS_INLINE ListOwner()
-      : list_head_(nullptr), list_tail_(nullptr), list_count_(0) {}
+        : list_head_(nullptr), list_tail_(nullptr), list_count_(0) {}
 
-    FUN_ALWAYS_INLINE ~ListOwner() {
-      Clear();
-    }
+    FUN_ALWAYS_INLINE ~ListOwner() { Clear(); }
 
     FUN_ALWAYS_INLINE void Clear() {
       while (!IsEmpty()) {
@@ -1283,9 +1189,7 @@ class ListNode {
       }
     }
 
-    FUN_ALWAYS_INLINE bool IsEmpty() const {
-      return list_head_ == nullptr;
-    }
+    FUN_ALWAYS_INLINE bool IsEmpty() const { return list_head_ == nullptr; }
 
     FUN_ALWAYS_INLINE void Unlink(ElementType* node) {
       fun_check_ptr(node);
@@ -1320,9 +1224,9 @@ class ListNode {
     }
 
     FUN_ALWAYS_INLINE void Prepend(ElementType* node) {
-      if (node->list_owner_ == nullptr) { // prevent circular.
+      if (node->list_owner_ == nullptr) {  // prevent circular.
         fun_check(0);
-        Unlink(node); // prevent circular.
+        Unlink(node);  // prevent circular.
       }
 
       if (list_head_ == nullptr) {
@@ -1339,9 +1243,9 @@ class ListNode {
     }
 
     FUN_ALWAYS_INLINE void Append(ElementType* node) {
-      if (node->list_owner_) { // prevent circular.
+      if (node->list_owner_) {  // prevent circular.
         fun_check(0);
-        Unlink(node); // prevent circular.
+        Unlink(node);  // prevent circular.
       }
 
       if (list_tail_ == nullptr) {
@@ -1365,9 +1269,7 @@ class ListNode {
       return (ElementType*)list_tail_;
     }
 
-    FUN_ALWAYS_INLINE int32 Count() const {
-      return list_count_;
-    }
+    FUN_ALWAYS_INLINE int32 Count() const { return list_count_; }
   };
 
  private:
@@ -1379,20 +1281,14 @@ class ListNode {
 
  public:
   FUN_ALWAYS_INLINE ListNode()
-    : prev_(nullptr)
-    , next_(nullptr)
-    , list_owner_(nullptr) {}
+      : prev_(nullptr), next_(nullptr), list_owner_(nullptr) {}
 
-  //FUN_ALWAYS_INLINE virtual ~ListNode() {
+  // FUN_ALWAYS_INLINE virtual ~ListNode() {
   //  UnlinkSelf();
   //}
-  FUN_ALWAYS_INLINE ~ListNode() {
-    UnlinkSelf();
-  }
+  FUN_ALWAYS_INLINE ~ListNode() { UnlinkSelf(); }
 
-  FUN_ALWAYS_INLINE ListOwner* GetListOwner() const {
-    return list_owner_;
-  }
+  FUN_ALWAYS_INLINE ListOwner* GetListOwner() const { return list_owner_; }
 
   FUN_ALWAYS_INLINE ElementType* GetNextNode() const {
     return (ElementType*)next_;
@@ -1402,7 +1298,7 @@ class ListNode {
     return (ElementType*)prev_;
   }
 
-  //TODO 이 함수는 제거하는게 좋을듯...??
+  // TODO 이 함수는 제거하는게 좋을듯...??
   FUN_ALWAYS_INLINE void UnlinkSelf() {
     if (list_owner_) {
       list_owner_->Unlink((ElementType*)this);
@@ -1410,4 +1306,4 @@ class ListNode {
   }
 };
 
-} // namespace fun
+}  // namespace fun

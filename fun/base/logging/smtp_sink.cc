@@ -13,22 +13,21 @@ const String SmtpSink::PROP_THROW("Throw");
 FUN_IMPLEMENT_RTCLASS(SmtpSink)
 
 SmtpSink::SmtpSink()
-  : mail_host_("localhost"),
-    local_(true),
-    type_("text/plain"),
-    delete_(false),
-    throw_(false) {}
+    : mail_host_("localhost"),
+      local_(true),
+      type_("text/plain"),
+      delete_(false),
+      throw_(false) {}
 
-SmtpSink::SmtpSink( const String& mail_host,
-                    const String& sender,
-                    const String& recipient)
-  : mail_host_(mail_host),
-    sender_(sender),
-    recipient_(recipient),
-    local_(true),
-    type_("text/plain"),
-    delete_(false),
-    throw_(false) {}
+SmtpSink::SmtpSink(const String& mail_host, const String& sender,
+                   const String& recipient)
+    : mail_host_(mail_host),
+      sender_(sender),
+      recipient_(recipient),
+      local_(true),
+      type_("text/plain"),
+      delete_(false),
+      throw_(false) {}
 
 SmtpSink::~SmtpSink() {
   try {
@@ -38,31 +37,27 @@ SmtpSink::~SmtpSink() {
   }
 }
 
-void SmtpSink::Open() {
-  
-}
+void SmtpSink::Open() {}
 
-void SmtpSink::Close() {
-  
-}
+void SmtpSink::Close() {}
 
 void SmtpSink::Log(const LogMessage& msg) {
-  //TODO
+  // TODO
 }
 
 void SmtpSink::SetProperty(const String& name, const String& value) {
-  //TODO
+  // TODO
 }
 
 String SmtpSink::GetProperty(const String& name) const {
-  //TODO
+  // TODO
 }
 
-
-//FUN_IMPLEMENT_RTCLASS(SmtpSink);
+// FUN_IMPLEMENT_RTCLASS(SmtpSink);
 
 void SmtpSink::RegisterSink() {
-  LoggingFactory::DefaultFactory().RegisterSinkClass("SmtpSink", new Instantiator<SmtpSink, LogSink>);
+  LoggingFactory::DefaultFactory().RegisterSinkClass(
+      "SmtpSink", new Instantiator<SmtpSink, LogSink>);
 }
 
-} // namespace fun
+}  // namespace fun

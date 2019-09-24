@@ -13,13 +13,9 @@ namespace fun {
  * \param ValueType - The type of values stored in the map.
  * \param SetAllocator - The allocator to use for key-value pairs.
  */
-template <
-    typename _KeyType,
-    typename _ValueType,
-    typename SetAllocator = DefaultSetAllocator
-  >
-class MapBuilder
-{
+template <typename _KeyType, typename _ValueType,
+          typename SetAllocator = DefaultSetAllocator>
+class MapBuilder {
  public:
   using KeyType = _KeyType;
   using ValueType = _ValueType;
@@ -36,9 +32,7 @@ class MapBuilder
    * \param map - The map to copy.
    */
   template <typename OtherAllocator>
-  MapBuilder(const Map<KeyType, ValueType, OtherAllocator>& map)
-    : map_(map)
-  {}
+  MapBuilder(const Map<KeyType, ValueType, OtherAllocator>& map) : map_(map) {}
 
   /**
    * Adds a key-value pair to the map.
@@ -48,8 +42,7 @@ class MapBuilder
    *
    * \return This instance (for method chaining).
    */
-  MapBuilder& Add(KeyType key, ValueType value)
-  {
+  MapBuilder& Add(KeyType key, ValueType value) {
     map_.Add(key, value);
     return *this;
   }
@@ -61,8 +54,7 @@ class MapBuilder
    *
    * \return This instance (for method chaining).
    */
-  MapBuilder& Append(const MapType& other_map)
-  {
+  MapBuilder& Append(const MapType& other_map) {
     map_.Append(other_map);
     return *this;
   }
@@ -72,20 +64,14 @@ class MapBuilder
    *
    * \return A new map.
    */
-  MapType Build() const
-  {
-    return map_;
-  }
+  MapType Build() const { return map_; }
 
   /**
    * Implicit conversion operator to build the map as configured.
    *
    * \return A new map.
    */
-  operator MapType() const
-  {
-    return Build();
-  }
+  operator MapType() const { return Build(); }
 
  private:
   /**
@@ -94,4 +80,4 @@ class MapBuilder
   MapType map_;
 };
 
-} // namespace fun
+}  // namespace fun

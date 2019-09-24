@@ -20,7 +20,7 @@ struct ReturnValueCheck<NotSpecified> {
 };
 
 template <typename T>
-NotSpecified operator & (Archive&&, T&&);
+NotSpecified operator&(Archive&&, T&&);
 
 template <typename T>
 T&& Make();
@@ -35,14 +35,16 @@ struct HasSerializerOperator<T, NotSpecified> {
   static constexpr bool Value = false;
 };
 
-} // HasSerializerOperator_internal
+}  // namespace HasSerializerOperator_internal
 
 /**
- * Traits class which tests if a type has an `operator&` overload between two types.
+ * Traits class which tests if a type has an `operator&` overload between two
+ * types.
  */
 template <typename T>
 struct HasSerializerOperator {
-  static constexpr bool Value = HasSerializerOperator_internal::HasSerializerOperator<T>::Value;
+  static constexpr bool Value =
+      HasSerializerOperator_internal::HasSerializerOperator<T>::Value;
 };
 
-} // namespace
+}  // namespace fun

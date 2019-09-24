@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/string/string.h"
 #include "fun/base/date_time.h"
+#include "fun/base/string/string.h"
 
-#define FUN_WITH_ARCHIVE_STRATEGY  0
+#define FUN_WITH_ARCHIVE_STRATEGY 0
 
 #if FUN_WITH_ARCHIVE_STRATEGY
 
@@ -14,8 +14,9 @@ class ArchiveCompressor;
 class LogFile;
 
 /**
- * The ArchiveStrategy is used by FileSink to rename a rotated log file for archiving.
- * 
+ * The ArchiveStrategy is used by FileSink to rename a rotated log file for
+ * archiving.
+ *
  * Archived files can be automatically compressed,
  * using the gzip file format.
  */
@@ -26,9 +27,9 @@ class FUN_BASE_API ArchiveStrategy {
 
   // Disable copy and assignment.
   ArchiveStrategy(const ArchiveStrategy&) = delete;
-  ArchiveStrategy& operator = (const ArchiveStrategy&) = delete;
+  ArchiveStrategy& operator=(const ArchiveStrategy&) = delete;
 
-  //TODO 이름을 어떤것으로 변경하는게 좋으려나...
+  // TODO 이름을 어떤것으로 변경하는게 좋으려나...
   /**
    * Renames the given log file for archiving
    * and creates and returns a new log file.
@@ -63,7 +64,7 @@ class FUN_BASE_API ArchiveByNumberStrategy : public ArchiveStrategy {
   LogFile* Archive(LogFile* file) override;
 };
 
-//TODO DT를 별도로 지정할 필요가 없음. 그냥 설정으로 하면됨!!!
+// TODO DT를 별도로 지정할 필요가 없음. 그냥 설정으로 하면됨!!!
 /**
  * A timestamp (YYYYMMDDhhmmssiii) is appended to archived
  * log files.
@@ -125,6 +126,6 @@ class ArchiveByTimestampStrategy : public ArchiveStrategy {
   }
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_ARCHIVE_STRATEGY
+#endif  // FUN_WITH_ARCHIVE_STRATEGY

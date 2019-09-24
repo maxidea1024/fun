@@ -14,12 +14,15 @@ struct HasMethod_ToString {
 
   using String = ByteString;
 
-  template <typename U, String (U::*)() const> struct Check;
-  template <typename U> static char MemberTest(Check<U, &U::ToString>*);
-  template <typename U> static int MemberTest(...);
+  template <typename U, String (U::*)() const>
+  struct Check;
+  template <typename U>
+  static char MemberTest(Check<U, &U::ToString>*);
+  template <typename U>
+  static int MemberTest(...);
 
  public:
   enum { Value = sizeof(MemberTest<T>(nullptr)) == sizeof(char) };
 };
 
-} // namespace fun
+}  // namespace fun

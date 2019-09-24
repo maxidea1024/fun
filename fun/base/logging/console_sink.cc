@@ -1,7 +1,7 @@
 ﻿#include "fun/base/logging/console_sink.h"
+#include <iostream>
 #include "fun/base/logging/log_message.h"
 #include "fun/base/str.h"
-#include <iostream>
 
 namespace fun {
 
@@ -23,7 +23,6 @@ void ConsoleSink::Log(const LogMessage& msg) {
   stream_ << msg.GetText().c_str() << std::endl;
 }
 
-
 //
 // ColorConsoleSink
 //
@@ -32,12 +31,12 @@ FastMutex ColorConsoleSink::mutex_;
 const String ColorConsoleSink::CSI("\033[");
 
 ColorConsoleSink::ColorConsoleSink()
-  : stream_(std::clog), enable_colors_(true) {
+    : stream_(std::clog), enable_colors_(true) {
   InitColors();
 }
 
 ColorConsoleSink::ColorConsoleSink(std::ostream& stream)
-  : stream_(stream), enable_colors_(true) {
+    : stream_(stream), enable_colors_(true) {
   InitColors();
 }
 
@@ -112,8 +111,8 @@ String ColorConsoleSink::GetProperty(const String& name) const {
 
 ColorConsoleSink::~ColorConsoleSink() {}
 
-ColorConsoleSink::Color
-ColorConsoleSink::ParseColor(const String& color) const {
+ColorConsoleSink::Color ColorConsoleSink::ParseColor(
+    const String& color) const {
   if (icompare(color, "Default") == 0) {
     return CC_DEFAULT;
   } else if (icompare(color, "Black") == 0) {
@@ -155,37 +154,55 @@ ColorConsoleSink::ParseColor(const String& color) const {
 
 String ColorConsoleSink::FormatColor(Color color) const {
   switch (color) {
-    case CC_DEFAULT:      return "Default";
-    case CC_BLACK:        return "Black";
-    case CC_RED:          return "Red";
-    case CC_GREEN:        return "Green";
-    case CC_BROWN:        return "Brown";
-    case CC_BLUE:         return "Blue";
-    case CC_MAGENTA:      return "Magenta";
-    case CC_CYAN:         return "Cyan";
-    case CC_GRAY:         return "Gray";
-    case CC_DARKGRAY:     return "DarkGray";
-    case CC_LIGHTRED:     return "LightRed";
-    case CC_LIGHTGREEN:   return "LightGreen";
-    case CC_YELLOW:       return "Yellow";
-    case CC_LIGHTBLUE:    return "LightBlue";
-    case CC_LIGHTMAGENTA: return "LightMagenta";
-    case CC_LIGHTCYAN:    return "LightCyan";
-    case CC_WHITE:        return "White";
-    default:              return "Invalid";
+    case CC_DEFAULT:
+      return "Default";
+    case CC_BLACK:
+      return "Black";
+    case CC_RED:
+      return "Red";
+    case CC_GREEN:
+      return "Green";
+    case CC_BROWN:
+      return "Brown";
+    case CC_BLUE:
+      return "Blue";
+    case CC_MAGENTA:
+      return "Magenta";
+    case CC_CYAN:
+      return "Cyan";
+    case CC_GRAY:
+      return "Gray";
+    case CC_DARKGRAY:
+      return "DarkGray";
+    case CC_LIGHTRED:
+      return "LightRed";
+    case CC_LIGHTGREEN:
+      return "LightGreen";
+    case CC_YELLOW:
+      return "Yellow";
+    case CC_LIGHTBLUE:
+      return "LightBlue";
+    case CC_LIGHTMAGENTA:
+      return "LightMagenta";
+    case CC_LIGHTCYAN:
+      return "LightCyan";
+    case CC_WHITE:
+      return "White";
+    default:
+      return "Invalid";
   }
 }
 
 void ColorConsoleSink::InitColors() {
-  colors_[0] = CC_DEFAULT; // unused
-  colors_[LogLevel::Fatal]       = CC_LIGHTRED;
-  colors_[LogLevel::Critical]    = CC_LIGHTRED;
-  colors_[LogLevel::Error]       = CC_LIGHTRED;
-  colors_[LogLevel::Warning]     = CC_YELLOW;
-  colors_[LogLevel::Notice]      = CC_DEFAULT;
+  colors_[0] = CC_DEFAULT;  // unused
+  colors_[LogLevel::Fatal] = CC_LIGHTRED;
+  colors_[LogLevel::Critical] = CC_LIGHTRED;
+  colors_[LogLevel::Error] = CC_LIGHTRED;
+  colors_[LogLevel::Warning] = CC_YELLOW;
+  colors_[LogLevel::Notice] = CC_DEFAULT;
   colors_[LogLevel::Information] = CC_DEFAULT;
-  colors_[LogLevel::Debug]       = CC_GRAY;
-  colors_[LogLevel::Trace]       = CC_GRAY;
+  colors_[LogLevel::Debug] = CC_GRAY;
+  colors_[LogLevel::Trace] = CC_GRAY;
 }
 
-} // namespace fun
+}  // namespace fun

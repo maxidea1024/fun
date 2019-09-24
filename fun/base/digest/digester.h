@@ -26,7 +26,7 @@ class FUN_BASE_API Digester {
 
   // Disable copy
   Digester(const Digester&) = delete;
-  Digester& operator = (const Digester&) = delete;
+  Digester& operator=(const Digester&) = delete;
 
   /** Returns the length of the digest in bytes. */
   virtual int32 GetDigestLength() = 0;
@@ -46,7 +46,8 @@ class FUN_BASE_API Digester {
   /** Converts a message digest into a string of hexadecimal numbers. */
   static String DigestToHex(const Digest& digest);
 
-  /** Converts a string created by digestToHex back to its Digest presentation */
+  /** Converts a string created by digestToHex back to its Digest presentation
+   */
   static Digest DigestFromHex(const String& digest);
 
   /**
@@ -64,7 +65,6 @@ class FUN_BASE_API Digester {
   virtual void UpdateImpl(const void* data, size_t length) = 0;
 };
 
-
 //
 // inlines
 //
@@ -73,12 +73,10 @@ FUN_ALWAYS_INLINE void Digester::Update(const void* data, size_t length) {
   UpdateImpl(data, length);
 }
 
-FUN_ALWAYS_INLINE void Digester::Update(char data) {
-  UpdateImpl(&data, 1);
-}
+FUN_ALWAYS_INLINE void Digester::Update(char data) { UpdateImpl(&data, 1); }
 
 FUN_ALWAYS_INLINE void Digester::Update(const String& data) {
   UpdateImpl(data.ConstData(), data.Len());
 }
 
-} // namespace fun
+}  // namespace fun

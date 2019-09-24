@@ -2,7 +2,7 @@
 
 #include "fun/base/base.h"
 #include "fun/base/serialization/compression.h"
-//TODO base_forward_decls.h에 이미 있으므로 제거해도 무방함.
+// TODO base_forward_decls.h에 이미 있으므로 제거해도 무방함.
 #include "fun/base/container/container_forward_decls.h"
 
 namespace fun {
@@ -16,75 +16,75 @@ class FUN_BASE_API Archive {
   virtual ~Archive();
 
   Archive(const Archive&);
-  Archive& operator = (const Archive&);
+  Archive& operator=(const Archive&);
 
   /**
    * Resets all of the base archive member variables.
    */
   virtual void Reset();
 
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, char& v) {
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, char& v) {
     ar.Serialize(&v, 1);
     return ar;
   }
 
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, wchar_t& v) {
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, wchar_t& v) {
     ar.ByteOrderAwaredSerialize(&v, sizeof(v));
     return ar;
   }
 
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, int8& v) {
-    ar.Serialize(&v,1);
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, int8& v) {
+    ar.Serialize(&v, 1);
     return ar;
   }
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, uint8& v) {
-    ar.Serialize(&v,1);
-    return ar;
-  }
-
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, int16& v) {
-    ar.ByteOrderAwaredSerialize(&v,sizeof(v));
-    return ar;
-  }
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, uint16& v) {
-    ar.ByteOrderAwaredSerialize(&v,sizeof(v));
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, uint8& v) {
+    ar.Serialize(&v, 1);
     return ar;
   }
 
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, int32& v) {
-    ar.ByteOrderAwaredSerialize(&v,sizeof(v));
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, int16& v) {
+    ar.ByteOrderAwaredSerialize(&v, sizeof(v));
     return ar;
   }
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, uint32& v) {
-    ar.ByteOrderAwaredSerialize(&v,sizeof(v));
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, uint16& v) {
+    ar.ByteOrderAwaredSerialize(&v, sizeof(v));
     return ar;
   }
 
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, int64& v) {
-    ar.ByteOrderAwaredSerialize(&v,sizeof(v));
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, int32& v) {
+    ar.ByteOrderAwaredSerialize(&v, sizeof(v));
     return ar;
   }
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, uint64& v) {
-    ar.ByteOrderAwaredSerialize(&v,sizeof(v));
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, uint32& v) {
+    ar.ByteOrderAwaredSerialize(&v, sizeof(v));
+    return ar;
+  }
+
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, int64& v) {
+    ar.ByteOrderAwaredSerialize(&v, sizeof(v));
+    return ar;
+  }
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, uint64& v) {
+    ar.ByteOrderAwaredSerialize(&v, sizeof(v));
     return ar;
   }
 
   // long을 별도의 타입으로 구분할까???
-  //FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, long& v) {
+  // FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, long& v) {
   //  ar.ByteOrderAwaredSerialize(&v,sizeof(v));
   //  return ar;
   //}
 
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, float& v) {
-    ar.ByteOrderAwaredSerialize(&v,sizeof(v));
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, float& v) {
+    ar.ByteOrderAwaredSerialize(&v, sizeof(v));
     return ar;
   }
-  FUN_ALWAYS_INLINE friend Archive& operator & (Archive& ar, double& v) {
-    ar.ByteOrderAwaredSerialize(&v,sizeof(v));
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar, double& v) {
+    ar.ByteOrderAwaredSerialize(&v, sizeof(v));
     return ar;
   }
 
-  FUN_BASE_API friend Archive& operator & (Archive& ar, String& v);
+  FUN_BASE_API friend Archive& operator&(Archive& ar, String& v);
 
   virtual void Serialize(void* v, int64 len) {}
 
@@ -101,15 +101,15 @@ class FUN_BASE_API Archive {
 
   virtual void SerializeIntPacked(uint32& v);
 
-  //TODO??
-  //virtual void Prelad(FObject* object) {}
+  // TODO??
+  // virtual void Prelad(FObject* object) {}
 
   virtual void CountBytes(int64 used_count, int64 allocated_count) {}
 
   virtual String GetArchiveName() const;
 
-  //TODO
-  //virtual class FLinker* GetLinker() { return nullptr; }
+  // TODO
+  // virtual class FLinker* GetLinker() { return nullptr; }
 
   virtual int64 Tell() { return -1; }
   virtual int64 TotalSize() { return -1; }
@@ -120,22 +120,25 @@ class FUN_BASE_API Archive {
 
   virtual void Seek(int64 new_pos) {}
 
-  //TODO?
-  //virtual void AttachBulkData(FObject* owner, UntypedBulkData* bulk_data) {}
-  //virtual void DetachBulkData(UntypedBulkData* bulk_data, bool ensure_bulk_data_is_loaded) {}
+  // TODO?
+  // virtual void AttachBulkData(FObject* owner, UntypedBulkData* bulk_data) {}
+  // virtual void DetachBulkData(UntypedBulkData* bulk_data, bool
+  // ensure_bulk_data_is_loaded) {}
 
   virtual bool Precache(int64 offset, int64 size) { return true; }
   virtual void FlushCache() {}
 
-  virtual bool SetCompressionMap(Array<struct CompressedChunk>* chunks, CompressionFlags flags) { return false; }
+  virtual bool SetCompressionMap(Array<struct CompressedChunk>* chunks,
+                                 CompressionFlags flags) {
+    return false;
+  }
 
   virtual void Flush() {}
 
-  virtual bool Close() {
-    return !(GetError() || IsCriticalError());
-  }
+  virtual bool Close() { return !(GetError() || IsCriticalError()); }
 
-  void SerializeCompressed(void* v, int64 len, CompressionFlags flags, bool treat_buffer_as_file_reader = false);
+  void SerializeCompressed(void* v, int64 len, CompressionFlags flags,
+                           bool treat_buffer_as_file_reader = false);
 
   FUN_ALWAYS_INLINE bool IsByteSwapping() const {
 #if FUN_ARCH_LITTLE_ENDIAN
@@ -158,8 +161,7 @@ class FUN_BASE_API Archive {
     return *this;
   }
 
-
-  //TODO More
+  // TODO More
   enum ArchiveFlag {
     ARCH_LOADING = 0x01,
     ARCH_SAVING = 0x02,
@@ -167,7 +169,7 @@ class FUN_BASE_API Archive {
     ARCH_FORCE_UNICODE = 0x08,
     ARCH_PERSISTENT = 0x10,
     ARCH_ERROR = 0x20,
-    ARCH_CRITICAL_ERROR= 0x40,
+    ARCH_CRITICAL_ERROR = 0x40,
     ARCH_FORCE_BYTE_SWAPPING = 0x80,
     ARCH_ALLOW_LAZY_LOADING = 0x100,
     ARCH_COUNTING_MEMORY = 0x200,
@@ -179,49 +181,77 @@ class FUN_BASE_API Archive {
     return true;
   }
 
-
   //
   // Flags operations.
   //
 
   bool IsLoading() const { return archive_flags_.HasAny(ARCH_LOADING); }
-  void SetLoading(bool flag = true) { archive_flags_.SetBool(ARCH_LOADING, flag); }
+  void SetLoading(bool flag = true) {
+    archive_flags_.SetBool(ARCH_LOADING, flag);
+  }
 
   bool IsSaving() const { return archive_flags_.HasAny(ARCH_SAVING); }
-  void SetSaving(bool flag = true) { archive_flags_.SetBool(ARCH_SAVING, flag); }
+  void SetSaving(bool flag = true) {
+    archive_flags_.SetBool(ARCH_SAVING, flag);
+  }
 
   bool IsTransacting() const { return archive_flags_.HasAny(ARCH_TRANSACTING); }
-  void SetTransacting(bool flag = true) { archive_flags_.SetBool(ARCH_TRANSACTING, flag); }
+  void SetTransacting(bool flag = true) {
+    archive_flags_.SetBool(ARCH_TRANSACTING, flag);
+  }
 
-  bool IsForceUnicode() const { return archive_flags_.HasAny(ARCH_FORCE_UNICODE); }
-  void SetForceUnicode(bool flag = true) { archive_flags_.SetBool(ARCH_FORCE_UNICODE, flag); }
+  bool IsForceUnicode() const {
+    return archive_flags_.HasAny(ARCH_FORCE_UNICODE);
+  }
+  void SetForceUnicode(bool flag = true) {
+    archive_flags_.SetBool(ARCH_FORCE_UNICODE, flag);
+  }
 
   bool IsPersistent() const { return archive_flags_.HasAny(ARCH_PERSISTENT); }
-  void SetPersistent(bool flag = true) { archive_flags_.SetBool(ARCH_PERSISTENT, flag); }
+  void SetPersistent(bool flag = true) {
+    archive_flags_.SetBool(ARCH_PERSISTENT, flag);
+  }
 
   virtual bool GetError() const { return archive_flags_.HasAny(ARCH_ERROR); }
   void SetError(bool flag = true) { archive_flags_.SetBool(ARCH_ERROR, flag); }
 
-  bool IsCriticalError() const { return archive_flags_.HasAny(ARCH_CRITICAL_ERROR); }
-  void SetCriticalError(bool flag = true) { archive_flags_.SetBool(ARCH_CRITICAL_ERROR, flag); }
+  bool IsCriticalError() const {
+    return archive_flags_.HasAny(ARCH_CRITICAL_ERROR);
+  }
+  void SetCriticalError(bool flag = true) {
+    archive_flags_.SetBool(ARCH_CRITICAL_ERROR, flag);
+  }
 
-  bool IsForceByteSwapping() const { return archive_flags_.HasAny(ARCH_FORCE_BYTE_SWAPPING); }
-  void SetForceByteSwapping(bool flag = true) { archive_flags_.SetBool(ARCH_FORCE_BYTE_SWAPPING, flag); }
+  bool IsForceByteSwapping() const {
+    return archive_flags_.HasAny(ARCH_FORCE_BYTE_SWAPPING);
+  }
+  void SetForceByteSwapping(bool flag = true) {
+    archive_flags_.SetBool(ARCH_FORCE_BYTE_SWAPPING, flag);
+  }
 
-  bool IsAllowLazyLoading() const { return archive_flags_.HasAny(ARCH_ALLOW_LAZY_LOADING); }
-  void SetAllowLazyLoading(bool flag = true) { archive_flags_.SetBool(ARCH_ALLOW_LAZY_LOADING, flag); }
+  bool IsAllowLazyLoading() const {
+    return archive_flags_.HasAny(ARCH_ALLOW_LAZY_LOADING);
+  }
+  void SetAllowLazyLoading(bool flag = true) {
+    archive_flags_.SetBool(ARCH_ALLOW_LAZY_LOADING, flag);
+  }
 
-  bool IsCountingMemory() const { return archive_flags_.HasAny(ARCH_COUNTING_MEMORY); }
-  void SetCountingMemory(bool flag = true) { archive_flags_.SetBool(ARCH_COUNTING_MEMORY, flag); }
-
+  bool IsCountingMemory() const {
+    return archive_flags_.HasAny(ARCH_COUNTING_MEMORY);
+  }
+  void SetCountingMemory(bool flag = true) {
+    archive_flags_.SetBool(ARCH_COUNTING_MEMORY, flag);
+  }
 
   //
   // Custom version
   //
 
-  virtual void SetCustomVersions(const CustomVersionContainer& custom_version_container);
+  virtual void SetCustomVersions(
+      const CustomVersionContainer& custom_version_container);
   virtual void ResetCustomVersions();
-  void SetCustomVersion(const Uuid& key, int32 version, const String& friendly_name);
+  void SetCustomVersion(const Uuid& key, int32 version,
+                        const String& friendly_name);
   const CustomVersionContainer& GetCustomVersions() const;
   void UsingCustomVersion(const Uuid& key);
   int32 CustomVer(const Uuid& key) const;
@@ -250,8 +280,8 @@ class ArchiveProxy : public Archive {
     inner_archive_.SerializeInt(value, max);
   }
 
-  //TODO
-  //void Preload(FObject* object) override {
+  // TODO
+  // void Preload(FObject* object) override {
   //  inner_archive_.Preload(object);
   //}
 
@@ -261,28 +291,21 @@ class ArchiveProxy : public Archive {
 
   FUN_BASE_API String GetArchiveName() const override;
 
-  int64 Tell() override {
-    return inner_archive_.Tell();
-  }
+  int64 Tell() override { return inner_archive_.Tell(); }
 
-  int64 TotalSize() override {
-    return inner_archive_.TotalSize();
-  }
+  int64 TotalSize() override { return inner_archive_.TotalSize(); }
 
-  bool AtEnd() override {
-    return inner_archive_.AtEnd();
-  }
+  bool AtEnd() override { return inner_archive_.AtEnd(); }
 
-  void Seek(int64 new_pos) override {
-    inner_archive_.Seek(new_pos);
-  }
+  void Seek(int64 new_pos) override { inner_archive_.Seek(new_pos); }
 
-  //TODO
-  //void AttachBulkData(FObject* owner, UntypedBulkData* bulk_data) override {
+  // TODO
+  // void AttachBulkData(FObject* owner, UntypedBulkData* bulk_data) override {
   //  inner_archive_.AttachBulkData(owner, bulk_data);
   //}
   //
-  //void DetachBulkData(UntypedBulkData* bulk_data, bool ensure_bulk_data_is_loaded) override {
+  // void DetachBulkData(UntypedBulkData* bulk_data, bool
+  // ensure_bulk_data_is_loaded) override {
   //  inner_archive_.DetachBulkData(bulk_data, ensure_bulk_data_is_loaded);
   //}
 
@@ -291,28 +314,22 @@ class ArchiveProxy : public Archive {
   }
 
   bool SetCompressionMap(Array<struct CompressedChunk>* chunks,
-                        CompressionFlags flags) override {
+                         CompressionFlags flags) override {
     return inner_archive_.SetCompressionMap(chunks, flags);
   }
 
-  void Flush() override {
-    inner_archive_.Flush();
-  }
+  void Flush() override { inner_archive_.Flush(); }
 
-  bool Close() override {
-    return inner_archive_.Close();
-  }
+  bool Close() override { return inner_archive_.Close(); }
 
-  bool GetError() const override {
-    return inner_archive_.GetError();
-  }
+  bool GetError() const override { return inner_archive_.GetError(); }
 
-  //TODO
-  //void MarkScriptSerializationStart(const FObject* obj) override {
+  // TODO
+  // void MarkScriptSerializationStart(const FObject* obj) override {
   //  inner_archive_.MarkScriptSerializationStart(obj);
   //}
   //
-  //void MarkScriptSerializationEnd(const FObject* obj) override {
+  // void MarkScriptSerializationEnd(const FObject* obj) override {
   //  inner_archive_.MarkScriptSerializationEnd(obj);
   //}
 
@@ -320,16 +337,16 @@ class ArchiveProxy : public Archive {
     return inner_archive_.IsCloseComplete(out_has_error);
   }
 
-//TODO
-//#if FUN_WITH_EDITOR
-//  void PushDebugDataString(const String& debug_data) override {
-//    inner_archive_.PushDebugDataString(debug_data);
-//  }
-//
-//  void PopDebugDataString() override {
-//    inner_archive_.PopDebugDataString();
-//  }
-//#endif //FUN_WITH_EDITOR
+  // TODO
+  //#if FUN_WITH_EDITOR
+  //  void PushDebugDataString(const String& debug_data) override {
+  //    inner_archive_.PushDebugDataString(debug_data);
+  //  }
+  //
+  //  void PopDebugDataString() override {
+  //    inner_archive_.PopDebugDataString();
+  //  }
+  //#endif //FUN_WITH_EDITOR
 
  protected:
   /** Holds the archive that this archive is a proxy to. */
@@ -348,10 +365,10 @@ struct CompressedChunkInfo {
   /** Holds the data's uncompresses size. */
   int64 uncompressed_size;
 
-  FUN_ALWAYS_INLINE friend
-  Archive& operator & (Archive& ar, CompressedChunkInfo& chunk) {
+  FUN_ALWAYS_INLINE friend Archive& operator&(Archive& ar,
+                                              CompressedChunkInfo& chunk) {
     return ar & chunk.compressed_size & chunk.uncompressed_size;
   }
 };
 
-} // namespace fun
+}  // namespace fun

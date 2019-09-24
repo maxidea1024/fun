@@ -1,4 +1,4 @@
-﻿//TODO 오늘안에 필히 완료하도록 하자.
+﻿// TODO 오늘안에 필히 완료하도록 하자.
 //좀더 긴 포맷으로 명확하게 하는게 좋으려나... 파이썬 로깅 부분을 참고해볼까..
 
 #include "fun/base/logging/pattern_formatter.h"
@@ -7,9 +7,9 @@
 //#include "fun/base/date_time_format.h"
 //#include "fun/base/date_time_formatter.h"
 #include "fun/base/date_time.h"
-#include "fun/base/timestamp.h"
-#include "fun/base/time_zone.h"
 #include "fun/base/environment.h"
+#include "fun/base/time_zone.h"
+#include "fun/base/timestamp.h"
 //#include "fun/base/number_parser.h"
 //#include "fun/base/string_tokenizer.h"
 #include "fun/base/exception.h"
@@ -18,7 +18,7 @@
 namespace fun {
 
 const String PatternFormatter::PROP_PATTERN = "Pattern";
-const String PatternFormatter::PROP_TIMES   = "Times";
+const String PatternFormatter::PROP_TIMES = "Times";
 const String PatternFormatter::PROP_LEVEL_NAMES = "LevelNames";
 
 PatternFormatter::PatternFormatter() : local_time_(false) {
@@ -26,7 +26,7 @@ PatternFormatter::PatternFormatter() : local_time_(false) {
 }
 
 PatternFormatter::PatternFormatter(const String& pattern)
-  : local_time_(false), pattern_(pattern) {
+    : local_time_(false), pattern_(pattern) {
   ParsePriorityNames();
   ParsePattern();
 }
@@ -37,8 +37,8 @@ void PatternFormatter::Format(const LogMessage& msg, String& text) {
   Timestamp timestamp = msg.GetTime();
   bool local_time = local_time_;
 
-  //TODO
-  //if (local_time) {
+  // TODO
+  // if (local_time) {
   //  timestamp += Timezone::utcOffset()  * Timestamp::resolution();
   //  timestamp += Timezone::dst()        * Timestamp::resolution();
   //}
@@ -173,8 +173,8 @@ void PatternFormatter::Format(const LogMessage& msg, String& text) {
 
       // message date/time hour (00 .. 23)
       case 'H':
-      text.Appendf("{0:02d}", date_time.Hour());
-      break;
+        text.Appendf("{0:02d}", date_time.Hour());
+        break;
 
       // message date/time hour (00 .. 12)
       case 'h':
@@ -213,27 +213,28 @@ void PatternFormatter::Format(const LogMessage& msg, String& text) {
 
       // message date/time fractional seconds/microseconds (000000 - 999999)
       case 'F':
-        text.Appendf("{0:06d}", date_time.Millisecond() * 1000 + date_time.Microsecond());
+        text.Appendf("{0:06d}",
+                     date_time.Millisecond() * 1000 + date_time.Microsecond());
         break;
 
-      //TODO
+      // TODO
       // time zone differential in ISO 8601 format (Z or +NN.NN)
-      //case 'z':
-      //  text.Append(DateTimeFormatter::TzdISO(local_time ? Timezone::tzd() : DateTimeFormatter::UTC));
-      //  break;
+      // case 'z':
+      //  text.Append(DateTimeFormatter::TzdISO(local_time ? Timezone::tzd() :
+      //  DateTimeFormatter::UTC)); break;
 
-      //TODO
+      // TODO
       // time zone differential in RFC format (GMT or +NNNN)
-      //case 'Z':
-      //  text.Append(DateTimeFormatter::TzdRFC(local_time ? Timezone::tzd() : DateTimeFormatter::UTC));
-      //  break;
+      // case 'Z':
+      //  text.Append(DateTimeFormatter::TzdRFC(local_time ? Timezone::tzd() :
+      //  DateTimeFormatter::UTC)); break;
 
       // convert time to local time
       // (must be specified before any date/time specifier;
       //  does not itself output anything)
       case 'L':
-        //TODO
-        //if (!local_time) {
+        // TODO
+        // if (!local_time) {
         //  local_time = true;
         //  timestamp += Timezone::utcOffset() * Timestamp::resolution();
         //  timestamp += Timezone::dst()       * Timestamp::resolution();
@@ -248,11 +249,14 @@ void PatternFormatter::Format(const LogMessage& msg, String& text) {
 
       // the message source (%s) but text length is padded/cropped to 'width'
       case 'v':
-        if (action.length > msg.GetSource().Len()) { // Append spaces
-          text.Append(msg.GetSource()).Append(action.length - msg.GetSource().Len(), ' ');
-        } else if (action.length && action.length < msg.GetSource().Len()) { // crop
-          //TODO
-          //text.Append(msg.GetSource(), msg.GetSource().Len() - action.length, action.length);
+        if (action.length > msg.GetSource().Len()) {  // Append spaces
+          text.Append(msg.GetSource())
+              .Append(action.length - msg.GetSource().Len(), ' ');
+        } else if (action.length &&
+                   action.length < msg.GetSource().Len()) {  // crop
+          // TODO
+          // text.Append(msg.GetSource(), msg.GetSource().Len() - action.length,
+          // action.length);
         } else {
           text.Append(msg.GetSource());
         }
@@ -262,7 +266,8 @@ void PatternFormatter::Format(const LogMessage& msg, String& text) {
       case 'x':
         try {
           text.Append(msg[action.property]);
-        } catch (...) {}
+        } catch (...) {
+        }
         break;
     }
   }
@@ -271,7 +276,7 @@ void PatternFormatter::Format(const LogMessage& msg, String& text) {
 void PatternFormatter::ParsePattern() {
   pattern_actions_.Clear();
 
-  String::ConstIterator it  = pattern_.begin();
+  String::ConstIterator it = pattern_.begin();
   String::ConstIterator end = pattern_.end();
   PatternAction end_act;
   while (it != end) {
@@ -281,7 +286,8 @@ void PatternFormatter::ParsePattern() {
         act.prepend = end_act.prepend;
         end_act.prepend.Clear();
 
-        // %[xyz] 와 같은 형태일 경우에 key를 'x'로 해주어서 프로퍼티임을 표시함.
+        // %[xyz] 와 같은 형태일 경우에 key를 'x'로 해주어서 프로퍼티임을
+        // 표시함.
         if (*it == '[') {
           act.key = 'x';
           ++it;
@@ -308,9 +314,10 @@ void PatternFormatter::ParsePattern() {
               bool ok = false;
               act.length = number.ToInt32(&ok);
               if (!ok) {
-                act.length = 0; // 그냥 값으로 0으로...
+                act.length = 0;  // 그냥 값으로 0으로...
               }
-            } catch (...) {}
+            } catch (...) {
+            }
           }
         }
         pattern_actions_.Add(act);
@@ -354,19 +361,11 @@ String PatternFormatter::GetProperty(const String& name) const {
 
 namespace {
 
-static String LEVEL_NAMES[] = {
-  "",
-  "Fatal",
-  "Critical",
-  "Error",
-  "Warning",
-  "Notice",
-  "Information",
-  "Debug",
-  "Trace"
-};
+static String LEVEL_NAMES[] = {"",        "Fatal",  "Critical",    "Error",
+                               "Warning", "Notice", "Information", "Debug",
+                               "Trace"};
 
-} // namespace
+}  // namespace
 
 void PatternFormatter::ParsePriorityNames() {
   for (int32 i = 0; i < 9; ++i) {
@@ -381,7 +380,9 @@ void PatternFormatter::ParsePriorityNames() {
         levels_[i] = st[i - 1];
       }
     } else {
-      throw SyntaxException("LogLevelNames property must specify a comma-separated list of 8 property names");
+      throw SyntaxException(
+          "LogLevelNames property must specify a comma-separated list of 8 "
+          "property names");
     }
   }
 }
@@ -391,4 +392,4 @@ const String& PatternFormatter::GetLevelName(LogLevel::Type level) {
   return levels_[level];
 }
 
-} // namespace fun
+}  // namespace fun

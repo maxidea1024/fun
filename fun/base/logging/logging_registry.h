@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/logging/log_sink.h"
-#include "fun/base/logging/log_formatter.h"
-#include "fun/base/mutex.h"
 #include "fun/base/container/map.h"
+#include "fun/base/logging/log_formatter.h"
+#include "fun/base/logging/log_sink.h"
+#include "fun/base/mutex.h"
 
 namespace fun {
 
@@ -87,4 +87,4 @@ class FUN_BASE_API LoggingRegistry {
   Map<String, LogFormatter::Ptr> formatters_;
 };
 
-} // namespace fun
+}  // namespace fun

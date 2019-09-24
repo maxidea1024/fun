@@ -1,4 +1,4 @@
-﻿//TODO join, internal 몽땅 이쪽으로 몰자...
+﻿// TODO join, internal 몽땅 이쪽으로 몰자...
 
 #pragma once
 
@@ -14,9 +14,8 @@ template <typename StringType>
 struct StringAlgo {
   typedef typename StringType::CharType CharType;
   typedef typename RemoveCV<StringType>::Type NakedStringType;
-  //const bool IsConst = IsConst<StringType>::Value;
+  // const bool IsConst = IsConst<StringType>::Value;
   static const bool IsConst = std::is_const<CharType>::value;
-
 
   // Trimming helpers
 
@@ -40,23 +39,28 @@ struct StringAlgo {
     return (original_end - original_begin) - (end - begin);
   }
 
-  static inline int32 TrimmedPositions(const CharType*& begin, const CharType*& end) {
+  static inline int32 TrimmedPositions(const CharType*& begin,
+                                       const CharType*& end) {
     while (begin != end && CharTraits<CharType>::IsWhitespace(end[-1])) --end;
     while (begin != end && CharTraits<CharType>::IsWhitespace(*begin)) ++begin;
     return end - begin;
   }
 
-  static inline int32 LeftTrimmedPositions(const CharType*& begin, const CharType*& end) {
+  static inline int32 LeftTrimmedPositions(const CharType*& begin,
+                                           const CharType*& end) {
     while (begin != end && CharTraits<CharType>::IsWhitespace(*begin)) ++begin;
     return end - begin;
   }
 
-  static inline int32 RightTrimmedPositions(const CharType*& begin, const CharType*& end) {
+  static inline int32 RightTrimmedPositions(const CharType*& begin,
+                                            const CharType*& end) {
     while (begin != end && CharTraits<CharType>::IsWhitespace(end[-1])) --end;
     return end - begin;
   }
 
-  static inline StringType TrimmedInplace(NakedStringType& str, const CharType* begin, const CharType* end) {
+  static inline StringType TrimmedInplace(NakedStringType& str,
+                                          const CharType* begin,
+                                          const CharType* end) {
     CharType* data = const_cast<CharType*>(str.cbegin());
     if (begin != data) {
       UnsafeMemory::Memmove(data, begin, (end - begin) * sizeof(CharType));
@@ -65,7 +69,9 @@ struct StringAlgo {
     return MoveTemp(str);
   }
 
-  static inline StringType TrimmedInplace(const NakedStringType& str, const CharType* begin, const CharType* end) {
+  static inline StringType TrimmedInplace(const NakedStringType& str,
+                                          const CharType* begin,
+                                          const CharType* end) {
     // unrechable
     return StringType();
   }
@@ -75,11 +81,15 @@ struct StringAlgo {
     const CharType* end = str.cend();
     TrimmedPositions(begin, end);
 
-    if (begin == str.cbegin() && end == str.cend()) { // If there is no conversion, the input value is returned.
+    if (begin == str.cbegin() &&
+        end == str.cend()) {  // If there is no conversion, the input value is
+                              // returned.
       return str;
     }
 
-    if (!IsConst && str.IsDetached()) { // If it is not const and is not being shared, it will be modified and returned.
+    if (!IsConst &&
+        str.IsDetached()) {  // If it is not const and is not being shared, it
+                             // will be modified and returned.
       return TrimmedInplace(str, begin, end);
     }
 
@@ -93,11 +103,15 @@ struct StringAlgo {
     const CharType* end = str.cend();
     LeftTrimmedPositions(begin, end);
 
-    if (begin == str.cbegin() && end == str.cend()) { // If there is no conversion, the input value is returned.
+    if (begin == str.cbegin() &&
+        end == str.cend()) {  // If there is no conversion, the input value is
+                              // returned.
       return str;
     }
 
-    if (!IsConst && str.IsDetached()) { // If it is not const and is not being shared, it will be modified and returned.
+    if (!IsConst &&
+        str.IsDetached()) {  // If it is not const and is not being shared, it
+                             // will be modified and returned.
       return TrimmedInplace(str, begin, end);
     }
 
@@ -111,19 +125,21 @@ struct StringAlgo {
     const CharType* end = str.cend();
     RightTrimmedPositions(begin, end);
 
-    if (begin == str.cbegin() && end == str.cend()) { // If there is no conversion, the input value is returned.
+    if (begin == str.cbegin() &&
+        end == str.cend()) {  // If there is no conversion, the input value is
+                              // returned.
       return str;
     }
 
-    if (!IsConst && str.IsDetached()) { // If it is not const and is not being shared, it will be modified and returned.
+    if (!IsConst &&
+        str.IsDetached()) {  // If it is not const and is not being shared, it
+                             // will be modified and returned.
       return TrimmedInplace(str, begin, end);
     }
 
     // Trimmed substring
     return StringType(begin, end - begin);
   }
-
-
 
   // Simplifying helpers
 
@@ -134,14 +150,16 @@ struct StringAlgo {
 
     const CharType* src = str.cbegin();
     const CharType* end = str.cend();
-    NakedStringType result = IsConst || !str.IsDetached() ? StringType(str.Len(), NoInit) : str;
+    NakedStringType result =
+        IsConst || !str.IsDetached() ? StringType(str.Len(), NoInit) : str;
 
     CharType* dst = const_cast<CharType*>(result.cbegin());
     CharType* ptr = dst;
     bool unmodified = true;
     for (;;) {
-      while (src != end &&  CharTraits<CharType>::IsWhitespace(*src)) ++src;
-      while (src != end && !CharTraits<CharType>::IsWhitespace(*src)) *ptr++ = *src++;
+      while (src != end && CharTraits<CharType>::IsWhitespace(*src)) ++src;
+      while (src != end && !CharTraits<CharType>::IsWhitespace(*src))
+        *ptr++ = *src++;
 
       if (src == end) {
         break;
@@ -169,4 +187,4 @@ struct StringAlgo {
   }
 };
 
-} // namespace fun
+}  // namespace fun

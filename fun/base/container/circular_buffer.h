@@ -7,21 +7,20 @@ namespace fun {
 /**
  * Template for circular buffers.
  *
- * The size of the buffer is rounded up to the next power of two in order speed up indexing
- * operations using a simple bit mask instead of the commonly used modulus operator that may
- * be slow on some platforms.
+ * The size of the buffer is rounded up to the next power of two in order speed
+ * up indexing operations using a simple bit mask instead of the commonly used
+ * modulus operator that may be slow on some platforms.
  */
 template <typename ElementType>
-class CircularBuffer
-{
+class CircularBuffer {
  public:
   /**
    * Creates and initializes a new instance of the CircularBuffer class.
    *
-   * \param capacity - The number of elements that the buffer can store (will be rounded up to the next power of 2).
+   * \param capacity - The number of elements that the buffer can store (will be
+   * rounded up to the next power of 2).
    */
-  CircularBuffer(uint32 capacity)
-  {
+  CircularBuffer(uint32 capacity) {
     fun_check_dbg(capacity > 0);
     fun_check_dbg(capacity <= 0xFFFFFFFFU);
 
@@ -33,11 +32,11 @@ class CircularBuffer
   /**
    * Creates and initializes a new instance of the CircularBuffer class.
    *
-   * \param capacity - The number of elements that the buffer can store (will be rounded up to the next power of 2).
-   * \param initial_value - The initial value for the buffer's elements.
+   * \param capacity - The number of elements that the buffer can store (will be
+   * rounded up to the next power of 2). \param initial_value - The initial
+   * value for the buffer's elements.
    */
-  CircularBuffer(uint32 capacity, const ElementType& initial_value)
-  {
+  CircularBuffer(uint32 capacity, const ElementType& initial_value) {
     fun_check_dbg(capacity <= 0xFFFFFFFFU);
 
     elements_.Init(initial_value, MathBase::RoundUpToPowerOfTwo(capacity));
@@ -50,8 +49,7 @@ class CircularBuffer
    *
    * \param index - The index of the element to return.
    */
-  FUN_ALWAYS_INLINE ElementType& operator[](uint32 index)
-  {
+  FUN_ALWAYS_INLINE ElementType& operator[](uint32 index) {
     return elements_[index & index_mask_];
   }
 
@@ -60,8 +58,7 @@ class CircularBuffer
    *
    * \param index - The index of the element to return.
    */
-  FUN_ALWAYS_INLINE const ElementType& operator[](uint32 index) const
-  {
+  FUN_ALWAYS_INLINE const ElementType& operator[](uint32 index) const {
     return elements_[index & index_mask_];
   }
 
@@ -70,10 +67,7 @@ class CircularBuffer
    *
    * \return Buffer capacity.
    */
-  FUN_ALWAYS_INLINE uint32 Capacity() const
-  {
-    return elements_.Count();
-  }
+  FUN_ALWAYS_INLINE uint32 Capacity() const { return elements_.Count(); }
 
   /**
    * Calculates the index that follows the given index.
@@ -82,8 +76,7 @@ class CircularBuffer
    *
    * \return The next index.
    */
-  FUN_ALWAYS_INLINE uint32 GetNextIndex(uint32 current_index) const
-  {
+  FUN_ALWAYS_INLINE uint32 GetNextIndex(uint32 current_index) const {
     return ((current_index + 1) & index_mask_);
   }
 
@@ -94,8 +87,7 @@ class CircularBuffer
    *
    * \return The previous index.
    */
-  FUN_ALWAYS_INLINE uint32 GetPreviousIndex(uint32 current_index) const
-  {
+  FUN_ALWAYS_INLINE uint32 GetPreviousIndex(uint32 current_index) const {
     return ((current_index - 1) & index_mask_);
   }
 
@@ -107,4 +99,4 @@ class CircularBuffer
   Array<ElementType> elements_;
 };
 
-} // namespace fun
+}  // namespace fun

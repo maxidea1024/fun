@@ -1,17 +1,15 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/ftl/type_traits.h" // DereferenceWrapper
-#include "fun/base/ftl/functional.h"
 #include "fun/base/ftl/algo/sort.h"
+#include "fun/base/ftl/functional.h"
+#include "fun/base/ftl/type_traits.h"  // DereferenceWrapper
 
 namespace fun {
 
 template <typename T>
 struct ArrayRange {
-  ArrayRange(T* ptr, int32 count)
-    : begin_(ptr)
-    , count_(count) {}
+  ArrayRange(T* ptr, int32 count) : begin_(ptr), count_(count) {}
 
   T* MutableData() { return begin_; }
   const T* ConstData() const { return begin_; }
@@ -36,7 +34,7 @@ struct IsContiguousContainer<ArrayRange<T>> {
  * \param first - pointer to the first element to sort.
  * \param count - the number of items to sort.
  * \param pred - predicate class.
-*/
+ */
 template <typename T, typename Predicate>
 void Sort(T* first, const int32 count, const Predicate& pred) {
   ArrayRange<T> range(first, count);
@@ -93,7 +91,8 @@ void Sort(T** first, const int32 count) {
  * \param pred - pred class.
  */
 template <typename T, typename Predicate>
-void Merge(T* out, T* in, const int32 mid, const int32 count, const Predicate& pred) {
+void Merge(T* out, T* in, const int32 mid, const int32 count,
+           const Predicate& pred) {
   int32 merged = 0;
   int32 picked;
   int32 a = 0, b = mid;
@@ -150,7 +149,8 @@ struct JugglingRotation {
    * \param amount - amount of steps to rotate.
    */
   template <typename T>
-  static void Rotate(T* first, const int32 from, const int32 to, const int32 amount) {
+  static void Rotate(T* first, const int32 from, const int32 to,
+                     const int32 amount) {
     if (amount == 0) {
       return;
     }
@@ -187,20 +187,26 @@ struct RotationInPlaceMerge {
    * \param pred - pred for comparison.
    */
   template <typename T, typename Predicate>
-  static void Merge(T* first, const int32 mid, const int32 count, const Predicate& pred) {
+  static void Merge(T* first, const int32 mid, const int32 count,
+                    const Predicate& pred) {
     int32 a_start = 0;
     int32 b_start = mid;
 
     while (a_start < b_start && b_start < count) {
-      const int32 new_a_offset = algo::UpperBoundInternal(first + a_start, b_start - a_start, first[b_start], pred) + 1;
+      const int32 new_a_offset =
+          algo::UpperBoundInternal(first + a_start, b_start - a_start,
+                                   first[b_start], pred) +
+          1;
       a_start += new_a_offset;
 
-      if (a_start >= b_start) { // done
+      if (a_start >= b_start) {  // done
         break;
       }
 
-      const int32 new_b_offset = algo::LowerBoundInternal(first + b_start, count - b_start, first[a_start], pred);
-      RotationPolicy::Rotate(first, a_start, b_start + new_b_offset, new_b_offset);
+      const int32 new_b_offset = algo::LowerBoundInternal(
+          first + b_start, count - b_start, first[a_start], pred);
+      RotationPolicy::Rotate(first, a_start, b_start + new_b_offset,
+                             new_b_offset);
       b_start += new_b_offset;
       a_start += new_b_offset + 1;
     }
@@ -211,7 +217,8 @@ struct RotationInPlaceMerge {
  * Merge sort class.
  *
  * @template_param MergePolicy - Merging policy.
- * @template_param MinMergeSubgroupSize - Minimal size of the subgroup that should be merged.
+ * @template_param MinMergeSubgroupSize - Minimal size of the subgroup that
+ * should be merged.
  */
 template <typename MergePolicy, int32 MinMergeSubgroupSize = 2>
 struct MergeSort {
@@ -230,7 +237,8 @@ struct MergeSort {
       if (MinMergeSubgroupSize > 2) {
         // first pass with simple bubble-sort.
         do {
-          int32 group_end = MathBase::Min(sub_group_start + MinMergeSubgroupSize, count);
+          int32 group_end =
+              MathBase::Min(sub_group_start + MinMergeSubgroupSize, count);
           do {
             for (int32 it = sub_group_start; it < group_end - 1; ++it) {
               if (pred(first[it + 1], first[it])) {
@@ -244,7 +252,8 @@ struct MergeSort {
         } while (sub_group_start < count);
       } else {
         for (int32 sub_group = 0; sub_group < count; sub_group += 2) {
-          if (sub_group + 1 < count && pred(first[sub_group + 1], first[sub_group])) {
+          if (sub_group + 1 < count &&
+              pred(first[sub_group + 1], first[sub_group])) {
             Swap(first[sub_group], first[sub_group + 1]);
           }
         }
@@ -256,10 +265,8 @@ struct MergeSort {
       sub_group_start = 0;
       do {
         MergePolicy::Merge(
-            first + sub_group_start,
-            sub_group_size,
-            MathBase::Min(sub_group_size << 1, count - sub_group_start),
-            pred);
+            first + sub_group_start, sub_group_size,
+            MathBase::Min(sub_group_size << 1, count - sub_group_start), pred);
         sub_group_start += sub_group_size << 1;
       } while (sub_group_start < count);
 
@@ -281,7 +288,8 @@ struct MergeSort {
  */
 template <typename T, typename Predicate>
 void StableSortInternal(T* first, const int32 count, const Predicate& pred) {
-  MergeSort<RotationInPlaceMerge<JugglingRotation<EuclidDivisionGCD>>>::Sort(first, count, pred);
+  MergeSort<RotationInPlaceMerge<JugglingRotation<EuclidDivisionGCD>>>::Sort(
+      first, count, pred);
 }
 
 /**
@@ -299,8 +307,8 @@ void StableSort(T* first, const int32 count, const Predicate& pred) {
 }
 
 /**
- * Specialized version of the above StableSort function for pointers to elements.
- * Stable sort is slower than non-stable algorithm.
+ * Specialized version of the above StableSort function for pointers to
+ * elements. Stable sort is slower than non-stable algorithm.
  *
  * \param first - pointer to the first element to sort
  * \param count - the number of items to sort
@@ -326,8 +334,8 @@ void StableSort(T* first, const int32 count) {
 }
 
 /**
- * Specialized version of the above StableSort function for pointers to elements.
- * Stable sort is slower than non-stable algorithm.
+ * Specialized version of the above StableSort function for pointers to
+ * elements. Stable sort is slower than non-stable algorithm.
  *
  * \param first - pointer to the first element to sort
  * \param count - the number of items to sort
@@ -337,4 +345,4 @@ void StableSort(T** first, const int32 count) {
   StableSortInternal(first, count, DereferenceWrapper<T*, Less<T>>(Less<T>()));
 }
 
-} // namespace fun
+}  // namespace fun

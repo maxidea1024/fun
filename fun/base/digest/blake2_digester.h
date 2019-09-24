@@ -28,7 +28,7 @@ class FUN_BASE_API BLAKE2Disgester : public Digester {
 
   // Disable copy
   BLAKE2Disgester(const BLAKE2Disgester&) = delete;
-  BLAKE2Disgester& operator = (const BLAKE2Disgester&) = delete;
+  BLAKE2Disgester& operator=(const BLAKE2Disgester&) = delete;
 
  protected:
   // Digester interface
@@ -40,4 +40,4 @@ class FUN_BASE_API BLAKE2Disgester : public Digester {
   Digester::Digest digest_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -8,8 +8,7 @@ namespace fun {
 
 class FUN_BASE_API PlatformFSOpenLog : public IPlatformFS {
  public:
-  PlatformFSOpenLog()
-    : lower_level_(nullptr), open_order_(0) {}
+  PlatformFSOpenLog() : lower_level_(nullptr), open_order_(0) {}
 
   virtual ~PlatformFSOpenLog() {}
 
@@ -27,15 +26,20 @@ class FUN_BASE_API PlatformFSOpenLog : public IPlatformFS {
     if (Parse::Value(cmdline, "TARGETPLATFORM=", platform_str)) {
       Array<String> platform_names;
       if (!(platform_str == "None" || platform_str == "All")) {
-        platform_str.Split(platform_names, "+", 0, StringSplitOption::CullEmpty);
+        platform_str.Split(platform_names, "+", 0,
+                           StringSplitOption::CullEmpty);
       }
 
       for (int32 platform = 0; platform < platform_names.Count(); ++platform) {
-        local_file_directory = CPaths::Combine(PlatformMisc::GameDir(), "Build", *platform_names[platform], "FileOpenOrder");
+        local_file_directory =
+            CPaths::Combine(PlatformMisc::GameDir(), "Build",
+                            *platform_names[platform], "FileOpenOrder");
 #if FUN_WITH_EDITOR
-        log_file_path = CPaths::Combine(*local_file_directory, "EditorOpenOrder.log");
+        log_file_path =
+            CPaths::Combine(*local_file_directory, "EditorOpenOrder.log");
 #else
-        log_file_path = CPaths::Combine(*local_file_directory, "GameOpenOrder.log");
+        log_file_path =
+            CPaths::Combine(*local_file_directory, "GameOpenOrder.log");
 #endif
         inner->CreateDirectoryTree(*local_file_directory);
         auto* file = inner->OpenWrite(*log_file_path, false, false);
@@ -44,11 +48,16 @@ class FUN_BASE_API PlatformFSOpenLog : public IPlatformFS {
         }
       }
     } else {
-      local_file_directory = CPaths::Combine(PlatformMisc::GameDir(), "Build", StringCast<char>(CPlatformProperties::PlatformName()).Get(), "FileOpenOrder");
+      local_file_directory = CPaths::Combine(
+          PlatformMisc::GameDir(), "Build",
+          StringCast<char>(CPlatformProperties::PlatformName()).Get(),
+          "FileOpenOrder");
 #if FUN_WITH_EDITOR
-      log_file_path = CPaths::Combine(*local_file_directory, "EditorOpenOrder.log");
+      log_file_path =
+          CPaths::Combine(*local_file_directory, "EditorOpenOrder.log");
 #else
-      log_file_path = CPaths::Combine(*local_file_directory, "GameOpenOrder.log");
+      log_file_path =
+          CPaths::Combine(*local_file_directory, "GameOpenOrder.log");
 #endif
       inner->CreateDirectoryTree(*local_file_directory);
       auto* file = inner->OpenWrite(*log_file_path, false, false);
@@ -59,17 +68,11 @@ class FUN_BASE_API PlatformFSOpenLog : public IPlatformFS {
     return true;
   }
 
-  IPlatformFS* GetLowerLevel() override {
-    return lower_level_;
-  }
+  IPlatformFS* GetLowerLevel() override { return lower_level_; }
 
-  static const char* GetTypeName() {
-    return "FileOpenLog";
-  }
+  static const char* GetTypeName() { return "FileOpenLog"; }
 
-  const char* GetName() const override {
-    return GetTypeName();
-  }
+  const char* GetName() const override { return GetTypeName(); }
 
   bool FileExists(const char* filename) override {
     return lower_level_->FileExists(filename);
@@ -127,7 +130,8 @@ class FUN_BASE_API PlatformFSOpenLog : public IPlatformFS {
     return result;
   }
 
-  IFile* OpenWrite(const char* filename, bool append = false, bool allow_read = false) override {
+  IFile* OpenWrite(const char* filename, bool append = false,
+                   bool allow_read = false) override {
     return lower_level_->OpenWrite(filename, append, allow_read);
   }
 
@@ -147,19 +151,25 @@ class FUN_BASE_API PlatformFSOpenLog : public IPlatformFS {
     return lower_level_->GetStatData(filename_or_directory);
   }
 
-  bool IterateDirectory(const char* directory, IPlatformFS::DirectoryVisitor& visitor) override {
+  bool IterateDirectory(const char* directory,
+                        IPlatformFS::DirectoryVisitor& visitor) override {
     return lower_level_->IterateDirectory(directory, visitor);
   }
 
-  bool IterateDirectoryRecursively(const char* directory, IPlatformFS::DirectoryVisitor& visitor) override {
+  bool IterateDirectoryRecursively(
+      const char* directory, IPlatformFS::DirectoryVisitor& visitor) override {
     return lower_level_->IterateDirectoryRecursively(directory, visitor);
   }
 
-  bool IterateDirectoryStat(const char* directory, IPlatformFS::DirectoryStatVisitor& visitor) override {
+  bool IterateDirectoryStat(
+      const char* directory,
+      IPlatformFS::DirectoryStatVisitor& visitor) override {
     return lower_level_->IterateDirectoryStat(directory, visitor);
   }
 
-  bool IterateDirectoryStatRecursively(const char* directory, IPlatformFS::DirectoryStatVisitor& visitor) override {
+  bool IterateDirectoryStatRecursively(
+      const char* directory,
+      IPlatformFS::DirectoryStatVisitor& visitor) override {
     return lower_level_->IterateDirectoryStatRecursively(directory, visitor);
   }
 
@@ -175,19 +185,24 @@ class FUN_BASE_API PlatformFSOpenLog : public IPlatformFS {
     return lower_level_->CreateDirectoryTree(directory);
   }
 
-  bool CopyDirectoryTree(const char* DestinationDirectory, const char* src, bool overwrite_all_existing) override {
-    return lower_level_->CopyDirectoryTree(DestinationDirectory, src, overwrite_all_existing);
+  bool CopyDirectoryTree(const char* DestinationDirectory, const char* src,
+                         bool overwrite_all_existing) override {
+    return lower_level_->CopyDirectoryTree(DestinationDirectory, src,
+                                           overwrite_all_existing);
   }
 
-  String ConvertToAbsolutePathForExternalAppForRead(const char* filename) override {
+  String ConvertToAbsolutePathForExternalAppForRead(
+      const char* filename) override {
     return lower_level_->ConvertToAbsolutePathForExternalAppForRead(filename);
   }
 
-  String ConvertToAbsolutePathForExternalAppForWrite(const char* filename) override {
+  String ConvertToAbsolutePathForExternalAppForWrite(
+      const char* filename) override {
     return lower_level_->ConvertToAbsolutePathForExternalAppForWrite(filename);
   }
 
-  bool SendMessageToServer(const char* message, IFileServerMessageHandler* handler) override {
+  bool SendMessageToServer(const char* message,
+                           IFileServerMessageHandler* handler) override {
     return lower_level_->SendMessageToServer(message, handler);
   }
 
@@ -199,6 +214,6 @@ class FUN_BASE_API PlatformFSOpenLog : public IPlatformFS {
   Array<IFile*> log_output_;
 };
 
-} // namespace fun
+}  // namespace fun
 
-#endif //!FUN_BUILD_SHIPPING
+#endif  //! FUN_BUILD_SHIPPING

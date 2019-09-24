@@ -1,4 +1,4 @@
-﻿//TODO 아직 완성된 버젼이 아님...
+﻿// TODO 아직 완성된 버젼이 아님...
 
 #pragma once
 
@@ -9,16 +9,17 @@
 namespace fun {
 
 template <typename ArrayAllocator>
-template <typename T, typename Container = Array<T, ArrayAllocator>, typename Comparator = Less<T>>
+template <typename T, typename Container = Array<T, ArrayAllocator>,
+          typename Comparator = Less<T>>
 class PriorityQueue {
  public:
   PriorityQueue() = default;
 
   PriorityQueue(const PriorityQueue&) = delete;
-  PriorityQueue& operator = (const PriorityQueue&) = delete;
+  PriorityQueue& operator=(const PriorityQueue&) = delete;
 
   PriorityQueue(PriorityQueue&&) = default;
-  PriorityQueue& operator = (PriorityQueue&&) = default;
+  PriorityQueue& operator=(PriorityQueue&&) = default;
 
   void Insert(const T& item) {
     int32 n = items_.Push(what);
@@ -32,9 +33,7 @@ class PriorityQueue {
     return ret;
   }
 
-  const T& Top() const {
-    return items_[0];
-  }
+  const T& Top() const { return items_[0]; }
 
   template <typename T2>
   bool Remove(const T2& item) {
@@ -43,16 +42,14 @@ class PriorityQueue {
     }
   }
 
-  void Clear() {
-    items_.Clear();
-  }
+  void Clear() { items_.Clear(); }
 
  private:
   Container items_;
 
-  FUN_ALWAYS_INLINE static int32 Parent(int32 n) { return (n-1)/2; }
-  FUN_ALWAYS_INLINE static int32 Left(int32 n) { return 2*n+1; }
-  FUN_ALWAYS_INLINE static int32 Right(int32 n) { return 2*n+2; }
+  FUN_ALWAYS_INLINE static int32 Parent(int32 n) { return (n - 1) / 2; }
+  FUN_ALWAYS_INLINE static int32 Left(int32 n) { return 2 * n + 1; }
+  FUN_ALWAYS_INLINE static int32 Right(int32 n) { return 2 * n + 2; }
 
   FUN_ALWAYS_INLINE void SwapItems(int32 a, int32 b) {
     T tmp(items_[a]);
@@ -60,8 +57,7 @@ class PriorityQueue {
     items_[b] = tmp;
   }
 
-  FUN_ALWAYS_INLINE bool Larger(int32 a, int32 b)
-  {
+  FUN_ALWAYS_INLINE bool Larger(int32 a, int32 b) {
     return Comparator::Compare(items_[a], items_[b]) > 0;
   }
 
@@ -76,8 +72,7 @@ class PriorityQueue {
 
       if (Larger(larger, parent)) {
         SwapItems(larger, parent);
-      }
-      else {
+      } else {
         return;
       }
 
@@ -105,9 +100,8 @@ class PriorityQueue {
 
       SwapItems(larger, current);
       current = larger;
-    }
-    while (current < items.GetSize ());
+    } while (current < items.GetSize());
   }
 };
 
-} // namespace fun
+}  // namespace fun

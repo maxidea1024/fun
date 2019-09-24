@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/ftl/template.h" // Swap
+#include "fun/base/ftl/template.h"  // Swap
 
 namespace fun {
 namespace algo {
@@ -43,5 +43,5 @@ int32 Partition(T* elements, const int32 count, const UnaryPredicate& pred) {
   return first - elements;
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

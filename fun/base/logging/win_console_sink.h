@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/logging/log_sink.h"
 #include "fun/base/logging/log_message.h"
+#include "fun/base/logging/log_sink.h"
 
 namespace fun {
 
@@ -131,22 +131,22 @@ class FUN_BASE_API WinColorConsoleSink : public LogSink {
 
  protected:
   enum Color {
-    CC_BLACK        = 0x0000,
-    CC_RED          = 0x0004,
-    CC_GREEN        = 0x0002,
-    CC_BROWN        = 0x0006,
-    CC_BLUE         = 0x0001,
-    CC_MAGENTA      = 0x0005,
-    CC_CYAN         = 0x0003,
-    CC_GRAY         = 0x0007,
-    CC_DARKGRAY     = 0x0008,
-    CC_LIGHTRED     = 0x000C,
-    CC_LIGHTGREEN   = 0x000A,
-    CC_YELLOW       = 0x000E,
-    CC_LIGHTBLUE    = 0x0009,
+    CC_BLACK = 0x0000,
+    CC_RED = 0x0004,
+    CC_GREEN = 0x0002,
+    CC_BROWN = 0x0006,
+    CC_BLUE = 0x0001,
+    CC_MAGENTA = 0x0005,
+    CC_CYAN = 0x0003,
+    CC_GRAY = 0x0007,
+    CC_DARKGRAY = 0x0008,
+    CC_LIGHTRED = 0x000C,
+    CC_LIGHTGREEN = 0x000A,
+    CC_YELLOW = 0x000E,
+    CC_LIGHTBLUE = 0x0009,
     CC_LIGHTMAGENTA = 0x000D,
-    CC_LIGHTCYAN    = 0x000B,
-    CC_WHITE        = 0x000F
+    CC_LIGHTCYAN = 0x000B,
+    CC_WHITE = 0x000F
   };
 
   ~WinColorConsoleSink();
@@ -162,4 +162,4 @@ class FUN_BASE_API WinColorConsoleSink : public LogSink {
   WORD colors_[9];
 };
 
-} // namespace fun
+}  // namespace fun

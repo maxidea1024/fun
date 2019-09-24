@@ -1,12 +1,12 @@
-﻿//TODO Local/UTC 구분을 지어질수 있도록 해야할까?
+﻿// TODO Local/UTC 구분을 지어질수 있도록 해야할까?
 #pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/timespan.h"
-#include "fun/base/timestamp.h"
 #include "fun/base/exception.h"
 #include "fun/base/logging/log_file.h"
 #include "fun/base/string/string.h"
+#include "fun/base/timespan.h"
+#include "fun/base/timestamp.h"
 
 namespace fun {
 
@@ -34,8 +34,7 @@ class FUN_BASE_API RotateStrategy {
 template <typename DT>
 class RotateAtTimeStrategy : public RotateStrategy {
  public:
-  RotateAtTimeStrategy(const String& rtime)
-    : day_(-1), hour_(-1), minute_(0) {
+  RotateAtTimeStrategy(const String& rtime) : day_(-1), hour_(-1), minute_(0) {
     if (rtime.IsEmpty()) {
       throw InvalidArgumentException("rotation time must be specified.");
     }
@@ -44,19 +43,20 @@ class RotateAtTimeStrategy : public RotateStrategy {
       throw InvalidArgumentException("invalid rotation time specified.");
     }
 
-    Array<String> timestr = rtime.Split(",:", 0, StringSplitOption::TrimmingAndCullEmpty);
+    Array<String> timestr =
+        rtime.Split(",:", 0, StringSplitOption::TrimmingAndCullEmpty);
     int32 index = 0;
 
     switch (timestr.Count()) {
-      case 3: { // day,hh:mm
+      case 3: {  // day,hh:mm
         String::const_iterator it = timestr[index].begin();
         day_ = DateTimeParser::ParseDayOfWeek(it, timestr[index].end());
         ++index;
       }
-      case 2: // hh:mm
+      case 2:  // hh:mm
         hour_ = NumberParser::parse(timestr[index]);
         ++index;
-      case 1: // mm
+      case 1:  // mm
         minute_ = NumberParser::parse(timestr[index]);
         break;
       default:
@@ -81,19 +81,16 @@ class RotateAtTimeStrategy : public RotateStrategy {
 
  private:
   void GetNextRollover() {
-    Timespan tsp(0, 0, 1, 0, 1000); // 0,00:01:00.001
+    Timespan tsp(0, 0, 1, 0, 1000);  // 0,00:01:00.001
     do {
       threshold_ += tsp;
     } while (!(threshold_.Minute() == minute_ &&
-              (-1 == hour_ || threshold_.Hour() == hour_) &&
-              (-1 == day_  || threshold_.DayOfWeek() == day_)));
+               (-1 == hour_ || threshold_.Hour() == hour_) &&
+               (-1 == day_ || threshold_.DayOfWeek() == day_)));
 
     // round to :00.0 seconds
-    threshold_.Assign(threshold_.Year(),
-                      threshold_.Month(),
-                      threshold_.Day(),
-                      threshold_.Hour(),
-                      threshold_.Minute());
+    threshold_.Assign(threshold_.Year(), threshold_.Month(), threshold_.Day(),
+                      threshold_.Hour(), threshold_.Minute());
   }
 
   DT threshold_;
@@ -140,4 +137,4 @@ class FUN_BASE_API RotateBySizeStrategy : public RotateStrategy {
   uint64 size_;
 };
 
-} // namespace fun
+}  // namespace fun

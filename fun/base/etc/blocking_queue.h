@@ -1,39 +1,30 @@
 #pragma once
 
 #include "fun/base/base.h"
+#include "fun/base/event.h"
 #include "fun/base/list.h"
 #include "fun/base/mutex.h"
-#include "fun/base/event.h"
 
 namespace fun {
 
 template <typename T>
-class BlockingQueue : Noncopyable
-{
+class BlockingQueue : Noncopyable {
  public:
-  BlockingQueue()
-    : mutex_()
-    , not_empty_()
-    , queue_()
-  {
-  }
+  BlockingQueue() : mutex_(), not_empty_(), queue_() {}
 
-  void Enqueue(const T& item)
-  {
+  void Enqueue(const T& item) {
     ScopedLock<FastMutex> guard(mutex_);
     queue_.PushBack(item);
     not_empty_.Set();
   }
 
-  void Enqueue(T&& item)
-  {
+  void Enqueue(T&& item) {
     ScopedLock<FastMutex> guard(mutex_);
     queue_.PushBack(MoveTemp(item));
     not_empty_.Set();
   }
 
-  T Dequeue()
-  {
+  T Dequeue() {
     ScopedLock<FastMutex> guard(mutex_);
     while (queue_.IsEmpty()) {
       not_empty_.Wait();
@@ -46,10 +37,9 @@ class BlockingQueue : Noncopyable
     return front;
   }
 
-  //TODO timed-wait version?
+  // TODO timed-wait version?
 
-  int32 Count() const
-  {
+  int32 Count() const {
     ScopedLock<FastMutex> guard(mutex_);
     return queue_.Count();
   }
@@ -60,4 +50,4 @@ class BlockingQueue : Noncopyable
   List<T> queue_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/flags.h"
 #include "fun/base/container/byte_array.h"
+#include "fun/base/flags.h"
 #include "fun/base/scoped_ptr.h"
 
 namespace fun {
@@ -100,9 +100,8 @@ class FUN_BASE_API IoDevice {
 
  private:
   IoDevice(const IoDevice&) = delete;
-  IoDevice& operator = (const IoDevice&) = delete;
+  IoDevice& operator=(const IoDevice&) = delete;
 };
-
 
 //
 // inlines
@@ -112,4 +111,4 @@ inline int64 IoDevice::Write(const ByteArray& data) {
   return Write(data.ConstData(), data.Len());
 }
 
-} // namespace fun
+}  // namespace fun

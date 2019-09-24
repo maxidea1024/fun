@@ -3,30 +3,26 @@
 namespace fun {
 
 IoDeviceImpl::IoDeviceImpl()
-  : open_mode_(IoDevice::NotOpen),
-    position_(0),
-    device_position_(0),
-    read_channel_count_(0),
-    write_channel_count_(0),
-    current_read_channel_(0),
-    current_write_channel_(0),
-    read_buffer_chunk_size_(FUN_IODEVICE_BUFFERSIZE),
-    write_buffer_chunk_size_(0),
-    transaction_position_(0),
-    is_in_transaction_(false),
-    base_read_line_data_called_(false),
-    access_mode_(Unset),
-    outer_(nullptr) {}
+    : open_mode_(IoDevice::NotOpen),
+      position_(0),
+      device_position_(0),
+      read_channel_count_(0),
+      write_channel_count_(0),
+      current_read_channel_(0),
+      current_write_channel_(0),
+      read_buffer_chunk_size_(FUN_IODEVICE_BUFFERSIZE),
+      write_buffer_chunk_size_(0),
+      transaction_position_(0),
+      is_in_transaction_(false),
+      base_read_line_data_called_(false),
+      access_mode_(Unset),
+      outer_(nullptr) {}
 
 IoDeviceImpl::~IoDeviceImpl() {}
 
-IoDevice::IoDevice() : impl_(new IoDeviceImpl) {
-  impl_->outer_ = this;
-}
+IoDevice::IoDevice() : impl_(new IoDeviceImpl) { impl_->outer_ = this; }
 
-IoDevice::IoDevice(IoDeviceImpl& impl) : impl_(&impl) {
-  impl_->outer_ = this;
-}
+IoDevice::IoDevice(IoDeviceImpl& impl) : impl_(&impl) { impl_->outer_ = this; }
 
 IoDevice::~IoDevice() {
 #if defined FUN_IODEVICE_DEBUG
@@ -34,13 +30,9 @@ IoDevice::~IoDevice() {
 #endif
 }
 
-bool IoDevice::IsSequential() const {
-  return false;
-}
+bool IoDevice::IsSequential() const { return false; }
 
-IoDevice::OpenMode IoDevice::GetOpenMode() const {
-  return impl_->open_mode_;
-}
+IoDevice::OpenMode IoDevice::GetOpenMode() const { return impl_->open_mode_; }
 
 void IoDevice::SetOpenMode(OpenMode open_mode) {
 #if defined FUN_IODEVICE_DEBUG
@@ -49,8 +41,10 @@ void IoDevice::SetOpenMode(OpenMode open_mode) {
 
   impl_->open_mode_ = open_mode;
   impl_->access_mode_ = IoDeviceImpl::Unset;
-  impl_->SetReadChannelCount(IsReadable() ? MathBase::Max(impl_->read_channel_count_, 1) : 0);
-  impl_->SetWriteChannelCount(IsWritable() ? MathBase::Max(impl_->write_channel_count_, 1) : 0);
+  impl_->SetReadChannelCount(
+      IsReadable() ? MathBase::Max(impl_->read_channel_count_, 1) : 0);
+  impl_->SetWriteChannelCount(
+      IsWritable() ? MathBase::Max(impl_->write_channel_count_, 1) : 0);
 }
 
 void IoDevice::SetTextModeEnabled(bool enabled) {
@@ -66,21 +60,13 @@ void IoDevice::SetTextModeEnabled(bool enabled) {
   }
 }
 
-bool IoDevice::IsTextModeEnabled() const {
-  return impl_->open_mode_ & Text;
-}
+bool IoDevice::IsTextModeEnabled() const { return impl_->open_mode_ & Text; }
 
-bool IoDevice::IsOpened() const {
-  return impl_->open_mode_ != NotOpen;
-}
+bool IoDevice::IsOpened() const { return impl_->open_mode_ != NotOpen; }
 
-bool IoDevice::IsReadable() const {
-  return !!(GetOpenMode() & ReadOnly);
-}
+bool IoDevice::IsReadable() const { return !!(GetOpenMode() & ReadOnly); }
 
-bool IoDevice::IsWritable() const {
-  return !!(GetOpenMode() & WriteOnly);
-}
+bool IoDevice::IsWritable() const { return !!(GetOpenMode() & WriteOnly); }
 
 int32 IoDevice::GetReadChannelCount() const {
   return impl_->read_channel_count_;
@@ -96,13 +82,16 @@ int32 IoDevice::GetCurrentReadChannel() const {
 
 void IoDevice::SetCurrentReadChannel(int32 channel) {
   if (impl_->is_in_transaction_) {
-    CheckWarnMessage(this, "SetCurrentReadChannel", "Failed due to read transaction being in progress");
+    CheckWarnMessage(this, "SetCurrentReadChannel",
+                     "Failed due to read transaction being in progress");
     return;
   }
 
 #if defined FUN_IODEVICE_DEBUG
-  qDebug("%p IoDevice::SetCurrentReadChannel(%d), impl_->current_read_channel_ = %d, impl_->read_channel_count_ = %d\n",
-       this, channel, impl_->current_read_channel_, impl_->read_channel_count_);
+  qDebug(
+      "%p IoDevice::SetCurrentReadChannel(%d), impl_->current_read_channel_ = "
+      "%d, impl_->read_channel_count_ = %d\n",
+      this, channel, impl_->current_read_channel_, impl_->read_channel_count_);
 #endif
 
   impl_->SetCurrentReadChannel(channel);
@@ -111,7 +100,7 @@ void IoDevice::SetCurrentReadChannel(int32 channel) {
 void IoDeviceImpl::SetReadChannelCount(int32 count) {
   if (count > read_buffers_.Count()) {
     read_buffers_.insert(read_buffers_.end(), count - read_buffers_.Count(),
-                        RingBuffer(read_buffer_chunk_size_));
+                         RingBuffer(read_buffer_chunk_size_));
   } else {
     read_buffers_.Resize(count);
   }
@@ -125,8 +114,11 @@ int32 IoDevice::GetCurrentWriteChannel() const {
 
 void IoDevice::SetCurrentWriteChannel(int32 channel) {
 #if defined FUN_IODEVICE_DEBUG
-  qDebug("%p IoDevice::SetCurrentWriteChannel(%d), impl_->current_write_channel_ = %d, impl_->write_channel_count_ = %d\n",
-        this, channel, impl_->current_write_channel_, impl_->write_channel_count_);
+  qDebug(
+      "%p IoDevice::SetCurrentWriteChannel(%d), impl_->current_write_channel_ "
+      "= %d, impl_->write_channel_count_ = %d\n",
+      this, channel, impl_->current_write_channel_,
+      impl_->write_channel_count_);
 #endif
 
   impl_->SetCurrentWriteChannel(channel);
@@ -137,7 +129,8 @@ void IoDeviceImpl::SetWriteChannelCount(int32 count) {
     // If write_buffer_chunk_size_ is zero (default value), we don't use
     // IoDevice's Write buffers.
     if (write_buffer_chunk_size_ != 0) {
-      write_buffers_.insert(write_buffers_.end(), count - write_buffers_.Count(),
+      write_buffers_.insert(write_buffers_.end(),
+                            count - write_buffers_.Count(),
                             RingBuffer(write_buffer_chunk_size_));
     }
   } else {
@@ -221,16 +214,19 @@ bool IoDevice::Seek(int64 position) {
   }
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::Seek(%lld), before: impl_->position_ = %lld, impl_->buffer_.Len() = %lld\n",
-        this, position_, impl_->position_, impl_->buffer_.Count());
+  printf(
+      "%p IoDevice::Seek(%lld), before: impl_->position_ = %lld, "
+      "impl_->buffer_.Len() = %lld\n",
+      this, position_, impl_->position_, impl_->buffer_.Count());
 #endif
 
   impl_->device_position_ = position;
   impl_->SeekBuffer(position_);
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p \tafter: impl_->position_ == %lld, impl_->buffer_.Count() == %lld\n",
-        this, impl_->position_, impl_->buffer_.Count());
+  printf(
+      "%p \tafter: impl_->position_ == %lld, impl_->buffer_.Count() == %lld\n",
+      this, impl_->position_, impl_->buffer_.Count());
 #endif
 
   return true;
@@ -251,11 +247,15 @@ void IoDeviceImpl::SeekBuffer(int64 new_pos) {
 }
 
 bool IoDevice::AtEnd() const {
-  const bool at_end = (impl_->open_mode_ == NotOpen || (impl_->IsBufferEmpty() && BytesAvailable() == 0));
+  const bool at_end = (impl_->open_mode_ == NotOpen ||
+                       (impl_->IsBufferEmpty() && BytesAvailable() == 0));
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::AtEnd() returns %s, impl_->open_mode_ == %d, impl_->position_ == %lld\n", this,
-          at_end ? "true" : "false", int32(impl_->open_mode_), impl_->position_);
+  printf(
+      "%p IoDevice::AtEnd() returns %s, impl_->open_mode_ == %d, "
+      "impl_->position_ == %lld\n",
+      this, at_end ? "true" : "false", int32(impl_->open_mode_),
+      impl_->position_);
 #endif
 
   return at_end;
@@ -277,14 +277,14 @@ int64 IoDevice::BytesAvailable() const {
   }
 }
 
-int64 IoDevice::BytesToWrite() const {
-  return impl_->write_buffer_.Len();
-}
+int64 IoDevice::BytesToWrite() const { return impl_->write_buffer_.Len(); }
 
 int64 IoDevice::Read(char* buf, int64 max_len) {
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::Read(%p, %lld), impl_->position_ = %lld, impl_->buffer_.Count() = %lld\n",
-          this, buf, max_len, impl_->position_, impl_->buffer_.Len());
+  printf(
+      "%p IoDevice::Read(%p, %lld), impl_->position_ = %lld, "
+      "impl_->buffer_.Count() = %lld\n",
+      this, buf, max_len, impl_->position_, impl_->buffer_.Len());
 #endif
 
   const bool sequential = impl_->IsSequential();
@@ -305,8 +305,8 @@ int64 IoDevice::Read(char* buf, int64 max_len) {
       *buf = c;
 
 #if defined FUN_IODEVICE_DEBUG
-      printf("%p \tread 0x%hhx (%c) returning 1 (shortcut)\n",
-            this, int32(c), isprint(c) ? c : '?');
+      printf("%p \tread 0x%hhx (%c) returning 1 (shortcut)\n", this, int32(c),
+             isprint(c) ? c : '?');
 #endif
 
       if (impl_->buffer_.IsEmpty()) {
@@ -323,8 +323,10 @@ int64 IoDevice::Read(char* buf, int64 max_len) {
   const int64 readed_len = impl_->Read(buf, max_len);
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p \treturning %lld, impl_->position_ == %lld, impl_->buffer_.Count() == %lld\n",
-          this, readed_len, impl_->position_, impl_->buffer_.Count());
+  printf(
+      "%p \treturning %lld, impl_->position_ == %lld, impl_->buffer_.Count() "
+      "== %lld\n",
+      this, readed_len, impl_->position_, impl_->buffer_.Count());
   if (readed_len > 0) {
     debugBinaryString(buf - readed_len, readed_len);
   }
@@ -336,20 +338,20 @@ int64 IoDevice::Read(char* buf, int64 max_len) {
 int64 IoDeviceImpl::Read(char* buf, int64 max_len, bool peeking) {
   const bool buffered = (open_mode_ & IoDevice::Unbuffered) == 0;
   const bool sequential = IsSequential();
-  const bool keep_data_in_buffer = sequential
-                  ? peeking || is_in_transaction_
-                  : peeking && buffered;
+  const bool keep_data_in_buffer =
+      sequential ? peeking || is_in_transaction_ : peeking && buffered;
   const int64 saved_pos = position_;
   int64 total_readed_len = 0;
   bool made_buffer_reads_only = true;
   bool device_at_eof = false;
   char* read_ptr = buf;
-  int64 buffer_pos = (sequential && is_in_transaction_) ? transaction_position_ : int64(0);
+  int64 buffer_pos =
+      (sequential && is_in_transaction_) ? transaction_position_ : int64(0);
   for (;;) {
     // Try reading from the buffer.
     int64 buffer_read_chunk_size = keep_data_in_buffer
-                   ? buffer.Peek(buf, max_len, buffer_pos)
-                   : buffer.Read(buf, max_len);
+                                       ? buffer.Peek(buf, max_len, buffer_pos)
+                                       : buffer.Read(buf, max_len);
     if (buffer_read_chunk_size > 0) {
       buffer_pos += buffer_read_chunk_size;
 
@@ -358,8 +360,8 @@ int64 IoDeviceImpl::Read(char* buf, int64 max_len, bool peeking) {
       }
 
 #if defined FUN_IODEVICE_DEBUG
-      printf("%p \treading %lld bytes from buffer into position %lld\n",
-            outer_, buffer_read_chunk_size, total_readed_len);
+      printf("%p \treading %lld bytes from buffer into position %lld\n", outer_,
+             buffer_read_chunk_size, total_readed_len);
 #endif
 
       total_readed_len += buffer_read_chunk_size;
@@ -370,42 +372,46 @@ int64 IoDeviceImpl::Read(char* buf, int64 max_len, bool peeking) {
     if (max_len > 0 && !device_at_eof) {
       int64 readed_len_from_device = 0;
       // Make sure the device is positioned correctly.
-      if (sequential || position_ == device_position_ || outer_->Seek(position_)) {
-        made_buffer_reads_only = false; // fix ReadData attempt
-        if ((!buffered || max_len >= read_buffer_chunk_size_) && !keep_data_in_buffer) {
+      if (sequential || position_ == device_position_ ||
+          outer_->Seek(position_)) {
+        made_buffer_reads_only = false;  // fix ReadData attempt
+        if ((!buffered || max_len >= read_buffer_chunk_size_) &&
+            !keep_data_in_buffer) {
           // Read big chunk directly to output buffer
           readed_len_from_device = outer_->ReadData(buf, max_len);
           device_at_eof = (readed_len_from_device != max_len);
 #if defined FUN_IODEVICE_DEBUG
-          printf("%p \treading %lld bytes from device (total %lld)\n",
-                  outer_, readed_len_from_device, total_readed_len);
+          printf("%p \treading %lld bytes from device (total %lld)\n", outer_,
+                 readed_len_from_device, total_readed_len);
 #endif
           if (readed_len_from_device > 0) {
             total_readed_len += readed_len_from_device;
             buf += readed_len_from_device;
             max_len -= readed_len_from_device;
-            if (!sequential)
-            {
+            if (!sequential) {
               position_ += readed_len_from_device;
               device_position_ += readed_len_from_device;
             }
           }
         } else {
           // Do not read more than max_len on unbuffered devices
-          const int64 bytes_to_buffer = (buffered || read_buffer_chunk_size_ < max_len)
-                                        ? int64(read_buffer_chunk_size_)
-                                        : max_len;
+          const int64 bytes_to_buffer =
+              (buffered || read_buffer_chunk_size_ < max_len)
+                  ? int64(read_buffer_chunk_size_)
+                  : max_len;
           // Try to fill IoDevice buffer by single read
-          readed_len_from_device = outer_->ReadData(buffer.Reverse(bytes_to_buffer), bytes_to_buffer);
+          readed_len_from_device = outer_->ReadData(
+              buffer.Reverse(bytes_to_buffer), bytes_to_buffer);
           device_at_eof = (readed_len_from_device != bytes_to_buffer);
-          buffer.Chop(bytes_to_buffer - MathBase::Max(int64(0), readed_len_from_device));
+          buffer.Chop(bytes_to_buffer -
+                      MathBase::Max(int64(0), readed_len_from_device));
           if (readed_len_from_device > 0) {
-            if (!sequential)
-            {
+            if (!sequential) {
               device_position_ += readed_len_from_device;
             }
 #if defined FUN_IODEVICE_DEBUG
-            printf("%p \treading %lld from device into buffer\n", outer_, readed_len_from_device);
+            printf("%p \treading %lld from device into buffer\n", outer_,
+                   readed_len_from_device);
 #endif
             continue;
           }
@@ -456,12 +462,12 @@ int64 IoDeviceImpl::Read(char* buf, int64 max_len, bool peeking) {
   // Restore positions after reading
   if (keep_data_in_buffer) {
     if (peeking) {
-      position_ = saved_pos; // does nothing on sequential devices
+      position_ = saved_pos;  // does nothing on sequential devices
     } else {
       transaction_position_ = buffer_pos;
     }
   } else if (peeking) {
-    SeekBuffer(saved_pos); // unbuffered random-access device
+    SeekBuffer(saved_pos);  // unbuffered random-access device
   }
 
   if (made_buffer_reads_only && IsBufferEmpty()) {
@@ -475,14 +481,18 @@ ByteArray IoDevice::Read(int64 max_len) {
   ByteArray result;
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::Read(%lld), impl_->position_ = %lld, impl_->buffer_.Len() = %lld\n",
-        this, max_len, impl_->position_, impl_->buffer_.Len());
+  printf(
+      "%p IoDevice::Read(%lld), impl_->position_ = %lld, impl_->buffer_.Len() "
+      "= %lld\n",
+      this, max_len, impl_->position_, impl_->buffer_.Len());
 #endif
 
   // Try to prevent the data from being copied, if we have a chunk
   // with the same size in the read buffer.
-  if (max_len == impl_->buffer_.GetNextDataBlockSize() && !impl_->is_in_transaction_
-      && (impl_->open_mode_ & (IoDevice::ReadOnly | IoDevice::Text)) == IoDevice::ReadOnly) {
+  if (max_len == impl_->buffer_.GetNextDataBlockSize() &&
+      !impl_->is_in_transaction_ &&
+      (impl_->open_mode_ & (IoDevice::ReadOnly | IoDevice::Text)) ==
+          IoDevice::ReadOnly) {
     result = impl_->buffer_.Read();
 
     if (!impl_->IsSequential()) {
@@ -513,17 +523,21 @@ ByteArray IoDevice::Read(int64 max_len) {
 
 ByteArray IoDevice::ReadAll() {
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::ReadAll(), impl_->position_ = %lld, impl_->buffer_.Count() = %lld\n",
-        this, impl_->position_, impl_->buffer_.Count());
+  printf(
+      "%p IoDevice::ReadAll(), impl_->position_ = %lld, impl_->buffer_.Count() "
+      "= %lld\n",
+      this, impl_->position_, impl_->buffer_.Count());
 #endif
 
   ByteArray result;
   int64 total_readed_len = (impl_->IsSequential() ? int64(0) : Size());
   if (total_readed_len == 0) {
     // Size is unknown, read incrementally.
-    int64 read_chunk_size = MathBase::Max(int64(impl_->read_buffer_chunk_size_),
-                  impl_->IsSequential() ? (impl_->buffer_.Count() - impl_->transaction_position_)
-                            : impl_->buffer_.Count());
+    int64 read_chunk_size = MathBase::Max(
+        int64(impl_->read_buffer_chunk_size_),
+        impl_->IsSequential()
+            ? (impl_->buffer_.Count() - impl_->transaction_position_)
+            : impl_->buffer_.Count());
     int64 readed_len;
     do {
       if (total_readed_len + read_chunk_size >= MaxByteArraySize) {
@@ -531,7 +545,8 @@ ByteArray IoDevice::ReadAll() {
         break;
       }
       result.Resize(total_readed_len + read_chunk_size);
-      readed_len = Read(result.MutableData() + total_readed_len, read_chunk_size);
+      readed_len =
+          Read(result.MutableData() + total_readed_len, read_chunk_size);
       if (readed_len > 0 || total_readed_len == 0) {
         total_readed_len += readed_len;
         read_chunk_size = impl_->read_buffer_chunk_size_;
@@ -564,8 +579,10 @@ int64 IoDevice::ReadLine(char* buf, int64 max_len) {
   }
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::ReadLine(%p, %lld), impl_->position_ = %lld, impl_->buffer_.Len() = %lld\n",
-        this, buf, max_len, impl_->position_, impl_->buffer_.Len());
+  printf(
+      "%p IoDevice::ReadLine(%p, %lld), impl_->position_ = %lld, "
+      "impl_->buffer_.Len() = %lld\n",
+      this, buf, max_len, impl_->position_, impl_->buffer_.Len());
 #endif
 
   // Leave room for a '\0'
@@ -578,9 +595,11 @@ int64 IoDevice::ReadLine(char* buf, int64 max_len) {
   if (keep_data_in_buffer) {
     if (impl_->transaction_position_ < impl_->buffer_.Len()) {
       // Peek line from the specified position
-      const int64 i = impl_->buffer_.IndexOf('\n', max_len, impl_->transaction_position_);
-      total_readed_len = impl_->buffer_.Peek(buf, i >= 0 ? (i - impl_->transaction_position_ + 1) : max_len,
-                                            impl_->transaction_position_);
+      const int64 i =
+          impl_->buffer_.IndexOf('\n', max_len, impl_->transaction_position_);
+      total_readed_len = impl_->buffer_.Peek(
+          buf, i >= 0 ? (i - impl_->transaction_position_ + 1) : max_len,
+          impl_->transaction_position_);
       impl_->transaction_position_ += total_readed_len;
       if (impl_->transaction_position_ == impl_->buffer_.Len()) {
         ReadData(buf, 0);
@@ -601,8 +620,8 @@ int64 IoDevice::ReadLine(char* buf, int64 max_len) {
 
   if (total_readed_len) {
 #if defined FUN_IODEVICE_DEBUG
-    printf("%p \tread from buffer: %lld bytes, last character read: %hhx\n", this,
-          total_readed_len, buf[total_readed_len - 1]);
+    printf("%p \tread from buffer: %lld bytes, last character read: %hhx\n",
+           this, total_readed_len, buf[total_readed_len - 1]);
     debugBinaryString(data, int32(total_readed_len));
 #endif
     if (buf[total_readed_len - 1] == '\n') {
@@ -618,20 +637,25 @@ int64 IoDevice::ReadLine(char* buf, int64 max_len) {
     }
   }
 
-  if (impl_->position_ != impl_->device_position_ && !sequential && !Seek(impl_->position_)) {
+  if (impl_->position_ != impl_->device_position_ && !sequential &&
+      !Seek(impl_->position_)) {
     return int64(-1);
   }
 
   impl_->base_read_line_data_called_ = false;
   // Force base implementation for transaction on sequential device
   // as it stores the data in internal buffer automatically.
-  int64 readed_len = keep_data_in_buffer
-                     ? IoDevice::ReadLineData(buf + total_readed_len, max_len - total_readed_len)
-                     : ReadLineData(buf + total_readed_len, max_len - total_readed_len);
+  int64 readed_len =
+      keep_data_in_buffer
+          ? IoDevice::ReadLineData(buf + total_readed_len,
+                                   max_len - total_readed_len)
+          : ReadLineData(buf + total_readed_len, max_len - total_readed_len);
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p \tread from ReadLineData: %lld bytes, total_readed_len = %lld bytes\n", this,
-        readed_len, total_readed_len);
+  printf(
+      "%p \tread from ReadLineData: %lld bytes, total_readed_len = %lld "
+      "bytes\n",
+      this, readed_len, total_readed_len);
   if (readed_len > 0) {
     debugBinaryString(buf, int32(total_readed_len + readed_len));
   }
@@ -651,7 +675,8 @@ int64 IoDevice::ReadLine(char* buf, int64 max_len) {
   buf[total_readed_len] = '\0';
 
   if (impl_->open_mode_ & Text) {
-    if (total_readed_len > 1 && buf[total_readed_len - 1] == '\n' && buf[total_readed_len - 2] == '\r') {
+    if (total_readed_len > 1 && buf[total_readed_len - 1] == '\n' &&
+        buf[total_readed_len - 2] == '\r') {
       buf[total_readed_len - 2] = '\n';
       buf[total_readed_len - 1] = '\0';
       --total_readed_len;
@@ -659,8 +684,10 @@ int64 IoDevice::ReadLine(char* buf, int64 max_len) {
   }
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p \treturning %lld, impl_->position_ = %lld, impl_->buffer_.Len() = %lld, Size() = %lld\n",
-       this, total_readed_len, impl_->position_, impl_->buffer_.Len(), Size());
+  printf(
+      "%p \treturning %lld, impl_->position_ = %lld, impl_->buffer_.Len() = "
+      "%lld, Size() = %lld\n",
+      this, total_readed_len, impl_->position_, impl_->buffer_.Len(), Size());
   debugBinaryString(buf, int32(total_readed_len));
 #endif
 
@@ -674,8 +701,10 @@ ByteArray IoDevice::ReadLine(int64 max_len) {
   CHECK_MAXBYTEARRAYSIZE(ReadLine);
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::ReadLine(%lld), impl_->position_ = %lld, impl_->buffer_.Len() = %lld\n",
-        this, max_len, impl_->position_, impl_->buffer_.Len());
+  printf(
+      "%p IoDevice::ReadLine(%lld), impl_->position_ = %lld, "
+      "impl_->buffer_.Len() = %lld\n",
+      this, max_len, impl_->position_, impl_->buffer_.Len());
 #endif
 
   result.Resize(int32(max_len));
@@ -691,13 +720,15 @@ ByteArray IoDevice::ReadLine(int64 max_len) {
 
     int64 readed_len;
     do {
-      result.Resize(int32(MathBase::Min(max_len, int64(result.Len() + impl_->read_buffer_chunk_size_))));
-      readed_len = ReadLine(result.MutableData() + total_readed_len, result.Len() - total_readed_len);
+      result.Resize(int32(MathBase::Min(
+          max_len, int64(result.Len() + impl_->read_buffer_chunk_size_))));
+      readed_len = ReadLine(result.MutableData() + total_readed_len,
+                            result.Len() - total_readed_len);
       if (readed_len > 0 || total_readed_len == 0) {
         total_readed_len += readed_len;
       }
-    } while (readed_len == impl_->read_buffer_chunk_size_
-              && result[int32(total_readed_len - 1)] != '\n');
+    } while (readed_len == impl_->read_buffer_chunk_size_ &&
+             result[int32(total_readed_len - 1)] != '\n');
   } else {
     total_readed_len = ReadLine(result.MutableData(), result.Len());
   }
@@ -727,8 +758,12 @@ int64 IoDevice::ReadLineData(char* buf, int64 max_len) {
   }
 
 #if defined FUN_IODEVICE_DEBUG
-  printf( "%p IoDevice::ReadLineData(%p, %lld), impl_->position_ = %lld, impl_->buffer_.Len() = %lld, "
-          "returns %lld\n", this, buf, max_len, impl_->position_, impl_->buffer_.Len(), total_readed_len);
+  printf(
+      "%p IoDevice::ReadLineData(%p, %lld), impl_->position_ = %lld, "
+      "impl_->buffer_.Len() = %lld, "
+      "returns %lld\n",
+      this, buf, max_len, impl_->position_, impl_->buffer_.Len(),
+      total_readed_len);
 #endif
 
   if (last_read_return != 1 && total_readed_len == 0) {
@@ -739,13 +774,16 @@ int64 IoDevice::ReadLineData(char* buf, int64 max_len) {
 }
 
 bool IoDevice::CanReadLine() const {
-  return impl_->buffer_.IndexOf('\n', impl_->buffer_.Len(),
-               impl_->IsSequential() ? impl_->transaction_position_ : int64(0)) >= 0;
+  return impl_->buffer_.IndexOf(
+             '\n', impl_->buffer_.Len(),
+             impl_->IsSequential() ? impl_->transaction_position_ : int64(0)) >=
+         0;
 }
 
 void IoDevice::StartTransaction() {
   if (impl_->is_in_transaction_) {
-    CheckWarnMessage(this, "StartTransaction", "Called while transaction already in progress");
+    CheckWarnMessage(this, "StartTransaction",
+                     "Called while transaction already in progress");
     return;
   }
 
@@ -755,7 +793,8 @@ void IoDevice::StartTransaction() {
 
 void IoDevice::CommitTransaction() {
   if (!impl_->is_in_transaction_) {
-    CheckWarnMessage(this, "CommitTransaction", "Called while no transaction in progress");
+    CheckWarnMessage(this, "CommitTransaction",
+                     "Called while no transaction in progress");
     return;
   }
 
@@ -769,7 +808,8 @@ void IoDevice::CommitTransaction() {
 
 void IoDevice::RollbackTransaction() {
   if (!impl_->is_in_transaction_) {
-    CheckWarnMessage(this, "RollbackTransaction", "Called while no transaction in progress");
+    CheckWarnMessage(this, "RollbackTransaction",
+                     "Called while no transaction in progress");
     return;
   }
 
@@ -781,9 +821,7 @@ void IoDevice::RollbackTransaction() {
   impl_->transaction_position_ = 0;
 }
 
-bool IoDevice::IsInTransaction() const {
-  return impl_->is_in_transaction_;
-}
+bool IoDevice::IsInTransaction() const { return impl_->is_in_transaction_; }
 
 int64 IoDevice::Write(const char* data, int64 max_len) {
   CHECK_WRITABLE(Write, int64(-1));
@@ -791,7 +829,8 @@ int64 IoDevice::Write(const char* data, int64 max_len) {
 
   const bool sequential = impl_->IsSequential();
   // Make sure the device is positioned correctly.
-  if (impl_->position_ != impl_->device_position_ && !sequential && !Seek(impl_->position_)) {
+  if (impl_->position_ != impl_->device_position_ && !sequential &&
+      !Seek(impl_->position_)) {
     return int64(-1);
   }
 
@@ -855,7 +894,7 @@ int64 IoDevice::Write(const char* data, int64 max_len) {
 
     return total_written_len;
   }
-#endif // defined(FUN_PLATFORM_WINDOWS_FAMILY)
+#endif  // defined(FUN_PLATFORM_WINDOWS_FAMILY)
 
   int64 written_len = WriteData(data, max_len);
   if (!sequential && written_len > 0) {
@@ -867,20 +906,20 @@ int64 IoDevice::Write(const char* data, int64 max_len) {
   return written_len;
 }
 
-int64 IoDevice::Write(const char* data) {
-  return Write(data, qstrlen(data));
-}
+int64 IoDevice::Write(const char* data) { return Write(data, qstrlen(data)); }
 
 void IoDevice::UngetData(char c) {
   CHECK_READABLE(Read, FUN_VOID);
 
   if (impl_->is_in_transaction_) {
-    CheckWarnMessage(this, "UngetData", "Called while transaction is in progress");
+    CheckWarnMessage(this, "UngetData",
+                     "Called while transaction is in progress");
     return;
   }
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::UngetData(0x%hhx '%c')\n", this, c, isprint(c) ? c : '?');
+  printf("%p IoDevice::UngetData(0x%hhx '%c')\n", this, c,
+         isprint(c) ? c : '?');
 #endif
 
   impl_->buffer_.UngetData(c);
@@ -891,13 +930,9 @@ void IoDevice::UngetData(char c) {
   }
 }
 
-bool IoDevice::PutChar(char c) {
-  return impl_->PutCharHelper(c);
-}
+bool IoDevice::PutChar(char c) { return impl_->PutCharHelper(c); }
 
-bool IoDeviceImpl::PutCharHelper(char c) {
-  return outer_->Write(&c, 1) == 1;
-}
+bool IoDeviceImpl::PutCharHelper(char c) { return outer_->Write(&c, 1) == 1; }
 
 int64 IoDeviceImpl::Peek(char* buf, int64 max_len) {
   return Read(buf, max_len, true);
@@ -946,11 +981,14 @@ int64 IoDevice::Skip(int64 max_len) {
   const bool sequential = impl_->IsSequential();
 
 #if defined FUN_IODEVICE_DEBUG
-  printf("%p IoDevice::Skip(%lld), impl_->position_ = %lld, impl_->buffer_.Len() = %lld\n",
-        this, max_len, impl_->position_, impl_->buffer_.Len());
+  printf(
+      "%p IoDevice::Skip(%lld), impl_->position_ = %lld, impl_->buffer_.Len() "
+      "= %lld\n",
+      this, max_len, impl_->position_, impl_->buffer_.Len());
 #endif
 
-  if ((sequential && impl_->is_in_transaction_) || (impl_->open_mode_ & IoDevice::Text) != 0) {
+  if ((sequential && impl_->is_in_transaction_) ||
+      (impl_->open_mode_ & IoDevice::Text) != 0) {
     return impl_->SkipByReading(max_len);
   }
 
@@ -981,7 +1019,8 @@ int64 IoDevice::Skip(int64 max_len) {
   // Try to Seek on random-access device. At this point,
   // the internal read buffer is empty.
   if (!sequential) {
-    const int64 skippable_len = MathBase::Min(Size() - impl_->position_, max_len);
+    const int64 skippable_len =
+        MathBase::Min(Size() - impl_->position_, max_len);
 
     // If the size is unknown or file position is at the end,
     // fall back to reading below.
@@ -1055,9 +1094,7 @@ bool IoDevice::WaitForBytesWritten(int32 msecs) {
   return false;
 }
 
-void IoDevice::SetErrorString(const String& str) {
-  impl_->error_string_ = str;
-}
+void IoDevice::SetErrorString(const String& str) { impl_->error_string_ = str; }
 
 String IoDevice::GetErrorString() const {
   if (impl_->error_string_.IsEmpty()) {
@@ -1070,7 +1107,6 @@ String IoDevice::GetErrorString() const {
   return impl_->error_string_;
 }
 
-
 int32 qt_subtract_from_timeout(int32 timeout, int32 elapsed) {
   if (timeout == -1) {
     return -1;
@@ -1080,9 +1116,8 @@ int32 qt_subtract_from_timeout(int32 timeout, int32 elapsed) {
   return timeout < 0 ? 0 : timeout;
 }
 
-
 #if !defined(FUN_NO_DEBUG_STREAM)
-QDebug operator << (QDebug debug, IoDevice::OpenMode modes) {
+QDebug operator<<(QDebug debug, IoDevice::OpenMode modes) {
   debug << "OpenMode(";
   StringList mode_list;
   if (modes == IoDevice::NotOpen) {
@@ -1119,4 +1154,4 @@ QDebug operator << (QDebug debug, IoDevice::OpenMode modes) {
 }
 #endif
 
-} // namespace fun
+}  // namespace fun

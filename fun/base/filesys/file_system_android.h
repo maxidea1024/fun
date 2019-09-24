@@ -1,8 +1,8 @@
 ﻿#pragma once
 
+#include <jni.h>
 #include "fun/base/base.h"
 #include "fun/base/filesys/file_system_base.h"
-#include <jni.h>
 
 namespace fun {
 
@@ -43,4 +43,4 @@ class FUN_BASE_API IAndroidPlatformFS : public IPhysicalFileSystem {
   virtual String FileRootPath(const char* filename) = 0;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -1,7 +1,7 @@
 ﻿#include "fun/base/base.h"
+#include "fun/base/container/array.h"
 #include "fun/base/logging/log_formatter.h"
 #include "fun/base/logging/log_message.h"
-#include "fun/base/container/array.h"
 
 namespace fun {
 
@@ -53,7 +53,8 @@ namespace fun {
  *          (must be specified before any date/time specifier;
  *           does not itself output anything)
  *   - %E : epoch time (UTC, seconds since midnight, January 1, 1970)
- *   - %v[width] : the message source (%s) but text length is padded/cropped to 'width'
+ *   - %v[width] : the message source (%s) but text length is padded/cropped to
+ * 'width'
  *   - %[name] : the value of the message parameter with the given name
  *   - %% : percent sign
  */
@@ -93,8 +94,9 @@ class FUN_BASE_API PatternFormatter : public LogFormatter {
    *       for details.
    *     * times: Specifies whether times are adjusted for local time
    *       or taken as they are in UTC. Supported values are "local" and "UTC".
-   *     * priorityNames: Provide a comma-separated list of custom priority names,
-   *       e.g. "Fatal, Critical, Error, Warning, Notice, Information, Debug, Trace"
+   *     * priorityNames: Provide a comma-separated list of custom priority
+   * names, e.g. "Fatal, Critical, Error, Warning, Notice, Information, Debug,
+   * Trace"
    *
    * If any other property name is given, a PropertyNotSupported
    * exception is thrown.
@@ -144,4 +146,4 @@ class FUN_BASE_API PatternFormatter : public LogFormatter {
   String levels_[9];
 };
 
-} // namespace fun
+}  // namespace fun

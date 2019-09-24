@@ -7,7 +7,8 @@ namespace fun {
 namespace algo {
 
 template <typename T, typename ArrayAllocator>
-void UnionDuplicateds(Array<T, ArrayAllocator>& array, bool assume_already_sorted = false) {
+void UnionDuplicateds(Array<T, ArrayAllocator>& array,
+                      bool assume_already_sorted = false) {
   if (array.Count() < 2) {
     // nothing to do...
     return;
@@ -22,7 +23,7 @@ void UnionDuplicateds(Array<T, ArrayAllocator>& array, bool assume_already_sorte
   // move나 copy는 느리니, 우선 겹치는게 있는지부터 찾아볼까...
   bool is_duplicated = false;
   for (int32 i = 1; i < array.Count(); ++i) {
-    if (array[i] == array[i-1]) {
+    if (array[i] == array[i - 1]) {
       is_duplicated = true;
       break;
     }
@@ -49,5 +50,5 @@ void UnionDuplicateds(Array<T, ArrayAllocator>& array, bool assume_already_sorte
   fun::Swap(working_set, array);
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

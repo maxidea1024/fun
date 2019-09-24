@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/logging/log_sink.h"
 #include "fun/base/logging/log_formatter.h"
+#include "fun/base/logging/log_sink.h"
 
 namespace fun {
 
-//class LogFormatter;
+// class LogFormatter;
 
 /**
  * The FormattingSink is a filter sink that routes
@@ -14,8 +14,8 @@ namespace fun {
  * to the destination sink.
  */
 class FUN_BASE_API FormattingSink : public LogSink {
-  //TODO
-  //FUN_DECLARE_RTCLASS(FormattingSink, LogSink)
+  // TODO
+  // FUN_DECLARE_RTCLASS(FormattingSink, LogSink)
 
  public:
   using Ptr = RefCountedPtr<FormattingSink>;
@@ -68,8 +68,8 @@ class FUN_BASE_API FormattingSink : public LogSink {
    * Sets or changes a configuration property.
    *
    * Only the "Sink" and "Formatter" properties are supported, which allow
-   * setting the target sink and formatter, respectively, via the LoggingRegistry.
-   * The "Sink" and "Formatter" properties are set-only.
+   * setting the target sink and formatter, respectively, via the
+   * LoggingRegistry. The "Sink" and "Formatter" properties are set-only.
    *
    * Unsupported properties are passed to the attached sink.
    */
@@ -86,4 +86,4 @@ class FUN_BASE_API FormattingSink : public LogSink {
   LogSink::Ptr sink_;
 };
 
-} // namespace fun
+}  // namespace fun

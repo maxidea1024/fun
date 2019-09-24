@@ -10,12 +10,13 @@ namespace impl {
 
 template <typename T>
 FUN_ALWAYS_INLINE void ReverseInternal(T* array, size_t array_count) {
-  for (size_t i = 0, i2 = array_count - 1; i < array_count / 2 /*rounding down*/; ++i, --i2) {
+  for (size_t i = 0, i2 = array_count - 1;
+       i < array_count / 2 /*rounding down*/; ++i, --i2) {
     fun::Swap(array[i], array[i2]);
   }
 }
 
-} // namespace impl
+}  // namespace impl
 
 /**
  * Reverses a range
@@ -48,5 +49,5 @@ FUN_ALWAYS_INLINE void Reverse(ContainerType& container) {
   return impl::ReverseInternal(container.MutableData(), container.Count());
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

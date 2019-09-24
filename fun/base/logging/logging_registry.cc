@@ -17,8 +17,7 @@ LogSink::Ptr LoggingRegistry::SinkForName(const String& name) const {
   return sink;
 }
 
-LogFormatter::Ptr
-LoggingRegistry::FormatterForName(const String& name) const {
+LogFormatter::Ptr LoggingRegistry::FormatterForName(const String& name) const {
   ScopedLock<FastMutex> guard(mutex_);
 
   LogFormatter::Ptr formatter;
@@ -69,4 +68,4 @@ LoggingRegistry& LoggingRegistry::DefaultRegistry() {
   return *sh.Get();
 }
 
-} // namespace fun
+}  // namespace fun

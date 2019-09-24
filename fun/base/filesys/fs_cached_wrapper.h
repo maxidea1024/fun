@@ -7,21 +7,19 @@ namespace fun {
 class FUN_BASE_API CachedFile : public IFile {
  public:
   CachedFile(IFile* file_handle, bool readable, bool writable)
-    : file_handle_(file_handle),
-      file_pos_(0),
-      tell_pos_(0),
-      file_size_(file_handle->Size()),
-      writable_(writable),
-      readable_(readable),
-      current_cache_(0) {
+      : file_handle_(file_handle),
+        file_pos_(0),
+        tell_pos_(0),
+        file_size_(file_handle->Size()),
+        writable_(writable),
+        readable_(readable),
+        current_cache_(0) {
     FlushCache();
   }
 
   virtual ~CachedFile() {}
 
-  int64 Tell() override {
-    return file_pos_;
-  }
+  int64 Tell() override { return file_pos_; }
 
   bool Seek(int64 new_pos) override {
     if (new_pos < 0 || new_pos > file_size_) {
@@ -36,7 +34,8 @@ class FUN_BASE_API CachedFile : public IFile {
   }
 
   bool Read(uint8* dst, int64 len_to_read) override {
-    if (!readable_ || len_to_read < 0 || (len_to_read + file_pos_ > file_size_)) {
+    if (!readable_ || len_to_read < 0 ||
+        (len_to_read + file_pos_ > file_size_)) {
       return false;
     }
 
@@ -45,12 +44,16 @@ class FUN_BASE_API CachedFile : public IFile {
     }
 
     bool result = false;
-    if (len_to_read > BUFFER_CACHE_SIZE) { // reading more than we cache
-      // if the file position is within the cache, copy out the remainder of the cache
+    if (len_to_read > BUFFER_CACHE_SIZE) {  // reading more than we cache
+      // if the file position is within the cache, copy out the remainder of the
+      // cache
       const int32 cache_index = GetCacheIndex(file_pos_);
       if (cache_index < CACHE_COUNT) {
         const int64 len_to_copy = cache_end_[cache_index] - file_pos_;
-        UnsafeMemory::Memcpy(dst, buffer_cache_[cache_index] + (file_pos_ - cache_start_[cache_index]), len_to_copy);
+        UnsafeMemory::Memcpy(dst,
+                             buffer_cache_[cache_index] +
+                                 (file_pos_ - cache_start_[cache_index]),
+                             len_to_copy);
         file_pos_ += len_to_copy;
         len_to_read -= len_to_copy;
         dst += len_to_copy;
@@ -69,14 +72,16 @@ class FUN_BASE_API CachedFile : public IFile {
         uint32 cache_index = GetCacheIndex(file_pos_);
         if (cache_index > CACHE_COUNT) {
           // need to update the cache
-          uint64 aligned_file_pos = file_pos_ & BUFFER_SIZE_MASK; // Aligned Version
-          uint64 len_to_read = MathBase::Min<uint64>(BUFFER_CACHE_SIZE, file_size_ - aligned_file_pos);
+          uint64 aligned_file_pos =
+              file_pos_ & BUFFER_SIZE_MASK;  // Aligned Version
+          uint64 len_to_read = MathBase::Min<uint64>(
+              BUFFER_CACHE_SIZE, file_size_ - aligned_file_pos);
           InnerSeek(aligned_file_pos);
           result = InnerRead(buffer_cache_[current_cache_], len_to_read);
 
           if (result) {
             cache_start_[current_cache_] = aligned_file_pos;
-            cache_end_[current_cache_] = aligned_file_pos+len_to_read;
+            cache_end_[current_cache_] = aligned_file_pos + len_to_read;
             cache_index = current_cache_;
             // move to next cache for update
             current_cache_++;
@@ -86,10 +91,15 @@ class FUN_BASE_API CachedFile : public IFile {
 
         // copy from the cache to the destination
         if (result) {
-          // Analyzer doesn't see this - if this code ever changes make sure there are no buffer overruns!
+          // Analyzer doesn't see this - if this code ever changes make sure
+          // there are no buffer overruns!
           CA_ASSUME(cache_index < CACHE_COUNT);
-          uint64 adjusted_len_to_read = MathBase::Min<uint64>(len_to_read, cache_end_[cache_index] - file_pos_);
-          UnsafeMemory::Memcpy(dst, buffer_cache_[cache_index] + (file_pos_ - cache_start_[cache_index]), adjusted_len_to_read);
+          uint64 adjusted_len_to_read = MathBase::Min<uint64>(
+              len_to_read, cache_end_[cache_index] - file_pos_);
+          UnsafeMemory::Memcpy(dst,
+                               buffer_cache_[cache_index] +
+                                   (file_pos_ - cache_start_[cache_index]),
+                               adjusted_len_to_read);
           file_pos_ += adjusted_len_to_read;
           dst += adjusted_len_to_read;
           len_to_read -= adjusted_len_to_read;
@@ -119,13 +129,12 @@ class FUN_BASE_API CachedFile : public IFile {
     return result;
   }
 
-  int64 Size() override {
-    return file_size_;
-  }
+  int64 Size() override { return file_size_; }
 
  private:
-  static const uint32 BUFFER_CACHE_SIZE = 64 * 1024; // Seems to be the magic number for best perf
-  static const uint64 BUFFER_SIZE_MASK = ~((uint64)BUFFER_CACHE_SIZE-1);
+  static const uint32 BUFFER_CACHE_SIZE =
+      64 * 1024;  // Seems to be the magic number for best perf
+  static const uint64 BUFFER_SIZE_MASK = ~((uint64)BUFFER_CACHE_SIZE - 1);
   static const uint32 CACHE_COUNT = 2;
 
   bool InnerSeek(uint64 new_pos) {
@@ -164,8 +173,10 @@ class FUN_BASE_API CachedFile : public IFile {
   }
 
   AutoPtr<IFile> file_handle_;
-  int64 file_pos_; // Desired position in the file stream, this can be different to file_pos_ due to the cache
-  int64 tell_pos_; // Actual position in the file,  this can be different to file_pos_
+  int64 file_pos_;  // Desired position in the file stream, this can be
+                    // different to file_pos_ due to the cache
+  int64 tell_pos_;  // Actual position in the file,  this can be different to
+                    // file_pos_
   int64 file_size_;
   bool writable_;
   bool readable_;
@@ -175,14 +186,11 @@ class FUN_BASE_API CachedFile : public IFile {
   int32 current_cache_;
 };
 
-
 class FUN_BASE_API CachedReadPlatformFS : public IPlatformFS {
   IPlatformFS* lower_level_;
 
  public:
-  static const char* GetTypeName() {
-    return "CachedReadFile";
-  }
+  static const char* GetTypeName() { return "CachedReadFile"; }
 
   CachedReadPlatformFS() : lower_level_(nullptr) {}
 
@@ -193,11 +201,14 @@ class FUN_BASE_API CachedReadPlatformFS : public IPlatformFS {
   }
 
   bool ShouldBeUsed(IPlatformFS* inner, const char* cmdline) const override {
-    // default to false on Windows since CAsyncBufferedFileReaderWindows already buffers the data
-    bool result = !PLATFORM_WINDOWS && CPlatformProperties::RequiresCookedData();
+    // default to false on Windows since CAsyncBufferedFileReaderWindows already
+    // buffers the data
+    bool result =
+        !PLATFORM_WINDOWS && CPlatformProperties::RequiresCookedData();
 
-    // Allow a choice between shorter load times or less memory on desktop platforms.
-    // Note: this cannot be in config since they aren't read at that point.
+    // Allow a choice between shorter load times or less memory on desktop
+    // platforms. Note: this cannot be in config since they aren't read at that
+    // point.
     if (PLATFORM_DESKTOP) {
       if (Parse::Param(cmdline, "NoCachedReadFile")) {
         result = false;
@@ -205,15 +216,14 @@ class FUN_BASE_API CachedReadPlatformFS : public IPlatformFS {
         result = true;
       }
 
-      fun_log(LogPlatformFS, Info, "%s cached read wrapper", result ? "Using" : "Not using");
+      fun_log(LogPlatformFS, Info, "%s cached read wrapper",
+              result ? "Using" : "Not using");
     }
 
     return result;
   }
 
-  IPlatformFS* GetLowerLevel() override {
-    return lower_level_;
-  }
+  IPlatformFS* GetLowerLevel() override { return lower_level_; }
 
   const char* GetName() const override {
     return CachedReadPlatformFS::GetTypeName();
@@ -267,7 +277,8 @@ class FUN_BASE_API CachedReadPlatformFS : public IPlatformFS {
     return new CachedFile(file, true, false);
   }
 
-  IFile* OpenWrite(const char* filename, bool append = false, bool allow_read = false) override {
+  IFile* OpenWrite(const char* filename, bool append = false,
+                   bool allow_read = false) override {
     IFile* file = lower_level_->OpenWrite(filename, append, allow_read);
     if (file == nullptr) {
       return nullptr;
@@ -291,19 +302,25 @@ class FUN_BASE_API CachedReadPlatformFS : public IPlatformFS {
     return lower_level_->GetStatData(filename_or_directory);
   }
 
-  bool IterateDirectory(const char* directory, IPlatformFS::DirectoryVisitor& visitor) override {
+  bool IterateDirectory(const char* directory,
+                        IPlatformFS::DirectoryVisitor& visitor) override {
     return lower_level_->IterateDirectory(directory, visitor);
   }
 
-  bool IterateDirectoryRecursively(const char* directory, IPlatformFS::DirectoryVisitor& visitor) override {
+  bool IterateDirectoryRecursively(
+      const char* directory, IPlatformFS::DirectoryVisitor& visitor) override {
     return lower_level_->IterateDirectoryRecursively(directory, visitor);
   }
 
-  bool IterateDirectoryStat(const char* directory, IPlatformFS::DirectoryStatVisitor& visitor) override {
+  bool IterateDirectoryStat(
+      const char* directory,
+      IPlatformFS::DirectoryStatVisitor& visitor) override {
     return lower_level_->IterateDirectoryStat(directory, visitor);
   }
 
-  bool IterateDirectoryStatRecursively(const char* directory, IPlatformFS::DirectoryStatVisitor& visitor) override {
+  bool IterateDirectoryStatRecursively(
+      const char* directory,
+      IPlatformFS::DirectoryStatVisitor& visitor) override {
     return lower_level_->IterateDirectoryStatRecursively(directory, visitor);
   }
 
@@ -319,21 +336,26 @@ class FUN_BASE_API CachedReadPlatformFS : public IPlatformFS {
     return lower_level_->CreateDirectoryTree(directory);
   }
 
-  bool CopyDirectoryTree(const char* destination_directory, const char* src, bool overwrite_all_existing) override {
-    return lower_level_->CopyDirectoryTree(DestinationDirectory, src, overwrite_all_existing);
+  bool CopyDirectoryTree(const char* destination_directory, const char* src,
+                         bool overwrite_all_existing) override {
+    return lower_level_->CopyDirectoryTree(DestinationDirectory, src,
+                                           overwrite_all_existing);
   }
 
-  String ConvertToAbsolutePathForExternalAppForRead(const char* filename) override {
+  String ConvertToAbsolutePathForExternalAppForRead(
+      const char* filename) override {
     return lower_level_->ConvertToAbsolutePathForExternalAppForRead(filename);
   }
 
-  String ConvertToAbsolutePathForExternalAppForWrite(const char* filename) override {
+  String ConvertToAbsolutePathForExternalAppForWrite(
+      const char* filename) override {
     return lower_level_->ConvertToAbsolutePathForExternalAppForWrite(filename);
   }
 
-  bool SendMessageToServer(const char* message, IFileServerMessageHandler* handler) override {
+  bool SendMessageToServer(const char* message,
+                           IFileServerMessageHandler* handler) override {
     return lower_level_->SendMessageToServer(message, handler);
   }
 };
 
-} // namespace fun
+}  // namespace fun

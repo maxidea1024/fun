@@ -4,7 +4,7 @@
 
 namespace fun {
 
-#define FUN_IODEVICE_BUFFERSIZE  (16 * 1024)
+#define FUN_IODEVICE_BUFFERSIZE (16 * 1024)
 
 class FUN_BASE_API IoDeviceImpl {
  public:
@@ -20,32 +20,91 @@ class FUN_BASE_API IoDeviceImpl {
   class RingBufferRef {
    public:
     // wrap functions from RingBuffer
-    inline void SetChunkSize(int32 size) { fun_check_ptr(buffer_); buffer_->SetChunkSize(size); }
-    inline int32 GetChunkSize() const { fun_check_ptr(buffer_); return buffer_->GetChunkSize(); }
-    inline int64 GetNextDataBlockSize() const { return (buffer_ ? buffer_->GetNextDataBlockSize() : int64(0)); }
-    inline const char* GetReadPointer() const { return (buffer_ ? buffer_->GetReadPointer() : nullptr); }
-    inline const char* GetReadPointerAtPosition(int64 position, int64& length) const { fun_check_ptr(buffer_); return buffer_->GetReadPointerAtPosition(position, length); }
-    inline void Free(int64 bytes) { fun_check_ptr(buffer_); buffer_->Free(bytes); }
-    inline char* Reverse(int64 bytes) { fun_check_ptr(buffer_); return buffer_->Reverse(bytes); }
-    inline char* ReverseFront(int64 bytes) { fun_check_ptr(buffer_); return buffer_->ReverseFront(bytes); }
-    inline void Truncate(int64 position) { fun_check_ptr(buffer_); buffer_->Truncate(position); }
-    inline void Chop(int64 bytes) { fun_check_ptr(buffer_); buffer_->Chop(bytes); }
+    inline void SetChunkSize(int32 size) {
+      fun_check_ptr(buffer_);
+      buffer_->SetChunkSize(size);
+    }
+    inline int32 GetChunkSize() const {
+      fun_check_ptr(buffer_);
+      return buffer_->GetChunkSize();
+    }
+    inline int64 GetNextDataBlockSize() const {
+      return (buffer_ ? buffer_->GetNextDataBlockSize() : int64(0));
+    }
+    inline const char* GetReadPointer() const {
+      return (buffer_ ? buffer_->GetReadPointer() : nullptr);
+    }
+    inline const char* GetReadPointerAtPosition(int64 position,
+                                                int64& length) const {
+      fun_check_ptr(buffer_);
+      return buffer_->GetReadPointerAtPosition(position, length);
+    }
+    inline void Free(int64 bytes) {
+      fun_check_ptr(buffer_);
+      buffer_->Free(bytes);
+    }
+    inline char* Reverse(int64 bytes) {
+      fun_check_ptr(buffer_);
+      return buffer_->Reverse(bytes);
+    }
+    inline char* ReverseFront(int64 bytes) {
+      fun_check_ptr(buffer_);
+      return buffer_->ReverseFront(bytes);
+    }
+    inline void Truncate(int64 position) {
+      fun_check_ptr(buffer_);
+      buffer_->Truncate(position);
+    }
+    inline void Chop(int64 bytes) {
+      fun_check_ptr(buffer_);
+      buffer_->Chop(bytes);
+    }
     inline bool IsEmpty() const { return !buffer_ || buffer_->IsEmpty(); }
     inline int32 GetChar() { return (buffer_ ? buffer_->GetChar() : -1); }
-    inline void PutChar(char c) { fun_check_ptr(buffer_); buffer_->PutChar(c); }
-    inline void UngetData(char c) { fun_check_ptr(buffer_); buffer_->UngetData(c); }
+    inline void PutChar(char c) {
+      fun_check_ptr(buffer_);
+      buffer_->PutChar(c);
+    }
+    inline void UngetData(char c) {
+      fun_check_ptr(buffer_);
+      buffer_->UngetData(c);
+    }
     inline int64 Size() const { return (buffer_ ? buffer_->Size() : int64(0)); }
-    inline void Clear() { if (buffer_) buffer_->Clear(); }
-    inline int64 IndexOf(char c) const { return (buffer_ ? buffer_->IndexOf(c, buffer_->Size()) : int64(-1)); }
-    inline int64 IndexOf(char c, int64 max_len, int64 position = 0) const { return (buffer_ ? buffer_->IndexOf(c, max_len, position) : int64(-1)); }
-    inline int64 Read(char* buf, int64 max_len) { return (buffer_ ? buffer_->Read(buf, max_len) : int64(0)); }
-    inline ByteArray Read() { return (buffer_ ? buffer_->Read() : ByteArray()); }
-    inline int64 Peek(char* buf, int64 max_len, int64 position = 0) const { return (buffer_ ? buffer_->Peek(buf, max_len, position) : int64(0)); }
-    inline void Append(const char* data, int64 size) { fun_check_ptr(buffer_); buffer_->Append(data, size); }
-    inline void Append(const ByteArray& array) { fun_check_ptr(buffer_); buffer_->Append(array); }
-    inline int64 Skip(int64 length) { return (buffer_ ? buffer_->Skip(length) : int64(0)); }
-    inline int64 ReadLine(char* buf, int64 max_len) { return (buffer_ ? buffer_->ReadLine(buf, max_len) : int64(-1)); }
-    inline bool CanReadLine() const { return buffer_ && buffer_->CanReadLine(); }
+    inline void Clear() {
+      if (buffer_) buffer_->Clear();
+    }
+    inline int64 IndexOf(char c) const {
+      return (buffer_ ? buffer_->IndexOf(c, buffer_->Size()) : int64(-1));
+    }
+    inline int64 IndexOf(char c, int64 max_len, int64 position = 0) const {
+      return (buffer_ ? buffer_->IndexOf(c, max_len, position) : int64(-1));
+    }
+    inline int64 Read(char* buf, int64 max_len) {
+      return (buffer_ ? buffer_->Read(buf, max_len) : int64(0));
+    }
+    inline ByteArray Read() {
+      return (buffer_ ? buffer_->Read() : ByteArray());
+    }
+    inline int64 Peek(char* buf, int64 max_len, int64 position = 0) const {
+      return (buffer_ ? buffer_->Peek(buf, max_len, position) : int64(0));
+    }
+    inline void Append(const char* data, int64 size) {
+      fun_check_ptr(buffer_);
+      buffer_->Append(data, size);
+    }
+    inline void Append(const ByteArray& array) {
+      fun_check_ptr(buffer_);
+      buffer_->Append(array);
+    }
+    inline int64 Skip(int64 length) {
+      return (buffer_ ? buffer_->Skip(length) : int64(0));
+    }
+    inline int64 ReadLine(char* buf, int64 max_len) {
+      return (buffer_ ? buffer_->ReadLine(buf, max_len) : int64(-1));
+    }
+    inline bool CanReadLine() const {
+      return buffer_ && buffer_->CanReadLine();
+    }
 
    private:
     RingBuffer* buffer_;
@@ -72,11 +131,7 @@ class FUN_BASE_API IoDeviceImpl {
 
   virtual bool PutCharHelper(char c);
 
-  enum AccessMode {
-    Unset,
-    Sequential,
-    RandomAccess
-  };
+  enum AccessMode { Unset, Sequential, RandomAccess };
   mutable AccessMode access_mode_;
 
   inline bool IsSequential() const {
@@ -87,8 +142,8 @@ class FUN_BASE_API IoDeviceImpl {
   }
 
   inline bool IsBufferEmpty() const {
-    return buffer_.IsEmpty() || (is_in_transaction_ && IsSequential()
-                  && transaction_position_ == buffer_.Size());
+    return buffer_.IsEmpty() || (is_in_transaction_ && IsSequential() &&
+                                 transaction_position_ == buffer_.Size());
   }
 
   bool AllWriteBuffersEmpty() const;
@@ -96,12 +151,14 @@ class FUN_BASE_API IoDeviceImpl {
   void SeekBuffer(int64 new_pos);
 
   inline void SetCurrentReadChannel(int32 channel) {
-    buffer_.buffer_ = (channel < read_buffers_.Count() ? &read_buffers_[channel] : nullptr);
+    buffer_.buffer_ =
+        (channel < read_buffers_.Count() ? &read_buffers_[channel] : nullptr);
     current_read_channel_ = channel;
   }
 
   inline void SetCurrentWriteChannel(int32 channel) {
-    write_buffer_.buffer_ = (channel < write_buffers_.Count() ? &write_buffers_[channel] : nullptr);
+    write_buffer_.buffer_ =
+        (channel < write_buffers_.Count() ? &write_buffers_[channel] : nullptr);
     current_write_channel_ = channel;
   }
 
@@ -123,4 +180,4 @@ class FUN_BASE_API IoDeviceImpl {
   IoDevice* outer_;
 };
 
-} // namespace fun
+}  // namespace fun

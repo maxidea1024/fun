@@ -40,6 +40,6 @@ void AndroidLogSink::Log(const LogMessage& msg) {
   __android_log_write(prio, tag_.c_str(), msg.GetText().c_str());
 }
 
-} // namespace fun
+}  // namespace fun
 
-#endif //#if FUN_PLATFORM == FUN_PLATFORM_ANDROID
+#endif  //#if FUN_PLATFORM == FUN_PLATFORM_ANDROID

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/ftl/functional.h" // Invoke
+#include "fun/base/ftl/functional.h"  // Invoke
 
 namespace fun {
 namespace algo {
@@ -11,7 +11,8 @@ namespace algo {
 // - element는 equal연산자를 지원해야함.
 
 template <typename Collection, typename Element>
-FUN_ALWAYS_INLINE size_t Count(const Collection& collection, const Element& value) {
+FUN_ALWAYS_INLINE size_t Count(const Collection& collection,
+                               const Element& value) {
   size_t count = 0;
   for (const auto& elem : collection) {
     if (elem == value) {
@@ -34,5 +35,5 @@ FUN_ALWAYS_INLINE size_t CountIf(const Collection& collection, Predicate pred) {
   return count;
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

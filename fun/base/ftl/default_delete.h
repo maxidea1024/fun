@@ -10,41 +10,36 @@ template <typename T>
 struct DefaultDelete {
   DefaultDelete() = default;
   DefaultDelete(const DefaultDelete&) = default;
-  DefaultDelete& operator = (const DefaultDelete&) = default;
+  DefaultDelete& operator=(const DefaultDelete&) = default;
   ~DefaultDelete() = default;
 
-  template <
-      typename U,
-      typename = typename EnableIf<PointerIsConvertibleFromTo<U, T>::Value>::Type
-    >
+  template <typename U, typename = typename EnableIf<
+                            PointerIsConvertibleFromTo<U, T>::Value>::Type>
   DefaultDelete(const DefaultDelete<U>&) {}
 
-  template <
-      typename U,
-      typename = typename EnableIf<PointerIsConvertibleFromTo<U, T>::Value>::Type
-    >
-  DefaultDelete& operator = (const DefaultDelete<U>&) {
+  template <typename U, typename = typename EnableIf<
+                            PointerIsConvertibleFromTo<U, T>::Value>::Type>
+  DefaultDelete& operator=(const DefaultDelete<U>&) {
     return *this;
   }
 
-  void operator()(T* ptr) const {
-    delete ptr;
-  }
+  void operator()(T* ptr) const { delete ptr; }
 };
-
 
 template <typename T>
 struct DefaultDelete<T[]> {
   DefaultDelete() = default;
   DefaultDelete(const DefaultDelete&) = default;
-  DefaultDelete& operator = (const DefaultDelete&) = default;
+  DefaultDelete& operator=(const DefaultDelete&) = default;
   ~DefaultDelete() = default;
 
-  template <typename U, typename = typename EnableIf<PointerIsConvertibleFromTo<U[], T[]>::Value>::Type>
+  template <typename U, typename = typename EnableIf<
+                            PointerIsConvertibleFromTo<U[], T[]>::Value>::Type>
   DefaultDelete(const DefaultDelete<U>&) {}
 
-  template <typename U, typename = typename EnableIf<PointerIsConvertibleFromTo<U[], T[]>::Value>::Type>
-  DefaultDelete& operator = (const DefaultDelete<U>&) {
+  template <typename U, typename = typename EnableIf<
+                            PointerIsConvertibleFromTo<U[], T[]>::Value>::Type>
+  DefaultDelete& operator=(const DefaultDelete<U>&) {
     return *this;
   }
 
@@ -55,4 +50,4 @@ struct DefaultDelete<T[]> {
   }
 };
 
-} // namespace fun
+}  // namespace fun

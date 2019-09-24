@@ -2,29 +2,22 @@
 
 #if FUN_PLATFORM_UNIX_FAMILY
 
-#include "fun/base/logging/log_message.h"
 #include <syslog.h>
+#include "fun/base/logging/log_message.h"
 
 namespace fun {
 
-const String SyslogSink::PROP_NAME     = "Name";
+const String SyslogSink::PROP_NAME = "Name";
 const String SyslogSink::PROP_FACILITY = "Facility";
-const String SyslogSink::PROP_OPTIONS  = "Options";
+const String SyslogSink::PROP_OPTIONS = "Options";
 
 SyslogSink::SyslogSink()
-  : options_(SYSLOG_CONS),
-    facility_(SYSLOG_USER),
-    opened_(false) {}
+    : options_(SYSLOG_CONS), facility_(SYSLOG_USER), opened_(false) {}
 
 SyslogSink::SyslogSink(const String& name, int options, int facility)
-  : name_(name),
-    options_(options),
-    facility_(facility),
-    opened_(false) {}
+    : name_(name), options_(options), facility_(facility), opened_(false) {}
 
-SyslogSink::~SyslogSink() {
-  Close();
-}
+SyslogSink::~SyslogSink() { Close(); }
 
 void SyslogSink::Open() {
   openlog(name_.c_str(), options_, facility_);
@@ -93,8 +86,11 @@ void SyslogSink::SetProperty(const String& name, const String& value) {
     }
   } else if (icompare(name, PROP_OPTIONS) == 0) {
     options_ = 0;
-    StringTokenizer tokenizer(value, "|+:;,", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
-    for (StringTokenizer::Iterator it = tokenizer.begin(); it != tokenizer.end(); ++it) {
+    StringTokenizer tokenizer(
+        value, "|+:;,",
+        StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+    for (StringTokenizer::Iterator it = tokenizer.begin();
+         it != tokenizer.end(); ++it) {
       if (icompare(*it, "LOG_CONS") == 0) {
         options_ |= SYSLOG_CONS;
       } else if (icompare(*it, "LOG_NDELAY") == 0) {
@@ -203,6 +199,6 @@ int SyslogSink::GetPrio(const LogMessage& msg) {
   }
 }
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_PLATFORM_UNIX_FAMILY
+#endif  // FUN_PLATFORM_UNIX_FAMILY

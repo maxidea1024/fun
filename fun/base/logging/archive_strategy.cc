@@ -2,13 +2,13 @@
 
 #if FUN_WITH_ARCHIVE_STRATEGY
 
-#include "fun/base/file.h"
-#include "fun/base/path.h"
-#include "fun/base/deflating_stream.h"
-#include "fun/base/stream_copier.h"
-#include "fun/base/exception.h"
 #include "fun/base/async_dispatcher.h"
 #include "fun/base/async_method.h"
+#include "fun/base/deflating_stream.h"
+#include "fun/base/exception.h"
+#include "fun/base/file.h"
+#include "fun/base/path.h"
+#include "fun/base/stream_copier.h"
 //#include "fun/base/void.h"
 #include "fun/base/file_stream.h"
 
@@ -20,12 +20,12 @@ namespace fun {
 
 class ArchiveCompressor : public AsyncDispatcher {
  public:
-  ArchiveCompressor()
-    : compress_(this, &ArchiveCompressor::CompressImpl) {}
+  ArchiveCompressor() : compress_(this, &ArchiveCompressor::CompressImpl) {}
 
   ~ArchiveCompressor() {}
 
-  AsyncMethod<void, String, ArchiveCompressor, AsyncStarter<AsyncDispatcher> > compress_;
+  AsyncMethod<void, String, ArchiveCompressor, AsyncStarter<AsyncDispatcher> >
+      compress_;
 
  protected:
   void CompressImpl(const String& path) {
@@ -56,24 +56,17 @@ class ArchiveCompressor : public AsyncDispatcher {
   }
 };
 
-
 //
 // ArchiveStrategy
 //
 
-ArchiveStrategy::ArchiveStrategy()
-  : compress_(false), compressor_(nullptr) {}
+ArchiveStrategy::ArchiveStrategy() : compress_(false), compressor_(nullptr) {}
 
-ArchiveStrategy::~ArchiveStrategy() {
-  delete compressor_;
-}
+ArchiveStrategy::~ArchiveStrategy() { delete compressor_; }
 
-void ArchiveStrategy::Compress(bool flag) {
-  compress_ = flag;
-}
+void ArchiveStrategy::Compress(bool flag) { compress_ = flag; }
 
-void ArchiveStrategy::MoveFile( const String& old_path,
-                                const String& new_path) {
+void ArchiveStrategy::MoveFile(const String& old_path, const String& new_path) {
   bool compressed = false;
 
   Path p(old_path);
@@ -113,7 +106,6 @@ bool ArchiveStrategy::Exists(const String& name) {
   }
 }
 
-
 //
 // ArchiveByNumberStrategy
 //
@@ -131,8 +123,7 @@ LogFile* ArchiveByNumberStrategy::Archive(LogFile* file) {
     path = base_path;
     path.Append(".");
     NumberFormatter::Append(path, ++n);
-  }
-  while (Exists(path));
+  } while (Exists(path));
 
   while (n >= 0) {
     String old_path = base_path;
@@ -149,6 +140,6 @@ LogFile* ArchiveByNumberStrategy::Archive(LogFile* file) {
   return new LogFile(base_path);
 }
 
-} // namespace fun
+}  // namespace fun
 
-#endif // FUN_WITH_ARCHIVE_STRATEGY
+#endif  // FUN_WITH_ARCHIVE_STRATEGY

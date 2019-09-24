@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
+#include "fun/base/container/array.h"
 #include "fun/base/file.h"
 #include "fun/base/timespan.h"
-#include "fun/base/container/array.h"
 
 namespace fun {
 
@@ -72,4 +72,4 @@ class FUN_BASE_API PurgeByCountStrategy : public PurgeStrategy {
   int32 count_;
 };
 
-} // namespace fun
+}  // namespace fun

@@ -9,8 +9,7 @@ namespace fun {
 //
 
 WinConsoleSink::WinConsoleSink()
-  : console_handle_(INVALID_HANDLE_VALUE),
-    is_file_(false) {
+    : console_handle_(INVALID_HANDLE_VALUE), is_file_(false) {
   console_handle_ = GetStdHandle(STD_OUTPUT_HANDLE);
 
   DWORD mode;
@@ -27,24 +26,25 @@ void WinConsoleSink::Log(const LogMessage& msg) {
 
   if (is_file_) {
     DWORD written;
-    WriteFile(console_handle_, text.ConstData(), static_cast<DWORD>(text.Len()), &written, NULL);
+    WriteFile(console_handle_, text.ConstData(), static_cast<DWORD>(text.Len()),
+              &written, NULL);
   } else {
     UString utext = UString::FromUtf8(text);
 
     DWORD written;
-    WriteConsoleW(console_handle_, utext.ConstData(), static_cast<DWORD>(utext.Len()), &written, NULL);
+    WriteConsoleW(console_handle_, utext.ConstData(),
+                  static_cast<DWORD>(utext.Len()), &written, NULL);
   }
 }
-
 
 //
 // WinColorConsoleSink
 //
 
 WinColorConsoleSink::WinColorConsoleSink()
-  : console_handle_(INVALID_HANDLE_VALUE),
-    is_file_(false),
-    enable_colors_(true) {
+    : console_handle_(INVALID_HANDLE_VALUE),
+      is_file_(false),
+      enable_colors_(true) {
   console_handle_ = GetStdHandle(STD_OUTPUT_HANDLE);
 
   DWORD mode;
@@ -68,12 +68,14 @@ void WinColorConsoleSink::Log(const LogMessage& msg) {
 
   if (is_file_) {
     DWORD written;
-    WriteFile(console_handle_, text.ConstData(), static_cast<DWORD>(text.Len()), &written, NULL);
+    WriteFile(console_handle_, text.ConstData(), static_cast<DWORD>(text.Len()),
+              &written, NULL);
   } else {
     UString utext = UString::FromUtf8(text);
 
     DWORD written;
-    WriteConsoleW(console_handle_, utext.ConstData(), static_cast<DWORD>(utext.Len()), &written, NULL);
+    WriteConsoleW(console_handle_, utext.ConstData(),
+                  static_cast<DWORD>(utext.Len()), &written, NULL);
   }
 
   if (enable_colors_ && !is_file_) {
@@ -171,23 +173,40 @@ WORD WinColorConsoleSink::ParseColor(const String& color) const {
 
 String WinColorConsoleSink::FormatColor(DWORD color) const {
   switch (color) {
-    case CC_BLACK:        return "Black";
-    case CC_RED:          return "Red";
-    case CC_GREEN:        return "Green";
-    case CC_BROWN:        return "Brown";
-    case CC_BLUE:         return "Blue";
-    case CC_MAGENTA:      return "Magenta";
-    case CC_CYAN:         return "Cyan";
-    case CC_GRAY:         return "Gray";
-    case CC_DARKGRAY:     return "DarkGray";
-    case CC_LIGHTRED:     return "LightRed";
-    case CC_LIGHTGREEN:   return "LightGreen";
-    case CC_YELLOW:       return "Yellow";
-    case CC_LIGHTBLUE:    return "LightBlue";
-    case CC_LIGHTMAGENTA: return "LightMagenta";
-    case CC_LIGHTCYAN:    return "LightCyan";
-    case CC_WHITE:        return "White";
-    default:              return "Invalid";
+    case CC_BLACK:
+      return "Black";
+    case CC_RED:
+      return "Red";
+    case CC_GREEN:
+      return "Green";
+    case CC_BROWN:
+      return "Brown";
+    case CC_BLUE:
+      return "Blue";
+    case CC_MAGENTA:
+      return "Magenta";
+    case CC_CYAN:
+      return "Cyan";
+    case CC_GRAY:
+      return "Gray";
+    case CC_DARKGRAY:
+      return "DarkGray";
+    case CC_LIGHTRED:
+      return "LightRed";
+    case CC_LIGHTGREEN:
+      return "LightGreen";
+    case CC_YELLOW:
+      return "Yellow";
+    case CC_LIGHTBLUE:
+      return "LightBlue";
+    case CC_LIGHTMAGENTA:
+      return "LightMagenta";
+    case CC_LIGHTCYAN:
+      return "LightCyan";
+    case CC_WHITE:
+      return "White";
+    default:
+      return "Invalid";
   }
 }
 
@@ -200,14 +219,14 @@ void WinColorConsoleSink::InitColors() {
     colors_[0] = CC_WHITE;
   }
 
-  colors_[LogLevel::Fatal]       = CC_LIGHTRED;
-  colors_[LogLevel::Critical]    = CC_LIGHTRED;
-  colors_[LogLevel::Error]       = CC_LIGHTRED;
-  colors_[LogLevel::Warning]     = CC_YELLOW;
-  colors_[LogLevel::Notice]      = colors_[0];
+  colors_[LogLevel::Fatal] = CC_LIGHTRED;
+  colors_[LogLevel::Critical] = CC_LIGHTRED;
+  colors_[LogLevel::Error] = CC_LIGHTRED;
+  colors_[LogLevel::Warning] = CC_YELLOW;
+  colors_[LogLevel::Notice] = colors_[0];
   colors_[LogLevel::Information] = colors_[0];
-  colors_[LogLevel::Debug]       = CC_GRAY;
-  colors_[LogLevel::Trace]       = CC_GRAY;
+  colors_[LogLevel::Debug] = CC_GRAY;
+  colors_[LogLevel::Trace] = CC_GRAY;
 }
 
-} // namespace fun
+}  // namespace fun

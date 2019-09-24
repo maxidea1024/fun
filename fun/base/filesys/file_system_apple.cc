@@ -3,7 +3,8 @@
 
 namespace fun {
 
-// make an Timespan object that represents the "epoch" for time_t (from a stat struct)
+// make an Timespan object that represents the "epoch" for time_t (from a stat
+// struct)
 const DateTime MAC_EPOCH(1970, 1, 1);
 
 namespace {
@@ -16,37 +17,36 @@ FileStatData MacStatToFunFileData(struct stat& file_info) {
     file_size_ = file_info.st_size;
   }
 
-  return FileStatData(
-    MAC_EPOCH + Timespan(0, 0, file_info.st_ctime),
-    MAC_EPOCH + Timespan(0, 0, file_info.st_atime),
-    MAC_EPOCH + Timespan(0, 0, file_info.st_mtime),
-    file_size_,
-    is_directory,
-    !!(file_info.st_mode & S_IWUSR));
+  return FileStatData(MAC_EPOCH + Timespan(0, 0, file_info.st_ctime),
+                      MAC_EPOCH + Timespan(0, 0, file_info.st_atime),
+                      MAC_EPOCH + Timespan(0, 0, file_info.st_mtime),
+                      file_size_, is_directory,
+                      !!(file_info.st_mode & S_IWUSR));
 }
 
-} // namespace
-
+}  // namespace
 
 /**
- * Mac file handle implementation which limits number of open files per thread. This
- * is to prevent running out of system file handles (250). Should not be neccessary when
- * using pak file (e.g., SHIPPING?) so not particularly optimized. Only manages
- * files which are opened READ_ONLY.
-*/
-#define MANAGE_FILE_HANDLES  (FUN_PLATFORM == FUN_PLATFORM_MAC) // !FUN_BUILD_SHIPPING
+ * Mac file handle implementation which limits number of open files per thread.
+ * This is to prevent running out of system file handles (250). Should not be
+ * neccessary when using pak file (e.g., SHIPPING?) so not particularly
+ * optimized. Only manages files which are opened READ_ONLY.
+ */
+#define MANAGE_FILE_HANDLES \
+  (FUN_PLATFORM == FUN_PLATFORM_MAC)  // !FUN_BUILD_SHIPPING
 
 class FUN_BASE_API AppleFile : public IFile {
   enum { READWRITE_SIZE = 1024 * 1024 };
 
-public:
+ public:
   AppleFile(int32 file_handle, const char* filename, bool is_readonly)
-    : file_handle_(file_handle)
+      : file_handle_(file_handle)
 #if MANAGE_FILE_HANDLES
-    , filename_(filename)
-    , handle_slot_(-1)
-    , file_offset_(0)
-    , file_size_(0)
+        ,
+        filename_(filename),
+        handle_slot_(-1),
+        file_offset_(0),
+        file_size_(0)
 #endif
   {
     fun_check(file_handle_ > -1);
@@ -70,8 +70,7 @@ public:
         close(file_handle_);
         g_active_handles[handle_slot_] = nullptr;
       }
-    }
-    else
+    } else
 #endif
     {
       close(file_handle_);
@@ -83,8 +82,7 @@ public:
 #if MANAGE_FILE_HANDLES
     if (IsManaged()) {
       return file_offset_;
-    }
-    else
+    } else
 #endif
     {
       fun_check(IsValid());
@@ -98,9 +96,10 @@ public:
 #if MANAGE_FILE_HANDLES
     if (IsManaged()) {
       file_offset_ = new_pos >= file_size_ ? file_size_ - 1 : new_pos;
-      return IsValid() && g_active_handles[handle_slot_] == this ? lseek(file_handle_, file_offset_, SEEK_SET) != -1 : true;
-    }
-    else
+      return IsValid() && g_active_handles[handle_slot_] == this
+                 ? lseek(file_handle_, file_offset_, SEEK_SET) != -1
+                 : true;
+    } else
 #endif
     {
       fun_check(IsValid());
@@ -113,10 +112,13 @@ public:
 
 #if MANAGE_FILE_HANDLES
     if (IsManaged()) {
-      file_offset_ = (relative_pos_to_end >= file_size_) ? 0 : (file_size_ + relative_pos_to_end - 1);
-      return IsValid() && g_active_handles[handle_slot_] == this ? lseek(file_handle_, file_offset_, SEEK_SET) != -1 : true;
-    }
-    else
+      file_offset_ = (relative_pos_to_end >= file_size_)
+                         ? 0
+                         : (file_size_ + relative_pos_to_end - 1);
+      return IsValid() && g_active_handles[handle_slot_] == this
+                 ? lseek(file_handle_, file_offset_, SEEK_SET) != -1
+                 : true;
+    } else
 #endif
     {
       fun_check(IsValid());
@@ -131,8 +133,7 @@ public:
       int64 bytes_read = ReadInternal(dst, len_to_read);
       file_offset_ += bytes_read;
       return bytes_read == len_to_read;
-    }
-    else
+    } else
 #endif
     {
       return ReadInternal(dst, len_to_read) == len_to_read;
@@ -154,13 +155,11 @@ public:
     return true;
   }
 
-  virtual int64 Size() override
-  {
+  virtual int64 Size() override {
 #if MANAGE_FILE_HANDLES
     if (IsManaged()) {
       return file_size_;
-    }
-    else
+    } else
 #endif
     {
       struct stat file_info;
@@ -171,13 +170,13 @@ public:
 
  private:
 #if MANAGE_FILE_HANDLES
-  inline bool IsManaged() {
-    return handle_slot_ != -1;
-  }
+  inline bool IsManaged() { return handle_slot_ != -1; }
 
   void ActivateSlot() {
     if (IsManaged()) {
-      if (g_active_handles[handle_slot_] != this || (g_active_handles[handle_slot_] && g_active_handles[handle_slot_]->file_handle_ == -1)) {
+      if (g_active_handles[handle_slot_] != this ||
+          (g_active_handles[handle_slot_] &&
+           g_active_handles[handle_slot_]->file_handle_ == -1)) {
         ReserveSlot();
 
         file_handle_ = open(TCHAR_TO_UTF8(*filename_), O_RDONLY);
@@ -231,7 +230,8 @@ public:
       fun_check(dst);
       int64 this_read = read(file_handle_, dst, this_size);
       if (this_read == -1) {
-        // Reading from smb can sometimes result in a EINVAL error. Try again a few times with a smaller read buffer.
+        // Reading from smb can sometimes result in a EINVAL error. Try again a
+        // few times with a smaller read buffer.
         if (errno == EINVAL && max_read_size > 1024) {
           max_read_size /= 2;
           continue;
@@ -252,10 +252,12 @@ public:
   int32 file_handle_;
 
 #if MANAGE_FILE_HANDLES
-  // Holds the name of the file that this handle represents. Kept around for possible reopen of file.
+  // Holds the name of the file that this handle represents. Kept around for
+  // possible reopen of file.
   string filename_;
 
-  // Most recent valid slot index for this handle; >=0 for handles which are managed.
+  // Most recent valid slot index for this handle; >=0 for handles which are
+  // managed.
   int32 handle_slot_;
 
   // Current file offset; valid if a managed handle.
@@ -270,11 +272,8 @@ public:
   static __thread double g_access_times[ACTIVE_HANDLE_COUNT];
 #endif
 
-  inline bool IsValid() {
-    return file_handle_ != -1;
-  }
+  inline bool IsValid() { return file_handle_ != -1; }
 };
-
 
 #if MANAGE_FILE_HANDLES
 __thread AppleFile* AppleFile::g_active_handles[AppleFile::ACTIVE_HANDLE_COUNT];
@@ -321,7 +320,7 @@ bool AppleFileSystem::DeleteFile(const char* filename) {
 
 bool AppleFileSystem::IsReadOnly(const char* filename) {
   if (access(TCHAR_TO_UTF8(*NormalizeFilename(filename)), F_OK) == -1) {
-    return false; // file doesn't exist
+    return false;  // file doesn't exist
   }
 
   if (access(TCHAR_TO_UTF8(*NormalizeFilename(filename)), W_OK) == -1) {
@@ -331,9 +330,11 @@ bool AppleFileSystem::IsReadOnly(const char* filename) {
 }
 
 bool AppleFileSystem::MoveFile(const char* to, const char* from) {
-  int32 result = rename(TCHAR_TO_UTF8(*NormalizeFilename(from)), TCHAR_TO_UTF8(*NormalizeFilename(to)));
+  int32 result = rename(TCHAR_TO_UTF8(*NormalizeFilename(from)),
+                        TCHAR_TO_UTF8(*NormalizeFilename(to)));
   if (result == -1 && errno == EXDEV) {
-    // Copy the file if rename failed because to and from are on different file systems
+    // Copy the file if rename failed because to and from are on different file
+    // systems
     if (CopyFile(to, from)) {
       DeleteFile(from);
       result = 0;
@@ -350,7 +351,8 @@ bool AppleFileSystem::SetReadOnly(const char* filename, bool readonly) {
     } else {
       file_info.st_mode |= S_IWUSR;
     }
-    return chmod(TCHAR_TO_UTF8(*NormalizeFilename(filename)), file_info.st_mode) == 0;
+    return chmod(TCHAR_TO_UTF8(*NormalizeFilename(filename)),
+                 file_info.st_mode) == 0;
   }
   return false;
 }
@@ -367,7 +369,8 @@ DateTime AppleFileSystem::GetTimestamp(const char* filename) {
   return MAC_EPOCH + time_since_epoch;
 }
 
-void AppleFileSystem::SetTimestamp(const char* filename, const DateTime& timestamp) {
+void AppleFileSystem::SetTimestamp(const char* filename,
+                                   const DateTime& timestamp) {
   // get file times
   struct stat file_info;
   if (stat(filename, &file_info) == 0) {
@@ -409,7 +412,8 @@ IFile* AppleFileSystem::OpenRead(const char* filename, bool allow_write) {
   return nullptr;
 }
 
-IFile* AppleFileSystem::OpenWrite(const char* filename, bool append, bool allow_read) {
+IFile* AppleFileSystem::OpenWrite(const char* filename, bool append,
+                                  bool allow_read) {
   int flags = O_CREAT;
   if (!append) {
     flags |= O_TRUNC;
@@ -420,10 +424,13 @@ IFile* AppleFileSystem::OpenWrite(const char* filename, bool append, bool allow_
     flags |= O_WRONLY;
   }
 
-  int32 handle = open(TCHAR_TO_UTF8(*NormalizeFilename(filename)), flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+  int32 handle =
+      open(TCHAR_TO_UTF8(*NormalizeFilename(filename)), flags,
+           S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
   if (handle != -1) {
 #if MANAGE_FILE_HANDLES
-    AppleFile* file = new AppleFile(handle, *NormalizeDirectory(filename), false);
+    AppleFile* file =
+        new AppleFile(handle, *NormalizeDirectory(filename), false);
 #else
     AppleFile* file = new AppleFile(handle, filename, false);
 #endif
@@ -445,10 +452,14 @@ bool AppleFileSystem::DirectoryExists(const char* directory) {
 }
 
 bool AppleFileSystem::CreateDirectory(const char* directory) {
-  @autoreleasepool
-  {
-    CFStringRef cf_directory = CPlatformString::TCHARToCFString(*NormalizeFilename(directory));
-    bool result = [[NSFileManager defaultManager] createDirectoryAtPath:(NSString*)cf_directory withIntermediateDirectories:true attributes:nil error:nil];
+  @autoreleasepool {
+    CFStringRef cf_directory =
+        CPlatformString::TCHARToCFString(*NormalizeFilename(directory));
+    bool result = [[NSFileManager defaultManager]
+              createDirectoryAtPath:(NSString*)cf_directory
+        withIntermediateDirectories:true
+                         attributes:nil
+                              error:nil];
     CFRelease(cf_directory);
     return result;
   }
@@ -467,43 +478,56 @@ FileStatData AppleFileSystem::GetStatData(const char* filename_or_directory) {
   return FileStatData();
 }
 
-bool AppleFileSystem::IterateDirectory(const char* directory, DirectoryVisitor& visitor) {
-  @autoreleasepool
-  {
+bool AppleFileSystem::IterateDirectory(const char* directory,
+                                       DirectoryVisitor& visitor) {
+  @autoreleasepool {
     const String directory_str = directory;
     const String normalized_directory_str = NormalizeFilename(directory);
 
     return IterateDirectoryCommon(directory, [&](struct dirent* de) -> bool {
       // Normalize any unicode forms so we match correctly
-      const string normalized_filename = UTF8_TO_TCHAR(([[[NSString stringWithUTF8String:de->d_name] precomposedStringWithCanonicalMapping] cStringUsingEncoding:NSUTF8StringEncoding]));
+      const string normalized_filename =
+          UTF8_TO_TCHAR(([[[NSString stringWithUTF8String:de->d_name]
+              precomposedStringWithCanonicalMapping]
+              cStringUsingEncoding:NSUTF8StringEncoding]));
 
-      // Figure out whether it's a directory. Some protocols (like NFS) do not voluntarily return this as part of the directory entry, and need to be queried manually.
+      // Figure out whether it's a directory. Some protocols (like NFS) do not
+      // voluntarily return this as part of the directory entry, and need to be
+      // queried manually.
       bool is_directory = (de->d_type == DT_DIR);
       if (de->d_type == DT_UNKNOWN) {
         struct stat file_info;
-        if (stat(TCHAR_TO_UTF8(*(normalized_directory_str / normalized_filename)), &file_info) == 0) {
+        if (stat(TCHAR_TO_UTF8(
+                     *(normalized_directory_str / normalized_filename)),
+                 &file_info) == 0) {
           is_directory = S_ISDIR(file_info.st_mode);
         }
       }
 
-      return visitor.Visit(*(directory_str / normalized_filename), is_directory);
+      return visitor.Visit(*(directory_str / normalized_filename),
+                           is_directory);
     });
   }
 }
 
-bool AppleFileSystem::IterateDirectoryStat(const char* directory, DirectoryStatVisitor& visitor) {
-  @autoreleasepool
-  {
+bool AppleFileSystem::IterateDirectoryStat(const char* directory,
+                                           DirectoryStatVisitor& visitor) {
+  @autoreleasepool {
     const string directory_str = directory;
     const string normalized_directory_str = NormalizeFilename(directory);
 
     return IterateDirectoryCommon(directory, [&](struct dirent* de) -> bool {
       // Normalize any unicode forms so we match correctly
-      const string normalized_filename = UTF8_TO_TCHAR(([[[NSString stringWithUTF8String:de->d_name] precomposedStringWithCanonicalMapping] cStringUsingEncoding:NSUTF8StringEncoding]));
+      const string normalized_filename =
+          UTF8_TO_TCHAR(([[[NSString stringWithUTF8String:de->d_name]
+              precomposedStringWithCanonicalMapping]
+              cStringUsingEncoding:NSUTF8StringEncoding]));
 
       struct stat file_info;
-      if (stat(TCHAR_TO_UTF8(*(normalized_directory_str / normalized_filename)), &file_info) == 0) {
-        return visitor.Visit(*(directory_str / normalized_filename), MacStatToFunFileData(file_info));
+      if (stat(TCHAR_TO_UTF8(*(normalized_directory_str / normalized_filename)),
+               &file_info) == 0) {
+        return visitor.Visit(*(directory_str / normalized_filename),
+                             MacStatToFunFileData(file_info));
       }
 
       return true;
@@ -511,14 +535,17 @@ bool AppleFileSystem::IterateDirectoryStat(const char* directory, DirectoryStatV
   }
 }
 
-bool AppleFileSystem::IterateDirectoryCommon(const char* directory, const FunctionRef<bool (struct dirent*)>& visitor) {
+bool AppleFileSystem::IterateDirectoryCommon(
+    const char* directory, const FunctionRef<bool(struct dirent*)>& visitor) {
   bool result = false;
   DIR* handle = opendir(directory[0] ? TCHAR_TO_UTF8(directory) : ".");
   if (handle) {
     result = true;
     struct dirent* de;
     while ((de = readdir(handle)) != nullptr) {
-      if (CStringTraitsA::Strcmp(de->d_name, ".") && CStringTraitsA::Strcmp(de->d_name, "..") && CStringTraitsA::Strcmp(de->d_name, ".DS_Store")) {
+      if (CStringTraitsA::Strcmp(de->d_name, ".") &&
+          CStringTraitsA::Strcmp(de->d_name, "..") &&
+          CStringTraitsA::Strcmp(de->d_name, ".DS_Store")) {
         result = visitor(de);
       }
     }
@@ -543,4 +570,4 @@ int32 AppleFileSystem::stat(const char* filename, struct stat* out_file_info) {
   return stat(TCHAR_TO_UTF8(*NormalizeFilename(filename)), out_file_info);
 }
 
-} // namespace fun
+}  // namespace fun

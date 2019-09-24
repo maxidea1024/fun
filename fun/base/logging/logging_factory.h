@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/logging/log_sink.h"
-#include "fun/base/logging/log_formatter.h"
 #include "fun/base/dynamic_factory.h"
 #include "fun/base/ftl/shared_ptr.h"
+#include "fun/base/logging/log_formatter.h"
+#include "fun/base/logging/log_sink.h"
 
 namespace fun {
 
@@ -50,7 +50,8 @@ class FUN_BASE_API LoggingFactory {
   /**
    * Registers a formatter class with the LoggingFactory.
    */
-  void RegisterFormatterClass(const String& class_name, FormatterFactory* factory);
+  void RegisterFormatterClass(const String& class_name,
+                              FormatterFactory* factory);
 
   /**
    * Creates a new Sink instance from specified class.
@@ -81,4 +82,4 @@ class FUN_BASE_API LoggingFactory {
   DynamicFactory<LogFormatter> formatter_factory_;
 };
 
-} // namespace fun
+}  // namespace fun

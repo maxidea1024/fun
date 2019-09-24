@@ -1,27 +1,23 @@
 ﻿#include "fun/base/encoding/double_byte_encoding.h"
-#include "fun/base/string/string.h"
 #include <algorithm>
+#include "fun/base/string/string.h"
 
 namespace fun {
 
-DoubleByteEncoding::DoubleByteEncoding( const char* names[],
-                                        const TextEncoding::CharacterMap& char_map,
-                                        const Mapping mapping_table[],
-                                        size_t mapping_table_size,
-                                        const Mapping reverse_mapping_table[],
-                                        size_t reverse_mapping_table_size)
-  : names_(names),
-    char_map_(char_map),
-    mapping_table_(mapping_table),
-    mapping_table_size_(mapping_table_size),
-    reverse_mapping_table_(reverse_mapping_table),
-    reverse_mapping_table_size_(reverse_mapping_table_size) {}
+DoubleByteEncoding::DoubleByteEncoding(
+    const char* names[], const TextEncoding::CharacterMap& char_map,
+    const Mapping mapping_table[], size_t mapping_table_size,
+    const Mapping reverse_mapping_table[], size_t reverse_mapping_table_size)
+    : names_(names),
+      char_map_(char_map),
+      mapping_table_(mapping_table),
+      mapping_table_size_(mapping_table_size),
+      reverse_mapping_table_(reverse_mapping_table),
+      reverse_mapping_table_size_(reverse_mapping_table_size) {}
 
 DoubleByteEncoding::~DoubleByteEncoding() {}
 
-const char* DoubleByteEncoding::GetCanonicalName() const {
-  return names_[0];
-}
+const char* DoubleByteEncoding::GetCanonicalName() const { return names_[0]; }
 
 bool DoubleByteEncoding::IsA(const String& encoding_name) const {
   for (const char** name = names_; *name; ++name) {
@@ -103,7 +99,8 @@ int32 DoubleByteEncoding::SequenceLength(const uint8* bytes, int32 len) const {
 }
 
 struct MappingLessThan {
-  bool operator () (const DoubleByteEncoding::Mapping& mapping, const uint16& key) const {
+  bool operator()(const DoubleByteEncoding::Mapping& mapping,
+                  const uint16& key) const {
     return mapping.from < key;
   }
 };
@@ -122,7 +119,8 @@ int32 DoubleByteEncoding::Map(uint16 encoded) const {
 int32 DoubleByteEncoding::ReverseMap(int32 cp) const {
   const Mapping* begin = reverse_mapping_table_;
   const Mapping* end = begin + reverse_mapping_table_size_;
-  const Mapping* it = std::lower_bound(begin, end, static_cast<uint16>(cp), MappingLessThan());
+  const Mapping* it =
+      std::lower_bound(begin, end, static_cast<uint16>(cp), MappingLessThan());
   if (it != end && it->from == cp) {
     return it->to;
   } else {
@@ -130,4 +128,4 @@ int32 DoubleByteEncoding::ReverseMap(int32 cp) const {
   }
 }
 
-} // namespace fun
+}  // namespace fun

@@ -39,7 +39,8 @@ FUN_ALWAYS_INLINE T Accumulate(const A& input, T init) {
 }
 
 /**
- * Sums a range by applying map_op to each element, and then summing the results.
+ * Sums a range by applying map_op to each element, and then summing the
+ * results.
  *
  * \param input - Any iterable type
  * \param init - Initial value for the summation
@@ -49,7 +50,8 @@ FUN_ALWAYS_INLINE T Accumulate(const A& input, T init) {
  * \return the result of mapping and then summing all the elements of input
  */
 template <typename T, typename A, typename MapOp, typename Op>
-FUN_ALWAYS_INLINE T TransformAccumulate(const A& input, MapOp map_op, T init, Op op) {
+FUN_ALWAYS_INLINE T TransformAccumulate(const A& input, MapOp map_op, T init,
+                                        Op op) {
   T result = MoveTemp(init);
   for (auto&& element : input) {
     result = op(MoveTemp(result), map_op(element));
@@ -59,7 +61,8 @@ FUN_ALWAYS_INLINE T TransformAccumulate(const A& input, MapOp map_op, T init, Op
 }
 
 /**
- * Sums a range by applying map_op to each element, and then summing the results.
+ * Sums a range by applying map_op to each element, and then summing the
+ * results.
  *
  * \param input - Any iterable type
  * \param init - Initial value for the summation
@@ -72,5 +75,5 @@ FUN_ALWAYS_INLINE T TransformAccumulate(const A& input, MapOp map_op, T init) {
   return TransformAccumulate(input, map_op, MoveTemp(init), Plus<>());
 }
 
-} // namespace algo
-} // namespace fun
+}  // namespace algo
+}  // namespace fun

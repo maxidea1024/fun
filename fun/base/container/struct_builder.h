@@ -7,8 +7,7 @@ namespace fun {
 
 class StructBuilder {
  public:
-  FUN_ALWAYS_INLINE StructBuilder()
-    : end_of_last_member_(0), alignment_(0) {}
+  FUN_ALWAYS_INLINE StructBuilder() : end_of_last_member_(0), alignment_(0) {}
 
   FUN_ALWAYS_INLINE
   int32 AddMember(int32 member_size, int32 member_alignment) {
@@ -22,13 +21,11 @@ class StructBuilder {
     return Align(end_of_last_member_, alignment_);
   }
 
-  FUN_ALWAYS_INLINE int32 GetAlignment() const {
-    return alignment_;
-  }
+  FUN_ALWAYS_INLINE int32 GetAlignment() const { return alignment_; }
 
  private:
   int32 end_of_last_member_;
   int32 alignment_;
 };
 
-} // namespace fun
+}  // namespace fun

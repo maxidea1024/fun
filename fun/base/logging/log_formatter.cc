@@ -19,4 +19,4 @@ String LogFormatter::GetProperty(const String& name) const {
   throw PropertyNotSupportedException();
 }
 
-} // namespace fun
+}  // namespace fun
