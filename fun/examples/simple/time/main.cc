@@ -16,4 +16,3 @@ int main() {
   server.Start();
   loop.Loop();
 }
-
