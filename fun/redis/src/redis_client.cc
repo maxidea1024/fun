@@ -1,6 +1,7 @@
 ﻿#include "fun/redis/client.h"
 
-namespace cpp_redis {
+namespace fun {
+namespace redis {
 
 Client::Client() : reconnecting_(false), cancel_(false), callbacks_running_(0) {
   __CPP_REDIS_LOG(debug, "cpp_redis::Client created");
@@ -23,12 +24,12 @@ Client::~Client() {
 
   // If for some reason Sentinel is connected then disconnect now.
   if (sentinel_.IsConnected()) {
-    sentinel_.disconnect(true);
+    sentinel_.Disconnect(true);
   }
 
   // disconnect underlying tcp socket
   if (conn_.IsConnected()) {
-    conn_.disconnect(true);
+    conn_.Disconnect(true);
   }
 
   __CPP_REDIS_LOG(debug, "cpp_redis::Client destroyed");
@@ -90,7 +91,7 @@ void Client::Disconnect(bool wait_for_removal) {
   __CPP_REDIS_LOG(debug, "cpp_redis::Client attempts to disconnect");
 
   // close connection
-  conn_.disconnect(wait_for_removal);
+  conn_.Disconnect(wait_for_removal);
 
   // make sure we clear buffer of unsent commands
   ClearCallbacks();
@@ -382,11 +383,11 @@ void Client::Reconnect() {
 // fun::ToString 으로 대체 가능할듯...
 String Client::aggregate_method_to_string(AggregateMethod method) const {
   switch (method) {
-    case AggregateMethod::sum:
+    case AggregateMethod::Sum:
       return "SUM";
-    case AggregateMethod::min:
+    case AggregateMethod::Min:
       return "MIN";
-    case AggregateMethod::max:
+    case AggregateMethod::Max:
       return "MAX";
     default:
       return "";
@@ -396,13 +397,13 @@ String Client::aggregate_method_to_string(AggregateMethod method) const {
 // fun::ToString 으로 대체 가능할듯...
 String Client::geo_unit_to_string(GeoUnit unit) const {
   switch (unit) {
-    case GeoUnit::m:
+    case GeoUnit::M:
       return "m";
-    case GeoUnit::km:
+    case GeoUnit::Km:
       return "km";
-    case GeoUnit::ft:
+    case GeoUnit::Ft:
       return "ft";
-    case GeoUnit::mi:
+    case GeoUnit::Mi:
       return "mi";
     default:
       return "";
@@ -413,11 +414,11 @@ String Client::geo_unit_to_string(GeoUnit unit) const {
 String Client::bitfield_operation_type_to_string(
     BitfieldOperationType operation) const {
   switch (operation) {
-    case BitfieldOperationType::get:
+    case BitfieldOperationType::Get:
       return "GET";
-    case BitfieldOperationType::set:
+    case BitfieldOperationType::Set:
       return "SET";
-    case BitfieldOperationType::incrby:
+    case BitfieldOperationType::Incrby:
       return "INCRBY";
     default:
       return "";
@@ -427,11 +428,11 @@ String Client::bitfield_operation_type_to_string(
 // fun::ToString 으로 대체 가능할듯...
 String Client::overflow_type_to_string(OverflowType type) const {
   switch (type) {
-    case OverflowType::wrap:
+    case OverflowType::Wrap:
       return "WRAP";
-    case OverflowType::sat:
+    case OverflowType::Sat:
       return "SAT";
-    case OverflowType::fail:
+    case OverflowType::Fail:
       return "FAIL";
     default:
       return "";
@@ -4447,4 +4448,5 @@ Future<Reply> Client::zunionstore(const String& destination, int32 numkeys,
   });
 }
 
-}  // namespace cpp_redis
+} // namespace redis
+} // namespace fun

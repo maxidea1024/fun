@@ -21,6 +21,7 @@ const Reply& ReplyBuilder::GetFront() const {
     // TODO throw exception
     //"No available reply"
   }
+
   return available_replies_[0];
 }
 
@@ -29,6 +30,7 @@ void ReplyBuilder::PopFront() {
     // TODO throw exception
     //"No available reply"
   }
+
   available_replies_.RemoveAt(0);
 }
 
