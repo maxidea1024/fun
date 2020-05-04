@@ -11,9 +11,9 @@ class IntegerBuilder : public IBuilder {
   virtual ~IntegerBuilder() = default;
 
   IntegerBuilder(const IntegerBuilder&) = delete;
-  IntegerBuilder& operator = (const IntegerBuilder&) = delete;
+  IntegerBuilder& operator=(const IntegerBuilder&) = delete;
 
-  IBuilder& operator << (String& buffer) override;
+  IBuilder& operator<<(String& buffer) override;
   bool ReplyReady() const override;
   Reply GetReply() const override;
 
@@ -26,5 +26,5 @@ class IntegerBuilder : public IBuilder {
   Reply reply_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

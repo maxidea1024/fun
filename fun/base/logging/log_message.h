@@ -1,14 +1,14 @@
 ﻿#pragma once
 
 #include "fun/base/base.h"
-#include "fun/base/logging/log_level.h"
-#include "fun/base/timestamp.h"
-#include "fun/base/string/string.h"
 #include "fun/base/container/map.h"
+#include "fun/base/logging/log_level.h"
+#include "fun/base/string/string.h"
+#include "fun/base/timestamp.h"
 
 namespace fun {
 
-//TODO __FUNCTION__도 지원하는건 어떨런지??
+// TODO __FUNCTION__도 지원하는건 어떨런지??
 
 /**
  * This class represents a log message that is sent through a
@@ -52,11 +52,8 @@ class FUN_BASE_API LogMessage {
    *
    * The thread and process ids are set.
    */
-  LogMessage( const String& source,
-              const String& text,
-              LogLevel::Type level,
-              const char* file,
-              int line);
+  LogMessage(const String& source, const String& text, LogLevel::Type level,
+             const char* file, int line);
 
   /**
    * Creates a LogMessage by copying another one.
@@ -81,12 +78,12 @@ class FUN_BASE_API LogMessage {
   /**
    * Assignment operator.
    */
-  LogMessage& operator = (const LogMessage& other);
+  LogMessage& operator=(const LogMessage& other);
 
   /**
    * Assignment operator.
    */
-  LogMessage& operator = (LogMessage&& other);
+  LogMessage& operator=(LogMessage&& other);
 
   /**
    * Swaps the message with another one.
@@ -230,7 +227,7 @@ class FUN_BASE_API LogMessage {
    * with the given name. Throws a NotFoundException if the
    * parameter does not exist.
    */
-  const String& operator [] (const String& param) const;
+  const String& operator[](const String& param) const;
 
   /**
    * Returns a reference to the value of the parameter with the
@@ -238,11 +235,11 @@ class FUN_BASE_API LogMessage {
    * If the parameter does not exist, it is created with an
    * empty string value.
    */
-  String& operator [] (const String& param);
+  String& operator[](const String& param);
 
  protected:
   void Init();
-  using StringMap = Map<String,String>;
+  using StringMap = Map<String, String>;
 
  private:
   String source_;
@@ -258,7 +255,6 @@ class FUN_BASE_API LogMessage {
   StringMap* map_;
 };
 
-
 //
 // inlines
 //
@@ -267,45 +263,31 @@ FUN_ALWAYS_INLINE const String& LogMessage::GetSource() const {
   return source_;
 }
 
-FUN_ALWAYS_INLINE const String& LogMessage::GetText() const {
-  return text_;
-}
+FUN_ALWAYS_INLINE const String& LogMessage::GetText() const { return text_; }
 
-FUN_ALWAYS_INLINE LogLevel::Type LogMessage::GetLevel() const {
-  return level_;
-}
+FUN_ALWAYS_INLINE LogLevel::Type LogMessage::GetLevel() const { return level_; }
 
-FUN_ALWAYS_INLINE const Timestamp& LogMessage::GetTime() const {
-  return time_;
-}
+FUN_ALWAYS_INLINE const Timestamp& LogMessage::GetTime() const { return time_; }
 
 FUN_ALWAYS_INLINE const String& LogMessage::GetThread() const {
   return thread_;
 }
 
-FUN_ALWAYS_INLINE long LogMessage::GetTid() const {
-  return tid_;
-}
+FUN_ALWAYS_INLINE long LogMessage::GetTid() const { return tid_; }
 
-FUN_ALWAYS_INLINE intptr_t LogMessage::GetOsTid() const {
-  return os_tid_;
-}
+FUN_ALWAYS_INLINE intptr_t LogMessage::GetOsTid() const { return os_tid_; }
 
-FUN_ALWAYS_INLINE long LogMessage::GetPid() const {
-  return pid_;
-}
+FUN_ALWAYS_INLINE long LogMessage::GetPid() const { return pid_; }
 
 FUN_ALWAYS_INLINE const char* LogMessage::GetSourceFile() const {
   return file_;
 }
 
-FUN_ALWAYS_INLINE int LogMessage::GetSourceLine() const {
-  return line_;
-}
+FUN_ALWAYS_INLINE int LogMessage::GetSourceLine() const { return line_; }
 
-//TODO 제거하는 쪽으로 해보자...
-//FUN_ALWAYS_INLINE void Swap(LogMessage& lhs, LogMessage& rhs) {
+// TODO 제거하는 쪽으로 해보자...
+// FUN_ALWAYS_INLINE void Swap(LogMessage& lhs, LogMessage& rhs) {
 //  lhs.Swap(rhs);
 //}
 
-} // namespace fun
+}  // namespace fun

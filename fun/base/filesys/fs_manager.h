@@ -1,9 +1,8 @@
 ﻿#pragma once
 
-#include "fun/base/base.h"
-
 #include "HAL/PlatformTypes.h"
 #include "Platform/Generic/GenericPlatformFS.h"
+#include "fun/base/base.h"
 #include "fun/base/flags.h"
 
 namespace fun {

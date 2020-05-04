@@ -1,4 +1,5 @@
 ﻿#include "fun/base/digest/sha1_digester.h"
+
 #include "fun/base/byte_order.h"
 
 namespace fun {

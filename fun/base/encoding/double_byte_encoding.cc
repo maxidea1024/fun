@@ -1,5 +1,7 @@
 ﻿#include "fun/base/encoding/double_byte_encoding.h"
+
 #include <algorithm>
+
 #include "fun/base/string/string.h"
 
 namespace fun {

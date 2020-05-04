@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/option_set.h"
+
 #include "fun/base/exception.h"
 #include "fun/framework/option_exception.h"
 

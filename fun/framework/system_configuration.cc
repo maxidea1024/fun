@@ -11,10 +11,10 @@
 #if FUN_PLATFORM != FUN_PLATFORM_VXWORKS
 #include "fun/base/process.h"
 #endif
+#include <cstdio>
+
 #include "fun/base/exception.h"
 #include "fun/base/str.h"
-
-#include <cstdio>
 
 namespace fun {
 namespace framework {

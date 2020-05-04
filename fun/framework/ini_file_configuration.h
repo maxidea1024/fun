@@ -5,6 +5,7 @@
 #if !defined(FUN_NO_INI_CONFIGURATION)
 
 #include <istream>
+
 #include "fun/base/container/map.h"
 #include "fun/framework/configuration_base.h"
 

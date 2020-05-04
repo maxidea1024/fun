@@ -4,6 +4,7 @@
 #pragma once
 
 #include <initializer_list>
+
 #include "fun/base/base.h"
 #include "fun/base/serialization/archive.h"
 

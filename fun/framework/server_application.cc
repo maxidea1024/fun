@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/server_application.h"
+
 #include "fun/framework/option.h"
 #include "fun/framework/option_exception.h"
 #include "fun/framework/option_set.h"
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
 #include <fstream>
+
 #include "fun/base/temporary_file.h"
 #elif FUN_PLATFORM_WINDOWS_FAMILY
 #if !defined(_WIN32_WCE)
@@ -28,6 +31,7 @@
 #include "fun/framework/win_service.h"
 #endif
 #include <cstring>
+
 #include "fun/base/windows_less.h"
 #endif
 

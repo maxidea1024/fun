@@ -11,11 +11,11 @@ class ReplyBuilder {
   virtual ~ReplyBuilder() = default;
 
   ReplyBuilder(const ReplyBuilder&) = delete;
-  ReplyBuilder& operator = (const ReplyBuilder&) = delete;
+  ReplyBuilder& operator=(const ReplyBuilder&) = delete;
 
-  ReplyBuilder& operator << (const String& data);
+  ReplyBuilder& operator<<(const String& data);
 
-  void operator >> (Reply& reply);
+  void operator>>(Reply& reply);
   const Reply& GetFront() const;
   void PopFront();
 
@@ -29,5 +29,5 @@ class ReplyBuilder {
   TArray<Reply> available_replies_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

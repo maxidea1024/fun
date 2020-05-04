@@ -10,16 +10,17 @@ class FUN_REDIS_API Sentinel {
   ~Sentinel();
 
   Sentinel(const Sentinel&) = delete;
-  Sentinel& operator = (const Sentinel&) = delete;
+  Sentinel& operator=(const Sentinel&) = delete;
 
  public:
-  using ReplyCallback = Function<void (Reply&)>;
+  using ReplyCallback = Function<void(Reply&)>;
 
-  Sentinel& Send(const Array<String>& redis_cmd, const ReplyCallback reply_cb = nullptr);
+  Sentinel& Send(const Array<String>& redis_cmd,
+                 const ReplyCallback reply_cb = nullptr);
   Sentinel& CommitAsync();
   Sentinel& CommitSync();
 
-  //TODO
+  // TODO
   /*
   template <class Rep, class Period>
   Sentinel& CommitSync(const std::chrono::duration<Rep,Period>& timeout)
@@ -44,7 +45,8 @@ class FUN_REDIS_API Sentinel {
   */
 
  public:
-  Sentinel& AddSentinel(const String& host, int32 port, const Timespan& timeout);
+  Sentinel& AddSentinel(const String& host, int32 port,
+                        const Timespan& timeout);
   void ClearSentinels();
 
  public:
@@ -52,32 +54,41 @@ class FUN_REDIS_API Sentinel {
 
   bool IsConnected();
 
-  using SentinelDisconnectedCallback = Function<void (Sentinel&)>;
+  using SentinelDisconnectedCallback = Function<void(Sentinel&)>;
 
   void ConnectSentinel(const SentinelDisconnectedCallback& cb = nullptr);
 
-  void Connect(const String& host, int32 port, const SentinelDisconnectedCallback& cb = nullptr, const Timespan& timeout = Timespan(0));
+  void Connect(const String& host, int32 port,
+               const SentinelDisconnectedCallback& cb = nullptr,
+               const Timespan& timeout = Timespan(0));
 
-  bool GetMasterAddressByName(const String& name, String& host, int32& port, bool auto_connect = true);
+  bool GetMasterAddressByName(const String& name, String& host, int32& port,
+                              bool auto_connect = true);
 
  public:
-  Sentinel& ckquorum(const String& name, const ReplyCallback& reply_cb = nullptr);
-  Sentinel& failover(const String& name, const ReplyCallback& reply_cb = nullptr);
+  Sentinel& ckquorum(const String& name,
+                     const ReplyCallback& reply_cb = nullptr);
+  Sentinel& failover(const String& name,
+                     const ReplyCallback& reply_cb = nullptr);
   Sentinel& flushconfig(const ReplyCallback& reply_cb = nullptr);
   Sentinel& master(const String& name, const ReplyCallback& reply_cb = nullptr);
   Sentinel& masters(const ReplyCallback& reply_cb = nullptr);
-  Sentinel& monitor(const String& name, const String& ip, int32 port, int32 quorum, const ReplyCallback& reply_cb = nullptr);
+  Sentinel& monitor(const String& name, const String& ip, int32 port,
+                    int32 quorum, const ReplyCallback& reply_cb = nullptr);
   Sentinel& ping(const ReplyCallback& reply_cb = nullptr);
   Sentinel& remove(const String& name, const ReplyCallback& reply_cb = nullptr);
-  Sentinel& reset(const String& pattern, const ReplyCallback& reply_cb = nullptr);
-  Sentinel& sentinels(const String& name, const ReplyCallback& reply_cb = nullptr);
-  Sentinel& set(const String& name, const String& option, const String& value, const ReplyCallback& reply_cb = nullptr);
+  Sentinel& reset(const String& pattern,
+                  const ReplyCallback& reply_cb = nullptr);
+  Sentinel& sentinels(const String& name,
+                      const ReplyCallback& reply_cb = nullptr);
+  Sentinel& set(const String& name, const String& option, const String& value,
+                const ReplyCallback& reply_cb = nullptr);
   Sentinel& slaves(const String& name, const ReplyCallback& reply_cb = nullptr);
 
   class SentinelDef {
    public:
     SentinelDef(const String& host, int32 port, const Timespan& timeout)
-      : host_(host), port_(port), timeout_(timeout) {}
+        : host_(host), port_(port), timeout_(timeout) {}
 
     ~SentinelDef() = default;
 
@@ -112,5 +123,5 @@ class FUN_REDIS_API Sentinel {
   std::atomic<unsigned int> callbacks_running_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/simple_file_sink.h"
+
 #include "fun/base/exception.h"
 #include "fun/base/file.h"
 #include "fun/base/logging/log_file.h"

@@ -11,9 +11,9 @@ class BulkStringBuilder : public IBuilder {
   virtual ~BulkStringBuilder() = default;
 
   BulkStringBuilder(const BulkStringBuilder&) = delete;
-  BulkStringBuilder& operator = (const BulkStringBuilder&) = delete;
+  BulkStringBuilder& operator=(const BulkStringBuilder&) = delete;
 
-  IBuilder& operator << (String& buffer) override;
+  IBuilder& operator<<(String& buffer) override;
   bool ReplyReady() const override;
   Reply GetReply() const override;
 
@@ -33,5 +33,5 @@ class BulkStringBuilder : public IBuilder {
   Reply reply_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

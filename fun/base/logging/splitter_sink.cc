@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/splitter_sink.h"
+
 #include "fun/base/logging/logging_registry.h"
 
 namespace fun {

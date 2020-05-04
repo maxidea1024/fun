@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <ostream>
+
 #include "fun/framework/framework.h"
 
 namespace fun {

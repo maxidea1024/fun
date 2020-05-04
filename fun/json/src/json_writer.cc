@@ -50,7 +50,8 @@ String ValueToQuotedStringN(const char* value, int32 len) {
   }
 
   // Not sure how to handle unicode...
-  if (strnpbrk(value, "\"\\\b\f\n\r\t", len) == nullptr && !ContainsControlCharacter0(value, len)) {
+  if (strnpbrk(value, "\"\\\b\f\n\r\t", len) == nullptr &&
+      !ContainsControlCharacter0(value, len)) {
     return String(AsciiString("\"")) + value + AsciiString("\"");
   }
 
@@ -60,13 +61,27 @@ String ValueToQuotedStringN(const char* value, int32 len) {
   const char* end = value + len;
   for (const char* cur = value; cur != end; ++cur) {
     switch (*cur) {
-      case '\"': result += AsciiString("\\\""); break;
-      case '\\': result += AsciiString("\\\\"); break;
-      case '\b': result += AsciiString("\\b"); break;
-      case '\f': result += AsciiString("\\f"); break;
-      case '\n': result += AsciiString("\\n"); break;
-      case '\r': result += AsciiString("\\r"); break;
-      case '\t': result += AsciiString("\\t"); break;
+      case '\"':
+        result += AsciiString("\\\"");
+        break;
+      case '\\':
+        result += AsciiString("\\\\");
+        break;
+      case '\b':
+        result += AsciiString("\\b");
+        break;
+      case '\f':
+        result += AsciiString("\\f");
+        break;
+      case '\n':
+        result += AsciiString("\\n");
+        break;
+      case '\r':
+        result += AsciiString("\\r");
+        break;
+      case '\t':
+        result += AsciiString("\\t");
+        break;
 
       default:
         if (IsControlCharacter(*cur) || *cur == 0) {
@@ -87,30 +102,25 @@ String ValueToQuotedString(const char* value) {
   return ValueToQuotedStringN(value, (int32)_tcslen(value));
 }
 
-} // namespace
-
+}  // namespace
 
 //
 // CondensedWriter
 //
 
 CondensedWriter::CondensedWriter()
-  : yaml_compatibility_enabled_(false),
-    drop_null_placeholders_(false),
-  // omit_ending_linefeed_(false),
-    omit_ending_linefeed_(true) {}
+    : yaml_compatibility_enabled_(false),
+      drop_null_placeholders_(false),
+      // omit_ending_linefeed_(false),
+      omit_ending_linefeed_(true) {}
 
 void CondensedWriter::EnableYAMLCompatibility() {
   yaml_compatibility_enabled_ = true;
 }
 
-void CondensedWriter::DropNullPlaceholders() {
-  drop_null_placeholders_ = true;
-}
+void CondensedWriter::DropNullPlaceholders() { drop_null_placeholders_ = true; }
 
-void CondensedWriter::OmitEndingLineFeed() {
-  omit_ending_linefeed_ = true;
-}
+void CondensedWriter::OmitEndingLineFeed() { omit_ending_linefeed_ = true; }
 
 String CondensedWriter::Write(const JValue& root) {
   document_ = AsciiString("");
@@ -138,15 +148,18 @@ void CondensedWriter::WriteValue(const JValue& value) {
       break;
 
     case ValueType::Double:
-      document_ += String::FromNumber(value.double_value_); //TODO 정밀도 지정.
+      document_ += String::FromNumber(value.double_value_);  // TODO 정밀도
+                                                             // 지정.
       break;
 
     case ValueType::String:
-      document_ += ValueToQuotedStringN(**value.string_value_, value.string_value_->Len());
+      document_ += ValueToQuotedStringN(**value.string_value_,
+                                        value.string_value_->Len());
       break;
 
     case ValueType::Bool:
-      document_ += value.bool_value_ ? AsciiString("true") : AsciiString("false");
+      document_ +=
+          value.bool_value_ ? AsciiString("true") : AsciiString("false");
       break;
 
     case ValueType::Array: {
@@ -165,31 +178,29 @@ void CondensedWriter::WriteValue(const JValue& value) {
     }
 
     case ValueType::Object: {
-        document_ += AsciiString("{");
-        int32 count = 0;
-        for (const auto& pair : *value.object_value_) {
-          if (++count != 1) {
-            document_ += AsciiString(",");
-          }
-          document_ += ValueToQuotedString(*pair.Key);
-          document_ += yaml_compatibility_enabled_ ? AsciiString(": ") : AsciiString(":");
-          WriteValue(pair.value);
+      document_ += AsciiString("{");
+      int32 count = 0;
+      for (const auto& pair : *value.object_value_) {
+        if (++count != 1) {
+          document_ += AsciiString(",");
         }
-        document_ += AsciiString('}');
-        break;
+        document_ += ValueToQuotedString(*pair.Key);
+        document_ +=
+            yaml_compatibility_enabled_ ? AsciiString(": ") : AsciiString(":");
+        WriteValue(pair.value);
+      }
+      document_ += AsciiString('}');
+      break;
     }
   }
 }
-
 
 //
 // PrettyWriter
 //
 
 PrettyWriter::PrettyWriter()
-  : right_margin_(74),
-    indent_size_(3),
-    add_child_values_() {}
+    : right_margin_(74), indent_size_(3), add_child_values_() {}
 
 String PrettyWriter::Write(const JValue& root) {
   document_ = AsciiString("");
@@ -217,11 +228,12 @@ void PrettyWriter::WriteValue(const JValue& value) {
       break;
 
     case ValueType::Double:
-      PushValue(String::FromNumber(value.double_value_)); //TODO 정밀도..
+      PushValue(String::FromNumber(value.double_value_));  // TODO 정밀도..
       break;
 
     case ValueType::String:
-      PushValue(ValueToQuotedStringN(**value.string_value_, value.string_value_->Len()));
+      PushValue(ValueToQuotedStringN(**value.string_value_,
+                                     value.string_value_->Len()));
       break;
 
     case ValueType::Bool:
@@ -267,7 +279,7 @@ void PrettyWriter::WriteArrayValue(const JValue& value) {
       }
       Outdent();
       WriteWithIndent(AsciiString("]"));
-    } else { // output on a single line
+    } else {  // output on a single line
       fun_check(child_values_.Count() == n);
       document_ += AsciiString("[ ");
       for (int32 i = 0; i < n; ++i) {
@@ -282,7 +294,7 @@ void PrettyWriter::WriteArrayValue(const JValue& value) {
 }
 
 void PrettyWriter::WriteObjectValue(const JValue& value) {
-  if (value.object_value_->Count() == 0) { // empty object
+  if (value.object_value_->Count() == 0) {  // empty object
     PushValue(AsciiString("{}"));
   } else {
     WriteWithIndent(AsciiString("{"));
@@ -316,14 +328,15 @@ bool PrettyWriter::IsMultineArray(const JValue& value) {
   child_values_.Clear();
   for (int32 i = 0; i < count && !is_multiline; ++i) {
     const JValue& child_value = value[i];
-    is_multiline = ((child_value.IsArray() || child_value.IsObject()) && child_value.Count() > 0);
+    is_multiline = ((child_value.IsArray() || child_value.IsObject()) &&
+                    child_value.Count() > 0);
   }
 
-  if (!is_multiline) { // check if line length > max line length
+  if (!is_multiline) {  // check if line length > max line length
     child_values_.Reserve(count);
 
     add_child_values_ = true;
-    int32 line_length = 4 + (count - 1) * 2; // '[ ' + ', '*n + ' ]'
+    int32 line_length = 4 + (count - 1) * 2;  // '[ ' + ', '*n + ' ]'
     for (int32 i = 0; i < count; ++i) {
       if (HasCommentForValue(value[i])) {
         is_multiline = true;
@@ -349,11 +362,11 @@ void PrettyWriter::WriteIndent() {
   if (document_.Len() > 0) {
     const char last = document_[document_.Len() - 1];
 
-    if (last == ' ') { // already indented
+    if (last == ' ') {  // already indented
       return;
     }
 
-    if (last != '\n') { // Comments may add new-line
+    if (last != '\n') {  // Comments may add new-line
       document_ += '\n';
     }
   }
@@ -366,9 +379,7 @@ void PrettyWriter::WriteWithIndent(const String& value) {
   document_ += value;
 }
 
-void PrettyWriter::Indent() {
-  indent_string_ += String(indent_size_, ' ');
-}
+void PrettyWriter::Indent() { indent_string_ += String(indent_size_, ' '); }
 
 void PrettyWriter::Outdent() {
   fun_check(indent_string_.Len() >= indent_size_);
@@ -386,7 +397,8 @@ void PrettyWriter::WriteCommentBeforeValue(const JValue& root) {
   const String& comment = root.GetComment(CommentPlacement::Before);
   for (int32 i = 0; i < comment.Len(); ++i) {
     document_ += comment[i];
-    if (comment[i] == '\n' && (i < comment.Len() - 1 && comment[i + 1] == '/')) {
+    if (comment[i] == '\n' &&
+        (i < comment.Len() - 1 && comment[i + 1] == '/')) {
       WriteIndent();
     }
   }
@@ -397,7 +409,8 @@ void PrettyWriter::WriteCommentBeforeValue(const JValue& root) {
 
 void PrettyWriter::WriteCommentAfterValueOnSameLine(const JValue& root) {
   if (root.HasComment(CommentPlacement::AfterOnSameLine)) {
-    document_ += AsciiString(" ") + root.GetComment(CommentPlacement::AfterOnSameLine);
+    document_ +=
+        AsciiString(" ") + root.GetComment(CommentPlacement::AfterOnSameLine);
   }
 
   if (root.HasComment(CommentPlacement::After)) {
@@ -408,10 +421,10 @@ void PrettyWriter::WriteCommentAfterValueOnSameLine(const JValue& root) {
 }
 
 bool PrettyWriter::HasCommentForValue(const JValue& value) const {
-  return  value.HasComment(CommentPlacement::Before) ||
-          value.HasComment(CommentPlacement::AfterOnSameLine) ||
-          value.HasComment(CommentPlacement::After);
+  return value.HasComment(CommentPlacement::Before) ||
+         value.HasComment(CommentPlacement::AfterOnSameLine) ||
+         value.HasComment(CommentPlacement::After);
 }
 
-} // namespace json
-} // namespace fun
+}  // namespace json
+}  // namespace fun

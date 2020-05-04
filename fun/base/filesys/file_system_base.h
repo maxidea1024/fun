@@ -61,7 +61,7 @@ class FUN_BASE_API IFile {
 
  public:
   /////////// Utility Functions. These have a default implementation that uses
-  ///the pure virtual operations.
+  /// the pure virtual operations.
 
   /** Return the total size of the file */
   virtual int64 Size();
@@ -318,7 +318,7 @@ class FUN_BASE_API IFileSystem {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////// Utility Functions. These have a default implementation that uses
-  ///the pure virtual operations.
+  /// the pure virtual operations.
   /////////// Generally, these do not need to be implemented per platform.
   /////////////////////////////////////////////////////////////////////////////////////////////////////////
 

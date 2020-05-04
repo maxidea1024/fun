@@ -11,29 +11,29 @@ namespace fun {
 namespace redis {
 
 Subscriber::Subscriber()
-  : conn_(),
-    auth_reply_cb_(nullptr),
-    connected_cb_(nullptr),
-    disconnected_cb_(nullptr),
-    auto_commit_(true) {}
+    : conn_(),
+      auth_reply_cb_(nullptr),
+      connected_cb_(nullptr),
+      disconnected_cb_(nullptr),
+      auto_commit_(true) {}
 
 Subscriber::Subscriber(const SharedPtr<TcpClient>& tcp_client)
-  : conn_(tcp_client),
-    auth_reply_cb_(nullptr),
-    connected_cb_(nullptr),
-    disconnected_cb_(nullptr),
-    auto_commit_(true) {}
+    : conn_(tcp_client),
+      auth_reply_cb_(nullptr),
+      connected_cb_(nullptr),
+      disconnected_cb_(nullptr),
+      auto_commit_(true) {}
 
-Subscriber::~Subscriber() {
-  conn_.Disconnect(true);
-}
+Subscriber::~Subscriber() { conn_.Disconnect(true); }
 
-void Subscriber::ConnectSync(const String& host, int32 port, const DisconnectedCallback& disconnected_cb) {
+void Subscriber::ConnectSync(const String& host, int32 port,
+                             const DisconnectedCallback& disconnected_cb) {
   auto disconnected_cb2 = [this](Connection& conn) { OnDisconnected(conn); };
-  auto reply_cb2 = [this](Connection& conn, Reply& reply) { OnReplyReceivedFromConnection(conn, reply); };
+  auto reply_cb2 = [this](Connection& conn, Reply& reply) {
+    OnReplyReceivedFromConnection(conn, reply);
+  };
 
   conn_.ConnectSync(host, port, disconnected_cb2, reply_cb2);
-
 
   connected_cb_ = nullptr;
   disconnected_cb_ = disconnected_cb;
@@ -41,13 +41,16 @@ void Subscriber::ConnectSync(const String& host, int32 port, const DisconnectedC
   LOG(LogRedis, Info, TEXT("Redis::Subscriber::ConnectSync(): connected."));
 }
 
-void Subscriber::ConnectAsync(const String& host, int32 port, const ConnectedCallbackType& connected_cb, const DisconnectedCallback& disconnected_cb) {
+void Subscriber::ConnectAsync(const String& host, int32 port,
+                              const ConnectedCallbackType& connected_cb,
+                              const DisconnectedCallback& disconnected_cb) {
   auto connected_cb2 = [this](Connection& conn) { OnConnected(conn); };
   auto disconnected_cb2 = [this](Connection& conn) { OnDisconnected(conn); };
-  auto reply_cb2 = [this](Connection& conn, Reply& reply) { OnReplyReceivedFromConnection(conn, reply); };
+  auto reply_cb2 = [this](Connection& conn, Reply& reply) {
+    OnReplyReceivedFromConnection(conn, reply);
+  };
 
   conn_.ConnectAsync(host, port, connected_cb2, disconnected_cb2, reply_cb2);
-
 
   connected_cb_ = connected_cb;
   disconnected_cb_ = disconnected_cb;
@@ -56,80 +59,109 @@ void Subscriber::ConnectAsync(const String& host, int32 port, const ConnectedCal
 }
 
 void Subscriber::Disconnect(bool wait_for_removal) {
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::Disconnect(): attempts to disconnect."));
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::Disconnect(): attempts to disconnect."));
   conn_.Disconnect(wait_for_removal);
   LOG(LogRedis, Info, TEXT("Redis::Subscriber::Disconnect(): disconnected."));
 }
 
-bool Subscriber::IsConnected() const {
-  return conn_.IsConnected();
-}
+bool Subscriber::IsConnected() const { return conn_.IsConnected(); }
 
-bool Subscriber::IsConnecting() const {
-  return conn_.IsConnecting();
-}
+bool Subscriber::IsConnecting() const { return conn_.IsConnecting(); }
 
-bool Subscriber::IsDisconnected() const {
-  return conn_.IsDisconnected();
-}
+bool Subscriber::IsDisconnected() const { return conn_.IsDisconnected(); }
 
-Subscriber& Subscriber::Auth(const String& password, const ReplyCallback& reply_cb) {
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::Auth(): attempts to authenticate."));
+Subscriber& Subscriber::Auth(const String& password,
+                             const ReplyCallback& reply_cb) {
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::Auth(): attempts to authenticate."));
   Send({"AUTH", password});
   auth_reply_cb_ = reply_cb;
   LOG(LogRedis, Info, TEXT("Redis::Subscriber::Auth(): AUTH command sent."));
   return *this;
 }
 
-Subscriber& Subscriber::Subscribe(const String& channel, const SubscribeCallback& subscribe_cb, const AcknowledgementCallback& acknowledgment_cb) {
+Subscriber& Subscriber::Subscribe(
+    const String& channel, const SubscribeCallback& subscribe_cb,
+    const AcknowledgementCallback& acknowledgment_cb) {
   std::lock_guard<std::mutex> lock(subscribed_channels_mutex_);
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::Subscribe(): attemps to subscribe to channel: %s"), *String(channel));
-  //subscribed_channels_[channel] = {subscribe_cb, acknowledgment_cb}; //작동안함!
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::Subscribe(): attemps to subscribe to channel: "
+           "%s"),
+      *String(channel));
+  // subscribed_channels_[channel] = {subscribe_cb, acknowledgment_cb};
+  // //작동안함!
   subscribed_channels_.Add(channel, {subscribe_cb, acknowledgment_cb});
   Send({"SUBSCRIBE", channel});
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::Subscribe(): subscribed to channel: %s"), *String(channel));
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::Subscribe(): subscribed to channel: %s"),
+      *String(channel));
   return *this;
 }
 
-Subscriber& Subscriber::PSubscribe(const String& pattern, const SubscribeCallback& subscribe_cb, const AcknowledgementCallback& acknowledgment_cb) {
+Subscriber& Subscriber::PSubscribe(
+    const String& pattern, const SubscribeCallback& subscribe_cb,
+    const AcknowledgementCallback& acknowledgment_cb) {
   std::lock_guard<std::mutex> lock(p_subscribed_channels_mutex_);
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::PSubscribe(): attemps to psubscribe to channel: %s"), *String(pattern));
-  //p_subscribed_channels_[pattern] = {subscribe_cb, acknowledgment_cb}; //작동안함!
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::PSubscribe(): attemps to psubscribe to channel: "
+           "%s"),
+      *String(pattern));
+  // p_subscribed_channels_[pattern] = {subscribe_cb, acknowledgment_cb};
+  // //작동안함!
   p_subscribed_channels_.Add(pattern, {subscribe_cb, acknowledgment_cb});
   Send({"PSUBSCRIBE", pattern});
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::PSubscribe(): psubscribed to channel: %s"), *String(pattern));
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::PSubscribe(): psubscribed to channel: %s"),
+      *String(pattern));
   return *this;
 }
 
 Subscriber& Subscriber::Unsubscribe(const String& channel) {
   std::lock_guard<std::mutex> lock(subscribed_channels_mutex_);
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::Unsubscribe(): attemps to unsubscribe to channel: %s"), *String(channel));
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::Unsubscribe(): attemps to unsubscribe to "
+           "channel: %s"),
+      *String(channel));
   auto it = subscribed_channels_.CreateKeyIterator(channel);
   if (!it) {
-    //TODO 예외를 던지는게 좋으려나??
-    LOG(LogRedis, Info, TEXT("Redis::Subscriber::Unsubscribe(): was not subscribed to channel."), *String(channel));
+    // TODO 예외를 던지는게 좋으려나??
+    LOG(LogRedis, Info,
+        TEXT(
+            "Redis::Subscriber::Unsubscribe(): was not subscribed to channel."),
+        *String(channel));
     return *this;
   }
 
   Send({"UNSUBSCRIBE", channel});
   it.RemoveCurrent();
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::Unsubscribe(): unsubscribed from channel: %s"), *String(channel));
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::Unsubscribe(): unsubscribed from channel: %s"),
+      *String(channel));
   return *this;
 }
 
 Subscriber& Subscriber::PUnsubscribe(const String& pattern) {
   std::lock_guard<std::mutex> lock(p_subscribed_channels_mutex_);
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::PUnsubscribe(): attemps to punsubscribe to channel: %s"), *String(pattern));
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::PUnsubscribe(): attemps to punsubscribe to "
+           "channel: %s"),
+      *String(pattern));
   auto it = p_subscribed_channels_.CreateKeyIterator(pattern);
   if (!it) {
-    //TODO 예외를 던지는게 좋으려나??
-    LOG(LogRedis, Info, TEXT("Redis::Subscriber::PUnsubscribe(): was not psubscribed to channel: %s"), *String(pattern));
+    // TODO 예외를 던지는게 좋으려나??
+    LOG(LogRedis, Info,
+        TEXT("Redis::Subscriber::PUnsubscribe(): was not psubscribed to "
+             "channel: %s"),
+        *String(pattern));
     return *this;
   }
 
   Send({"PUNSUBSCRIBE", pattern});
   it.RemoveCurrent();
-  LOG(LogRedis, Info, TEXT("Redis::Subscriber::PUnsubscribe(): punsubscribed from channel: %s"), *String(pattern));
+  LOG(LogRedis, Info,
+      TEXT("Redis::Subscriber::PUnsubscribe(): punsubscribed from channel: %s"),
+      *String(pattern));
   return *this;
 }
 
@@ -143,17 +175,20 @@ void Subscriber::SetAutoCommit(bool auto_commit) {
   }
 }
 
-bool Subscriber::GetAutoCommit() const {
-  return auto_commit_;
-}
+bool Subscriber::GetAutoCommit() const { return auto_commit_; }
 
 Subscriber& Subscriber::Commit() {
   try {
-    LOG(LogRedis, Info, TEXT("Redis::Subscriber::Commit(): attempts to send pipelined commands."));
+    LOG(LogRedis, Info,
+        TEXT("Redis::Subscriber::Commit(): attempts to send pipelined "
+             "commands."));
     conn_.Commit();
-    LOG(LogRedis, Info, TEXT("Redis::Subscriber::Commit(): sent pipelined commands."));
+    LOG(LogRedis, Info,
+        TEXT("Redis::Subscriber::Commit(): sent pipelined commands."));
   } catch (Exception& e) {
-    LOG(LogRedis, Info, TEXT("Redis::Subscriber::Commit(): could not send pipelined commands."));
+    LOG(LogRedis, Info,
+        TEXT(
+            "Redis::Subscriber::Commit(): could not send pipelined commands."));
     e.Rethrow();
   }
 
@@ -185,7 +220,9 @@ void Subscriber::OnDisconnected(Connection& conn) {
 void Subscriber::OnReplyReceivedFromConnection(Connection& conn, Reply& reply) {
   if (!reply.IsArray()) {
     if (auth_reply_cb_) {
-      LOG(LogRedis, Info, TEXT("Redis::Subscriber::OnReplyReceivedFromConnection(): executes auth callback."));
+      LOG(LogRedis, Info,
+          TEXT("Redis::Subscriber::OnReplyReceivedFromConnection(): executes "
+               "auth callback."));
 
       auth_reply_cb_(reply);
       auth_reply_cb_ = nullptr;
@@ -209,7 +246,7 @@ void Subscriber::OnReplyReceivedFromConnection(Connection& conn, Reply& reply) {
     OnPSubscribeReply(array);
   } else {
     // Unexpected reply
-    //TODO error handling
+    // TODO error handling
   }
 }
 
@@ -225,9 +262,13 @@ void Subscriber::OnAcknowledgementReply(const TArray<Reply>& reply) {
   }
 
   if (title.AsString() == "subscribe") {
-    CallOnAcknowledgementHandler(channel.AsString(), subscribed_channels_, subscribed_channels_mutex_, channel_count.AsInteger());
+    CallOnAcknowledgementHandler(channel.AsString(), subscribed_channels_,
+                                 subscribed_channels_mutex_,
+                                 channel_count.AsInteger());
   } else if (title.AsString() == "psubscribe") {
-    CallOnAcknowledgementHandler(channel.AsString(), p_subscribed_channels_, p_subscribed_channels_mutex_, channel_count.AsInteger());
+    CallOnAcknowledgementHandler(channel.AsString(), p_subscribed_channels_,
+                                 p_subscribed_channels_mutex_,
+                                 channel_count.AsInteger());
   }
 }
 
@@ -249,7 +290,10 @@ void Subscriber::OnSubscribeReply(const TArray<Reply>& reply) {
   std::lock_guard<std::mutex> lock(subscribed_channels_mutex_);
   auto it = subscribed_channels_.CreateKeyIterator(channel.AsString());
   if (it) {
-    LOG(LogRedis, Info, TEXT("Redis::Subscriber::OnSubscribeReply(): executes subscribe callback for channel: %s"), *String(channel.AsString()));
+    LOG(LogRedis, Info,
+        TEXT("Redis::Subscriber::OnSubscribeReply(): executes subscribe "
+             "callback for channel: %s"),
+        *String(channel.AsString()));
     it.Value().subscribe_cb(channel.AsString(), message.AsString());
   }
 }
@@ -263,7 +307,8 @@ void Subscriber::OnPSubscribeReply(const TArray<Reply>& reply) {
   const auto& message = reply[3];
 
   // validation reply types.
-  if (!title.IsString() || !pchannel.IsString() || !channel.IsString() || !message.IsString()) {
+  if (!title.IsString() || !pchannel.IsString() || !channel.IsString() ||
+      !message.IsString()) {
     return;
   }
 
@@ -274,22 +319,27 @@ void Subscriber::OnPSubscribeReply(const TArray<Reply>& reply) {
   std::lock_guard<std::mutex> lock(p_subscribed_channels_mutex_);
   auto it = p_subscribed_channels_.CreateKeyIterator(pchannel.AsString());
   if (it) {
-    LOG(LogRedis, Info, TEXT("Redis::Subscriber::OnPSubscribeReply(): executes psubscribe callback for channel: %s"), *String(pchannel.AsString()));
+    LOG(LogRedis, Info,
+        TEXT("Redis::Subscriber::OnPSubscribeReply(): executes psubscribe "
+             "callback for channel: %s"),
+        *String(pchannel.AsString()));
     it.Value().subscribe_cb(channel.AsString(), message.AsString());
   }
 }
 
-void Subscriber::CallOnAcknowledgementHandler(const String& channel,
-                                              const TMap<String,CallbackHolder>& channels,
-                                              std::mutex& channels_mutex,
-                                              int64 channel_count) {
+void Subscriber::CallOnAcknowledgementHandler(
+    const String& channel, const TMap<String, CallbackHolder>& channels,
+    std::mutex& channels_mutex, int64 channel_count) {
   std::lock_guard<std::mutex> lock(channels_mutex);
   auto it = channels.CreateConstKeyIterator(channel);
   if (it && it.Value().acknowledgment_cb) {
-    LOG(LogRedis, Info, TEXT("Redis::Subscriber::CallOnAcknowledgementHandler(): executes acknowledgement callback for channel: %s"), *String(channel));
+    LOG(LogRedis, Info,
+        TEXT("Redis::Subscriber::CallOnAcknowledgementHandler(): executes "
+             "acknowledgement callback for channel: %s"),
+        *String(channel));
     it.Value().acknowledgment_cb(channel_count);
   }
 }
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

@@ -1,13 +1,13 @@
 ﻿#pragma once
 
+#include <initializer_list>
+
 #include "fun/base/base.h"
 #include "fun/base/container/sparse_array.h"
 #include "fun/base/container/struct_builder.h"
 #include "fun/base/ftl/function.h"
 #include "fun/base/ftl/sorting.h"
 #include "fun/base/serialization/archive.h"
-
-#include <initializer_list>
 
 namespace fun {
 

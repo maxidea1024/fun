@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/log_sink.h"
+
 #include "fun/base/exception.h"
 
 namespace fun {

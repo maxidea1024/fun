@@ -2,6 +2,7 @@
 //좀더 긴 포맷으로 명확하게 하는게 좋으려나... 파이썬 로깅 부분을 참고해볼까..
 
 #include "fun/base/logging/pattern_formatter.h"
+
 #include "fun/base/logging/log_message.h"
 //#include "fun/base/number_formatter.h"
 //#include "fun/base/date_time_format.h"

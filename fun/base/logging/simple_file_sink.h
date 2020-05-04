@@ -2,8 +2,8 @@
 
 #include "fun/base/base.h"
 #include "fun/base/logging/log_sink.h"
-#include "fun/base/timestamp.h"
 #include "fun/base/mutex.h"
+#include "fun/base/timestamp.h"
 
 namespace fun {
 
@@ -150,4 +150,4 @@ class FUN_BASE_API SimpleFileSink : public LogSink {
   FastMutex mutex_;
 };
 
-} // namespace fun
+}  // namespace fun

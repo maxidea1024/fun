@@ -1,10 +1,11 @@
 ﻿#pragma once
 
+#include <map>
+
 #include "fun/base/base.h"
 #include "fun/base/ftl/shared_ptr.h"
-#include "fun/base/str.h"
 #include "fun/base/rw_lock.h"
-#include <map>
+#include "fun/base/str.h"
 
 namespace fun {
 
@@ -56,7 +57,6 @@ class FUN_BASE_API TextEncoding {
   static TextEncodingRegistry* Registry(int32);
 };
 
-
 /**
  * This class serves as the main registry for all
  * supported TextEncoding's.
@@ -74,7 +74,7 @@ class FUN_BASE_API TextEncodingRegistry {
 
  private:
   TextEncodingRegistry(const TextEncodingRegistry&) = delete;
-  TextEncodingRegistry& operator = (const TextEncodingRegistry&) = delete;
+  TextEncodingRegistry& operator=(const TextEncodingRegistry&) = delete;
 
   typedef std::map<String, SharedPtr<TextEncoding>, CILess> EncodingMap;
 
@@ -82,4 +82,4 @@ class FUN_BASE_API TextEncodingRegistry {
   mutable RWLock lock_;
 };
 
-} // namespace fun
+}  // namespace fun

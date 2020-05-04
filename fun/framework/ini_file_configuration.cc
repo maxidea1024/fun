@@ -3,6 +3,7 @@
 #if !defined(FUN_NO_INI_CONFIGURATION)
 
 #include <set>
+
 #include "fun/base/exception.h"
 #include "fun/base/file_stream.h"
 #include "fun/base/path.h"

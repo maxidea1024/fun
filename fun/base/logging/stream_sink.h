@@ -1,10 +1,10 @@
 ﻿#pragma once
 
+#include <ostream>
+
 #include "fun/base/base.h"
 #include "fun/base/logging/log_sink.h"
 #include "fun/base/mutex.h"
-
-#include <ostream>
 
 namespace fun {
 

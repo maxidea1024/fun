@@ -38,8 +38,9 @@ class FUN_JSON_API Features {
   bool allow_comments;
 
   /**
-   * The json name world root should be an object, but it can be a little uncomfortable,
-   * so whether or not root is allowed, even if it is not an object.
+   * The json name world root should be an object, but it can be a little
+   * uncomfortable, so whether or not root is allowed, even if it is not an
+   * object.
    */
   bool strict_root;
 
@@ -59,5 +60,5 @@ class FUN_JSON_API Features {
   int32 stack_limit;
 };
 
-} // namespace json
-} // namespace fun
+}  // namespace json
+}  // namespace fun

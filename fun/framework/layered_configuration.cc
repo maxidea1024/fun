@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/layered_configuration.h"
+
 #include "fun/base/container/set.h"
 #include "fun/base/exception.h"
 

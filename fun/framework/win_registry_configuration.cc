@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/win_registry_configuration.h"
+
 #include "fun/base/exception.h"
 #include "fun/framework/win_registry_key.h"
 

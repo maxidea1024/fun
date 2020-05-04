@@ -31,8 +31,10 @@ bool JValue::FromString(const char* begin, const char* end, String* out_error) {
     if (out_error) {
       *out_error = reader.GetFormattedErrorMessages();
     }
+
     return false;
   }
+
   return true;
 }
 
@@ -42,6 +44,7 @@ bool JValue::LoadFromFile(const String& filename, String* out_error) {
     if (out_error) {
       *out_error = String::Format("Could not open text file '{}'.", *filename);
     }
+
     return false;
   }
 

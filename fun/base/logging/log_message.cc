@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/log_message.h"
+
 #include "fun/base/exception.h"
 
 #if FUN_PLATFORM != FUN_PLATFORM_VXWORKS

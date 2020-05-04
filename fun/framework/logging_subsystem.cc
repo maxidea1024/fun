@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/logging_subsystem.h"
+
 #include "fun/base/logging/logger.h"
 #include "fun/framework/application.h"
 #include "fun/framework/logging_configurator.h"

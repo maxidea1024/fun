@@ -4,15 +4,9 @@ namespace fun {
 namespace redis {
 
 BulkStringBuilder::BulkStringBuilder()
-  : string_size_(0)
-  , string_()
-  , is_null_(false)
-  , reply_ready_(false)
-{
-}
+    : string_size_(0), string_(), is_null_(false), reply_ready_(false) {}
 
-IBuilder& BulkStringBuilder::operator << (String& buffer)
-{
+IBuilder& BulkStringBuilder::operator<<(String& buffer) {
   if (reply_ready_) {
     return *this;
   }
@@ -25,40 +19,25 @@ IBuilder& BulkStringBuilder::operator << (String& buffer)
   return *this;
 }
 
-bool BulkStringBuilder::ReplyReady() const
-{
-  return reply_ready_;
-}
+bool BulkStringBuilder::ReplyReady() const { return reply_ready_; }
 
-Reply BulkStringBuilder::GetReply() const
-{
-  return reply_;
-}
+Reply BulkStringBuilder::GetReply() const { return reply_; }
 
-const String& BulkStringBuilder::GetBulkString() const
-{
-  return string_;
-}
+const String& BulkStringBuilder::GetBulkString() const { return string_; }
 
-bool BulkStringBuilder::IsNull() const
-{
-  return is_null_;
-}
+bool BulkStringBuilder::IsNull() const { return is_null_; }
 
-void BulkStringBuilder::BuildReply()
-{
+void BulkStringBuilder::BuildReply() {
   if (is_null_) {
     reply_.Set();
-  }
-  else {
+  } else {
     reply_.Set(string_, Reply::StringType::BulkString);
   }
 
   reply_ready_ = true;
 }
 
-bool BulkStringBuilder::FetchSize(String& buffer)
-{
+bool BulkStringBuilder::FetchSize(String& buffer) {
   if (integer_builder_.ReplyReady()) {
     return true;
   }
@@ -77,15 +56,14 @@ bool BulkStringBuilder::FetchSize(String& buffer)
   return true;
 }
 
-void BulkStringBuilder::FetchString(String& buffer)
-{
-  if (buffer.Len() < string_size_+2) { // 아직 부족함...
+void BulkStringBuilder::FetchString(String& buffer) {
+  if (buffer.Len() < string_size_ + 2) {  // 아직 부족함...
     return;
   }
 
-  if (buffer[string_size_] != '\r' || buffer[string_size_+1] != '\n') {
-    //invalid sequence.
-    //TODO throw exception "wrong ending sequence"
+  if (buffer[string_size_] != '\r' || buffer[string_size_ + 1] != '\n') {
+    // invalid sequence.
+    // TODO throw exception "wrong ending sequence"
     return;
   }
 
@@ -94,5 +72,5 @@ void BulkStringBuilder::FetchString(String& buffer)
   BuildReply();
 }
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

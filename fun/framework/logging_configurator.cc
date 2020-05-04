@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/logging_configurator.h"
+
 #include "fun/base/logging/formatting_sink.h"
 #include "fun/base/logging/logger.h"
 #include "fun/base/logging/logging_factory.h"

@@ -1,5 +1,4 @@
 ﻿#include "fun/base/filesys/file_system_android.h"
-#include "Misc/App.h"
 
 #include <Android/asset_manager.h>
 #include <Android/asset_manager_jni.h>
@@ -7,8 +6,11 @@
 #include <dirent.h>
 #include <jni.h>
 #include <unistd.h>
+
 #include <limits>
+
 #include "Map.h"
+#include "Misc/App.h"
 #include "android_java.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogAndroidFS, info, All);

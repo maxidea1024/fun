@@ -29,7 +29,7 @@ class FUN_REDIS_API Reply {
 
   ~Reply() = default;
   Reply(const Reply&) = default;
-  Reply& operator = (const Reply&) = default;
+  Reply& operator=(const Reply&) = default;
 
   bool IsArray() const;
   bool IsString() const;
@@ -50,7 +50,7 @@ class FUN_REDIS_API Reply {
   void Set(const String& value, StringType reply_type);
   void Set(int64 value);
   void Set(const TArray<Reply>& rows);
-  Reply& operator << (const Reply& reply);
+  Reply& operator<<(const Reply& reply);
 
   Type GetType() const;
   const String GetTypeName() const;
@@ -64,5 +64,5 @@ class FUN_REDIS_API Reply {
   int64 integer_value_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

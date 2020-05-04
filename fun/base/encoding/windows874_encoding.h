@@ -7,7 +7,7 @@ namespace fun {
 
 /**
  * windows-874 encoding.
- * 
+ *
  * This text encoding class has been generated from
  * http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP874.TXT.
  */
@@ -23,4 +23,4 @@ class FUN_BASE_API Windows874_Encoding : public DoubleByteEncoding {
   static const Mapping reverse_mapping_table_[];
 };
 
-} // namespace fun
+}  // namespace fun

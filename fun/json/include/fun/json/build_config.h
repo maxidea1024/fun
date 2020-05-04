@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#define FUN_JSON_USE_EXCEPTIONS  1
+#define FUN_JSON_USE_EXCEPTIONS 1
 
-//TEMP
+// TEMP
 #define FUN_JSON_API

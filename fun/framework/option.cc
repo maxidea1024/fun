@@ -1,9 +1,10 @@
 ﻿#include "fun/framework/option.h"
+
+#include <algorithm>
+
 #include "fun/base/str.h"
 #include "fun/framework/option_exception.h"
 #include "fun/framework/option_validator.h"
-
-#include <algorithm>
 
 namespace fun {
 namespace framework {

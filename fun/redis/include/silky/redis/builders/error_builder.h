@@ -12,9 +12,9 @@ class ErrorBuilder : public IBuilder {
   virtual ~ErrorBuilder() = default;
 
   ErrorBuilder(const ErrorBuilder&) = delete;
-  ErrorBuilder& operator = (const ErrorBuilder&) = delete;
+  ErrorBuilder& operator=(const ErrorBuilder&) = delete;
 
-  IBuilder& operator << (String& buffer) override;
+  IBuilder& operator<<(String& buffer) override;
   bool ReplyReady() const override;
   Reply GetReply() const override;
 
@@ -25,5 +25,5 @@ class ErrorBuilder : public IBuilder {
   Reply reply_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

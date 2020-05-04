@@ -5,6 +5,7 @@
 #ifndef FUN_NO_JSONCONFIGURATION
 
 #include <istream>
+
 #include "fun/framework/configuration_base.h"
 #include "fun/json/object.h"
 

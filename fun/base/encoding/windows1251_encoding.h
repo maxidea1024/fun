@@ -24,4 +24,4 @@ class FUN_BASE_API Windows1251Encoding : public TextEncoding {
   static const CharacterMap char_map_;
 };
 
-} // namespace fun
+}  // namespace fun

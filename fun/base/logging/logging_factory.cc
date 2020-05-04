@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/logging_factory.h"
+
 #include "fun/base/logging/async_sink.h"
 #include "fun/base/logging/file_sink.h"
 #include "fun/base/logging/win_console_sink.h"

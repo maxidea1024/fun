@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/logging_registry.h"
+
 #include "fun/base/singleton.h"
 
 namespace fun {

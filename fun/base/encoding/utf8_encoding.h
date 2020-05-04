@@ -28,15 +28,15 @@ class FUN_BASE_API Utf8Encoding : public TextEncoding {
    * The sequence is illegal right away if there aren't enough bytes
    * available. If presented with a len > 4, this function returns false.
    * The unicode definition of UTF-8 goes up to 4-byte sequences.
-   * 
+   *
    * Adapted from ftp://ftp.unicode.org/Public/PROGRAMS/CVTUTF/ConvertUTF.c
    * Copyright 2001-2004 unicode, Inc.
    */
-  static bool IsLegal(const uint8 *bytes, int32 len);
+  static bool IsLegal(const uint8* bytes, int32 len);
 
  private:
   static const char* names_[];
   static const CharacterMap char_map_;
 };
 
-} // namespace fun
+}  // namespace fun

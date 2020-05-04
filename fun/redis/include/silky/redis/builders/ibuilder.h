@@ -9,13 +9,13 @@ class IBuilder {
  public:
   virtual ~IBuilder() = default;
 
-  virtual IBuilder& operator << (String& buffer) = 0;
+  virtual IBuilder& operator<<(String& buffer) = 0;
 
   virtual bool ReplyReady() const = 0;
 
-  //TODO 참조로 반환해도 되지 않을런지??
+  // TODO 참조로 반환해도 되지 않을런지??
   virtual Reply GetReply() const = 0;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

@@ -1,15 +1,16 @@
 ﻿#include "fun/base/encoding/text_encoding.h"
-#include "fun/base/exception.h"
+
 #include "fun/base/encoding/ascii_encoding.h"
 #include "fun/base/encoding/latin1_encoding.h"
 #include "fun/base/encoding/latin2_encoding.h"
 #include "fun/base/encoding/latin9_encoding.h"
-#include "fun/base/encoding/utf32_encoding.h"
 #include "fun/base/encoding/utf16_encoding.h"
+#include "fun/base/encoding/utf32_encoding.h"
 #include "fun/base/encoding/utf8_encoding.h"
 #include "fun/base/encoding/windows1250_encoding.h"
 #include "fun/base/encoding/windows1251_encoding.h"
 #include "fun/base/encoding/windows1252_encoding.h"
+#include "fun/base/exception.h"
 #include "fun/base/singleton.h"
 
 namespace fun {
@@ -37,8 +38,7 @@ TextEncodingRegistry::TextEncodingRegistry() {
 
 TextEncodingRegistry::~TextEncodingRegistry() {}
 
-bool TextEncodingRegistry::Has(const String& name) const
-{
+bool TextEncodingRegistry::Has(const String& name) const {
   if (encodings_.find(name) != encodings_.end()) {
     return true;
   }
@@ -48,6 +48,7 @@ bool TextEncodingRegistry::Has(const String& name) const
       return true;
     }
   }
+
   return false;
 }
 
@@ -55,7 +56,8 @@ void TextEncodingRegistry::Add(SharedPtr<TextEncoding> encoding) {
   Add(encoding, encoding->GetCanonicalName());
 }
 
-void TextEncodingRegistry::Add(SharedPtr<TextEncoding> encoding, const String& name) {
+void TextEncodingRegistry::Add(SharedPtr<TextEncoding> encoding,
+                               const String& name) {
   RWLock::ScopedLock lock(lock_, true);
 
   encodings_[name] = encoding;
@@ -80,9 +82,9 @@ SharedPtr<TextEncoding> TextEncodingRegistry::Find(const String& name) const {
       return it->second;
     }
   }
+
   return SharedPtr<TextEncoding>();
 }
-
 
 //
 // TextEncoding
@@ -96,7 +98,8 @@ int32 TextEncoding::Convert(const uint8* bytes) const {
   return static_cast<int32>(*bytes);
 }
 
-int32 TextEncoding::Convert(int32 /*ch*/, uint8* /*bytes*/, int32 /*len*/) const {
+int32 TextEncoding::Convert(int32 /*ch*/, uint8* /*bytes*/,
+                            int32 /*len*/) const {
   return 0;
 }
 
@@ -104,7 +107,8 @@ int32 TextEncoding::QueryConvert(const uint8* bytes, int32 /*len*/) const {
   return (int32)*bytes;
 }
 
-int32 TextEncoding::SequenceLength(const uint8* /*bytes*/, int32 /*len*/) const {
+int32 TextEncoding::SequenceLength(const uint8* /*bytes*/,
+                                   int32 /*len*/) const {
   return 1;
 }
 
@@ -139,9 +143,7 @@ SharedPtr<TextEncoding> TextEncoding::Global(SharedPtr<TextEncoding> encoding) {
   return prev;
 }
 
-TextEncoding& TextEncoding::Global() {
-  return ByName(GLOBAL);
-}
+TextEncoding& TextEncoding::Global() { return ByName(GLOBAL); }
 
 namespace {
 TextEncodingRegistry* GetRegistry() {
@@ -150,12 +152,8 @@ TextEncodingRegistry* GetRegistry() {
 }
 } // namespace
 
-const TextEncodingRegistry& TextEncoding::Registry() {
-  return *GetRegistry();
-}
+const TextEncodingRegistry& TextEncoding::Registry() { return *GetRegistry(); }
 
-TextEncodingRegistry* TextEncoding::Registry(int32) {
-  return GetRegistry();
-}
+TextEncodingRegistry* TextEncoding::Registry(int32) { return GetRegistry(); }
 
 } // namespace fun

@@ -1,4 +1,5 @@
 ﻿#include "fun/base/encoding/encodings.h"
+
 #include "fun/base/encoding/iso8859_10_encoding.h"
 #include "fun/base/encoding/iso8859_11_encoding.h"
 #include "fun/base/encoding/iso8859_13_encoding.h"

@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/purge_strategy.h"
+
 #include "fun/base/directory_iterator.h"
 #include "fun/base/path.h"
 #include "fun/base/string/string.h"

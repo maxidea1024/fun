@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/property_file_configuration.h"
+
 #include "fun/base/exception.h"
 #include "fun/base/path.h"
 #include "fun/base/str.h"

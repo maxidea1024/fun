@@ -10,5 +10,5 @@ class FUN_REDIS_API Builders {
   static UniquePtr<IBuilder> CreateBuilder(char resp_tag);
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

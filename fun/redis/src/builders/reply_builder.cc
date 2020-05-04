@@ -1,51 +1,42 @@
 ﻿#include "fun/redis/builders/reply_builder.h"
+
 #include "fun/redis/builders/builder_factory.h"
 
 namespace fun {
 namespace redis {
 
-ReplyBuilder::ReplyBuilder()
-  : builder_()
-{
-}
+ReplyBuilder::ReplyBuilder() : builder_() {}
 
-ReplyBuilder& ReplyBuilder::operator << (const String& data)
-{
+ReplyBuilder& ReplyBuilder::operator<<(const String& data) {
   buffer_ += data;
-  while (BuildReply());
+  while (BuildReply())
+    ;
   return *this;
 }
 
-void ReplyBuilder::operator >> (Reply& reply)
-{
-  reply = GetFront();
-}
+void ReplyBuilder::operator>>(Reply& reply) { reply = GetFront(); }
 
-const Reply& ReplyBuilder::GetFront() const
-{
+const Reply& ReplyBuilder::GetFront() const {
   if (!ReplyAvailable()) {
-    //TODO throw exception
+    // TODO throw exception
     //"No available reply"
   }
   return available_replies_[0];
 }
 
-void ReplyBuilder::PopFront()
-{
+void ReplyBuilder::PopFront() {
   if (!ReplyAvailable()) {
-    //TODO throw exception
+    // TODO throw exception
     //"No available reply"
   }
   available_replies_.RemoveAt(0);
 }
 
-bool ReplyBuilder::ReplyAvailable() const
-{
+bool ReplyBuilder::ReplyAvailable() const {
   return available_replies_.Count() > 0;
 }
 
-bool ReplyBuilder::BuildReply()
-{
+bool ReplyBuilder::BuildReply() {
   if (buffer_.IsEmpty()) {
     return false;
   }
@@ -65,5 +56,5 @@ bool ReplyBuilder::BuildReply()
   return true;
 }
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

@@ -27,5 +27,5 @@ class FUN_JSON_API Schema {
   bool ValidateJson(const Value& Json) const;
 };
 
-} // namespace json
-} // namespace fun
+}  // namespace json
+}  // namespace fun

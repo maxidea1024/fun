@@ -162,4 +162,4 @@ class FUN_BASE_API WinColorConsoleSink : public LogSink {
   WORD colors_[9];
 };
 
-}  // namespace fun
+} // namespace fun

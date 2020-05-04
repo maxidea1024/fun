@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/win_registry_key.h"
+
 #include "fun/base/exception.h"
 
 using fun::InvalidArgumentException;

@@ -4,14 +4,9 @@ namespace fun {
 namespace redis {
 
 IntegerBuilder::IntegerBuilder()
-  : number_(0)
-  , negative_multiplier_(1)
-  , reply_ready_(false)
-{
-}
+    : number_(0), negative_multiplier_(1), reply_ready_(false) {}
 
-IBuilder& IntegerBuilder::operator << (String& buffer)
-{
+IBuilder& IntegerBuilder::operator<<(String& buffer) {
   if (reply_ready_) {
     return *this;
   }
@@ -25,9 +20,8 @@ IBuilder& IntegerBuilder::operator << (String& buffer)
     if (i == 0 && negative_multiplier_ == 1 && buffer[i] == '-') {
       negative_multiplier_ = -1;
       continue;
-    }
-    else if (!CharTraitsA::IsDigit(buffer[i])) {
-      //TODO throw exception
+    } else if (!CharTraitsA::IsDigit(buffer[i])) {
+      // TODO throw exception
       //"Invalid character for integer redis reply"
     }
 
@@ -35,27 +29,20 @@ IBuilder& IntegerBuilder::operator << (String& buffer)
     number_ += buffer[i] - '0';
   }
 
-  buffer.Remove(0, crlf_position+2);
+  buffer.Remove(0, crlf_position + 2);
   reply_.Set(number_ * negative_multiplier_);
   reply_ready_ = true;
 
   return *this;
 }
 
-bool IntegerBuilder::ReplyReady() const
-{
-  return reply_ready_;
-}
+bool IntegerBuilder::ReplyReady() const { return reply_ready_; }
 
-Reply IntegerBuilder::GetReply() const
-{
-  return reply_;
-}
+Reply IntegerBuilder::GetReply() const { return reply_; }
 
-int64 IntegerBuilder::GetInteger() const
-{
+int64 IntegerBuilder::GetInteger() const {
   return number_ * negative_multiplier_;
 }
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

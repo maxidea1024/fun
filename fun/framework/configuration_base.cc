@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/configuration_base.h"
+
 #include "fun/base/exception.h"
 #include "fun/base/str.h"
 #include "fun/framework/configuration_view.h"

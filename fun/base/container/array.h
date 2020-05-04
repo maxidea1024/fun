@@ -7,11 +7,10 @@
 #include "fun/base/ftl/type_traits.h"
 #include "fun/base/serialization/archive.h"
 // TODO 제거해도 무방
-#include "fun/base/container/container_forward_decls.h"
-
-#include "fun/base/ftl/sorting.h"
-
 #include <initializer_list>
+
+#include "fun/base/container/container_forward_decls.h"
+#include "fun/base/ftl/sorting.h"
 
 #define DEBUG_HEAP 0
 

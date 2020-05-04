@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/int_validator.h"
+
 #include "fun/framework/option.h"
 #include "fun/framework/option_exception.h"
 

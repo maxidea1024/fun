@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/log_file_win32.h"
+
 #include "fun/base/exception.h"
 #include "fun/base/file.h"
 

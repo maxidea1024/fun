@@ -11,9 +11,9 @@ class SimpleStringBuilder : public IBuilder {
   virtual ~SimpleStringBuilder() = default;
 
   SimpleStringBuilder(const SimpleStringBuilder&) = delete;
-  SimpleStringBuilder& operator = (const SimpleStringBuilder&) = delete;
+  SimpleStringBuilder& operator=(const SimpleStringBuilder&) = delete;
 
-  IBuilder& operator << (String& buffer) override;
+  IBuilder& operator<<(String& buffer) override;
   bool ReplyReady() const override;
   Reply GetReply() const override;
 
@@ -25,5 +25,5 @@ class SimpleStringBuilder : public IBuilder {
   Reply reply_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

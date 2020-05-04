@@ -1,18 +1,16 @@
 ﻿#include "fun/framework/application.h"
+
+#include "fun/base/file.h"
+#include "fun/base/logging/console_sink.h"
+#include "fun/base/logging/logger.h"
+#include "fun/base/str.h"
 #include "fun/framework/logging_subsystem.h"
 #include "fun/framework/map_configuration.h"
 #include "fun/framework/option.h"
 #include "fun/framework/option_processor.h"
 #include "fun/framework/option_validator.h"
-#include "fun/framework/system_configuration.h"
-
-#include "fun/base/logging/console_sink.h"
-#include "fun/base/logging/logger.h"
-
-#include "fun/base/file.h"
-#include "fun/base/str.h"
-
 #include "fun/framework/property_file_configuration.h"
+#include "fun/framework/system_configuration.h"
 
 // TEMP 코드가 정리되면 하나씩 활성화 하자.
 #define FUN_FRAMEWORK_NO_INIFILECONFIGURATION 1

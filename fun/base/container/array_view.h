@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <initializer_list>
+
 #include "fun/base/base.h"
 
 // TODO Invoke로 처리해야할까??

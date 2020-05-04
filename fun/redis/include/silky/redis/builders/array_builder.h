@@ -12,9 +12,9 @@ class ArrayBuilder : public IBuilder {
   virtual ~ArrayBuilder() = default;
 
   ArrayBuilder(const ArrayBuilder&) = delete;
-  ArrayBuilder& operator = (const ArrayBuilder&) = delete;
+  ArrayBuilder& operator=(const ArrayBuilder&) = delete;
 
-  IBuilder& operator << (String& buffer) override;
+  IBuilder& operator<<(String& buffer) override;
   bool ReplyReady() const override;
   Reply GetReply() const override;
 
@@ -29,5 +29,5 @@ class ArrayBuilder : public IBuilder {
   Reply reply_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

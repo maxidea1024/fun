@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/logger.h"
+
 #include "fun/base/exception.h"
 #include "fun/base/logging/log_formatter.h"
 #include "fun/base/logging/logging_registry.h"

@@ -5,14 +5,9 @@ namespace fun {
 namespace redis {
 
 ArrayBuilder::ArrayBuilder()
-  : current_builder_()
-  , reply_ready_(false)
-  , reply_()
-{
-}
+    : current_builder_(), reply_ready_(false), reply_() {}
 
-IBuilder& ArrayBuilder::operator << (String& buffer)
-{
+IBuilder& ArrayBuilder::operator<<(String& buffer) {
   if (reply_ready_) {
     return *this;
   }
@@ -30,18 +25,11 @@ IBuilder& ArrayBuilder::operator << (String& buffer)
   return *this;
 }
 
-bool ArrayBuilder::ReplyReady() const
-{
-  return reply_ready_;
-}
+bool ArrayBuilder::ReplyReady() const { return reply_ready_; }
 
-Reply ArrayBuilder::GetReply() const
-{
-  return reply_;
-}
+Reply ArrayBuilder::GetReply() const { return reply_; }
 
-bool ArrayBuilder::FetchArraySize(String& buffer)
-{
+bool ArrayBuilder::FetchArraySize(String& buffer) {
   if (integer_builder_.ReplyReady()) {
     return true;
   }
@@ -55,8 +43,7 @@ bool ArrayBuilder::FetchArraySize(String& buffer)
   if (size < 0) {
     reply_.Set();
     reply_ready_ = true;
-  }
-  else if (size == 0) {
+  } else if (size == 0) {
     reply_ready_ = true;
   }
 
@@ -64,8 +51,7 @@ bool ArrayBuilder::FetchArraySize(String& buffer)
   return true;
 }
 
-bool ArrayBuilder::BuildRow(String& buffer)
-{
+bool ArrayBuilder::BuildRow(String& buffer) {
   if (!current_builder_) {
     current_builder_ = Builders::CreateBuilder(buffer.First());
     buffer.RemoveFirst();
@@ -86,5 +72,5 @@ bool ArrayBuilder::BuildRow(String& buffer)
   return true;
 }
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

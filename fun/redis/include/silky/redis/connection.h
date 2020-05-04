@@ -11,20 +11,18 @@ class FUN_REDIS_API Connection {
  public:
   typedef Function<void(Connection&)> ConnectedCallback;
   typedef Function<void(Connection&)> DisconnectedCallback;
-  typedef Function<void(Connection&,Reply&)> ReplyCallback;
+  typedef Function<void(Connection&, Reply&)> ReplyCallback;
 
  public:
   Connection();
   Connection(const SharedPtr<TcpClient>& tcp_client);
   ~Connection();
 
-  void ConnectSync( const String& host = "localhost",
-                    int32 port = 6379,
-                    const DisconnectedCallback& disconnected_cb = nullptr,
-                    const ReplyCallback& reply_cb = nullptr);
-                    
-  void ConnectAsync(const String& host = "localhost",
-                    int32 port = 6379,
+  void ConnectSync(const String& host = "localhost", int32 port = 6379,
+                   const DisconnectedCallback& disconnected_cb = nullptr,
+                   const ReplyCallback& reply_cb = nullptr);
+
+  void ConnectAsync(const String& host = "localhost", int32 port = 6379,
                     const ConnectedCallback& connected_cb = nullptr,
                     const DisconnectedCallback& disconnected_cb = nullptr,
                     const ReplyCallback& reply_cb = nullptr);
@@ -57,5 +55,5 @@ class FUN_REDIS_API Connection {
   Mutex buffer_mutex_;
 };
 
-} // namespace redis
-} // namespace fun
+}  // namespace redis
+}  // namespace fun

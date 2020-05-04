@@ -17,5 +17,5 @@ class CondensedWriter;
 class PrettyWriter;
 class Features;
 
-} // namespace json
-} // namespace fun
+}  // namespace json
+}  // namespace fun

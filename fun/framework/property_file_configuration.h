@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include "fun/framework/framework.h"
-#include "fun/framework/map_configuration.h"
-
 #include <istream>
 #include <list>
 #include <ostream>
+
+#include "fun/framework/framework.h"
+#include "fun/framework/map_configuration.h"
 
 namespace fun {
 namespace framework {

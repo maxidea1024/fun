@@ -3,9 +3,9 @@
 #include "fun/base/exception.h"
 
 namespace fun {
-//namespace redis {
+// namespace redis {
 
 FUN_DECLARE_EXCEPTION(FUN_REDIS_API, RedisException, Exception);
 
 //} // namespace redis
-} // namespace fun
+}  // namespace fun

@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/stream_sink.h"
+
 #include "fun/base/logging/log_message.h"
 
 namespace fun {

@@ -1,32 +1,27 @@
 ﻿#include "fun/base/encoding/utf32_encoding.h"
+
 #include "fun/base/byte_order.h"
 #include "fun/base/string/string.h"
 
 namespace fun {
 
-const char* Utf32Encoding::names_[] = {
-  "UTF-32",
-  "UTF32",
-  nullptr
-};
+const char* Utf32Encoding::names_[] = {"UTF-32", "UTF32", nullptr};
 
 const TextEncoding::CharacterMap Utf32Encoding::char_map_ = {
-  /* 00 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 10 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 20 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 30 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 40 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 50 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 60 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 70 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 80 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* 90 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* a0 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* b0 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* c0 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* d0 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* e0 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-  /* f0 */  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -2, -2, -2, -2, -2, -2,
 };
 
 Utf32Encoding::Utf32Encoding(ByteOrderType byte_order) {
@@ -51,7 +46,8 @@ void Utf32Encoding::SetByteOrder(ByteOrderType byte_order) {
 #if FUN_ARCH_BIG_ENDIAN
   flip_bytes_ = byte_order == LITTLE_ENDIAN_BYTE_ORDER;
 #else
-  flip_bytes_ = byte_order == BIG_ENDIAN_BYTE_ORDER;;
+  flip_bytes_ = byte_order == BIG_ENDIAN_BYTE_ORDER;
+  ;
 #endif
 }
 
@@ -59,9 +55,7 @@ void Utf32Encoding::SetByteOrder(int32 byte_order_mark) {
   flip_bytes_ = byte_order_mark != 0xFEFF;
 }
 
-const char* Utf32Encoding::GetCanonicalName() const {
-  return names_[0];
-}
+const char* Utf32Encoding::GetCanonicalName() const { return names_[0]; }
 
 bool Utf32Encoding::IsA(const String& encoding_name) const {
   for (const char** name = names_; *name; ++name) {
@@ -93,7 +87,7 @@ int32 Utf32Encoding::Convert(const uint8* bytes) const {
 
 int32 Utf32Encoding::Convert(int32 ch, uint8* bytes, int32 len) const {
   if (bytes && len >= 4) {
-    uint32 ch1 = flip_bytes_ ? ByteOrder::FlipBytes((uint32) ch) : (uint32) ch;
+    uint32 ch1 = flip_bytes_ ? ByteOrder::FlipBytes((uint32)ch) : (uint32)ch;
     uint8* p = (uint8*)&ch1;
     *bytes++ = *p++;
     *bytes++ = *p++;
@@ -122,8 +116,9 @@ int32 Utf32Encoding::QueryConvert(const uint8* bytes, int32 len) const {
   return ret;
 }
 
-int32 Utf32Encoding::SequenceLength(const uint8* /*bytes*/, int32 /*len*/) const {
+int32 Utf32Encoding::SequenceLength(const uint8* /*bytes*/,
+                                    int32 /*len*/) const {
   return 4;
 }
 
-} // namespace fun
+}  // namespace fun

@@ -1,8 +1,9 @@
-﻿//TODO string 객체에 사용되는 메모리 할당을 최소화해야함. compile time string을 구분해서 처리하는게 좋을듯 싶은데...
+﻿// TODO string 객체에 사용되는 메모리 할당을 최소화해야함. compile time string을
+// 구분해서 처리하는게 좋을듯 싶은데...
 #pragma once
 
-#include "fun/json/json.h"
 #include "fun/json/forwards.h"
+#include "fun/json/json.h"
 //#include "fun/json/assertions.h"
 
 #include <initializer_list>
@@ -68,9 +69,10 @@ class FUN_JSON_API JValue {
   JValue(ValueType type = ValueType::Null);
   JValue(decltype(nullptr));
 
-  //JValue(bool value);
+  // JValue(bool value);
   template <typename T>
-  FUN_ALWAYS_INLINE JValue(T value, typename EnableIf<IsSame<T,bool>::Value,int32>::Type=0)   {
+  FUN_ALWAYS_INLINE JValue(
+      T value, typename EnableIf<IsSame<T, bool>::Value, int32>::Type = 0) {
     InitBasic(ValueType::Bool);
     bool_value_ = value;
   }
@@ -81,54 +83,55 @@ class FUN_JSON_API JValue {
   JValue(uint64 value);
   JValue(float value);
   JValue(double value);
-  //JValue(const char* value);
-  //JValue(const char* value, int32 len);
-  //JValue(const UNICHAR* value);
-  //JValue(const UNICHAR* value, int32 len);
-  //JValue(ByteStringView value);
-  //JValue(UStringView value);
-  //JValue(AsciiString value);
-  JValue(const String& value); // String의 사본을 만들지 않기 위해서, 참조로 넘겨줌.
+  // JValue(const char* value);
+  // JValue(const char* value, int32 len);
+  // JValue(const UNICHAR* value);
+  // JValue(const UNICHAR* value, int32 len);
+  // JValue(ByteStringView value);
+  // JValue(UStringView value);
+  // JValue(AsciiString value);
+  JValue(const String&
+             value);  // String의 사본을 만들지 않기 위해서, 참조로 넘겨줌.
 
-  //TODO
-  //JValue(const StaticString& value);
+  // TODO
+  // JValue(const StaticString& value);
 
   JValue(const JArray& value);
   JValue(const JObject& value);
   JValue(const JValue& other);
   ~JValue();
 
-
   // Assignments
 
   template <typename T>
-  FUN_ALWAYS_INLINE typename EnableIf<IsSame<T, bool>::Value, JValue&>::Type operator = (T value) {
+  FUN_ALWAYS_INLINE typename EnableIf<IsSame<T, bool>::Value, JValue&>::Type
+  operator=(T value) {
     SetBool(value);
     return *this;
   }
 
-  JValue& operator = (int32 value);
-  JValue& operator = (int64 value);
-  JValue& operator = (uint32 value);
-  JValue& operator = (uint64 value);
-  JValue& operator = (float value);
-  JValue& operator = (double value);
-  //JValue& operator = (const char* value);
-  //JValue& operator = (ByteStringView value);
-  //JValue& operator = (const UNICHAR* value);
-  //JValue& operator = (UStringView value);
-  //JValue& operator = (AsciiString value);
-  JValue& operator = (const String& value); // CString의 사본을 만들지 않기 위해서, 참조로 넘겨줌.
-  JValue& operator = (const JArray& value);
-  JValue& operator = (const JObject& value);
-  JValue& operator = (const JValue& other);
+  JValue& operator=(int32 value);
+  JValue& operator=(int64 value);
+  JValue& operator=(uint32 value);
+  JValue& operator=(uint64 value);
+  JValue& operator=(float value);
+  JValue& operator=(double value);
+  // JValue& operator = (const char* value);
+  // JValue& operator = (ByteStringView value);
+  // JValue& operator = (const UNICHAR* value);
+  // JValue& operator = (UStringView value);
+  // JValue& operator = (AsciiString value);
+  JValue& operator=(const String& value);  // CString의 사본을 만들지 않기
+                                           // 위해서, 참조로 넘겨줌.
+  JValue& operator=(const JArray& value);
+  JValue& operator=(const JObject& value);
+  JValue& operator=(const JValue& other);
 
   void Swap(JValue& other);
   void SwapPayload(JValue& other);
 
   bool IsEmpty() const;
   int32 Count() const;
-
 
   // Array manipulation
 
@@ -139,7 +142,8 @@ class FUN_JSON_API JValue {
   JValue& Append();
 
   template <typename T>
-  FUN_ALWAYS_INLINE JValue& Append(T value, typename EnableIf<IsSame<T, bool>::Value, int32>::Type=0) {
+  FUN_ALWAYS_INLINE JValue& Append(
+      T value, typename EnableIf<IsSame<T, bool>::Value, int32>::Type = 0) {
     SetArray();
     array_value_->Add(JValue(value));
     return *this;
@@ -151,14 +155,15 @@ class FUN_JSON_API JValue {
   JValue& Append(uint64 value);
   JValue& Append(float value);
   JValue& Append(double value);
-  //JValue& Append(const char* value);
-  //JValue& Append(const char* value, int32 len);
-  //JValue& Append(ByteStringView value);
-  //JValue& Append(const UNICHAR* value);
-  //JValue& Append(const UNICHAR* value, int32 len);
-  //JValue& Append(UStringView value);
-  //JValue& Append(AsciiString value);
-  JValue& Append(const String& value); // CString의 사본을 만들지 않기 위해서, 참조로 넘겨줌.
+  // JValue& Append(const char* value);
+  // JValue& Append(const char* value, int32 len);
+  // JValue& Append(ByteStringView value);
+  // JValue& Append(const UNICHAR* value);
+  // JValue& Append(const UNICHAR* value, int32 len);
+  // JValue& Append(UStringView value);
+  // JValue& Append(AsciiString value);
+  JValue& Append(const String& value);  // CString의 사본을 만들지 않기 위해서,
+                                        // 참조로 넘겨줌.
   JValue& Append(const JObject& value);
   JValue& Append(const JValue& value);
   JValue& AppendChildArray();
@@ -166,18 +171,20 @@ class FUN_JSON_API JValue {
   bool RemoveAt(int32 array_index);
   void RemoveAllElements();
 
-  const JValue& operator [] (int32 array_index) const;
-  JValue& operator [] (int32 array_index);
+  const JValue& operator[](int32 array_index) const;
+  JValue& operator[](int32 array_index);
 
-  JValue Get(int32 array_index, const JValue& default_value = JValue::Null) const;
-
+  JValue Get(int32 array_index,
+             const JValue& default_value = JValue::Null) const;
 
   // Object manipulation
 
   bool ContainsField(const String& field_name) const;
 
   template <typename T>
-  FUN_ALWAYS_INLINE JValue& AddField(const String& field_name, T value, typename EnableIf<IsSame<T, bool>::Value, int32>::Type=0) {
+  FUN_ALWAYS_INLINE JValue& AddField(
+      const String& field_name, T value,
+      typename EnableIf<IsSame<T, bool>::Value, int32>::Type = 0) {
     SetObject();
     object_value_->Add(field_name, JValue(value));
     return *this;
@@ -189,14 +196,16 @@ class FUN_JSON_API JValue {
   JValue& AddField(const String& field_name, uint64 value);
   JValue& AddField(const String& field_name, float value);
   JValue& AddField(const String& field_name, double value);
-  //JValue& AddField(const String& field_name, const char* value);
-  //JValue& AddField(const String& field_name, const char* value, int32 len);
-  //JValue& AddField(const String& field_name, ByteStringView value);
-  //JValue& AddField(const String& field_name, const UNICHAR* value);
-  //JValue& AddField(const String& field_name, const UNICHAR* value, int32 len);
-  //JValue& AddField(const String& field_name, UStringView value);
-  //JValue& AddField(const String& field_name, AsciiString value);
-  JValue& AddField(const String& field_name, const String& value); // String의 사본을 만들지 않기 위해서, 참조로 넘겨줌.
+  // JValue& AddField(const String& field_name, const char* value);
+  // JValue& AddField(const String& field_name, const char* value, int32 len);
+  // JValue& AddField(const String& field_name, ByteStringView value);
+  // JValue& AddField(const String& field_name, const UNICHAR* value);
+  // JValue& AddField(const String& field_name, const UNICHAR* value, int32
+  // len); JValue& AddField(const String& field_name, UStringView value); JValue&
+  // AddField(const String& field_name, AsciiString value);
+  JValue& AddField(const String& field_name,
+                   const String& value);  // String의 사본을 만들지 않기 위해서,
+                                          // 참조로 넘겨줌.
   JValue& AddField(const String& field_name, const JArray& value);
   JValue& AddField(const String& field_name, const JObject& value);
   JValue& AddField(const String& field_name, const JValue& value);
@@ -205,15 +214,15 @@ class FUN_JSON_API JValue {
   bool RemoveField(const String& field_name);
   void RemoveAllFields();
 
-  const JValue& operator [] (const String& field_name) const;
-  //TODO
-  //JValue& operator [] (const StaticString& field_name);
-  JValue& operator [] (const String& field_name);
+  const JValue& operator[](const String& field_name) const;
+  // TODO
+  // JValue& operator [] (const StaticString& field_name);
+  JValue& operator[](const String& field_name);
 
-  JValue Get(const String& field_name, const JValue& default_value = JValue::Null) const;
+  JValue Get(const String& field_name,
+             const JValue& default_value = JValue::Null) const;
   const JValue* Find(const String& field_name) const;
   Array<String> GetFieldNames() const;
-
 
   // Types
 
@@ -263,29 +272,28 @@ class FUN_JSON_API JValue {
   void SetDouble(double value);
 
   void SetString();
-  //void SetString(ByteStringView value);
-  //void SetString(UStringView value);
-  //void SetString(AsciiString value);
-  void SetString(const String& value); // CString의 사본을 만들지 않기 위해서, 참조로 넘겨줌.
+  // void SetString(ByteStringView value);
+  // void SetString(UStringView value);
+  // void SetString(AsciiString value);
+  void SetString(const String& value);  // CString의 사본을 만들지 않기 위해서,
+                                        // 참조로 넘겨줌.
 
   JValue& SetArray();
   JValue& SetArray(const JArray& value);
   JValue& SetObject();
   JValue& SetObject(const JObject& value);
 
-
   //
   // Comparisons
   //
 
   int32 Compare(const JValue& other) const;
-  bool operator == (const JValue& other) const;
-  bool operator != (const JValue& other) const;
-  bool operator <  (const JValue& other) const;
-  bool operator <= (const JValue& other) const;
-  bool operator >  (const JValue& other) const;
-  bool operator >= (const JValue& other) const;
-
+  bool operator==(const JValue& other) const;
+  bool operator!=(const JValue& other) const;
+  bool operator<(const JValue& other) const;
+  bool operator<=(const JValue& other) const;
+  bool operator>(const JValue& other) const;
+  bool operator>=(const JValue& other) const;
 
   //
   // Comments
@@ -296,7 +304,6 @@ class FUN_JSON_API JValue {
   bool HasComment(CommentPlacement placement) const;
   String GetComment(CommentPlacement placement) const;
 
-
   //
   // Location(used for reader)
   //
@@ -306,14 +313,13 @@ class FUN_JSON_API JValue {
   ptrdiff_t GetOffsetStart() const;
   ptrdiff_t GetOffsetLimit() const;
 
-
   // Serialization with string.
 
   bool FromString(const String& str, String* out_error = nullptr);
-  bool FromString(const char* begin, const char* end, String* out_error = nullptr);
+  bool FromString(const char* begin, const char* end,
+                  String* out_error = nullptr);
   /** Stringify */
   String ToString(bool pretty = false) const;
-
 
   // Serialization with file.
 
@@ -342,7 +348,6 @@ class FUN_JSON_API JValue {
     JObject* object_value_;
   };
 
-
   // Extra
 
   /**
@@ -368,7 +373,6 @@ class FUN_JSON_API JValue {
   void EnsureValidCommentPlacement(const CommentPlacement placement) const;
 };
 
-
 //
 // inlines
 //
@@ -382,18 +386,24 @@ FUN_ALWAYS_INLINE void JValue::InitBasic(ValueType type) {
   comments_ = nullptr;
 }
 
-FUN_ALWAYS_INLINE JValue::JValue() {
-  InitBasic(ValueType::Null);
-}
+FUN_ALWAYS_INLINE JValue::JValue() { InitBasic(ValueType::Null); }
 
 FUN_ALWAYS_INLINE JValue::JValue(ValueType type) {
   InitBasic(type);
 
   switch (type_) {
-    case ValueType::String: string_value_ = new String(); break;
-    case ValueType::Array: array_value_ = new JArray(); break;
-    case ValueType::Object: object_value_ = new JObject(); break;
-    default: object_value_ = nullptr; break; // largest
+    case ValueType::String:
+      string_value_ = new String();
+      break;
+    case ValueType::Array:
+      array_value_ = new JArray();
+      break;
+    case ValueType::Object:
+      object_value_ = new JObject();
+      break;
+    default:
+      object_value_ = nullptr;
+      break;  // largest
   }
 }
 
@@ -401,7 +411,7 @@ FUN_ALWAYS_INLINE JValue::JValue(decltype(nullptr)) {
   InitBasic(ValueType::Null);
 }
 
-//FUN_ALWAYS_INLINE JValue::JValue(bool value) {
+// FUN_ALWAYS_INLINE JValue::JValue(bool value) {
 //  InitBasic(ValueType::Bool);
 //  bool_value_ = value;
 //}
@@ -436,37 +446,37 @@ FUN_ALWAYS_INLINE JValue::JValue(double value) {
   double_value_ = value;
 }
 
-//FUN_ALWAYS_INLINE JValue::JValue(const char* value) {
+// FUN_ALWAYS_INLINE JValue::JValue(const char* value) {
 //  InitBasic(ValueType::String);
 //  string_value_ = new String(ByteStringView(value));
 //}
 //
-//FUN_ALWAYS_INLINE JValue::JValue(const char* value, int32 len) {
+// FUN_ALWAYS_INLINE JValue::JValue(const char* value, int32 len) {
 //  InitBasic(ValueType::String);
 //  string_value_ = new String(ByteStringView(value, len));
 //}
 //
-//FUN_ALWAYS_INLINE JValue::JValue(const UNICHAR* value) {
+// FUN_ALWAYS_INLINE JValue::JValue(const UNICHAR* value) {
 //  InitBasic(ValueType::String);
 //  string_value_ = new String(value);
 //}
 //
-//FUN_ALWAYS_INLINE JValue::JValue(const UNICHAR* value, int32 len) {
+// FUN_ALWAYS_INLINE JValue::JValue(const UNICHAR* value, int32 len) {
 //  InitBasic(ValueType::String);
 //  string_value_ = new String(UStringView(value, len));
 //}
 //
-//FUN_ALWAYS_INLINE JValue::JValue(ByteStringView value) {
+// FUN_ALWAYS_INLINE JValue::JValue(ByteStringView value) {
 //  InitBasic(ValueType::String);
 //  string_value_ = new String(value);
 //}
 //
-//FUN_ALWAYS_INLINE JValue::JValue(UStringView value) {
+// FUN_ALWAYS_INLINE JValue::JValue(UStringView value) {
 //  InitBasic(ValueType::String);
 //  string_value_ = new String(value);
 //}
 //
-//FUN_ALWAYS_INLINE JValue::JValue(AsciiString value) {
+// FUN_ALWAYS_INLINE JValue::JValue(AsciiString value) {
 //  InitBasic(ValueType::String);
 //  string_value_ = new String(value);
 //}
@@ -503,118 +513,162 @@ FUN_ALWAYS_INLINE JValue::JValue(const JValue& other) : type_(other.type_) {
   limit_ = other.limit_;
 
   switch (type_) {
-    case ValueType::Null: break;
-    case ValueType::Integer: integer_value_ = other.integer_value_; break;
-    case ValueType::UnsignedInteger: unsigned_integer_value_ = other.unsigned_integer_value_; break;
-    case ValueType::Double: double_value_ = other.double_value_; break;
-    case ValueType::Bool: bool_value_ = other.bool_value_; break;
-    case ValueType::String: string_value_ = new String(*other.string_value_); break;
-    case ValueType::Array: array_value_ = new JArray(*other.array_value_); break;
-    case ValueType::Object: object_value_ = new JObject(*other.object_value_); break;
-    default: fun_unexpected(); break;
+    case ValueType::Null:
+      break;
+    case ValueType::Integer:
+      integer_value_ = other.integer_value_;
+      break;
+    case ValueType::UnsignedInteger:
+      unsigned_integer_value_ = other.unsigned_integer_value_;
+      break;
+    case ValueType::Double:
+      double_value_ = other.double_value_;
+      break;
+    case ValueType::Bool:
+      bool_value_ = other.bool_value_;
+      break;
+    case ValueType::String:
+      string_value_ = new String(*other.string_value_);
+      break;
+    case ValueType::Array:
+      array_value_ = new JArray(*other.array_value_);
+      break;
+    case ValueType::Object:
+      object_value_ = new JObject(*other.object_value_);
+      break;
+    default:
+      fun_unexpected();
+      break;
   }
 }
 
 FUN_ALWAYS_INLINE JValue::~JValue() {
   FreeValue();
-  delete[] comments_;;
+  delete[] comments_;
+  ;
 }
 
 FUN_ALWAYS_INLINE void JValue::FreeValue() {
   switch (type_) {
-  case ValueType::String: delete string_value_; string_value_ = nullptr; break;
-  case ValueType::Array: delete array_value_; array_value_ = nullptr; break;
-  case ValueType::Object: delete object_value_; object_value_ = nullptr; break;
+    case ValueType::String:
+      delete string_value_;
+      string_value_ = nullptr;
+      break;
+    case ValueType::Array:
+      delete array_value_;
+      array_value_ = nullptr;
+      break;
+    case ValueType::Object:
+      delete object_value_;
+      object_value_ = nullptr;
+      break;
   }
 }
 
-//FUN_ALWAYS_INLINE JValue& JValue::operator = (bool value) {
+// FUN_ALWAYS_INLINE JValue& JValue::operator = (bool value) {
 //  SetBool(value);
 //  return *this;
 //}
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (int32 value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(int32 value) {
   SetInteger(value);
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (int64 value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(int64 value) {
   SetInteger(value);
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (uint32 value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(uint32 value) {
   SetUnsignedInteger(value);
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (uint64 value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(uint64 value) {
   SetUnsignedInteger(value);
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (float value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(float value) {
   SetDouble(value);
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (double value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(double value) {
   SetDouble(value);
   return *this;
 }
 
-//FUN_ALWAYS_INLINE JValue& JValue::operator = (const char* value) {
+// FUN_ALWAYS_INLINE JValue& JValue::operator = (const char* value) {
 //  return (*this = ByteStringView(value));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::operator = (ByteStringView value) {
+// FUN_ALWAYS_INLINE JValue& JValue::operator = (ByteStringView value) {
 //  SetString(value);
 //  return *this;
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::operator = (const UNICHAR* value) {
+// FUN_ALWAYS_INLINE JValue& JValue::operator = (const UNICHAR* value) {
 //  return (*this = UStringView(value));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::operator = (UStringView value) {
+// FUN_ALWAYS_INLINE JValue& JValue::operator = (UStringView value) {
 //  SetString(value);
 //  return *this;
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::operator = (AsciiString value) {
+// FUN_ALWAYS_INLINE JValue& JValue::operator = (AsciiString value) {
 //  SetString(value);
 //  return *this;
 //}
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (const String& value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(const String& value) {
   SetString(value);
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (const JArray& value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(const JArray& value) {
   SetArray(value);
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (const JObject& value) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(const JObject& value) {
   SetObject(value);
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator = (const JValue& other) {
+FUN_ALWAYS_INLINE JValue& JValue::operator=(const JValue& other) {
   if (FUN_LIKELY(&other != this)) {
     ChangeType_INTERNAL(other.type_);
 
     switch (type_) {
-      case ValueType::Null: break;
-      case ValueType::Bool: bool_value_ = other.bool_value_; break;
-      case ValueType::Integer: integer_value_ = other.integer_value_; break;
-      case ValueType::UnsignedInteger: unsigned_integer_value_ = other.unsigned_integer_value_; break;
-      case ValueType::Double: double_value_ = other.double_value_; break;
-      case ValueType::String: *string_value_ = *other.string_value_; break;
-      case ValueType::Array: *array_value_ = *other.array_value_; break;
-      case ValueType::Object: *object_value_ = *other.object_value_; break;
-      default: fun_unreachable(); break;
+      case ValueType::Null:
+        break;
+      case ValueType::Bool:
+        bool_value_ = other.bool_value_;
+        break;
+      case ValueType::Integer:
+        integer_value_ = other.integer_value_;
+        break;
+      case ValueType::UnsignedInteger:
+        unsigned_integer_value_ = other.unsigned_integer_value_;
+        break;
+      case ValueType::Double:
+        double_value_ = other.double_value_;
+        break;
+      case ValueType::String:
+        *string_value_ = *other.string_value_;
+        break;
+      case ValueType::Array:
+        *array_value_ = *other.array_value_;
+        break;
+      case ValueType::Object:
+        *object_value_ = *other.object_value_;
+        break;
+      default:
+        fun_unreachable();
+        break;
     }
 
     if (other.comments_) {
@@ -653,23 +707,29 @@ FUN_ALWAYS_INLINE void JValue::SwapPayload(JValue& other) {
 
 FUN_ALWAYS_INLINE bool JValue::IsEmpty() const {
   switch (type_) {
-    case ValueType::Null: return true;
-    case ValueType::Array: return array_value_->Count() == 0;
-    case ValueType::Object: return object_value_->Count() == 0;
+    case ValueType::Null:
+      return true;
+    case ValueType::Array:
+      return array_value_->Count() == 0;
+    case ValueType::Object:
+      return object_value_->Count() == 0;
   }
   return false;
 }
 
 FUN_ALWAYS_INLINE int32 JValue::Count() const {
   switch (type_) {
-    case ValueType::Array: return array_value_->Count();
-    case ValueType::Object: return object_value_->Count();
+    case ValueType::Array:
+      return array_value_->Count();
+    case ValueType::Object:
+      return object_value_->Count();
   }
   return 0;
 }
 
 FUN_ALWAYS_INLINE bool JValue::ContainsIndex(int32 index) const {
-  return (type_ == ValueType::Array) && (index >= 0 && index < array_value_->Count());
+  return (type_ == ValueType::Array) &&
+         (index >= 0 && index < array_value_->Count());
 }
 
 FUN_ALWAYS_INLINE void JValue::Resize(int32 new_count) {
@@ -684,7 +744,7 @@ FUN_ALWAYS_INLINE JValue& JValue::Append() {
   return *this;
 }
 
-//FUN_ALWAYS_INLINE JValue& JValue::Append(bool value) {
+// FUN_ALWAYS_INLINE JValue& JValue::Append(bool value) {
 //  SetArray();
 //  array_value_->Add(JValue(value));
 //  return *this;
@@ -726,35 +786,35 @@ FUN_ALWAYS_INLINE JValue& JValue::Append(double value) {
   return *this;
 }
 
-//FUN_ALWAYS_INLINE JValue& JValue::Append(const char* value) {
+// FUN_ALWAYS_INLINE JValue& JValue::Append(const char* value) {
 //  return Append(ByteStringView(value));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::Append(const char* value, int32 len) {
+// FUN_ALWAYS_INLINE JValue& JValue::Append(const char* value, int32 len) {
 //  return Append(ByteStringView(value, len));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::Append(ByteStringView value) {
+// FUN_ALWAYS_INLINE JValue& JValue::Append(ByteStringView value) {
 //  SetArray();
 //  array_value_->Add(JValue(value));
 //  return *this;
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::Append(const UNICHAR* value) {
+// FUN_ALWAYS_INLINE JValue& JValue::Append(const UNICHAR* value) {
 //  return Append(UStringView(value));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::Append(const UNICHAR* value, int32 len) {
+// FUN_ALWAYS_INLINE JValue& JValue::Append(const UNICHAR* value, int32 len) {
 //  return Append(UStringView(value, len));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::Append(UStringView value) {
+// FUN_ALWAYS_INLINE JValue& JValue::Append(UStringView value) {
 //  SetArray();
 //  array_value_->Add(JValue(value));
 //  return *this;
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::Append(AsciiString value) {
+// FUN_ALWAYS_INLINE JValue& JValue::Append(AsciiString value) {
 //  SetArray();
 //  array_value_->Add(JValue(value));
 //  return *this;
@@ -809,11 +869,12 @@ FUN_ALWAYS_INLINE void JValue::RemoveAllElements() {
   }
 }
 
-FUN_ALWAYS_INLINE const JValue& JValue::operator [] (int32 array_index) const {
+FUN_ALWAYS_INLINE const JValue& JValue::operator[](int32 array_index) const {
   fun_check(type_ == ValueType::Null || type_ == ValueType::Array);
 
   if (array_index < 0) {
-    throw IndexOutOfBoundsException, StringLiteral("array index must be non-negative.");
+    throw IndexOutOfBoundsException,
+        StringLiteral("array index must be non-negative.");
   }
 
   if (array_index >= std::numeric_limits<int32>::max() / 2) {
@@ -831,11 +892,12 @@ FUN_ALWAYS_INLINE const JValue& JValue::operator [] (int32 array_index) const {
   return (*array_value_)[array_index];
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator [] (int32 array_index) {
+FUN_ALWAYS_INLINE JValue& JValue::operator[](int32 array_index) {
   fun_check(type_ == ValueType::Null || type_ == ValueType::Array);
 
   if (array_index < 0) {
-    throw IndexOutOfBoundsException, StringLiteral("array index must be non-negative.");
+    throw IndexOutOfBoundsException,
+        StringLiteral("array index must be non-negative.");
   }
 
   if (array_index >= std::numeric_limits<int32>::max() / 2) {
@@ -846,17 +908,20 @@ FUN_ALWAYS_INLINE JValue& JValue::operator [] (int32 array_index) {
     JValue empty_array(EmptyArray);
     this->SwapPayload(empty_array);
 
-    array_value_->Resize(array_index + 1); // auto expand with JValue(ValueType::Null);
+    array_value_->Resize(array_index +
+                         1);  // auto expand with JValue(ValueType::Null);
   } else {
     if (array_index >= array_value_->Count()) {
-      array_value_->Resize(array_index + 1); // auto expand with JValue(ValueType::Null);
+      array_value_->Resize(array_index +
+                           1);  // auto expand with JValue(ValueType::Null);
     }
   }
 
   return (*array_value_)[array_index];
 }
 
-FUN_ALWAYS_INLINE JValue JValue::Get(int32 array_index, const JValue& default_value) const {
+FUN_ALWAYS_INLINE JValue JValue::Get(int32 array_index,
+                                     const JValue& default_value) const {
   if (type_ != ValueType::Array) {
     return default_value;
   }
@@ -872,101 +937,119 @@ FUN_ALWAYS_INLINE bool JValue::ContainsField(const String& field_name) const {
   return type_ == ValueType::Object && object_value_->Contains(field_name);
 }
 
-//FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, bool value) {
+// FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, bool
+// value) {
 //  SetObject();
 //  object_value_->Add(field_name, JValue(value));
 //  return *this;
 //}
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, int32 value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           int32 value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, int64 value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           int64 value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, uint32 value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           uint32 value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, uint64 value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           uint64 value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, float value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           float value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, double value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           double value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-//FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const char* value) {
+// FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const
+// char* value) {
 //  return AddField(field_name, ByteStringView(value));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const char* value, int32 len) {
+// FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const
+// char* value, int32 len) {
 //  return AddField(field_name, ByteStringView(value, len));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, ByteStringView value) {
+// FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+// ByteStringView value) {
 //  SetObject();
 //  object_value_->Add(field_name, JValue(value));
 //  return *this;
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const UNICHAR* value) {
+// FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const
+// UNICHAR* value) {
 //  return AddField(field_name, UStringView(value));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const UNICHAR* value, int32 len) {
+// FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const
+// UNICHAR* value, int32 len) {
 //  return AddField(field_name, UStringView(value, len));
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, UStringView value) {
+// FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+// UStringView value) {
 //  SetObject();
 //  object_value_->Add(field_name, JValue(value));
 //  return *this;
 //}
 //
-//FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, AsciiString value) {
+// FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+// AsciiString value) {
 //  SetObject();
 //  object_value_->Add(field_name, JValue(value));
 //  return *this;
 //}
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const String& value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           const String& value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const JArray& value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           const JArray& value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const JObject& value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           const JObject& value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name, const JValue& value) {
+FUN_ALWAYS_INLINE JValue& JValue::AddField(const String& field_name,
+                                           const JValue& value) {
   SetObject();
   object_value_->Add(field_name, JValue(value));
   return *this;
@@ -977,7 +1060,8 @@ FUN_ALWAYS_INLINE JValue& JValue::AddChildArrayField(const String& field_name) {
   return object_value_->Add(field_name, JArray());
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::AddChildObjectField(const String& field_name) {
+FUN_ALWAYS_INLINE JValue& JValue::AddChildObjectField(
+    const String& field_name) {
   SetObject();
   return object_value_->Add(field_name, JObject());
 }
@@ -995,7 +1079,8 @@ FUN_ALWAYS_INLINE void JValue::RemoveAllFields() {
   }
 }
 
-FUN_ALWAYS_INLINE const JValue& JValue::operator [] (const String& field_name) const {
+FUN_ALWAYS_INLINE const JValue& JValue::operator[](
+    const String& field_name) const {
   fun_check(type_ == ValueType::Null || type_ == ValueType::Object);
 
   if (type_ == ValueType::Null) {
@@ -1006,7 +1091,7 @@ FUN_ALWAYS_INLINE const JValue& JValue::operator [] (const String& field_name) c
   return found ? *found : JValue::Null;
 }
 
-FUN_ALWAYS_INLINE JValue& JValue::operator [] (const String& field_name) {
+FUN_ALWAYS_INLINE JValue& JValue::operator[](const String& field_name) {
   fun_check(type_ == ValueType::Null || type_ == ValueType::Object);
 
   if (type_ == ValueType::Null) {
@@ -1023,7 +1108,8 @@ FUN_ALWAYS_INLINE JValue& JValue::operator [] (const String& field_name) {
   }
 }
 
-FUN_ALWAYS_INLINE JValue JValue::Get(const String& field_name, const JValue& default_value) const {
+FUN_ALWAYS_INLINE JValue JValue::Get(const String& field_name,
+                                     const JValue& default_value) const {
   const JValue* found = Find(field_name);
   return found ? *found : default_value;
 }
@@ -1047,9 +1133,7 @@ FUN_ALWAYS_INLINE Array<String> JValue::GetFieldNames() const {
   return result;
 }
 
-FUN_ALWAYS_INLINE ValueType JValue::GetType() const {
-  return type_;
-}
+FUN_ALWAYS_INLINE ValueType JValue::GetType() const { return type_; }
 
 FUN_ALWAYS_INLINE const char* JValue::TypeName() const {
   return TypeName(type_);
@@ -1086,13 +1170,9 @@ FUN_ALWAYS_INLINE const char* JValue::TypeName(ValueType type) {
   }
 }
 
-FUN_ALWAYS_INLINE JValue::operator bool() const {
-  return !IsNull();
-}
+FUN_ALWAYS_INLINE JValue::operator bool() const { return !IsNull(); }
 
-FUN_ALWAYS_INLINE bool JValue::operator!() const {
-  return IsNull();
-}
+FUN_ALWAYS_INLINE bool JValue::operator!() const { return IsNull(); }
 
 FUN_ALWAYS_INLINE bool JValue::IsNull() const {
   return type_ == ValueType::Null;
@@ -1107,7 +1187,8 @@ FUN_ALWAYS_INLINE bool JValue::IsString() const {
 }
 
 FUN_ALWAYS_INLINE bool JValue::IsNumeric() const {
-  return type_ == ValueType::Double || type_ == ValueType::Integer || type_ == ValueType::UnsignedInteger;
+  return type_ == ValueType::Double || type_ == ValueType::Integer ||
+         type_ == ValueType::UnsignedInteger;
 }
 
 FUN_ALWAYS_INLINE bool JValue::IsIntegral() const {
@@ -1120,10 +1201,12 @@ FUN_ALWAYS_INLINE bool JValue::IsInteger() const {
       return true;
 
     case ValueType::UnsignedInteger:
-      return unsigned_integer_value_ < (uint64)std::numeric_limits<int64>::max();
+      return unsigned_integer_value_ <
+             (uint64)std::numeric_limits<int64>::max();
 
     case ValueType::Double: {
-      if (double_value_ < std::numeric_limits<int64>::min() || double_value_ > std::numeric_limits<int64>::max()) {
+      if (double_value_ < std::numeric_limits<int64>::min() ||
+          double_value_ > std::numeric_limits<int64>::max()) {
         return false;
       }
 
@@ -1144,7 +1227,8 @@ FUN_ALWAYS_INLINE bool JValue::IsUnsignedInteger() const {
       return true;
 
     case ValueType::Double: {
-      if (double_value_ < 0.0 || double_value_ > std::numeric_limits<uint64>::max()) {
+      if (double_value_ < 0.0 ||
+          double_value_ > std::numeric_limits<uint64>::max()) {
         return false;
       }
 
@@ -1156,9 +1240,7 @@ FUN_ALWAYS_INLINE bool JValue::IsUnsignedInteger() const {
   return false;
 }
 
-FUN_ALWAYS_INLINE bool JValue::IsDouble() const {
-  return IsNumeric();
-}
+FUN_ALWAYS_INLINE bool JValue::IsDouble() const { return IsNumeric(); }
 
 FUN_ALWAYS_INLINE bool JValue::IsArray() const {
   return type_ == ValueType::Array;
@@ -1168,32 +1250,36 @@ FUN_ALWAYS_INLINE bool JValue::IsObject() const {
   return type_ == ValueType::Object;
 }
 
-FUN_ALWAYS_INLINE bool JValue::IsConvertibleTypeTo(const ValueType type_to) const {
+FUN_ALWAYS_INLINE bool JValue::IsConvertibleTypeTo(
+    const ValueType type_to) const {
   switch (type_to) {
     case ValueType::Null:
-      return  (IsNumeric() && AsDouble() == 0.0) ||
-              (type_ == ValueType::Bool && bool_value_ == false) ||
-              (type_ == ValueType::String && *string_value_ == String()) ||
-              (type_ == ValueType::Array && array_value_->Count() == 0) ||
-              (type_ == ValueType::Object && object_value_->Count() == 0) ||
-              (type_ == ValueType::Null);
+      return (IsNumeric() && AsDouble() == 0.0) ||
+             (type_ == ValueType::Bool && bool_value_ == false) ||
+             (type_ == ValueType::String && *string_value_ == String()) ||
+             (type_ == ValueType::Array && array_value_->Count() == 0) ||
+             (type_ == ValueType::Object && object_value_->Count() == 0) ||
+             (type_ == ValueType::Null);
 
     case ValueType::Integer:
-      return  IsInteger() ||
-              (type_ == ValueType::Bool || type_ == ValueType::Null);
+      return IsInteger() ||
+             (type_ == ValueType::Bool || type_ == ValueType::Null);
 
     case ValueType::UnsignedInteger:
-      return  IsUnsignedInteger() ||
-              (type_ == ValueType::Bool || type_ == ValueType::Null);
+      return IsUnsignedInteger() ||
+             (type_ == ValueType::Bool || type_ == ValueType::Null);
 
     case ValueType::Double:
-      return IsNumeric() || type_ == ValueType::Bool || type_ == ValueType::Null;
+      return IsNumeric() || type_ == ValueType::Bool ||
+             type_ == ValueType::Null;
 
     case ValueType::Bool:
-      return IsNumeric() || type_ == ValueType::Bool || type_ == ValueType::Null;
+      return IsNumeric() || type_ == ValueType::Bool ||
+             type_ == ValueType::Null;
 
     case ValueType::String:
-      return IsNumeric() || type_ == ValueType::Bool || type_ == ValueType::String || type_ == ValueType::Null;
+      return IsNumeric() || type_ == ValueType::Bool ||
+             type_ == ValueType::String || type_ == ValueType::Null;
 
     case ValueType::Array:
       return type_ == ValueType::Array || type_ == ValueType::Null;
@@ -1223,14 +1309,15 @@ FUN_ALWAYS_INLINE bool JValue::AsBool() const {
       return false;
 
     default:
-      throw TypeIncompatibleException(String::Format("could not cast type {0} to bool.", TypeName()));
+      throw TypeIncompatibleException(
+          String::Format("could not cast type {0} to bool.", TypeName()));
   }
 }
 
 FUN_ALWAYS_INLINE const String JValue::AsString() const {
   switch (type_) {
     case ValueType::Null:
-      return String(); // "(nil)" ??
+      return String();  // "(nil)" ??
 
     case ValueType::String:
       return *string_value_;
@@ -1248,7 +1335,8 @@ FUN_ALWAYS_INLINE const String JValue::AsString() const {
       return String::FromNumber(double_value_);
 
     default:
-      throw TypeIncompatibleException(String::Format("could not cast type {0} to string.", TypeName()));
+      throw TypeIncompatibleException(
+          String::Format("could not cast type {0} to string.", TypeName()));
   }
 }
 
@@ -1272,7 +1360,8 @@ FUN_ALWAYS_INLINE int64 JValue::AsInteger() const {
       return bool_value_ ? 1 : 0;
 
     default:
-      throw TypeIncompatibleException(String::Format("could not cast type {0} to integer.", TypeName()));
+      throw TypeIncompatibleException(
+          String::Format("could not cast type {0} to integer.", TypeName()));
   }
 }
 
@@ -1296,7 +1385,8 @@ FUN_ALWAYS_INLINE uint64 JValue::AsUnsignedInteger() const {
       return bool_value_ ? 1 : 0;
 
     default:
-      throw TypeIncompatibleException(String::Format("could not cast type {0} to unsigned-integer.", TypeName()));
+      throw TypeIncompatibleException(String::Format(
+          "could not cast type {0} to unsigned-integer.", TypeName()));
   }
 }
 
@@ -1318,13 +1408,15 @@ FUN_ALWAYS_INLINE double JValue::AsDouble() const {
       return bool_value_ ? 1.0 : 0.0;
 
     default:
-      throw TypeIncompatibleException(String::Format("could not cast type {0} to double.", TypeName()));
+      throw TypeIncompatibleException(
+          String::Format("could not cast type {0} to double.", TypeName()));
   }
 }
 
 FUN_ALWAYS_INLINE const JArray& JValue::AsArray() const {
   if (type_ != ValueType::Array) {
-    throw TypeIncompatibleException(String::Format("could not cast type {0} to array.", TypeName()));
+    throw TypeIncompatibleException(
+        String::Format("could not cast type {0} to array.", TypeName()));
   }
 
   return *array_value_;
@@ -1332,7 +1424,8 @@ FUN_ALWAYS_INLINE const JArray& JValue::AsArray() const {
 
 FUN_ALWAYS_INLINE const JObject& JValue::AsObject() const {
   if (type_ != ValueType::Object) {
-    throw TypeIncompatibleException(String::Format("could not cast type {0} to object.", TypeName()));
+    throw TypeIncompatibleException(
+        String::Format("could not cast type {0} to object.", TypeName()));
   }
 
   return *object_value_;
@@ -1344,74 +1437,76 @@ FUN_ALWAYS_INLINE void JValue::SetNull() {
 
 FUN_ALWAYS_INLINE void JValue::SetBool(bool value) {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Bool,
-    "It can be changed to bool type only if it is null type.");
+                "It can be changed to bool type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Bool);
   bool_value_ = value;
 }
 
 FUN_ALWAYS_INLINE void JValue::SetInteger(int32 value) {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Integer,
-    "It can be changed to integer type only if it is null type.");
+                "It can be changed to integer type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Integer);
   integer_value_ = value;
 }
 
 FUN_ALWAYS_INLINE void JValue::SetInteger(int64 value) {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Integer,
-    "It can be changed to integer type only if it is null type.");
+                "It can be changed to integer type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Integer);
   integer_value_ = value;
 }
 
 FUN_ALWAYS_INLINE void JValue::SetUnsignedInteger(uint32 value) {
-  fun_check_msg(type_ == ValueType::Null || type_ == ValueType::UnsignedInteger,
-    "It can be changed to unsigned integer type only if it is null type.");
+  fun_check_msg(
+      type_ == ValueType::Null || type_ == ValueType::UnsignedInteger,
+      "It can be changed to unsigned integer type only if it is null type.");
   ChangeType_INTERNAL(ValueType::UnsignedInteger);
   unsigned_integer_value_ = value;
 }
 
 FUN_ALWAYS_INLINE void JValue::SetUnsignedInteger(uint64 value) {
-  fun_check_msg(type_ == ValueType::Null || type_ == ValueType::UnsignedInteger,
-    "It can be changed to unsigned integer type only if it is null type.");
+  fun_check_msg(
+      type_ == ValueType::Null || type_ == ValueType::UnsignedInteger,
+      "It can be changed to unsigned integer type only if it is null type.");
   ChangeType_INTERNAL(ValueType::UnsignedInteger);
   unsigned_integer_value_ = value;
 }
 
 FUN_ALWAYS_INLINE void JValue::SetDouble(float value) {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Double,
-    "It can be changed to double type only if it is null type.");
+                "It can be changed to double type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Double);
   double_value_ = value;
 }
 
 FUN_ALWAYS_INLINE void JValue::SetDouble(double value) {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Double,
-    "It can be changed to double type only if it is null type.");
+                "It can be changed to double type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Double);
   double_value_ = value;
 }
 
 FUN_ALWAYS_INLINE void JValue::SetString() {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::String,
-    "It can be changed to string type only if it is null type.");
+                "It can be changed to string type only if it is null type.");
   ChangeType_INTERNAL(ValueType::String);
 }
 
-//FUN_ALWAYS_INLINE void JValue::SetString(ByteStringView value) {
+// FUN_ALWAYS_INLINE void JValue::SetString(ByteStringView value) {
 //  fun_check_msg(type_ == ValueType::Null || type_ == ValueType::String,
 //    "It can be changed to string type only if it is null type.");
 //  ChangeType_INTERNAL(ValueType::String);
 //  *string_value_ = value;
 //}
 //
-//FUN_ALWAYS_INLINE void JValue::SetString(UStringView value) {
+// FUN_ALWAYS_INLINE void JValue::SetString(UStringView value) {
 //  fun_check_msg(type_ == ValueType::Null || type_ == ValueType::String,
 //    "It can be changed to string type only if it is null type.");
 //  ChangeType_INTERNAL(ValueType::String);
 //  *string_value_ = value;
 //}
 //
-//FUN_ALWAYS_INLINE void JValue::SetString(AsciiString value) {
+// FUN_ALWAYS_INLINE void JValue::SetString(AsciiString value) {
 //  fun_check_msg(type_ == ValueType::Null || type_ == ValueType::String,
 //    "It can be changed to string type only if it is null type.");
 //  ChangeType_INTERNAL(ValueType::String);
@@ -1420,21 +1515,21 @@ FUN_ALWAYS_INLINE void JValue::SetString() {
 
 FUN_ALWAYS_INLINE void JValue::SetString(const String& value) {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::String,
-    "It can be changed to string type only if it is null type.");
+                "It can be changed to string type only if it is null type.");
   ChangeType_INTERNAL(ValueType::String);
   *string_value_ = value;
 }
 
 FUN_ALWAYS_INLINE JValue& JValue::SetArray() {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Array,
-    "It can be changed to array type only if it is null type.");
+                "It can be changed to array type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Array);
   return *this;
 }
 
 FUN_ALWAYS_INLINE JValue& JValue::SetArray(const JArray& value) {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Array,
-    "It can be changed to array type only if it is null type.");
+                "It can be changed to array type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Array);
   *array_value_ = value;
   return *this;
@@ -1442,14 +1537,14 @@ FUN_ALWAYS_INLINE JValue& JValue::SetArray(const JArray& value) {
 
 FUN_ALWAYS_INLINE JValue& JValue::SetObject() {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Object,
-    "It can be changed to object type only if it is null type.");
+                "It can be changed to object type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Object);
   return *this;
 }
 
 FUN_ALWAYS_INLINE JValue& JValue::SetObject(const JObject& value) {
   fun_check_msg(type_ == ValueType::Null || type_ == ValueType::Object,
-    "It can be changed to object type only if it is null type.");
+                "It can be changed to object type only if it is null type.");
   ChangeType_INTERNAL(ValueType::Object);
   *object_value_ = value;
   return *this;
@@ -1463,10 +1558,18 @@ FUN_ALWAYS_INLINE void JValue::ChangeType_INTERNAL(ValueType new_type) {
     type_ = new_type;
 
     switch (type_) {
-      case ValueType::String: string_value_ = new String(); break;
-      case ValueType::Array: array_value_ = new JArray(); break;
-      case ValueType::Object: object_value_ = new JObject(); break;
-      default: object_value_ = nullptr; break; // largest
+      case ValueType::String:
+        string_value_ = new String();
+        break;
+      case ValueType::Array:
+        array_value_ = new JArray();
+        break;
+      case ValueType::Object:
+        object_value_ = new JObject();
+        break;
+      default:
+        object_value_ = nullptr;
+        break;  // largest
     }
   }
 }
@@ -1481,53 +1584,68 @@ FUN_ALWAYS_INLINE int32 JValue::Compare(const JValue& other) const {
   }
 }
 
-FUN_ALWAYS_INLINE bool JValue::operator == (const JValue& other) const {
+FUN_ALWAYS_INLINE bool JValue::operator==(const JValue& other) const {
   if (type_ != other.type_) {
     return false;
   }
 
   switch (type_) {
-    case ValueType::Null: return true;
-    case ValueType::Integer: return integer_value_ == other.integer_value_;
-    case ValueType::UnsignedInteger: return unsigned_integer_value_ == other.unsigned_integer_value_;
-    case ValueType::Double: return double_value_ == other.double_value_;
-    case ValueType::Bool: return bool_value_ == other.bool_value_;
-    case ValueType::String: return *string_value_ == *other.string_value_;
-    case ValueType::Array: return *array_value_ == *other.array_value_;
+    case ValueType::Null:
+      return true;
+    case ValueType::Integer:
+      return integer_value_ == other.integer_value_;
+    case ValueType::UnsignedInteger:
+      return unsigned_integer_value_ == other.unsigned_integer_value_;
+    case ValueType::Double:
+      return double_value_ == other.double_value_;
+    case ValueType::Bool:
+      return bool_value_ == other.bool_value_;
+    case ValueType::String:
+      return *string_value_ == *other.string_value_;
+    case ValueType::Array:
+      return *array_value_ == *other.array_value_;
     case ValueType::Object:
-      //TODO
+      // TODO
       fun_check(0);
       return false;
-      //return *object_value_ == *other.object_value_;
-    default: fun_unexpected(); return false;
+      // return *object_value_ == *other.object_value_;
+    default:
+      fun_unexpected();
+      return false;
   }
 }
 
-FUN_ALWAYS_INLINE bool JValue::operator != (const JValue& other) const {
+FUN_ALWAYS_INLINE bool JValue::operator!=(const JValue& other) const {
   return !(*this == other);
 }
 
-FUN_ALWAYS_INLINE bool JValue::operator < (const JValue& other) const {
+FUN_ALWAYS_INLINE bool JValue::operator<(const JValue& other) const {
   const int32 type_diff = (int32)type_ - (int32)other.type_;
   if (type_diff != 0) {
     return type_diff < 0;
   }
 
   switch (type_) {
-    case ValueType::Null: return false;
-    case ValueType::Integer: return integer_value_ < other.integer_value_;
-    case ValueType::UnsignedInteger: return unsigned_integer_value_ < other.unsigned_integer_value_;
-    case ValueType::Double: return double_value_ < other.double_value_;
-    case ValueType::Bool: return bool_value_ < other.bool_value_;
-    case ValueType::String: return *string_value_ < *other.string_value_;
+    case ValueType::Null:
+      return false;
+    case ValueType::Integer:
+      return integer_value_ < other.integer_value_;
+    case ValueType::UnsignedInteger:
+      return unsigned_integer_value_ < other.unsigned_integer_value_;
+    case ValueType::Double:
+      return double_value_ < other.double_value_;
+    case ValueType::Bool:
+      return bool_value_ < other.bool_value_;
+    case ValueType::String:
+      return *string_value_ < *other.string_value_;
     case ValueType::Array:
-      //TODO
-      //return *array_value_ < *other.array_value_;
+      // TODO
+      // return *array_value_ < *other.array_value_;
       fun_check(0);
       return false;
     case ValueType::Object:
-      //TODO
-      //return *object_value_ < *other.object_value_;
+      // TODO
+      // return *object_value_ < *other.object_value_;
       fun_check(0);
       return false;
   }
@@ -1536,19 +1654,20 @@ FUN_ALWAYS_INLINE bool JValue::operator < (const JValue& other) const {
   return false;
 }
 
-FUN_ALWAYS_INLINE bool JValue::operator <= (const JValue& other) const {
+FUN_ALWAYS_INLINE bool JValue::operator<=(const JValue& other) const {
   return !(other < *this);
 }
 
-FUN_ALWAYS_INLINE bool JValue::operator >  (const JValue& other) const {
+FUN_ALWAYS_INLINE bool JValue::operator>(const JValue& other) const {
   return (other < *this);
 }
 
-FUN_ALWAYS_INLINE bool JValue::operator >= (const JValue& other) const {
+FUN_ALWAYS_INLINE bool JValue::operator>=(const JValue& other) const {
   return !(*this < other);
 }
 
-FUN_ALWAYS_INLINE void JValue::SetComment(const char* comment, int32 len, CommentPlacement placement) {
+FUN_ALWAYS_INLINE void JValue::SetComment(const char* comment, int32 len,
+                                          CommentPlacement placement) {
   EnsureValidCommentPlacement(placement);
 
   if (comments_ == nullptr) {
@@ -1557,7 +1676,8 @@ FUN_ALWAYS_INLINE void JValue::SetComment(const char* comment, int32 len, Commen
   comments_[(int32)placement] = String(comment, len);
 }
 
-FUN_ALWAYS_INLINE void JValue::SetComment(const String& comment, CommentPlacement placement) {
+FUN_ALWAYS_INLINE void JValue::SetComment(const String& comment,
+                                          CommentPlacement placement) {
   EnsureValidCommentPlacement(placement);
 
   if (comments_ == nullptr) {
@@ -1576,9 +1696,11 @@ FUN_ALWAYS_INLINE String JValue::GetComment(CommentPlacement placement) const {
   return comments_ ? comments_[(int32)placement] : String();
 }
 
-FUN_ALWAYS_INLINE void JValue::EnsureValidCommentPlacement(const CommentPlacement placement) const {
+FUN_ALWAYS_INLINE void JValue::EnsureValidCommentPlacement(
+    const CommentPlacement placement) const {
   const int32 index = (int32)placement;
-  fun_check(index >= 0 && index < (int32)CommentPlacement::NumCommentPlacements);
+  fun_check(index >= 0 &&
+            index < (int32)CommentPlacement::NumCommentPlacements);
 }
 
 FUN_ALWAYS_INLINE void JValue::SetOffsetStart(ptrdiff_t start) {
@@ -1589,13 +1711,9 @@ FUN_ALWAYS_INLINE void JValue::SetOffsetLimit(ptrdiff_t limit) {
   limit_ = limit;
 }
 
-FUN_ALWAYS_INLINE ptrdiff_t JValue::GetOffsetStart() const {
-  return start_;
-}
+FUN_ALWAYS_INLINE ptrdiff_t JValue::GetOffsetStart() const { return start_; }
 
-FUN_ALWAYS_INLINE ptrdiff_t JValue::GetOffsetLimit() const {
-  return limit_;
-}
+FUN_ALWAYS_INLINE ptrdiff_t JValue::GetOffsetLimit() const { return limit_; }
 
-} // namespace json
-} // namespace fun
+}  // namespace json
+}  // namespace fun

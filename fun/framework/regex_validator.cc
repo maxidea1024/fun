@@ -1,4 +1,5 @@
 ﻿#include "fun/framework/regex_validator.h"
+
 #include "fun/base/regex.h"
 #include "fun/framework/option.h"
 #include "fun/framework/option_exception.h"

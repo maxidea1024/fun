@@ -3,6 +3,7 @@
 #if FUN_PLATFORM_UNIX_FAMILY
 
 #include <syslog.h>
+
 #include "fun/base/logging/log_message.h"
 
 namespace fun {

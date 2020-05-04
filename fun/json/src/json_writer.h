@@ -1,4 +1,4 @@
-﻿//TODO 내부에서만 사용되므로, export할 필요는 없어보임!
+﻿// TODO 내부에서만 사용되므로, export할 필요는 없어보임!
 
 #pragma once
 
@@ -14,7 +14,6 @@ class FUN_JSON_API IWriter {
 
   virtual String Write(const JValue& value) = 0;
 };
-
 
 class FUN_JSON_API CondensedWriter : public IWriter {
  public:
@@ -35,7 +34,6 @@ class FUN_JSON_API CondensedWriter : public IWriter {
   bool drop_null_placeholders_;
   bool omit_ending_linefeed_;
 };
-
 
 class FUN_JSON_API PrettyWriter : public IWriter {
  public:
@@ -67,5 +65,5 @@ class FUN_JSON_API PrettyWriter : public IWriter {
   bool add_child_values_;
 };
 
-} // namespace json
-} // namespace fun
+}  // namespace json
+}  // namespace fun

@@ -1,4 +1,5 @@
 ﻿#include "fun/base/logging/win_console_sink.h"
+
 #include "fun/base/exception.h"
 #include "fun/base/str.h"
 
