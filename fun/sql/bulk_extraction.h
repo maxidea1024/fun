@@ -55,8 +55,8 @@ class BulkExtraction : public ExtractionBase {
   bool IsNull(size_t row) const {
     try {
       return nulls_.at(row);
-    } catch (std::out_of_range& e) {
-      throw RangeException(e.what());
+    } catch (std::out_of_range& ex) {
+      throw RangeException(ex.what());
     }
   }
 
@@ -77,7 +77,9 @@ class BulkExtraction : public ExtractionBase {
   PreparationBase::Ptr CreatePreparation(PreparatorBase::Ptr& prep,
                                          size_t col) {
     uint32 limit = GetLimit();
-    if (limit != result_.size()) result_.resize(limit);
+    if (limit != result_.size()) {
+      result_.resize(limit);
+    }
     prep->SetLength(limit);
     prep->SetBulk(true);
     return new Preparation<C>(prep, col, result_);
@@ -132,8 +134,8 @@ class InternalBulkExtraction : public BulkExtraction<C> {
   const CValType& value(int index) const {
     try {
       return BulkExtraction<C>::result().At(index);
-    } catch (std::out_of_range& e) {
-      throw RangeException(e.what());
+    } catch (std::out_of_range& ex) {
+      throw RangeException(ex.what());
     }
   }
 
@@ -169,7 +171,10 @@ template <typename T>
 ExtractionBase::Ptr into(std::vector<T>& t, BulkFnType,
                          const Position& pos = Position(0)) {
   uint32 size = static_cast<uint32>(t.size());
-  if (0 == size) throw InvalidArgumentException("Zero length not allowed.");
+  if (0 == size) {
+    throw InvalidArgumentException("Zero length not allowed.");
+  }
+
   return new BulkExtraction<std::vector<T> >(t, size, pos);
 }
 
@@ -191,7 +196,10 @@ template <typename T>
 ExtractionBase::Ptr into(std::deque<T>& t, BulkFnType,
                          const Position& pos = Position(0)) {
   uint32 size = static_cast<uint32>(t.size());
-  if (0 == size) throw InvalidArgumentException("Zero length not allowed.");
+  if (0 == size) {
+    throw InvalidArgumentException("Zero length not allowed.");
+  }
+
   return new BulkExtraction<std::deque<T> >(t, size, pos);
 }
 
@@ -213,7 +221,10 @@ template <typename T>
 ExtractionBase::Ptr into(std::list<T>& t, BulkFnType,
                          const Position& pos = Position(0)) {
   uint32 size = static_cast<uint32>(t.size());
-  if (0 == size) throw InvalidArgumentException("Zero length not allowed.");
+  if (0 == size) {
+    throw InvalidArgumentException("Zero length not allowed.");
+  }
+
   return new BulkExtraction<std::list<T> >(t, size, pos);
 }
 
