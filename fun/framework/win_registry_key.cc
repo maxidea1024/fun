@@ -13,7 +13,7 @@ namespace {
 
 class AutoHandle {
  public:
-  AutoHandle(HMODULE h) : handle_(h) {}
+  AutoHandle(HMODULE handle) : handle_(handle) {}
   ~AutoHandle() { FreeLibrary(handle_); }
 
   HMODULE GetHandle() { return handle_; }
